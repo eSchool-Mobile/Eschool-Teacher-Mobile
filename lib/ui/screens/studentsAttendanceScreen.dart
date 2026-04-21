@@ -1,14 +1,11 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentAttendanceForStaffCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/appbarFilterBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceItemContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
@@ -17,9 +14,6 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'dart:convert';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/services.dart';
 
 class StudentsAttendanceScreen extends StatefulWidget {
   const StudentsAttendanceScreen({super.key});
@@ -59,18 +53,11 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
 
   // Animation controllers
   late final AnimationController _animationController;
-  late final Animation<double> _fadeAnimation;
 
   // Define theme colors
-  final Color maroonPrimary = Color(0xFF8B1F41);
-  final Color maroonLight = Color(0xFFAC3B5C);
-  final Color maroonDark = Color(0xFF6A0F2A);
-  final Color accentColor = Color(0xFFF5EBE0);
-  final Color bgColor = Color(0xFFFAF6F2);
+  static const Color maroonPrimary = Color(0xFF8B1F41);
+  static const Color maroonLight = Color(0xFFAC3B5C);
   final Color cardColor = Colors.white;
-  final Color textDarkColor = Color(0xFF2D2D2D);
-  final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
   @override
   void initState() {
     super.initState();
@@ -80,7 +67,7 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
       'Welcome',
       'Welcome to Student Attendance Management',
       snackPosition: SnackPosition.TOP,
-      backgroundColor: maroonPrimary.withOpacity(0.9),
+      backgroundColor: maroonPrimary.withValues(alpha: 0.9),
       colorText: Colors.white,
       duration: const Duration(seconds: 3),
       margin: const EdgeInsets.all(10),
@@ -89,14 +76,7 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
     // Primary animation controller for fade effects
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
+      duration: const Duration(milliseconds: 800),
     );
 
     // Start animations
@@ -160,12 +140,14 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
 
   void changeSelectedClassSection(ClassSection classSection) {
     _selectedClassSection = classSection;
-    print('==================== CLASS SECTION CHANGE LOG ====================');
-    print('Debug Log - Class Section Changed:');
-    print('ID: ${classSection.id}');
-    print('Name: ${classSection.fullName}');
-    print('Timestamp: ${DateTime.now()}');
-    print('==============================================================');
+    debugPrint(
+        '==================== CLASS SECTION CHANGE LOG ====================');
+    debugPrint('Debug Log - Class Section Changed:');
+    debugPrint('ID: ${classSection.id}');
+    debugPrint('Name: ${classSection.fullName}');
+    debugPrint('Timestamp: ${DateTime.now()}');
+    debugPrint(
+        '==============================================================');
     setState(() {});
     getStudentAttendance();
   }
@@ -181,19 +163,21 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
     final classSectionId = _selectedClassSection?.id ?? 0;
     final date = _selectedDateTime;
 
-    print('\n==================== ATTENDANCE REQUEST LOG ====================');
-    print('Request Time: ${DateTime.now()}');
-    print('Class Section Details:');
-    print('- ID: $classSectionId');
-    print('- Name: ${_selectedClassSection?.fullName}');
-    print('\nDate Information:');
-    print('- Raw Date: ${date.toString()}');
-    print('- Formatted Date: ${Utils.formatDate(date)}');
-    print('- Day of Week: ${date.weekday}');
-    print('\nStatus Information:');
-    print('- Status Code: ${getStatus()}');
-    print('- Status Text: $_selectedAttendanceStatus');
-    print('==============================================================\n');
+    debugPrint(
+        '\n==================== ATTENDANCE REQUEST LOG ====================');
+    debugPrint('Request Time: ${DateTime.now()}');
+    debugPrint('Class Section Details:');
+    debugPrint('- ID: $classSectionId');
+    debugPrint('- Name: ${_selectedClassSection?.fullName}');
+    debugPrint('\nDate Information:');
+    debugPrint('- Raw Date: ${date.toString()}');
+    debugPrint('- Formatted Date: ${Utils.formatDate(date)}');
+    debugPrint('- Day of Week: ${date.weekday}');
+    debugPrint('\nStatus Information:');
+    debugPrint('- Status Code: ${getStatus()}');
+    debugPrint('- Status Text: $_selectedAttendanceStatus');
+    debugPrint(
+        '==============================================================\n');
 
     context.read<StudentAttendanceForStaffCubit>().getStudentAttendance(
           classSectionId: classSectionId,
@@ -215,27 +199,27 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
         StudentAttendanceForStaffState>(
       builder: (context, state) {
         if (state is StudentAttendanceForStaffFetchSuccess) {
-          print(
+          debugPrint(
               '\n==================== ATTENDANCE RESPONSE LOG ====================');
-          print('Response Time: ${DateTime.now()}');
-          print('Data Summary:');
-          print('- Total Students: ${state.studentAttendances.length}');
-          print('- Class: ${_selectedClassSection?.fullName}');
-          print('- Date: ${Utils.formatDate(_selectedDateTime)}');
-          print('\nDetailed Student Records:');
-          print('----------------------------------------');
+          debugPrint('Response Time: ${DateTime.now()}');
+          debugPrint('Data Summary:');
+          debugPrint('- Total Students: ${state.studentAttendances.length}');
+          debugPrint('- Class: ${_selectedClassSection?.fullName}');
+          debugPrint('- Date: ${Utils.formatDate(_selectedDateTime)}');
+          debugPrint('\nDetailed Student Records:');
+          debugPrint('----------------------------------------');
           for (var student in state.studentAttendances) {
             final studentName = student.studentDetails?.student?.fullName ??
                 student.studentDetails?.fullName ??
                 "No name";
             final status = student.type;
-            print(
+            debugPrint(
                 'Student ID: ${student.studentDetails?.student?.id ?? "N/A"}');
-            print('Name: $studentName');
-            print('Status: $status');
-            print('----------------------------------------');
+            debugPrint('Name: $studentName');
+            debugPrint('Status: $status');
+            debugPrint('----------------------------------------');
           }
-          print(
+          debugPrint(
               '==============================================================\n');
           return Align(
             alignment: Alignment.topCenter,
@@ -355,15 +339,15 @@ class _StudentsAttendanceScreenState extends State<StudentsAttendanceScreen>
         }
 
         if (state is StudentAttendanceForStaffFetchFailure) {
-          print('\n==================== ERROR LOG ====================');
-          print('Error Time: ${DateTime.now()}');
-          print('Error Type: Fetch Failure');
-          print('Error Message: ${state.errorMessage}');
-          print('Context:');
-          print('- Class: ${_selectedClassSection?.fullName}');
-          print('- Date: ${Utils.formatDate(_selectedDateTime)}');
-          print('- Status: $_selectedAttendanceStatus');
-          print('================================================\n');
+          debugPrint('\n==================== ERROR LOG ====================');
+          debugPrint('Error Time: ${DateTime.now()}');
+          debugPrint('Error Type: Fetch Failure');
+          debugPrint('Error Message: ${state.errorMessage}');
+          debugPrint('Context:');
+          debugPrint('- Class: ${_selectedClassSection?.fullName}');
+          debugPrint('- Date: ${Utils.formatDate(_selectedDateTime)}');
+          debugPrint('- Status: $_selectedAttendanceStatus');
+          debugPrint('================================================\n');
           return Center(
             child: ErrorContainer(
               errorMessage: state.errorMessage,

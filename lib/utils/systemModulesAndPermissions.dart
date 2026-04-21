@@ -46,7 +46,6 @@ const String editNotificationPermissionKey = "notification-edit";
 const String deleteNotificationPermissionKey = "notification-delete";
 
 //
-
 const String viewAnnouncementPermissionKey = "announcement-list";
 const String createAnnouncementPermissionKey = "announcement-create";
 const String editAnnouncementPermissionKey = "announcement-edit";

@@ -4,18 +4,11 @@ import 'package:eschool_saas_staff/cubits/rolesCubit.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/manageNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchUsersScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/multiSelectionValueBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -26,15 +19,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
 // Import pustaka animasi dan komponen visual
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:lottie/lottie.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:glassmorphism/glassmorphism.dart';
-import 'package:confetti/confetti.dart';
 
 class AddNotificationScreen extends StatefulWidget {
   const AddNotificationScreen({super.key});
@@ -91,11 +78,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildBasicInfoSection(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildRecipientDetailsSection(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -117,9 +104,9 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   late AnimationController _pulseController;
 
   // Tema warna - Palette maroon yang lebih lembut - sesuai dengan createOnlineExam
-  final Color _primaryColor =
+  static const Color _primaryColor =
       Color(0xFF7A1E23); // Maroon dalam yang lebih lembut
-  final Color _accentColor =
+  static const Color _accentColor =
       Color(0xFF9D3C3C); // Maroon medium yang lebih lembut
 
   @override
@@ -127,21 +114,21 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        print('🔄 [NOTIFICATION INIT] Fetching roles...');
+        debugPrint('🔄 [NOTIFICATION INIT] Fetching roles...');
         context.read<RolesCubit>().getRoles();
       }
     });
 
     // Inisialisasi controller animasi - sesuai dengan createOnlineExam
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
   }
 
@@ -155,7 +142,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   }
 
   Future<void> _pickFiles() async {
-    print(
+    debugPrint(
         '🎯 [NOTIFICATION SCREEN] Memulai upload file dengan kompresi otomatis');
 
     // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
@@ -172,8 +159,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
       final fileSize = await file.length();
       final fileName = file.path.split('/').last;
 
-      print('✅ [NOTIFICATION SCREEN] File berhasil diproses: $fileName');
-      print(
+      debugPrint('✅ [NOTIFICATION SCREEN] File berhasil diproses: $fileName');
+      debugPrint(
           '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
       // Convert File to PlatformFile for compatibility
@@ -184,53 +171,53 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
       );
       setState(() {});
     } else {
-      print(
+      debugPrint(
           '❌ [NOTIFICATION SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 
   void onTapSubmitButton() {
-    print('🔍 [NOTIFICATION SUBMIT] Starting submit validation...');
-    print('   📝 Title: "${_titleTextEditingController.text.trim()}"');
-    print('   💬 Message: "${_messageTextEditingController.text.trim()}"');
-    print('   👥 Send To: "$_sendToUserValue"');
-    print('   🎭 Selected Roles: $_selectedRoles');
-    print(
+    debugPrint('🔍 [NOTIFICATION SUBMIT] Starting submit validation...');
+    debugPrint('   📝 Title: "${_titleTextEditingController.text.trim()}"');
+    debugPrint('   💬 Message: "${_messageTextEditingController.text.trim()}"');
+    debugPrint('   👥 Send To: "$_sendToUserValue"');
+    debugPrint('   🎭 Selected Roles: $_selectedRoles');
+    debugPrint(
         '   👤 Selected Users: ${_selectedUsers.map((u) => u.fullName).toList()}');
-    print('   📎 File: ${_pickedFile?.name ?? "No file"}');
+    debugPrint('   📎 File: ${_pickedFile?.name ?? "No file"}');
 
     if (_titleTextEditingController.text.trim().isEmpty) {
-      print('❌ [NOTIFICATION SUBMIT] Validation failed: Title is empty');
+      debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: Title is empty');
       Utils.showSnackBar(message: pleaseEnterTitleKey, context: context);
       return;
     }
     if (_messageTextEditingController.text.trim().isEmpty) {
-      print('❌ [NOTIFICATION SUBMIT] Validation failed: Message is empty');
+      debugPrint('❌ [NOTIFICATION SUBMIT] Validation failed: Message is empty');
       Utils.showSnackBar(message: pleaseEnterMessageKey, context: context);
       return;
     }
     if (_sendToUserValue.isEmpty) {
-      print(
+      debugPrint(
           '❌ [NOTIFICATION SUBMIT] Validation failed: Send to value is empty');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificRolesKey && _selectedRoles.isEmpty) {
-      print(
+      debugPrint(
           '❌ [NOTIFICATION SUBMIT] Validation failed: Specific roles selected but no roles chosen');
       Utils.showSnackBar(message: pleaseSelectSendToKey, context: context);
       return;
     }
 
     if (_sendToUserValue == specificUsersKey && _selectedUsers.isEmpty) {
-      print(
+      debugPrint(
           '❌ [NOTIFICATION SUBMIT] Validation failed: Specific users selected but no users chosen');
       Utils.showSnackBar(message: pleaseSelectUserKey, context: context);
       return;
     }
 
-    print(
+    debugPrint(
         '✅ [NOTIFICATION SUBMIT] All validations passed, sending notification...');
     context.read<SendNotificationCubit>().sendNotification(
         title: _titleTextEditingController.text.trim(),
@@ -239,104 +226,6 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         message: _messageTextEditingController.text.trim(),
         roles: _selectedRoles,
         sendToType: _sendToUserValue);
-  }
-
-  Widget _buildSubmitButton() {
-    return BlocBuilder<RolesCubit, RolesState>(
-      builder: (context, state) {
-        if (state is RolesFetchSuccess) {
-          return Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.all(appContentHorizontalPadding),
-                decoration: BoxDecoration(boxShadow: const [
-                  BoxShadow(
-                      color: Colors.black12, blurRadius: 1, spreadRadius: 1)
-                ], color: Theme.of(context).colorScheme.surface),
-                width: MediaQuery.of(context).size.width,
-                height: 70,
-                child:
-                    BlocConsumer<SendNotificationCubit, SendNotificationState>(
-                  listener: (context, sendNotificationState) {
-                    if (sendNotificationState is SendNotificationFailure) {
-                      Utils.showSnackBar(
-                          message: sendNotificationState.errorMessage,
-                          context: context);
-                    } else if (sendNotificationState
-                        is SendNotificationSuccess) {
-                      ManageNotificationScreen.screenKey.currentState
-                          ?.getNotifications();
-                      // Show auto-dismissing success snackbar
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.check_circle, color: Colors.white),
-                                SizedBox(width: 12),
-                                Text(
-                                  'Notifikasi berhasil dikirim!',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          elevation: 4,
-                        ),
-                      );
-                      _titleTextEditingController.clear();
-                      _messageTextEditingController.clear();
-                      _sendToUserValue = "";
-                      _selectedRoles.clear();
-                      _selectedUsers.clear();
-                      _pickedFile = null;
-                      setState(() {});
-                    }
-                  },
-                  builder: (context, sendNotificationState) {
-                    return PopScope(
-                      canPop:
-                          sendNotificationState is! SendNotificationInProgress,
-                      child: CustomRoundedButton(
-                        height: 40,
-                        widthPercentage: 1.0,
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        buttonTitle: submitKey,
-                        showBorder: false,
-                        child:
-                            sendNotificationState is SendNotificationInProgress
-                                ? const CustomCircularProgressIndicator()
-                                : null,
-                        onTap: () {
-                          if (sendNotificationState
-                              is SendNotificationInProgress) {
-                            return;
-                          }
-                          onTapSubmitButton();
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ));
-        }
-        return const SizedBox();
-      },
-    );
   }
 
   // Metode untuk membuat TextField beranimasi yang identical dengan createOnlineExam.dart
@@ -392,16 +281,16 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   // Menambahkan section untuk Informasi Dasar - identik dengan createOnlineExam
   Widget _buildBasicInfoSection() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -416,13 +305,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildAnimatedTextField(
             controller: _titleTextEditingController,
             label: 'Judul Notifikasi',
             icon: Icons.title,
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _messageTextEditingController,
             label: 'Pesan Notifikasi',
@@ -440,16 +329,16 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
       builder: (context, state) {
         if (state is RolesFetchSuccess) {
           return Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   spreadRadius: 5,
                   blurRadius: 10,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -464,26 +353,26 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 // Dropdown untuk memilih tipe penerima
                 _buildSendToDropdown(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Render UI berdasarkan pilihan tipe penerima
                 _sendToUserValue == specificRolesKey
                     ? _buildRoleSelectionUI(state)
                     : _sendToUserValue == specificUsersKey
                         ? _buildUserSelectionUI()
-                        : SizedBox(),
+                        : const SizedBox(),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // Upload file section
                 _buildFileUploadSection(),
               ],
             ),
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }
@@ -514,7 +403,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         );
       },
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Colors.grey.shade50,
           borderRadius: BorderRadius.circular(15),
@@ -522,11 +411,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         ),
         child: Row(
           children: [
-            Icon(
+            const Icon(
               Icons.people,
               color: Color(0xFF8B0000),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 _sendToUserValue.isEmpty ? "Pilih Penerima" : _sendToUserValue,
@@ -576,7 +465,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             });
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(15),
@@ -584,11 +473,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.assignment_ind,
                   color: Color(0xFF8B0000),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     "Pilih Peran",
@@ -606,10 +495,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             ),
           ),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         _selectedRoles.isNotEmpty
             ? Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(15),
@@ -619,13 +508,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   runSpacing: 8,
                   children: _selectedRoles.map((role) {
                     return Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _primaryColor.withOpacity(0.1),
+                        color: _primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: _primaryColor.withOpacity(0.3),
+                          color: _primaryColor.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -633,18 +522,18 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                         children: [
                           Text(
                             role,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: _primaryColor,
                             ),
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               _selectedRoles.remove(role);
                               setState(() {});
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.close_rounded,
                               size: 16,
                               color: _primaryColor,
@@ -656,7 +545,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   }).toList(),
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
@@ -680,7 +569,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             });
           },
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(15),
@@ -688,11 +577,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.person_add,
                   color: Color(0xFF8B0000),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     selectUsersKey,
@@ -711,10 +600,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             ),
           ),
         ),
-        SizedBox(height: 15),
+        const SizedBox(height: 15),
         _selectedUsers.isNotEmpty
             ? Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(15),
@@ -724,13 +613,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   runSpacing: 8,
                   children: _selectedUsers.map((user) {
                     return Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: _accentColor.withOpacity(0.1),
+                        color: _accentColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
-                          color: _accentColor.withOpacity(0.3),
+                          color: _accentColor.withValues(alpha: 0.3),
                         ),
                       ),
                       child: Row(
@@ -738,12 +627,12 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                         children: [
                           Text(
                             user.fullName ?? "-",
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
                               color: _accentColor,
                             ),
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           InkWell(
                             onTap: () {
                               _selectedUsers.removeWhere(
@@ -751,7 +640,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                               );
                               setState(() {});
                             },
-                            child: Icon(
+                            child: const Icon(
                               Icons.close_rounded,
                               size: 16,
                               color: _accentColor,
@@ -763,7 +652,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   }).toList(),
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
@@ -780,11 +669,11 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             color: Theme.of(context).colorScheme.secondary,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         GestureDetector(
           onTap: _pickFiles,
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(15),
@@ -793,7 +682,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                 width: 1,
               ),
             ),
-            child: Row(
+            child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
@@ -812,10 +701,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             ),
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _pickedFile != null
             ? Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(10),
@@ -826,12 +715,12 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.image_outlined,
                       color: _accentColor,
                       size: 20,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _pickedFile?.name ?? "-",
@@ -850,7 +739,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                         color: Colors.grey[700],
                       ),
                       padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
+                      constraints: const BoxConstraints(),
                       onPressed: () {
                         setState(() {
                           _pickedFile = null;
@@ -860,7 +749,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   ],
                 ),
               )
-            : SizedBox(),
+            : const SizedBox(),
       ],
     );
   }
@@ -868,8 +757,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
   Widget _buildAnimatedSubmitButton() {
     return Container(
       width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      decoration: BoxDecoration(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -880,7 +769,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
         ],
       ),
       child: FadeInUp(
-        duration: Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 600),
         child: Container(
           height: 60,
           decoration: BoxDecoration(
@@ -895,10 +784,13 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.3),
                 spreadRadius: 1,
                 blurRadius: 8,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -906,10 +798,10 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
             color: Colors.transparent,
             child: BlocConsumer<SendNotificationCubit, SendNotificationState>(
               listener: (context, sendNotificationState) {
-                print(
+                debugPrint(
                     '📡 [NOTIFICATION STATE] State changed: ${sendNotificationState.runtimeType}');
                 if (sendNotificationState is SendNotificationFailure) {
-                  print(
+                  debugPrint(
                       '❌ [NOTIFICATION ERROR] SendNotificationFailure: ${sendNotificationState.errorMessage}');
                   Utils.showSnackBar(
                     message: sendNotificationState.errorMessage,
@@ -925,44 +817,44 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.check_circle_outline,
                               color: Colors.green,
                               size: 60,
                             ),
-                            SizedBox(height: 20),
-                            Text(
+                            const SizedBox(height: 20),
+                            const Text(
                               'Berhasil!',
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 10),
-                            Text(
+                            const SizedBox(height: 10),
+                            const Text(
                               'Notifikasi berhasil dikirim',
                               textAlign: TextAlign.center,
                             ),
-                            SizedBox(height: 20),
+                            const SizedBox(height: 20),
                             ElevatedButton(
                               onPressed: () {
                                 Get.back(); // Close dialog
                                 Get.offAllNamed(Routes
                                     .manageNotificationScreen); // Navigate to notification list
                               },
-                              child: Text(
-                                'Lihat Daftar Notifikasi',
-                                style: TextStyle(color: Colors.white),
-                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
+                              ),
+                              child: const Text(
+                                'Lihat Daftar Notifikasi',
+                                style: TextStyle(color: Colors.white),
                               ),
                             ),
                           ],
@@ -986,22 +878,22 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                   canPop: sendNotificationState is! SendNotificationInProgress,
                   child: InkWell(
                     onTap: () {
-                      print(
+                      debugPrint(
                           '🔘 [NOTIFICATION BUTTON] Submit button tapped, current state: ${sendNotificationState.runtimeType}');
                       if (sendNotificationState is SendNotificationInProgress) {
-                        print(
+                        debugPrint(
                             '⏳ [NOTIFICATION BUTTON] Ignoring tap - already in progress');
                         return;
                       }
-                      print(
+                      debugPrint(
                           '🚀 [NOTIFICATION BUTTON] Calling onTapSubmitButton');
                       onTapSubmitButton();
                     },
                     borderRadius: BorderRadius.circular(15),
-                    splashColor: Colors.white.withOpacity(0.2),
-                    highlightColor: Colors.white.withOpacity(0.1),
+                    splashColor: Colors.white.withValues(alpha: 0.2),
+                    highlightColor: Colors.white.withValues(alpha: 0.1),
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Center(
                         child:
                             sendNotificationState is SendNotificationInProgress
@@ -1011,7 +903,7 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                                 : Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(
+                                      const Text(
                                         'Kirim Notifikasi',
                                         style: TextStyle(
                                           color: Colors.white,
@@ -1020,8 +912,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      SizedBox(width: 8),
-                                      Icon(
+                                      const SizedBox(width: 8),
+                                      const Icon(
                                         Icons.arrow_forward_rounded,
                                         color: Colors.white,
                                         size: 22,
@@ -1030,7 +922,8 @@ class _AddNotificationScreenState extends State<AddNotificationScreen>
                                       }).slideX(
                                         begin: 0,
                                         end: 0.3,
-                                        duration: Duration(milliseconds: 1000),
+                                        duration:
+                                            const Duration(milliseconds: 1000),
                                         curve: Curves.easeInOut,
                                       ),
                                     ],

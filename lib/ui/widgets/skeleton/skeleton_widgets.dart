@@ -13,18 +13,18 @@ class SkeletonPageLoading extends StatelessWidget {
   final Axis axis;
 
   const SkeletonPageLoading({
-    Key? key,
+    super.key,
     this.items = 6,
     this.padding = 16.0,
     this.axis = Axis.vertical,
-  }) : super(key: key);
+  });
 
   Color _baseColor(BuildContext context) {
-    return Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.6);
+    return Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.6);
   }
 
   Color _highlightColor(BuildContext context) {
-    return Theme.of(context).colorScheme.surface.withOpacity(0.95);
+    return Theme.of(context).colorScheme.surface.withValues(alpha: 0.95);
   }
 
   @override
@@ -108,7 +108,7 @@ class SkeletonPageLoading extends StatelessWidget {
 // Small skeleton widgets that can be composed inside screens when needed.
 class SkeletonAvatar extends StatelessWidget {
   final double size;
-  const SkeletonAvatar({Key? key, this.size = 40}) : super(key: key);
+  const SkeletonAvatar({super.key, this.size = 40});
 
   @override
   Widget build(BuildContext context) {
@@ -131,11 +131,10 @@ class SkeletonLine extends StatelessWidget {
   final BorderRadius? borderRadius;
 
   const SkeletonLine(
-      {Key? key,
+      {super.key,
       this.height = 12,
       this.width = double.infinity,
-      this.borderRadius})
-      : super(key: key);
+      this.borderRadius});
 
   @override
   Widget build(BuildContext context) {
@@ -159,11 +158,10 @@ class SkeletonCard extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
   const SkeletonCard(
-      {Key? key,
+      {super.key,
       this.height = 100,
       this.width,
-      this.padding = const EdgeInsets.all(12)})
-      : super(key: key);
+      this.padding = const EdgeInsets.all(12)});
 
   @override
   Widget build(BuildContext context) {
@@ -183,20 +181,20 @@ class SkeletonCard extends StatelessWidget {
 
 /// Skeleton untuk Class Section Card (sesuai dengan teacherClassSectionScreen)
 class SkeletonClassSectionCard extends StatelessWidget {
-  const SkeletonClassSectionCard({Key? key}) : super(key: key);
+  const SkeletonClassSectionCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -207,10 +205,10 @@ class SkeletonClassSectionCard extends StatelessWidget {
           children: [
             // Header section
             Container(
-              padding: EdgeInsets.all(18),
+              padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               ),
               child: Row(
                 children: [
@@ -234,12 +232,12 @@ class SkeletonClassSectionCard extends StatelessWidget {
             ),
             // Body section
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   // Info row 1
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(16),
@@ -254,7 +252,7 @@ class SkeletonClassSectionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +265,7 @@ class SkeletonClassSectionCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 height: 18,
                                 width: double.infinity,
@@ -282,10 +280,10 @@ class SkeletonClassSectionCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Info row 2
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(16),
@@ -300,7 +298,7 @@ class SkeletonClassSectionCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -313,7 +311,7 @@ class SkeletonClassSectionCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 height: 18,
                                 width: 60,
@@ -328,7 +326,7 @@ class SkeletonClassSectionCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   // Button
                   Align(
                     alignment: Alignment.centerRight,
@@ -353,20 +351,20 @@ class SkeletonClassSectionCard extends StatelessWidget {
 
 /// Skeleton untuk Lesson Card (untuk lesson management screen)
 class SkeletonLessonCard extends StatelessWidget {
-  const SkeletonLessonCard({Key? key}) : super(key: key);
+  const SkeletonLessonCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 30, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 25,
-            offset: Offset(0, 12),
+            offset: const Offset(0, 12),
           ),
         ],
       ),
@@ -381,9 +379,9 @@ class SkeletonLessonCard extends StatelessWidget {
               height: 130,
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
               ),
-              padding: EdgeInsets.fromLTRB(26, 24, 20, 0),
+              padding: const EdgeInsets.fromLTRB(26, 24, 20, 0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -399,7 +397,7 @@ class SkeletonLessonCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(11),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Container(
                           height: 28,
                           width: 100,
@@ -424,7 +422,7 @@ class SkeletonLessonCard extends StatelessWidget {
             ),
             // Description section
             Container(
-              padding: EdgeInsets.fromLTRB(26, 22, 26, 24),
+              padding: const EdgeInsets.fromLTRB(26, 22, 26, 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -438,7 +436,7 @@ class SkeletonLessonCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Container(
                         height: 16,
                         width: 80,
@@ -449,7 +447,7 @@ class SkeletonLessonCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Container(
                     width: double.infinity,
                     height: 80,
@@ -463,7 +461,7 @@ class SkeletonLessonCard extends StatelessWidget {
             ),
             // Button section
             Container(
-              padding: EdgeInsets.all(26),
+              padding: const EdgeInsets.all(26),
               child: Container(
                 height: 56,
                 width: double.infinity,
@@ -482,20 +480,20 @@ class SkeletonLessonCard extends StatelessWidget {
 
 /// Skeleton untuk Assignment Card
 class SkeletonAssignmentCard extends StatelessWidget {
-  const SkeletonAssignmentCard({Key? key}) : super(key: key);
+  const SkeletonAssignmentCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -503,7 +501,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -520,7 +518,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Container(
                     width: 80,
                     height: 24,
@@ -531,7 +529,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Subject info
               Container(
                 height: 16,
@@ -541,7 +539,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Description
               Container(
                 height: 60,
@@ -551,7 +549,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Status dan action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -574,7 +572,7 @@ class SkeletonAssignmentCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         width: 36,
                         height: 36,
@@ -597,20 +595,20 @@ class SkeletonAssignmentCard extends StatelessWidget {
 
 /// Skeleton untuk Exam Card
 class SkeletonExamCard extends StatelessWidget {
-  const SkeletonExamCard({Key? key}) : super(key: key);
+  const SkeletonExamCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
-            offset: Offset(0, 8),
+            offset: const Offset(0, 8),
             spreadRadius: 2,
           ),
         ],
@@ -621,12 +619,12 @@ class SkeletonExamCard extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: Colors.grey.shade200,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(20),
                 topRight: Radius.circular(20),
               ),
             ),
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
             child: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
               highlightColor: Colors.grey.shade100,
@@ -636,12 +634,12 @@ class SkeletonExamCard extends StatelessWidget {
                   Container(
                     width: 34,
                     height: 34,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Container(
                     height: 16,
                     width: 100,
@@ -650,10 +648,10 @@ class SkeletonExamCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   // Date container
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -668,7 +666,7 @@ class SkeletonExamCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(7),
                           ),
                         ),
-                        SizedBox(width: 4),
+                        const SizedBox(width: 4),
                         Container(
                           height: 12,
                           width: 40,
@@ -713,7 +711,7 @@ class SkeletonExamCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Container(
                           height: 14,
                           width: 40,
@@ -741,7 +739,7 @@ class SkeletonExamCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(9),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Container(
                           height: 16,
                           width: 150,
@@ -750,11 +748,11 @@ class SkeletonExamCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         // Class info container
                         Container(
                           padding:
-                              EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(6),
@@ -770,7 +768,7 @@ class SkeletonExamCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Container(
                                 height: 14,
                                 width: 60,
@@ -792,10 +790,10 @@ class SkeletonExamCard extends StatelessWidget {
 
           // Footer dengan timetable indicator (mirip dengan exam card asli)
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
               ),
@@ -822,7 +820,7 @@ class SkeletonExamCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         height: 13,
                         width: 120,
@@ -853,20 +851,20 @@ class SkeletonExamCard extends StatelessWidget {
 
 /// Skeleton untuk Leave Card
 class SkeletonLeaveCard extends StatelessWidget {
-  const SkeletonLeaveCard({Key? key}) : super(key: key);
+  const SkeletonLeaveCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -874,7 +872,7 @@ class SkeletonLeaveCard extends StatelessWidget {
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -900,7 +898,7 @@ class SkeletonLeaveCard extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Date range
               Container(
                 height: 16,
@@ -910,7 +908,7 @@ class SkeletonLeaveCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               // Reason
               Container(
                 height: 40,
@@ -920,7 +918,7 @@ class SkeletonLeaveCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -933,7 +931,7 @@ class SkeletonLeaveCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
                     width: 60,
                     height: 28,
@@ -956,8 +954,7 @@ class SkeletonLeaveCard extends StatelessWidget {
 class SkeletonAttendanceList extends StatelessWidget {
   final int itemCount;
 
-  const SkeletonAttendanceList({Key? key, this.itemCount = 8})
-      : super(key: key);
+  const SkeletonAttendanceList({super.key, this.itemCount = 8});
 
   @override
   Widget build(BuildContext context) {
@@ -965,7 +962,7 @@ class SkeletonAttendanceList extends StatelessWidget {
       child: Column(
         children: [
           // Skeleton untuk Ringkasan Kehadiran
-          SkeletonAttendanceSummary(),
+          const SkeletonAttendanceSummary(),
 
           // Skeleton untuk Header
           Container(
@@ -1065,9 +1062,9 @@ class SkeletonAttendanceList extends StatelessWidget {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.05),
+                          color: Colors.grey.withValues(alpha: 0.05),
                           blurRadius: 2,
-                          offset: Offset(0, 1),
+                          offset: const Offset(0, 1),
                         ),
                       ],
                     ),
@@ -1076,7 +1073,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                       highlightColor: Colors.grey.shade100,
                       child: Padding(
                         padding:
-                            EdgeInsets.symmetric(vertical: 12, horizontal: 13),
+                            const EdgeInsets.symmetric(vertical: 12, horizontal: 13),
                         child: Row(
                           children: [
                             // Number
@@ -1091,7 +1088,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             // Student avatar
                             Container(
                               width: 40,
@@ -1101,7 +1098,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             // Student info
                             Expanded(
                               flex: 6,
@@ -1116,7 +1113,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Container(
                                     height: 12,
                                     width: 80,
@@ -1128,7 +1125,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                                 ],
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             // Attendance buttons
                             SizedBox(
                               width: 72, // Fixed width: 32 + 8 + 32
@@ -1143,7 +1140,7 @@ class SkeletonAttendanceList extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(16),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Container(
                                     width: 32,
                                     height: 32,
@@ -1175,20 +1172,20 @@ class SkeletonAttendanceList extends StatelessWidget {
 
 /// Skeleton untuk Payroll Card (Deprecated - use SkeletonPayrollCard at end of file)
 class SkeletonPayrollCardOLD extends StatelessWidget {
-  const SkeletonPayrollCardOLD({Key? key}) : super(key: key);
+  const SkeletonPayrollCardOLD({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -1196,7 +1193,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1222,7 +1219,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Gaji pokok row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1245,7 +1242,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Tunjangan row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1268,7 +1265,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               // Potongan row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1291,14 +1288,14 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Divider
               Container(
                 height: 1,
                 width: double.infinity,
                 color: Colors.white,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Total gaji
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1321,7 +1318,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
@@ -1334,7 +1331,7 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Container(
                     width: 80,
                     height: 32,
@@ -1355,20 +1352,20 @@ class SkeletonPayrollCardOLD extends StatelessWidget {
 
 /// Skeleton untuk Announcement Card
 class SkeletonAnnouncementCard extends StatelessWidget {
-  const SkeletonAnnouncementCard({Key? key}) : super(key: key);
+  const SkeletonAnnouncementCard({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+      margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -1383,9 +1380,9 @@ class SkeletonAnnouncementCard extends StatelessWidget {
               height: 80,
               decoration: BoxDecoration(
                 color: Colors.grey.shade200,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1401,7 +1398,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Container(
                           height: 14,
                           width: 120,
@@ -1426,7 +1423,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
             ),
             // Description section
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1438,7 +1435,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Subject info
                   Row(
                     children: [
@@ -1450,7 +1447,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         height: 14,
                         width: 100,
@@ -1461,7 +1458,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -1474,7 +1471,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         width: 60,
                         height: 28,
@@ -1497,7 +1494,7 @@ class SkeletonAnnouncementCard extends StatelessWidget {
 
 /// Skeleton untuk Ringkasan Kehadiran (Attendance Summary)
 class SkeletonAttendanceSummary extends StatelessWidget {
-  const SkeletonAttendanceSummary({Key? key}) : super(key: key);
+  const SkeletonAttendanceSummary({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -1510,9 +1507,9 @@ class SkeletonAttendanceSummary extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -1533,7 +1530,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Container(
                   height: 16,
                   width: 140,
@@ -1544,7 +1541,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             // Kehadiran percentage
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1567,7 +1564,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             // Progress bar
             Container(
               height: 8,
@@ -1577,7 +1574,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             // Status badges
             Wrap(
               spacing: 8,
@@ -1585,7 +1582,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
               children: [
                 // Hadir badge
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -1596,12 +1593,12 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 13,
                         width: 35,
@@ -1610,7 +1607,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 16,
                         width: 20,
@@ -1624,7 +1621,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Sakit badge
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -1635,12 +1632,12 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 13,
                         width: 30,
@@ -1649,7 +1646,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 16,
                         width: 15,
@@ -1663,7 +1660,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Izin badge
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -1674,12 +1671,12 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 13,
                         width: 25,
@@ -1688,7 +1685,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 16,
                         width: 15,
@@ -1702,7 +1699,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                 ),
                 // Alpa badge
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(30),
@@ -1713,12 +1710,12 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 13,
                         width: 30,
@@ -1727,7 +1724,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Container(
                         height: 16,
                         width: 15,
@@ -1752,8 +1749,7 @@ class SkeletonAttendanceSummary extends StatelessWidget {
 class SkeletonSubjectAttendanceScreen extends StatelessWidget {
   final int itemCount;
 
-  const SkeletonSubjectAttendanceScreen({Key? key, this.itemCount = 6})
-      : super(key: key);
+  const SkeletonSubjectAttendanceScreen({super.key, this.itemCount = 6});
 
   @override
   Widget build(BuildContext context) {
@@ -1778,7 +1774,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                 ],
               ),
             ),
@@ -1786,16 +1782,16 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
 
           // Statistics cards section
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1815,7 +1811,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Container(
                         height: 16,
                         width: 180,
@@ -1826,25 +1822,25 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Present and Absent stats (large cards)
                   Row(
                     children: [
                       Expanded(child: _buildStatCardSkeleton()),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(child: _buildStatCardSkeleton()),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
 
                   // Sick, Permission, and Alpa stats (small cards)
                   Row(
                     children: [
                       Expanded(child: _buildStatCardSkeleton(small: true)),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(child: _buildStatCardSkeleton(small: true)),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(child: _buildStatCardSkeleton(small: true)),
                     ],
                   ),
@@ -1855,15 +1851,15 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
 
           // Subject information card
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1877,7 +1873,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16)),
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
@@ -1892,7 +1888,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1905,7 +1901,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(9),
                                 ),
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Container(
                                 height: 14,
                                 width: 120,
@@ -1942,7 +1938,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Container(
                                 height: 14,
                                 width: 60 + (i * 20).toDouble(),
@@ -1951,7 +1947,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Container(
                                   height: 14,
@@ -1963,7 +1959,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          if (i < 3) SizedBox(height: 12),
+                          if (i < 3) const SizedBox(height: 12),
                         ],
                       ],
                     ),
@@ -1975,15 +1971,15 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
 
           // Students attendance list
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -1996,7 +1992,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade200,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16)),
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
@@ -2006,12 +2002,12 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Container(
                             height: 16,
@@ -2021,7 +2017,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Container(
                           width: 80,
                           height: 24,
@@ -2042,7 +2038,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                   child: Column(
                     children: List.generate(itemCount, (index) {
                       return Container(
-                        margin: EdgeInsets.symmetric(vertical: 2),
+                        margin: const EdgeInsets.symmetric(vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -2051,7 +2047,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                           baseColor: Colors.grey.shade300,
                           highlightColor: Colors.grey.shade100,
                           child: Padding(
-                            padding: EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
                                 // Student avatar
@@ -2063,7 +2059,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 // Student info
                                 Expanded(
                                   child: Column(
@@ -2079,7 +2075,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
                                               BorderRadius.circular(8),
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Container(
                                         height: 12,
                                         width: 100,
@@ -2139,7 +2135,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
               Container(
                 width: small ? 20 : 24,
                 height: small ? 20 : 24,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
@@ -2163,7 +2159,7 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Container(
             height: small ? 14 : 18,
             width: small ? 30 : 40,
@@ -2182,28 +2178,27 @@ class SkeletonSubjectAttendanceScreen extends StatelessWidget {
 class SkeletonRecapAttendanceScreen extends StatelessWidget {
   final int itemCount;
 
-  const SkeletonRecapAttendanceScreen({Key? key, this.itemCount = 6})
-      : super(key: key);
+  const SkeletonRecapAttendanceScreen({super.key, this.itemCount = 6});
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
         color: Colors.grey.shade100,
-        padding: EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         child: Column(
           children: [
             // Month container skeleton
             Container(
-              margin: EdgeInsets.only(bottom: 24),
+              margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 24,
-                    offset: Offset(0, 8),
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
@@ -2211,11 +2206,11 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                 children: [
                   // Month header skeleton
                   Container(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade200,
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(24)),
+                          const BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     child: Shimmer.fromColors(
                       baseColor: Colors.grey.shade300,
@@ -2230,7 +2225,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          SizedBox(width: 20),
+                          const SizedBox(width: 20),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2243,7 +2238,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Container(
                                   height: 16,
                                   width: 60,
@@ -2262,7 +2257,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
 
                   // Class list skeleton
                   Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       children: [
                         // Header skeleton
@@ -2306,8 +2301,8 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
 
   Widget _buildClassItemSkeleton(int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(16),
@@ -2333,7 +2328,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Container(
                     height: 16,
@@ -2346,7 +2341,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
               ],
             ),
 
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
 
             // Action buttons row
             Align(
@@ -2356,7 +2351,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                 children: [
                   // Preview button skeleton
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -2372,7 +2367,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Container(
                           width: 50,
                           height: 14,
@@ -2385,11 +2380,11 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
                   // Download button skeleton
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -2405,7 +2400,7 @@ class SkeletonRecapAttendanceScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Container(
                           width: 40,
                           height: 14,
@@ -2433,10 +2428,10 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
   final bool showSearch;
 
   const SkeletonQuestionSubjectScreen({
-    Key? key,
+    super.key,
     this.itemCount = 6,
     this.showSearch = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2449,12 +2444,12 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
           // Search bar skeleton (optional)
           if (showSearch)
             Container(
-              margin: EdgeInsets.fromLTRB(20, 25, 20, 20),
+              margin: const EdgeInsets.fromLTRB(20, 25, 20, 20),
               height: 55,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 10,
@@ -2468,7 +2463,7 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         width: 20,
                         height: 20,
@@ -2487,7 +2482,7 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                   ],
                 ),
               ),
@@ -2497,7 +2492,7 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(20, showSearch ? 15 : 25, 20, 100),
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 return _buildSubjectCardSkeleton(index);
@@ -2511,17 +2506,17 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
 
   Widget _buildSubjectCardSkeleton(int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 24),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -2548,11 +2543,11 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Divider skeleton
                         Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           height: 2,
                           width: 80,
                           decoration: BoxDecoration(
@@ -2560,13 +2555,13 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Bank soal count chip skeleton
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 7),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
@@ -2606,7 +2601,7 @@ class SkeletonQuestionSubjectScreen extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      margin: EdgeInsets.all(11),
+                      margin: const EdgeInsets.all(11),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(11),
@@ -2629,10 +2624,10 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
   final bool showSearch;
 
   const SkeletonBankSoalSelectionScreen({
-    Key? key,
+    super.key,
     this.itemCount = 6,
     this.showSearch = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -2645,12 +2640,12 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
           // Search bar skeleton (optional)
           if (showSearch)
             Container(
-              margin: EdgeInsets.fromLTRB(20, 25, 20, 20),
+              margin: const EdgeInsets.fromLTRB(20, 25, 20, 20),
               height: 55,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 10,
@@ -2664,7 +2659,7 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         width: 20,
                         height: 20,
@@ -2683,7 +2678,7 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                   ],
                 ),
               ),
@@ -2693,7 +2688,7 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(20, showSearch ? 15 : 25, 20, 100),
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 return _buildBankSoalCardSkeleton(index);
@@ -2707,17 +2702,17 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
 
   Widget _buildBankSoalCardSkeleton(int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 24),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -2744,11 +2739,11 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Divider skeleton
                         Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           height: 2,
                           width: 80,
                           decoration: BoxDecoration(
@@ -2756,13 +2751,13 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Question count chip skeleton
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 7),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
@@ -2802,7 +2797,7 @@ class SkeletonBankSoalSelectionScreen extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      margin: EdgeInsets.all(11),
+                      margin: const EdgeInsets.all(11),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(11),
@@ -2824,17 +2819,17 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
   final int itemCount;
 
   const SkeletonPreviewQuestionBankSoal({
-    Key? key,
+    super.key,
     this.itemCount = 6,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.grey.shade50,
       child: ListView.builder(
-        padding: EdgeInsets.only(top: 8, bottom: 24),
-        physics: AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(top: 8, bottom: 24),
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: itemCount,
         itemBuilder: (context, index) {
           return _buildQuestionCardSkeleton();
@@ -2845,16 +2840,16 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
 
   Widget _buildQuestionCardSkeleton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -2868,7 +2863,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
               AspectRatio(
                 aspectRatio: 2,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(28),
                     topRight: Radius.circular(28),
                   ),
@@ -2882,7 +2877,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                           Colors.grey.shade500,
                           Colors.grey.shade400,
                         ],
-                        stops: [0.2, 0.6, 0.9],
+                        stops: const [0.2, 0.6, 0.9],
                       ),
                     ),
                     child: Stack(
@@ -2893,13 +2888,13 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                           top: 20,
                           left: 20,
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   width: 1),
                             ),
                             child: Row(
@@ -2909,16 +2904,16 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                   width: 18,
                                   height: 18,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Container(
                                   height: 13.5,
                                   width: 80,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(7),
                                   ),
                                 ),
@@ -2932,7 +2927,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                           top: 20,
                           right: 20,
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -2949,7 +2944,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                SizedBox(width: 5),
+                                const SizedBox(width: 5),
                                 Container(
                                   height: 12,
                                   width: 30,
@@ -2968,13 +2963,13 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                           top: 58,
                           right: 20,
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.5),
+                                color: Colors.white.withValues(alpha: 0.5),
                                 width: 1,
                               ),
                             ),
@@ -2985,16 +2980,16 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                   width: 14,
                                   height: 14,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     shape: BoxShape.circle,
                                   ),
                                 ),
-                                SizedBox(width: 6),
+                                const SizedBox(width: 6),
                                 Container(
                                   height: 12,
                                   width: 50,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
@@ -3015,25 +3010,25 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                 width: 40,
                                 height: 4,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
-                              SizedBox(height: 12),
+                              const SizedBox(height: 12),
                               Container(
                                 height: 19,
                                 width: double.infinity,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Container(
                                 height: 19,
                                 width: 200,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
@@ -3048,7 +3043,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
 
               // Content section
               Container(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -3063,7 +3058,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                             color: Colors.grey.shade400,
                           ),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Container(
                           height: 15.5,
                           width: 120,
@@ -3076,10 +3071,10 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                     ),
 
                     // Question content
-                    SizedBox(height: 14),
+                    const SizedBox(height: 14),
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(14),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(18),
@@ -3096,7 +3091,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
                           Container(
                             height: 15,
                             width: 250,
@@ -3110,9 +3105,9 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                     ),
 
                     // Options section
-                    SizedBox(height: 18),
+                    const SizedBox(height: 18),
                     Container(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -3164,7 +3159,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                 child: Container(
                                   width: 22,
                                   height: 22,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
@@ -3173,7 +3168,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                             ],
                           ),
 
-                          SizedBox(width: 18),
+                          const SizedBox(width: 18),
 
                           // Options text
                           Column(
@@ -3187,7 +3182,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(7),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 height: 15,
                                 width: 60,
@@ -3199,7 +3194,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                             ],
                           ),
 
-                          Spacer(),
+                          const Spacer(),
 
                           // Arrow indicator
                           Container(
@@ -3224,8 +3219,8 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
 
                     // Version indicators
                     Container(
-                      margin: EdgeInsets.only(top: 16),
-                      padding: EdgeInsets.symmetric(vertical: 6),
+                      margin: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(3, (index) {
@@ -3233,7 +3228,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                           return Container(
                             width: isActive ? 24 : 8,
                             height: 8,
-                            margin: EdgeInsets.symmetric(horizontal: 3),
+                            margin: const EdgeInsets.symmetric(horizontal: 3),
                             decoration: BoxDecoration(
                               color: isActive
                                   ? Colors.grey.shade400
@@ -3246,7 +3241,7 @@ class SkeletonPreviewQuestionBankSoal extends StatelessWidget {
                     ),
 
                     // Small spacer at the end
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                   ],
                 ),
               ),
@@ -3264,10 +3259,10 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
   final bool showSearch;
 
   const SkeletonQuestionBankListScreen({
-    Key? key,
+    super.key,
     this.itemCount = 6,
     this.showSearch = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -3280,12 +3275,12 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
           // Search bar skeleton (optional)
           if (showSearch)
             Container(
-              margin: EdgeInsets.fromLTRB(20, 50, 20, 20),
+              margin: const EdgeInsets.fromLTRB(20, 50, 20, 20),
               height: 55,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 10,
@@ -3299,7 +3294,7 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Container(
                         width: 20,
                         height: 20,
@@ -3318,7 +3313,7 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(width: 15),
+                    const SizedBox(width: 15),
                   ],
                 ),
               ),
@@ -3328,7 +3323,7 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.fromLTRB(20, showSearch ? 15 : 50, 20, 100),
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               itemCount: itemCount,
               itemBuilder: (context, index) {
                 return _buildBankSoalCardSkeleton(index);
@@ -3342,17 +3337,17 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
 
   Widget _buildBankSoalCardSkeleton(int index) {
     return Container(
-      margin: EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: 24),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -3379,11 +3374,11 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Divider skeleton
                         Container(
-                          margin: EdgeInsets.symmetric(vertical: 8),
+                          margin: const EdgeInsets.symmetric(vertical: 8),
                           height: 2,
                           width: 80,
                           decoration: BoxDecoration(
@@ -3391,13 +3386,13 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
 
                         // Question count chip skeleton
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 7),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade200,
@@ -3437,7 +3432,7 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
                     child: Container(
                       width: 22,
                       height: 22,
-                      margin: EdgeInsets.all(11),
+                      margin: const EdgeInsets.all(11),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(11),
@@ -3458,22 +3453,21 @@ class SkeletonQuestionBankListScreen extends StatelessWidget {
 class SkeletonAttendanceRankingScreen extends StatelessWidget {
   final int itemCount;
 
-  const SkeletonAttendanceRankingScreen({Key? key, this.itemCount = 6})
-      : super(key: key);
+  const SkeletonAttendanceRankingScreen({super.key, this.itemCount = 6});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
       ),
       child: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.all(16.0),
+          margin: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               _buildHeaderSkeleton(context),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               _buildLeaderboardSkeleton(),
             ],
           ),
@@ -3484,15 +3478,15 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
 
   Widget _buildHeaderSkeleton(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -3515,7 +3509,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -3528,7 +3522,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Container(
                               height: 12,
                               width: 150,
@@ -3545,7 +3539,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Top 3 podium skeleton
             Row(
@@ -3556,12 +3550,12 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                 _buildTopThreeItemSkeleton(context, 3), // 3rd place
               ],
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             // Warning message skeleton
             Container(
               width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
@@ -3609,7 +3603,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 6),
+              const SizedBox(height: 6),
 
               // Student name
               Container(
@@ -3620,7 +3614,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
 
               // Alpha count
               Container(
@@ -3642,12 +3636,12 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -3661,8 +3655,8 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
 
   Widget _buildStudentItemSkeleton(int index) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -3672,9 +3666,9 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.05),
+            color: Colors.grey.withValues(alpha: 0.05),
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -3692,7 +3686,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
 
             // Student avatar
             Container(
@@ -3703,7 +3697,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
 
             // Student info
             Expanded(
@@ -3719,7 +3713,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   // Class name
                   Container(
@@ -3730,7 +3724,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(7),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // Stats row
                   Row(
@@ -3744,7 +3738,7 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Container(
                         height: 12,
                         width: 30,
@@ -3777,13 +3771,15 @@ class SkeletonAttendanceRankingScreen extends StatelessWidget {
 
 /// Skeleton widget for Online Exam Card
 class SkeletonOnlineExamCard extends StatelessWidget {
+  const SkeletonOnlineExamCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
-    final double headerHeight = 280.0; // Average header height
+    const double headerHeight = 280.0; // Average header height
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 16),
+      margin: const EdgeInsets.symmetric(vertical: 16),
       child: Stack(
         clipBehavior: Clip.none,
         children: [
@@ -3799,7 +3795,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                 // Header section
                 Container(
                   height: headerHeight,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(32),
                       topRight: Radius.circular(32),
@@ -3809,7 +3805,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                     baseColor: Colors.grey.shade300,
                     highlightColor: Colors.grey.shade100,
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(32),
@@ -3848,7 +3844,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 // Second line of title
                                 Container(
                                   width: screenWidth * 0.6,
@@ -3858,7 +3854,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 // Third line for very long titles
                                 Container(
                                   width: screenWidth * 0.4,
@@ -3868,7 +3864,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                                 // Title underline
                                 Container(
                                   width: 60,
@@ -3888,7 +3884,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                 ),
                 // Content section with action buttons
                 Container(
-                  padding: EdgeInsets.fromLTRB(24, 140, 24, 24),
+                  padding: const EdgeInsets.fromLTRB(24, 140, 24, 24),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
                     highlightColor: Colors.grey.shade100,
@@ -3904,7 +3900,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         // Archive button
                         Expanded(
                           child: Container(
@@ -3933,9 +3929,9 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 15,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                     spreadRadius: -5,
                   ),
                 ],
@@ -3947,19 +3943,19 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                   children: [
                     // Top section: Manage Questions
                     Padding(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Row(
                         children: [
                           // Icon container
                           Container(
                             width: 40,
                             height: 40,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           // Text content
                           Expanded(
                             child: Column(
@@ -3973,7 +3969,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Container(
                                   width: screenWidth * 0.7,
                                   height: 14,
@@ -4000,12 +3996,12 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                     // Divider
                     Container(
                       height: 1,
-                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
                       color: Colors.grey.shade200,
                     ),
                     // Bottom section: Dates
                     Padding(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -4021,7 +4017,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 width: 80,
                                 height: 15,
@@ -4050,7 +4046,7 @@ class SkeletonOnlineExamCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 width: 80,
                                 height: 15,
@@ -4077,24 +4073,26 @@ class SkeletonOnlineExamCard extends StatelessWidget {
 
 /// Skeleton widget for Leaves Screen
 class SkeletonLeavesCard extends StatelessWidget {
+  const SkeletonLeavesCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       child: Column(
         children: [
           // Summary Section
           Container(
-            margin: EdgeInsets.all(24),
-            padding: EdgeInsets.all(20),
+            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -4115,7 +4113,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -4128,7 +4126,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Container(
                               width: 180,
                               height: 13,
@@ -4142,7 +4140,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   // Leave count cards
                   Row(
                     children: [
@@ -4154,7 +4152,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -4182,7 +4180,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                               BorderRadius.circular(4),
                                         ),
                                       ),
-                                      SizedBox(width: 4),
+                                      const SizedBox(width: 4),
                                       Container(
                                         width: 30,
                                         height: 13,
@@ -4194,7 +4192,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 8),
+                                  const SizedBox(height: 8),
                                   Container(
                                     width: double.infinity,
                                     height: 3,
@@ -4209,7 +4207,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       // Remaining leaves card
                       Expanded(
                         child: Container(
@@ -4218,7 +4216,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                           ),
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -4246,7 +4244,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                               BorderRadius.circular(4),
                                         ),
                                       ),
-                                      SizedBox(width: 4),
+                                      const SizedBox(width: 4),
                                       Container(
                                         width: 30,
                                         height: 13,
@@ -4258,7 +4256,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  SizedBox(height: 8),
+                                  const SizedBox(height: 8),
                                   Container(
                                     width: double.infinity,
                                     height: 3,
@@ -4282,15 +4280,15 @@ class SkeletonLeavesCard extends StatelessWidget {
 
           // Leave History Section
           Container(
-            margin: EdgeInsets.fromLTRB(24, 0, 24, 24),
+            margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -4301,7 +4299,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                 children: [
                   // Header section
                   Padding(
-                    padding: EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(24),
                     child: Row(
                       children: [
                         Container(
@@ -4312,7 +4310,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -4325,7 +4323,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 width: 100,
                                 height: 13,
@@ -4351,14 +4349,14 @@ class SkeletonLeavesCard extends StatelessWidget {
                   // Divider
                   Container(
                     height: 1,
-                    margin: EdgeInsets.symmetric(horizontal: 24),
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
                     color: Colors.grey.shade200,
                   ),
                   // Leave items
                   ...List.generate(
                     3,
                     (index) => Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       child: Row(
                         children: [
                           Container(
@@ -4369,7 +4367,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -4382,7 +4380,7 @@ class SkeletonLeavesCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Container(
                                   width: 100,
                                   height: 12,
@@ -4410,10 +4408,12 @@ class SkeletonLeavesCard extends StatelessWidget {
 
 /// Skeleton widget for Payroll Screen
 class SkeletonPayrollCard extends StatelessWidget {
+  const SkeletonPayrollCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       child: Column(
         children: [
           // Title section
@@ -4434,7 +4434,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Container(
                     width: 200,
                     height: 14,
@@ -4450,15 +4450,15 @@ class SkeletonPayrollCard extends StatelessWidget {
 
           // Main payroll container
           Container(
-            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -4471,7 +4471,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.grey.shade300,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(16)),
+                        const BorderRadius.vertical(top: Radius.circular(16)),
                   ),
                   child: Shimmer.fromColors(
                     baseColor: Colors.grey.shade300,
@@ -4482,12 +4482,12 @@ class SkeletonPayrollCard extends StatelessWidget {
                         Container(
                           width: 36,
                           height: 36,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         // Title text
                         Expanded(
                           child: Column(
@@ -4501,7 +4501,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Container(
                                 width: 150,
                                 height: 12,
@@ -4538,9 +4538,9 @@ class SkeletonPayrollCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -4558,7 +4558,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                 Expanded(
                                   child: Row(
                                     children: [
-                                      SizedBox(width: 16),
+                                      const SizedBox(width: 16),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -4573,7 +4573,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                                     BorderRadius.circular(4),
                                               ),
                                             ),
-                                            SizedBox(height: 4),
+                                            const SizedBox(height: 4),
                                             Container(
                                               width: 50,
                                               height: 14,
@@ -4593,14 +4593,14 @@ class SkeletonPayrollCard extends StatelessWidget {
                                 Container(
                                   width: 32,
                                   height: 32,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             // Salary info section
                             Container(
                               decoration: BoxDecoration(
@@ -4625,7 +4625,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                                 BorderRadius.circular(4),
                                           ),
                                         ),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         Container(
                                           width: 100,
                                           height: 16,
@@ -4644,7 +4644,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                     width: 1,
                                     color: Colors.grey.shade200,
                                     margin:
-                                        EdgeInsets.symmetric(horizontal: 12),
+                                        const EdgeInsets.symmetric(horizontal: 12),
                                   ),
                                   // Net salary
                                   Expanded(
@@ -4661,7 +4661,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                                                 BorderRadius.circular(4),
                                           ),
                                         ),
-                                        SizedBox(height: 8),
+                                        const SizedBox(height: 8),
                                         Container(
                                           width: 90,
                                           height: 16,
@@ -4683,7 +4683,7 @@ class SkeletonPayrollCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
               ],
             ),
           ),
@@ -4695,12 +4695,14 @@ class SkeletonPayrollCard extends StatelessWidget {
 
 /// Skeleton widget for Allowances and Deductions Screen
 class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
+  const SkeletonAllowancesAndDeductionsCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.grey.shade50,
       child: SingleChildScrollView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         child: Column(
           children: [
             // Net Salary Card skeleton
@@ -4728,7 +4730,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(16),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           width: 80,
                           height: 28,
@@ -4739,7 +4741,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // Title and percentage row
                     Row(
                       children: [
@@ -4751,7 +4753,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           width: 60,
                           height: 24,
@@ -4762,7 +4764,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     // Net salary amount
                     Container(
                       width: 200,
@@ -4772,7 +4774,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     // Bottom info cards
                     Row(
                       children: [
@@ -4785,7 +4787,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Container(
                             height: 60,
@@ -4831,7 +4833,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 Container(
                                   width: 40,
                                   height: 20,
@@ -4842,7 +4844,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Container(
                               width: 100,
                               height: 12,
@@ -4851,7 +4853,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Container(
                               width: 120,
                               height: 16,
@@ -4860,7 +4862,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Container(
                               width: 80,
                               height: 12,
@@ -4874,7 +4876,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   // Deductions summary
                   Expanded(
                     child: Container(
@@ -4899,7 +4901,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 Container(
                                   width: 40,
                                   height: 20,
@@ -4910,7 +4912,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             Container(
                               width: 90,
                               height: 12,
@@ -4919,7 +4921,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Container(
                               width: 110,
                               height: 16,
@@ -4928,7 +4930,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             Container(
                               width: 80,
                               height: 12,
@@ -5011,7 +5013,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       // Content
                       Expanded(
                         child: Column(
@@ -5029,7 +5031,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Container(
                                   width: 40,
                                   height: 20,
@@ -5040,7 +5042,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                                 ),
                               ],
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Container(
                               width: MediaQuery.of(context).size.width * 0.6,
                               height: 12,
@@ -5052,7 +5054,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       // Amount and badge
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -5065,7 +5067,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Container(
                             width: 60,
                             height: 20,
@@ -5082,7 +5084,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
               ),
             ),
 
-            SizedBox(height: 100), // Bottom spacing
+            const SizedBox(height: 100), // Bottom spacing
           ],
         ),
       ),
@@ -5092,7 +5094,7 @@ class SkeletonAllowancesAndDeductionsCard extends StatelessWidget {
 
 /// Skeleton untuk Detail Pembelajaran Section
 class SkeletonLearningDetails extends StatelessWidget {
-  const SkeletonLearningDetails({Key? key}) : super(key: key);
+  const SkeletonLearningDetails({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -5103,9 +5105,9 @@ class SkeletonLearningDetails extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -5116,7 +5118,7 @@ class SkeletonLearningDetails extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Shimmer.fromColors(
               baseColor: Colors.grey.shade300,
@@ -5127,7 +5129,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                   Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -5167,7 +5169,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         height: 14,
                         width: 180,
@@ -5178,7 +5180,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // Text field skeleton
                   Container(
@@ -5190,7 +5192,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                     ),
                   ),
 
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
                   // Lampiran label skeleton
                   Row(
@@ -5203,7 +5205,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         height: 14,
                         width: 140,
@@ -5214,7 +5216,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
 
                   // Format description skeleton
                   Container(
@@ -5225,7 +5227,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                       borderRadius: BorderRadius.circular(6),
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
 
                   // Upload button skeleton
                   Container(
@@ -5250,7 +5252,7 @@ class SkeletonLearningDetails extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Container(
                           height: 14,
                           width: 180,
@@ -5277,35 +5279,35 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
   final int itemCount;
 
   const SkeletonTeacherManageAssignmentSubmissionScreen({
-    Key? key,
+    super.key,
     this.itemCount = 6,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(top: 240), // Adjusted for app bar and filter
+        padding: const EdgeInsets.only(top: 240), // Adjusted for app bar and filter
         physics: const BouncingScrollPhysics(),
         child: Container(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
           margin: const EdgeInsets.symmetric(horizontal: 12),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
             boxShadow: [
               BoxShadow(
-                color: Color(0xFF800020).withOpacity(0.05),
+                color: const Color(0xFF800020).withValues(alpha: 0.05),
                 blurRadius: 20,
                 spreadRadius: 0,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
               BoxShadow(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 blurRadius: 10,
                 spreadRadius: -5,
-                offset: Offset(-5, -5),
+                offset: const Offset(-5, -5),
               ),
             ],
           ),
@@ -5318,31 +5320,31 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
               children: [
                 // Header section
                 Container(
-                  padding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF6A1B31).withOpacity(0.12),
-                        Color(0xFF9A4156).withOpacity(0.06),
+                        const Color(0xFF6A1B31).withValues(alpha: 0.12),
+                        const Color(0xFF9A4156).withValues(alpha: 0.06),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Color(0xFF6A1B31).withOpacity(0.18),
+                      color: const Color(0xFF6A1B31).withValues(alpha: 0.18),
                       width: 1,
                     ),
                   ),
                   child: Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: Color(0xFF800020).withOpacity(0.15),
+                            color: const Color(0xFF800020).withValues(alpha: 0.15),
                             width: 1,
                           ),
                         ),
@@ -5365,7 +5367,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(7),
                               ),
                             ),
-                            SizedBox(height: 3),
+                            const SizedBox(height: 3),
                             Container(
                               height: 13,
                               width: 100,
@@ -5386,18 +5388,18 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                 ...List.generate(
                   itemCount,
                   (index) => Container(
-                    margin: EdgeInsets.only(bottom: 16),
+                    margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0xFF6A1B31).withOpacity(0.08),
+                          color: const Color(0xFF6A1B31).withValues(alpha: 0.08),
                           blurRadius: 12,
                           spreadRadius: 0,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
-                        BoxShadow(
+                        const BoxShadow(
                           color: Colors.white,
                           blurRadius: 5,
                           spreadRadius: -2,
@@ -5409,12 +5411,12 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                         end: Alignment.bottomRight,
                         colors: [
                           Colors.white,
-                          Color(0xFFF9F5F6).withOpacity(0.5),
+                          const Color(0xFFF9F5F6).withValues(alpha: 0.5),
                         ],
-                        stops: [0.4, 1.0],
+                        stops: const [0.4, 1.0],
                       ),
                       border: Border.all(
-                        color: Color(0xFFEADADA),
+                        color: const Color(0xFFEADADA),
                         width: 1,
                       ),
                     ),
@@ -5429,16 +5431,16 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                               Container(
                                 width: 45,
                                 height: 45,
-                                margin: EdgeInsets.only(left: 15, right: 10),
+                                margin: const EdgeInsets.only(left: 15, right: 10),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Colors.white,
                                   boxShadow: [
                                     BoxShadow(
                                       color:
-                                          Color(0xFF6A1B31).withOpacity(0.15),
+                                          const Color(0xFF6A1B31).withValues(alpha: 0.15),
                                       blurRadius: 8,
-                                      offset: Offset(0, 3),
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
                                   border: Border.all(
@@ -5463,7 +5465,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     vertical: 6, horizontal: 14),
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
@@ -5475,9 +5477,9 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                   boxShadow: [
                                     BoxShadow(
                                       color:
-                                          Color(0xFF6A1B31).withOpacity(0.25),
+                                          const Color(0xFF6A1B31).withValues(alpha: 0.25),
                                       blurRadius: 8,
-                                      offset: Offset(0, 2),
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
@@ -5487,12 +5489,12 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                     Container(
                                       width: 6,
                                       height: 6,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Container(
                                       height: 13,
                                       width: 60,
@@ -5524,7 +5526,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -5539,7 +5541,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                                   BorderRadius.circular(6),
                                             ),
                                           ),
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 4),
                                           Container(
                                             height: 13,
                                             width: double.infinity,
@@ -5563,7 +5565,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                         if (index % 2 == 0) ...[
                           Container(
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
@@ -5573,15 +5575,15 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                               ),
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            padding: EdgeInsets.all(16),
-                            margin: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 4),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 // Section header
                                 Container(
-                                  margin: EdgeInsets.only(bottom: 12),
+                                  margin: const EdgeInsets.only(bottom: 12),
                                   child: Container(
                                     height: 15,
                                     width: 100,
@@ -5594,21 +5596,21 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
 
                                 // Points section
                                 Container(
-                                  margin: EdgeInsets.only(bottom: 14),
-                                  padding: EdgeInsets.all(12),
+                                  margin: const EdgeInsets.only(bottom: 14),
+                                  padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(14),
                                     border: Border.all(
-                                      color: Color(0xFFEADADA),
+                                      color: const Color(0xFFEADADA),
                                       width: 1,
                                     ),
                                   ),
                                   child: Row(
                                     children: [
                                       Container(
-                                        padding: EdgeInsets.all(10),
-                                        decoration: BoxDecoration(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: const BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: Colors.white,
                                         ),
@@ -5618,7 +5620,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                           color: Colors.grey.shade300,
                                         ),
                                       ),
-                                      SizedBox(width: 12),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
@@ -5633,7 +5635,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                                     BorderRadius.circular(6),
                                               ),
                                             ),
-                                            SizedBox(height: 4),
+                                            const SizedBox(height: 4),
                                             Container(
                                               height: 20,
                                               width: 80,
@@ -5649,7 +5651,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                       Container(
                                         width: 42,
                                         height: 42,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: Colors.white,
                                         ),
@@ -5673,14 +5675,14 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                 Container(
                                   height: 8,
                                   decoration: BoxDecoration(
-                                    color: Color(0xFFEADADA),
+                                    color: const Color(0xFFEADADA),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
 
                                 // Files section
                                 Container(
-                                  padding: EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(12),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -5688,8 +5690,8 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                       Row(
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.all(10),
-                                            decoration: BoxDecoration(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: const BoxDecoration(
                                               shape: BoxShape.circle,
                                               color: Colors.white,
                                             ),
@@ -5699,7 +5701,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                               color: Colors.grey.shade300,
                                             ),
                                           ),
-                                          SizedBox(width: 12),
+                                          const SizedBox(width: 12),
                                           Container(
                                             height: 14,
                                             width: 80,
@@ -5711,13 +5713,13 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      SizedBox(height: 12),
+                                      const SizedBox(height: 12),
                                       // File item
                                       Container(
-                                        padding: EdgeInsets.all(10),
+                                        padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
-                                          color: Color(0xFFF9F5F6)
-                                              .withOpacity(0.7),
+                                          color: const Color(0xFFF9F5F6)
+                                              .withValues(alpha: 0.7),
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
@@ -5732,7 +5734,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                                     BorderRadius.circular(8),
                                               ),
                                             ),
-                                            SizedBox(width: 12),
+                                            const SizedBox(width: 12),
                                             Expanded(
                                               child: Column(
                                                 crossAxisAlignment:
@@ -5748,7 +5750,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
                                                               6),
                                                     ),
                                                   ),
-                                                  SizedBox(height: 2),
+                                                  const SizedBox(height: 2),
                                                   Container(
                                                     height: 12,
                                                     width: 120,
@@ -5787,7 +5789,7 @@ class SkeletonTeacherManageAssignmentSubmissionScreen extends StatelessWidget {
 
 /// Skeleton untuk Timetable Slot Container
 class SkeletonTimetableSlot extends StatelessWidget {
-  const SkeletonTimetableSlot({Key? key}) : super(key: key);
+  const SkeletonTimetableSlot({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -5928,12 +5930,12 @@ class SkeletonTimetableSlot extends StatelessWidget {
 
 /// Skeleton untuk Home Container (halaman beranda)
 class SkeletonHomeContainer extends StatelessWidget {
-  const SkeletonHomeContainer({Key? key}) : super(key: key);
+  const SkeletonHomeContainer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
           top: 70, // Small padding to align closely with appbar
           bottom: 100),
       child: Shimmer.fromColors(
@@ -5963,7 +5965,7 @@ class SkeletonHomeContainer extends StatelessWidget {
       children: [
         // Title section
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -5986,25 +5988,25 @@ class SkeletonHomeContainer extends StatelessWidget {
           height: 165,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: 4,
             itemBuilder: (context, index) {
               return Container(
                 width: 140,
-                margin: EdgeInsets.only(right: 15),
+                margin: const EdgeInsets.only(right: 15),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -6072,7 +6074,7 @@ class SkeletonHomeContainer extends StatelessWidget {
 
         // Title section
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -6100,7 +6102,7 @@ class SkeletonHomeContainer extends StatelessWidget {
 
         // Teacher cards grid
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: LayoutBuilder(builder: (context, boxConstraints) {
             return Wrap(
               alignment: WrapAlignment.start,
@@ -6153,19 +6155,19 @@ class SkeletonHomeContainer extends StatelessWidget {
 
   Widget _buildSkeletonLeavesSection() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(2.5),
       ),
-      padding: EdgeInsets.symmetric(vertical: 20),
+      padding: const EdgeInsets.symmetric(vertical: 20),
       child: Column(
         children: [
           const SizedBox(height: 15),
 
           // Title section
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -6193,12 +6195,12 @@ class SkeletonHomeContainer extends StatelessWidget {
 
           // Leave items
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: List.generate(2, (index) {
                 return Container(
-                  margin: EdgeInsets.only(bottom: 15),
-                  padding: EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 15),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(12),
@@ -6288,7 +6290,7 @@ class SkeletonHomeContainer extends StatelessWidget {
 
         // Title section
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -6319,7 +6321,7 @@ class SkeletonHomeContainer extends StatelessWidget {
           height: 150,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: 3,
             itemBuilder: (context, index) {
               return Container(
@@ -6330,9 +6332,9 @@ class SkeletonHomeContainer extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -6342,11 +6344,11 @@ class SkeletonHomeContainer extends StatelessWidget {
                     // Header with date
                     Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade200,
                         borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
+                            const BorderRadius.vertical(top: Radius.circular(16)),
                       ),
                       child: Row(
                         children: [
@@ -6354,7 +6356,7 @@ class SkeletonHomeContainer extends StatelessWidget {
                           Container(
                             width: 40,
                             height: 40,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
@@ -6420,7 +6422,7 @@ class SkeletonHomeContainer extends StatelessWidget {
                     // Description
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -6458,7 +6460,7 @@ class SkeletonHomeContainer extends StatelessWidget {
 
 /// Skeleton untuk Contact List Item (sesuai dengan contactListScreen)
 class SkeletonContactListItem extends StatelessWidget {
-  const SkeletonContactListItem({Key? key}) : super(key: key);
+  const SkeletonContactListItem({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -6469,13 +6471,13 @@ class SkeletonContactListItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.08),
+            color: Colors.grey.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -6703,7 +6705,7 @@ class SkeletonContactListItem extends StatelessWidget {
 
 /// Skeleton untuk Contact Detail Screen
 class SkeletonContactDetailScreen extends StatelessWidget {
-  const SkeletonContactDetailScreen({Key? key}) : super(key: key);
+  const SkeletonContactDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -6742,7 +6744,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -6867,7 +6869,7 @@ class SkeletonContactDetailScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),

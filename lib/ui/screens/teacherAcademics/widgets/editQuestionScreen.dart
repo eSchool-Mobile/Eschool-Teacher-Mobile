@@ -17,8 +17,7 @@ class EditQuestionScreen extends StatefulWidget {
   final Map<String, dynamic>? questionData;
   final Map<String, int>? idList;
 
-  const EditQuestionScreen({Key? key, this.questionData, this.idList})
-      : super(key: key);
+  const EditQuestionScreen({super.key, this.questionData, this.idList});
 
   @override
   State<EditQuestionScreen> createState() => _EditQuestionScreenState();
@@ -40,15 +39,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   dynamic _imageFile;
   final ImagePicker _picker = ImagePicker();
 
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon - UPDATED
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor =
+      Color(0xFF7A1E23); // Softer deep maroon - UPDATED
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _highlightColor =
+      Color(0xFFB84D4D); // Softer bright maroon
+  static const Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  static const Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   void _loadImage() async {
     _imageFile = await Api.fetchImg(widget.questionData?["image"]);
@@ -74,10 +72,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     version = 1;
 
     String jsonString =
-        JsonEncoder.withIndent("  ").convert(widget.questionData);
+        const JsonEncoder.withIndent("  ").convert(widget.questionData);
 
     for (var line in jsonString.split("\n")) {
-      print(line);
+      debugPrint(line.toString());
     }
 
     if (widget.questionData?["image"] != null) {
@@ -106,20 +104,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         options = _getDefaultOptionsForType(selectedType);
       }
     }
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
 
     // Initialize the app bar animation controller
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
   }
 
@@ -132,7 +121,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     questionController.dispose();
     pointController.dispose();
     noteController.dispose();
-    _pulseController.dispose();
     _fabAnimationController
         .dispose(); // Dispose the app bar animation controller
     super.dispose();
@@ -238,14 +226,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     }
   }
 
-  void _onTypeChanged(String? value) {
-    if (value != null) {
-      setState(() {
-        selectedType = value;
-      });
-    }
-  }
-
   void _addOption() {
     setState(() {
       options.add({
@@ -292,7 +272,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Minimal harus ada 2 pilihan jawaban'),
           backgroundColor: Colors.red,
         ),
@@ -309,11 +289,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       });
 
       try {
-        await Future.delayed(Duration(seconds: 2));
+        await Future.delayed(const Duration(seconds: 2));
+        if (!mounted) return;
 
         try {
-          print(widget.idList);
-          print({
+          debugPrint(widget.idList.toString());
+          debugPrint({
             "banksoalSoalId": widget.idList!['bankSoalSoalId'],
             "subjectId": widget.idList!['subjectId'],
             "bankSoalId": idBankSoal,
@@ -331,9 +312,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       feedback: opt['feedback'].toString(),
                     ))
                 .toList()
-          });
+          }.toString());
 
-          print("===;");
+          debugPrint("===;");
 
           await context.read<QuestionBankCubit>().updateQuestion(
                 banksoalSoalId: widget.idList!['bankSoalSoalId'] ?? 0,
@@ -354,16 +335,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         ))
                     .toList(),
               );
-
-          print("AMAN ABDURRAHMAN");
+          if (!mounted) return;
+          debugPrint("AMAN ABDURRAHMAN");
 
           Get.back(result: true);
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Container(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: Row(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.check_circle, color: Colors.white),
@@ -380,9 +361,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 ),
               ),
               backgroundColor: Colors.green.shade400,
-              duration: Duration(seconds: 2),
+              duration: const Duration(seconds: 2),
               behavior: SnackBarBehavior.floating,
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
@@ -390,8 +371,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             ),
           );
         } catch (e) {
-          print("ABDURRAHMAN SALAM");
-          print(e.toString());
+          debugPrint("ABDURRAHMAN SALAM");
+          debugPrint(e.toString());
           if (!e.toString().contains('validation.exists') ||
               !e.toString().toLowerCase().contains('updated')) {
             Get.snackbar(
@@ -425,50 +406,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         });
       }
     } catch (e) {
-      print('Error picking image: $e');
+      debugPrint('Error picking image: $e');
     }
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     // Set status bar to dark icons since background is white
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Make status bar transparent
       statusBarIconBrightness:
           Brightness.dark, // Dark icons for white background
@@ -491,30 +436,30 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
-              padding: EdgeInsets.all(20),
-              physics: BouncingScrollPhysics(),
+              padding: const EdgeInsets.all(20),
+              physics: const BouncingScrollPhysics(),
               child: Column(
                 children: [
                   FadeInUp(
-                    duration: Duration(milliseconds: 800),
+                    duration: const Duration(milliseconds: 800),
                     child: _buildQuestionInfoCard(),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildQuestionTypeSelector(),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   if (selectedType == 'multiple_choice')
                     _buildMultipleChoiceOrder(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   _buildAnswerOptionsCard(),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 1,
                           blurRadius: 3,
                         ),
@@ -531,7 +476,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         if (_imageFile != null) ...[
                           Stack(
                             alignment: Alignment.topRight,
@@ -551,13 +496,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
-                                            return Center(
+                                            return const Center(
                                                 child:
                                                     CircularProgressIndicator());
                                           }
                                           if (snapshot.hasError ||
                                               !snapshot.hasData) {
-                                            return Center(
+                                            return const Center(
                                                 child: Icon(Icons.error));
                                           }
                                           return Image.memory(snapshot.data!,
@@ -566,7 +511,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                       ),
                               ),
                               IconButton(
-                                icon: Icon(Icons.close, color: Colors.red),
+                                icon:
+                                    const Icon(Icons.close, color: Colors.red),
                                 onPressed: () =>
                                     setState(() => _imageFile = null),
                               ),
@@ -581,7 +527,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                 border: Border.all(color: Colors.grey.shade300),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Center(
+                              child: const Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -601,7 +547,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     ),
                   ),
                   FadeInUp(
-                    duration: Duration(milliseconds: 1200),
+                    duration: const Duration(milliseconds: 1200),
                     child: _buildSubmitButton(),
                   ),
                 ],
@@ -615,16 +561,16 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   Widget _buildQuestionInfoCard() {
     return Container(
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _glowColor.withOpacity(0.08),
+            color: _glowColor.withValues(alpha: 0.08),
             spreadRadius: 5,
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -633,8 +579,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         children: [
           // Header with gradient
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            decoration: BoxDecoration(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [_primaryColor, _accentColor],
                 begin: Alignment.topLeft,
@@ -645,7 +591,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 topRight: Radius.circular(20),
               ),
             ),
-            child: Row(
+            child: const Row(
               children: [
                 Icon(
                   Icons.info_outline_rounded,
@@ -668,7 +614,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
           // Content area
           Padding(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -681,7 +627,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   maxLines: null,
                   minLines: 2,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Question field
                 _buildAnimatedFormField(
@@ -692,7 +638,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   maxLines: null,
                   minLines: 3,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Note field
                 _buildAnimatedFormField(
@@ -703,7 +649,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   maxLines: 2,
                   isOptional: true,
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Points field
                 _buildAnimatedFormField(
@@ -755,14 +701,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
       children: [
         // Label with icon
         Padding(
-          padding: EdgeInsets.only(left: 2, bottom: 8),
+          padding: const EdgeInsets.only(left: 2, bottom: 8),
           child: Row(
             children: [
               Icon(icon, size: 18, color: _primaryColor),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                   color: _primaryColor,
@@ -773,7 +719,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         ),
         // Input field with animation
         FadeInLeft(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           child: TextFormField(
             controller: controller,
             maxLines: maxLines,
@@ -788,7 +734,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: _primaryColor, width: 2),
+                borderSide: const BorderSide(color: _primaryColor, width: 2),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -801,7 +747,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               filled: true,
               fillColor: Colors.grey.shade50,
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
             validator: validator ??
                 (value) {
@@ -819,18 +765,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   Widget _buildQuestionTypeSelector() {
     return FadeInUp(
-      duration: Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 900),
       child: Container(
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _glowColor.withOpacity(0.08),
+              color: _glowColor.withValues(alpha: 0.08),
               spreadRadius: 5,
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -839,8 +785,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           children: [
             // Styled header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [_accentColor, _highlightColor],
                   begin: Alignment.topLeft,
@@ -851,7 +797,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   topRight: Radius.circular(20),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 children: [
                   Icon(
                     Icons.category_rounded,
@@ -874,7 +820,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
             // Type selection area
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -886,7 +832,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   _buildTypeDropdownEnhanced(),
                 ],
               ),
@@ -929,9 +875,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         color: Colors.grey.shade50,
       ),
       child: DropdownButtonFormField<String>(
-        value: selectedType,
-        icon: Icon(Icons.keyboard_arrow_down_rounded, color: _primaryColor),
-        decoration: InputDecoration(
+        initialValue: selectedType,
+        icon:
+            const Icon(Icons.keyboard_arrow_down_rounded, color: _primaryColor),
+        decoration: const InputDecoration(
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         ),
@@ -946,11 +893,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   color: _primaryColor,
                   size: 22,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Flexible(
                   child: Text(
                     type.value['label'] as String,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                       fontSize: 15,
@@ -968,7 +915,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: Row(
+                  title: const Row(
                     children: [
                       Icon(Icons.warning_amber_rounded, color: Colors.amber),
                       SizedBox(width: 10),
@@ -980,7 +927,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       ),
                     ],
                   ),
-                  content: Text(
+                  content: const Text(
                     'Mengubah tipe soal akan mereset semua pilihan jawaban yang sudah ada. Anda yakin ingin melanjutkan?',
                   ),
                   shape: RoundedRectangleBorder(
@@ -989,10 +936,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: Text('Batal'),
                       style: TextButton.styleFrom(
                         foregroundColor: Colors.grey.shade700,
                       ),
+                      child: const Text('Batal'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -1002,7 +949,6 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           options = _getDefaultOptionsForType(newValue);
                         });
                       },
-                      child: Text('Ya, Ubah'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red.shade400,
                         foregroundColor: Colors.white,
@@ -1010,6 +956,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
+                      child: const Text('Ya, Ubah'),
                     ),
                   ],
                 );
@@ -1023,15 +970,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   Widget _buildMultipleChoiceOrder() {
     return FadeInUp(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 5,
               blurRadius: 10,
             ),
@@ -1048,9 +995,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 color: Theme.of(context).colorScheme.secondary,
               ),
             ),
-            SizedBox(height: 15),
+            const SizedBox(height: 15),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(15),
@@ -1058,7 +1005,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButtonFormField<String>(
-                  value: selectedOrderType,
+                  initialValue: selectedOrderType,
                   items: [
                     _buildDropdownItem(
                         'roman_uppercase', 'Romawi Kapital', null),
@@ -1069,7 +1016,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     _buildDropdownItem('alphabet_lowercase', 'Alfabet', null),
                   ],
                   onChanged: (value) => _onOrderTypeChanged(value!),
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     border: InputBorder.none,
                   ),
                 ),
@@ -1083,18 +1030,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   Widget _buildAnswerOptionsCard() {
     return FadeInUp(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       child: Container(
-        padding: EdgeInsets.all(0),
+        padding: const EdgeInsets.all(0),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _glowColor.withOpacity(0.08),
+              color: _glowColor.withValues(alpha: 0.08),
               spreadRadius: 5,
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -1103,8 +1050,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           children: [
             // Styled header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+              decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   colors: [_highlightColor, _energyColor],
                   begin: Alignment.topLeft,
@@ -1118,7 +1065,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
+                  const Row(
                     children: [
                       Icon(
                         Icons.question_answer_rounded,
@@ -1139,9 +1086,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                   ),
                   // Display type badge
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.25),
+                      color: Colors.white.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -1159,7 +1107,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 5),
+                        const SizedBox(width: 5),
                         Text(
                           selectedType == 'multiple_choice'
                               ? 'Pilihan Ganda'
@@ -1170,7 +1118,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                       : selectedType == 'short_answer'
                                           ? 'Jawaban Singkat'
                                           : 'Numerik',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1185,7 +1133,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
             // Instructions section
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 border: Border(
@@ -1194,8 +1142,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
               ),
               child: Row(
                 children: [
-                  Icon(Icons.lightbulb_outline, color: Colors.amber, size: 18),
-                  SizedBox(width: 10),
+                  const Icon(Icons.lightbulb_outline,
+                      color: Colors.amber, size: 18),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       selectedType == 'multiple_choice'
@@ -1215,17 +1164,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
             // Options area with appropriate padding
             Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (selectedType == 'multiple_choice') ...[
-                    ...options
-                        .asMap()
-                        .entries
-                        .map((entry) =>
-                            _buildMultipleChoiceOptionEnhanced(entry.key))
-                        .toList(),
+                    ...options.asMap().entries.map((entry) =>
+                        _buildMultipleChoiceOptionEnhanced(entry.key)),
                     _buildAddOptionButtonEnhanced(),
                   ] else if (selectedType == 'true_false') ...[
                     _buildTrueFalseOptionEnhanced(0, 'Benar'),
@@ -1257,7 +1202,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     return FadeInLeft(
       delay: Duration(milliseconds: 100 * index),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: options[index]['percentage'] == 100
               ? Colors.green.shade50
@@ -1271,10 +1216,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.07),
+              color: Colors.grey.withValues(alpha: 0.07),
               spreadRadius: 1,
               blurRadius: 3,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -1283,12 +1228,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           children: [
             // Option header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: options[index]['percentage'] == 100
-                    ? Colors.green.shade100.withOpacity(0.5)
+                    ? Colors.green.shade100.withValues(alpha: 0.5)
                     : Colors.grey.shade50,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(14),
                   topRight: Radius.circular(14),
                 ),
@@ -1309,11 +1254,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       shape: BoxShape.circle,
                       color: options[index]['percentage'] == 100
                           ? Colors.green
-                          : _primaryColor.withOpacity(0.1),
+                          : _primaryColor.withValues(alpha: 0.1),
                     ),
                     child: Center(
                       child: Text(
-                        "$prefix",
+                        prefix,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -1324,7 +1269,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       ),
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       options[index]['percentage'] == 100
@@ -1348,7 +1293,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       onPressed: () => _removeAnswerOption(index),
                       tooltip: 'Hapus pilihan jawaban',
                       padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
+                      constraints: const BoxConstraints(),
                     ),
                 ],
               ),
@@ -1356,7 +1301,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
             // Option content
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize:
@@ -1369,7 +1314,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     minLines: 2,
                     decoration: InputDecoration(
                       labelText: 'Teks Jawaban',
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.text_fields_rounded,
                         color: _primaryColor,
                       ),
@@ -1387,11 +1332,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     },
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Correct answer selection
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(10),
@@ -1431,14 +1377,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     ),
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Feedback input
                   TextFormField(
                     initialValue: options[index]['feedback'],
                     decoration: InputDecoration(
                       labelText: 'Umpan Balik untuk jawaban ini',
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.comment_outlined,
                         color: _primaryColor,
                       ),
@@ -1448,7 +1394,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       helperText: '* Wajib diisi',
-                      helperStyle: TextStyle(color: Colors.red),
+                      helperStyle: const TextStyle(color: Colors.red),
                     ),
                     maxLines: 2,
                     validator: (value) {
@@ -1476,7 +1422,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
     return FadeInLeft(
       delay: Duration(milliseconds: 100 * index),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: isSelected ? Colors.green.shade50 : Colors.white,
           borderRadius: BorderRadius.circular(15),
@@ -1486,10 +1432,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.07),
+              color: Colors.grey.withValues(alpha: 0.07),
               spreadRadius: 1,
               blurRadius: 3,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
@@ -1498,12 +1444,12 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           children: [
             // Option header
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.green.shade100.withOpacity(0.5)
+                    ? Colors.green.shade100.withValues(alpha: 0.5)
                     : Colors.grey.shade50,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(14),
                   topRight: Radius.circular(14),
                 ),
@@ -1526,7 +1472,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         : Colors.grey.shade700,
                     size: 22,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
                     text,
                     style: TextStyle(
@@ -1538,14 +1484,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     ),
                   ),
                   if (isSelected) ...[
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.green.shade600,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Jawaban Benar',
                         style: TextStyle(
                           color: Colors.white,
@@ -1561,13 +1508,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
             // Option content
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Selection control
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(10),
@@ -1577,8 +1525,10 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       children: [
                         Radio<int>(
                           value: index,
+                          // ignore: deprecated_member_use
                           groupValue: options
                               .indexWhere((opt) => opt['percentage'] == 100),
+                          // ignore: deprecated_member_use
                           onChanged: (value) {
                             setState(() {
                               for (var i = 0; i < options.length; i++) {
@@ -1599,14 +1549,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                     ),
                   ),
 
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Feedback input
                   TextFormField(
                     initialValue: options[index]['feedback'],
                     decoration: InputDecoration(
                       labelText: 'Umpan Balik',
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.comment_outlined,
                         color: _primaryColor,
                       ),
@@ -1616,7 +1566,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       filled: true,
                       fillColor: Colors.grey.shade50,
                       helperText: '* Wajib diisi',
-                      helperStyle: TextStyle(color: Colors.red),
+                      helperStyle: const TextStyle(color: Colors.red),
                     ),
                     maxLines: 2,
                     validator: (value) {
@@ -1646,17 +1596,17 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
           (index) => FadeInLeft(
             delay: Duration(milliseconds: 100 * index),
             child: Container(
-              margin: EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
                 border: Border.all(color: Colors.grey.shade200),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.07),
+                    color: Colors.grey.withValues(alpha: 0.07),
                     spreadRadius: 1,
                     blurRadius: 3,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -1665,10 +1615,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                 children: [
                   // Option header
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: _primaryColor.withOpacity(0.08),
-                      borderRadius: BorderRadius.only(
+                      color: _primaryColor.withValues(alpha: 0.08),
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(14),
                         topRight: Radius.circular(14),
                       ),
@@ -1682,9 +1633,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: _primaryColor.withOpacity(0.1),
+                                color: _primaryColor.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -1697,14 +1648,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                                 size: 18,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               selectedType == 'essay'
                                   ? 'Jawaban Essay'
                                   : selectedType == 'short_answer'
                                       ? 'Jawaban Singkat'
                                       : 'Jawaban Numerik',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 15,
                                 color: _primaryColor,
@@ -1719,7 +1670,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                             onPressed: () => _removeAnswerOption(index),
                             tooltip: 'Hapus jawaban ini',
                             padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(),
+                            constraints: const BoxConstraints(),
                           ),
                       ],
                     ),
@@ -1727,14 +1678,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
                   // Option content
                   Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Answer text field
                         TextFormField(
                           initialValue: options[index]['text'],
-                          style: TextStyle(fontSize: 15),
+                          style: const TextStyle(fontSize: 15),
                           decoration: InputDecoration(
                             labelText: selectedType == 'short_answer'
                                 ? 'Jawaban Singkat'
@@ -1775,7 +1726,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           },
                         ),
 
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Percentage field
                         TextFormField(
@@ -1783,7 +1734,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           decoration: InputDecoration(
                             labelText: 'Persentase Nilai',
                             prefixIcon:
-                                Icon(Icons.percent, color: _primaryColor),
+                                const Icon(Icons.percent, color: _primaryColor),
                             suffixText: '%',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1805,14 +1756,14 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                           },
                         ),
 
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Feedback field
                         TextFormField(
                           initialValue: options[index]['feedback'],
                           decoration: InputDecoration(
                             labelText: 'Umpan Balik',
-                            prefixIcon: Icon(Icons.comment_outlined,
+                            prefixIcon: const Icon(Icons.comment_outlined,
                                 color: _primaryColor),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -1820,7 +1771,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                             filled: true,
                             fillColor: Colors.grey.shade50,
                             helperText: '*Wajib diisi',
-                            helperStyle: TextStyle(color: Colors.red),
+                            helperStyle: const TextStyle(color: Colors.red),
                           ),
                           maxLines: null,
                           minLines: 2,
@@ -1852,18 +1803,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   Widget _buildAddOptionButtonEnhanced() {
     return Center(
       child: Container(
-        margin: EdgeInsets.only(top: 8),
+        margin: const EdgeInsets.only(top: 8),
         child: InkWell(
           onTap: _addOption,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              border: Border.all(color: _primaryColor.withOpacity(0.5)),
+              border: Border.all(color: _primaryColor.withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -1891,18 +1842,18 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
   Widget _buildAddAnswerButtonEnhanced() {
     return Center(
       child: Container(
-        margin: EdgeInsets.only(top: 8),
+        margin: const EdgeInsets.only(top: 8),
         child: InkWell(
           onTap: _addAnswerOption,
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
-              border: Border.all(color: _primaryColor.withOpacity(0.5)),
+              border: Border.all(color: _primaryColor.withValues(alpha: 0.5)),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
@@ -1929,9 +1880,9 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: FadeInUp(
-        duration: Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 600),
         child: Container(
           height: 60,
           decoration: BoxDecoration(
@@ -1946,10 +1897,13 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.3),
                 spreadRadius: 1,
                 blurRadius: 8,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -1958,15 +1912,15 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
             child: InkWell(
               onTap: _isSubmitting ? null : _submitForm,
               borderRadius: BorderRadius.circular(15),
-              splashColor: Colors.white.withOpacity(0.2),
-              highlightColor: Colors.white.withOpacity(0.1),
+              splashColor: Colors.white.withValues(alpha: 0.2),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (_isSubmitting) ...[
-                      SizedBox(
+                      const SizedBox(
                         width: 24,
                         height: 24,
                         child: CircularProgressIndicator(
@@ -1975,11 +1929,11 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                     ],
                     Text(
                       _isSubmitting ? 'Memproses...' : 'Simpan',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -1987,8 +1941,8 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       ),
                     ),
                     if (!_isSubmitting) ...[
-                      SizedBox(width: 8),
-                      Icon(
+                      const SizedBox(width: 8),
+                      const Icon(
                         Icons.arrow_forward_rounded,
                         color: Colors.white,
                         size: 22,
@@ -1997,7 +1951,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
                       }).slideX(
                         begin: 0,
                         end: 0.3,
-                        duration: Duration(milliseconds: 1000),
+                        duration: const Duration(milliseconds: 1000),
                         curve: Curves.easeInOut,
                       ),
                     ],
@@ -2019,7 +1973,7 @@ class _EditQuestionScreenState extends State<EditQuestionScreen>
         children: [
           if (icon != null)
             Icon(icon, color: Theme.of(context).colorScheme.secondary),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Text(label),
         ],
       ),

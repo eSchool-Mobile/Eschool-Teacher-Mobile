@@ -4,11 +4,7 @@ import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAnd
 import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/allowanceAndDeductionsBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';
-import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
@@ -59,22 +55,12 @@ class StaffPayrollDetailsContainerState
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
 
-  late final Animation<double> _heightAnimation = Tween<double>(
-          begin: Utils().getResponsiveHeight(context, 120),
-          end: Utils().getResponsiveHeight(context, 440))
-      .animate(CurvedAnimation(
-          parent: _animationController, curve: const Interval(0.0, 0.5)));
-
   late final Animation<double> _opacityAnimation =
       Tween<double>(begin: 0, end: 1.0).animate(CurvedAnimation(
           parent: _animationController, curve: const Interval(0.5, 1.0)));
 
   late final Animation<double> _iconAngleAnimation =
       Tween<double>(begin: 0, end: 180).animate(CurvedAnimation(
-          parent: _animationController, curve: Curves.easeInOut));
-
-  late final Animation<double> _cardElevationAnimation =
-      Tween<double>(begin: 1, end: 6).animate(CurvedAnimation(
           parent: _animationController, curve: Curves.easeInOut));
 
   String formatRupiah(double amount) {
@@ -190,7 +176,7 @@ class StaffPayrollDetailsContainerState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: _maroonPrimary.withOpacity(0.08),
+              color: _maroonPrimary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
@@ -231,7 +217,7 @@ class StaffPayrollDetailsContainerState
           // Right side - value with fixed layout to prevent vertical display
           Expanded(
             child: Container(
-              constraints: BoxConstraints(minHeight: 36),
+              constraints: const BoxConstraints(minHeight: 36),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
@@ -296,13 +282,13 @@ class StaffPayrollDetailsContainerState
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: widget.isSelected
-                      ? _maroonPrimary.withOpacity(0.3)
+                      ? _maroonPrimary.withValues(alpha: 0.3)
                       : Colors.grey[300]!,
                   width: widget.isSelected ? 2 : 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.07),
+                    color: Colors.black.withValues(alpha: 0.07),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
@@ -318,7 +304,7 @@ class StaffPayrollDetailsContainerState
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: widget.isSelected
-                          ? _maroonPrimary.withOpacity(0.3)
+                          ? _maroonPrimary.withValues(alpha: 0.3)
                           : Colors.transparent,
                       width: widget.isSelected ? 2 : 0,
                     ),
@@ -348,7 +334,7 @@ class StaffPayrollDetailsContainerState
                       }
 
                       return SingleChildScrollView(
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
@@ -381,12 +367,12 @@ class StaffPayrollDetailsContainerState
           end: Alignment.bottomRight,
           colors: widget.isSelected
               ? [
-                  _maroonPrimary.withOpacity(0.05),
-                  _maroonLight.withOpacity(0.08)
+                  _maroonPrimary.withValues(alpha: 0.05),
+                  _maroonLight.withValues(alpha: 0.08)
                 ]
               : [Colors.white, Colors.white],
         ),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
         border: Border(bottom: BorderSide(color: Colors.grey[200]!, width: 1)),
       ),
       child: Row(
@@ -449,8 +435,7 @@ class StaffPayrollDetailsContainerState
                                       widget.staffPayRoll.userDetails
                                               ?.lastName !=
                                           ''
-                                  ? " " +
-                                      widget.staffPayRoll.userDetails!.lastName!
+                                  ? " ${widget.staffPayRoll.userDetails!.lastName!}"
                                   : ""))
                           .trim()),
                   style: GoogleFonts.poppins(
@@ -470,8 +455,8 @@ class StaffPayrollDetailsContainerState
                         ? Theme.of(context)
                             .extension<CustomColors>()!
                             .totalStaffOverviewBackgroundColor!
-                            .withOpacity(0.1)
-                        : _maroonPrimary.withOpacity(0.1),
+                            .withValues(alpha: 0.1)
+                        : _maroonPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -615,8 +600,8 @@ class StaffPayrollDetailsContainerState
                           TextFormField(
                             controller: _basicSalaryTextEditingController,
                             focusNode: _basicSalaryFocusNode,
-                            keyboardType:
-                                TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                   RegExp(r'[0-9.]')),
@@ -690,15 +675,15 @@ class StaffPayrollDetailsContainerState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _maroonPrimary.withOpacity(0.08),
-                          _maroonLight.withOpacity(0.08),
+                          _maroonPrimary.withValues(alpha: 0.08),
+                          _maroonLight.withValues(alpha: 0.08),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                           color: _isEditingNetSalary
                               ? _maroonPrimary
-                              : _maroonPrimary.withOpacity(0.2)),
+                              : _maroonPrimary.withValues(alpha: 0.2)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -710,7 +695,7 @@ class StaffPayrollDetailsContainerState
                               Icon(
                                 Icons.edit,
                                 size: 14,
-                                color: _maroonPrimary.withOpacity(0.7),
+                                color: _maroonPrimary.withValues(alpha: 0.7),
                               ),
                             ],
                           ],
@@ -722,8 +707,8 @@ class StaffPayrollDetailsContainerState
                           TextFormField(
                             controller: _netSalaryTextEditingController,
                             focusNode: _netSalaryFocusNode,
-                            keyboardType:
-                                TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(
                                   RegExp(r'[0-9.]')),
@@ -741,7 +726,7 @@ class StaffPayrollDetailsContainerState
                               hintStyle: GoogleFonts.poppins(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: _maroonPrimary.withOpacity(0.5),
+                                color: _maroonPrimary.withValues(alpha: 0.5),
                               ),
                               prefix: Text(
                                 "Rp ",
@@ -893,7 +878,7 @@ class StaffPayrollDetailsContainerState
                               gradient: LinearGradient(
                                 colors: [
                                   _maroonPrimary,
-                                  Color(0xFF9A1E3C),
+                                  const Color(0xFF9A1E3C),
                                 ],
                                 begin: Alignment.centerLeft,
                                 end: Alignment.centerRight,
@@ -901,7 +886,7 @@ class StaffPayrollDetailsContainerState
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _maroonPrimary.withOpacity(0.2),
+                                  color: _maroonPrimary.withValues(alpha: 0.2),
                                   offset: const Offset(0, 2),
                                   blurRadius: 5,
                                   spreadRadius: 0,

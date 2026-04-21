@@ -52,7 +52,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
     _scrollController.addListener(_scrollListener);
-    print('TeacherMyTimetableScreen init - selected day: $_selectedDayKey');
+    debugPrint('TeacherMyTimetableScreen init - selected day: $_selectedDayKey');
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
@@ -149,7 +149,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
     return SingleChildScrollView(
       controller: _dayScrollController,
       scrollDirection: Axis.horizontal,
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
@@ -160,7 +160,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
             bool isSelected = _selectedDayKey == day['key'];
             // Debug: show which day is being built and whether it's selected
             // ignore: avoid_print
-            print(
+            debugPrint(
                 'Building day selector item: ${day['key']} index:$idx isSelected:$isSelected');
             return Padding(
               key: _dayKeys[idx],
@@ -179,26 +179,26 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                         .getTeacherMyTimetable(
                             isRefresh: true, dayKey: day['key']!);
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       // Selected pill appears white with maroon text for high contrast
                       color: isSelected ? Colors.white : Colors.transparent,
                       border: Border.all(
                         color: isSelected
-                            ? _maroonPrimary.withOpacity(0.15)
-                            : Colors.white.withOpacity(0.22),
+                            ? _maroonPrimary.withValues(alpha: 0.15)
+                            : Colors.white.withValues(alpha: 0.22),
                         width: isSelected ? 1 : 0.5,
                       ),
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.08),
+                                color: _maroonPrimary.withValues(alpha: 0.08),
                                 blurRadius: 6,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               )
                             ]
                           : null,
@@ -221,10 +221,10 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
                   target: isSelected ? 1 : 0,
                 )
                 .scale(
-                  begin: Offset(1.0, 1.0),
-                  end: Offset(1.05, 1.05),
+                  begin: const Offset(1.0, 1.0),
+                  end: const Offset(1.05, 1.05),
                   curve: Curves.easeOutCubic,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                 );
           }).toList(),
         ),
@@ -235,11 +235,11 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
   @override
   Widget build(BuildContext context) {
     final state = context.watch<TeacherMyTimetableCubit>().state;
-    print("Current state: $state");
+    debugPrint("Current state: $state");
     if (state is TeacherMyTimetableFetchSuccess) {
-      print("Total slots in state: ${state.timeTableSlots.length}");
-      print("Selected day: $_selectedDayKey");
-      print("Days in data: ${state.timeTableSlots.map((s) => s.day).toSet()}");
+      debugPrint("Total slots in state: ${state.timeTableSlots.length}");
+      debugPrint("Selected day: $_selectedDayKey");
+      debugPrint("Days in data: ${state.timeTableSlots.map((s) => s.day).toSet()}");
       // Ensure we focus the selected day once after data has arrived
       if (!_focusedOnce) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -267,11 +267,11 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
             // Since the API already returns the correct slots for the selected day
             final slots = state.timeTableSlots;
 
-            print("Total slots: ${slots.length}");
-            slots.forEach((slot) {
-              print(
+            debugPrint("Total slots: ${slots.length}");
+            for (var slot in slots) {
+              debugPrint(
                   "Slot - Day: ${slot.day}, ID: ${slot.id}, ClassSectionId: ${slot.classSectionId}");
-            });
+            }
 
             if (slots.isEmpty) {
               return Center(
@@ -288,7 +288,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
               alignment: Alignment.topCenter,
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: EdgeInsets.only(bottom: 25, top: 25),
+                padding: const EdgeInsets.only(bottom: 25, top: 25),
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.all(appContentHorizontalPadding),
@@ -330,14 +330,14 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
             child: Align(
               alignment: Alignment.topCenter,
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(bottom: 25, top: 25),
+                padding: const EdgeInsets.only(bottom: 25, top: 25),
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.all(appContentHorizontalPadding),
                   color: Theme.of(context).colorScheme.surface,
                   child: Column(
                     children:
-                        List.generate(6, (index) => SkeletonTimetableSlot()),
+                        List.generate(6, (index) => const SkeletonTimetableSlot()),
                   ),
                 ),
               ),
@@ -350,19 +350,19 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
 
   String getClassSectionName(int? classSectionId) {
     if (classSectionId == null) {
-      print("ClassSectionId is null");
+      debugPrint("ClassSectionId is null");
       return "-";
     }
 
     final classState = context.read<ClassesCubit>().state;
-    print("ClassState: $classState");
+    debugPrint("ClassState: $classState");
 
     if (classState is ClassesFetchSuccess) {
       try {
-        print("Checking class section ID: $classSectionId");
-        print(
+        debugPrint("Checking class section ID: $classSectionId");
+        debugPrint(
             "Primary classes: ${classState.primaryClasses.map((e) => '${e.name} (${e.id})')}");
-        print(
+        debugPrint(
             "Other classes: ${classState.classes.map((e) => '${e.name} (${e.id})')}");
 
         // Check in primary classes first
@@ -372,7 +372,7 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
         );
 
         if (primaryClass.id != 0) {
-          print("Found in primary classes: ${primaryClass.name}");
+          debugPrint("Found in primary classes: ${primaryClass.name}");
           return primaryClass.name ?? "";
         }
 
@@ -382,11 +382,11 @@ class _TeacherMyTimetableScreenState extends State<TeacherMyTimetableScreen>
           orElse: () => ClassSection(id: 0, name: "-", classId: 0),
         );
 
-        print(
+        debugPrint(
             "Found class section: ${classSection.name} for ID: $classSectionId");
         return classSection.name ?? "";
       } catch (e) {
-        print("Error finding class section: $e");
+        debugPrint("Error finding class section: $e");
         return "-";
       }
     }

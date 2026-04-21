@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:flutter/foundation.dart';
 
 class ExamStatusCubit extends Cubit<ExamStatusState> {
   final ExamStatusRepository _examStatusRepository;
@@ -22,7 +23,7 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
       ));
     } catch (e) {
       // Log technical error untuk debugging (hanya untuk development)
-      print('Technical error in getStudentExamStatus: $e');
+      debugPrint('Technical error in getStudentExamStatus: $e');
 
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
@@ -54,7 +55,7 @@ class ExamStatusCubit extends Cubit<ExamStatusState> {
       ));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in deleteStudentExamStatus: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       return false;
     }

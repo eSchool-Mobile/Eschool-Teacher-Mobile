@@ -8,7 +8,6 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -61,7 +60,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
   }
 
   void getLeaves() {
-    print('\n=== DEBUG: GeneralLeavesScreen.getLeaves() ===');
+    debugPrint('\n=== DEBUG: GeneralLeavesScreen.getLeaves() ===');
     LeaveDayType leaveDayType = LeaveDayType.today;
 
     if (_selectedTabTitleKey == tomorrowKey) {
@@ -70,8 +69,8 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
       leaveDayType = LeaveDayType.upcoming;
     }
 
-    print('Selected tab: $_selectedTabTitleKey');
-    print('Leave day type: $leaveDayType');
+    debugPrint('Selected tab: $_selectedTabTitleKey');
+    debugPrint('Leave day type: $leaveDayType');
 
     context
         .read<GeneralLeavesCubit>()
@@ -107,9 +106,9 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Colors.white.withOpacity(0.0),
-            Colors.white.withOpacity(0.3),
-            Colors.white.withOpacity(0.0),
+            Colors.white.withValues(alpha: 0.0),
+            Colors.white.withValues(alpha: 0.3),
+            Colors.white.withValues(alpha: 0.0),
           ],
         ),
       ),
@@ -124,27 +123,27 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
         color: Colors.transparent,
         child: InkWell(
           onTap: () => changeTab(tabKey),
-          highlightColor: Colors.white.withOpacity(0.1),
-          splashColor: Colors.white.withOpacity(0.2),
+          highlightColor: Colors.white.withValues(alpha: 0.1),
+          splashColor: Colors.white.withValues(alpha: 0.2),
           child: Container(
             alignment: Alignment.center,
             child: AnimatedContainer(
-              duration: Duration(milliseconds: 300),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              duration: const Duration(milliseconds: 300),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.2)
+                    ? Colors.white.withValues(alpha: 0.2)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: isSelected
-                    ? Border.all(color: Colors.white.withOpacity(0.5), width: 1)
+                    ? Border.all(color: Colors.white.withValues(alpha: 0.5), width: 1)
                     : null,
                 boxShadow: isSelected
                     ? [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         )
                       ]
                     : null,
@@ -154,7 +153,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color: Colors.white.withOpacity(isSelected ? 1 : 0.7),
+                  color: Colors.white.withValues(alpha: isSelected ? 1 : 0.7),
                 ),
               ),
             ),
@@ -180,15 +179,15 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
       ),
       body: BlocBuilder<GeneralLeavesCubit, GeneralLeavesState>(
         builder: (context, state) {
-          print('\n=== DEBUG: GeneralLeavesScreen BlocBuilder ===');
-          print('Current state: ${state.runtimeType}');
+          debugPrint('\n=== DEBUG: GeneralLeavesScreen BlocBuilder ===');
+          debugPrint('Current state: ${state.runtimeType}');
 
           if (state is GeneralLeavesFetchSuccess) {
-            print('State: GeneralLeavesFetchSuccess');
-            print('Number of leaves: ${state.leaves.length}');
+            debugPrint('State: GeneralLeavesFetchSuccess');
+            debugPrint('Number of leaves: ${state.leaves.length}');
 
             if (state.leaves.isEmpty) {
-              print('No leaves found - showing empty message');
+              debugPrint('No leaves found - showing empty message');
               // If empty, show "No teacher on leave" text
               return Center(
                 child: CustomTextContainer(
@@ -196,11 +195,11 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                 ),
               );
             } else {
-              print('Displaying ${state.leaves.length} leaves');
+              debugPrint('Displaying ${state.leaves.length} leaves');
               return SingleChildScrollView(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 20, // Reduced padding since appBar handles spacing
                   bottom: 100,
                 ),
@@ -238,7 +237,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
           }
           return SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
               top: 20,
               bottom: 100,
             ),
@@ -256,9 +255,9 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -277,7 +276,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                 Container(
                                   width: 50,
                                   height: 50,
-                                  decoration: BoxDecoration(
+                                  decoration: const BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                   ),
@@ -342,7 +341,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
                                         ),
@@ -366,7 +365,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
                                         ),
@@ -402,7 +401,7 @@ class _GeneralLeavesScreenState extends State<GeneralLeavesScreen>
                                       Container(
                                         width: 16,
                                         height: 16,
-                                        decoration: BoxDecoration(
+                                        decoration: const BoxDecoration(
                                           color: Colors.white,
                                           shape: BoxShape.circle,
                                         ),

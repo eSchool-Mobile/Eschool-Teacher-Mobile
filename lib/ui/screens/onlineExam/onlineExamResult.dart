@@ -6,7 +6,6 @@ import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
@@ -14,8 +13,10 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class OnlineExamResultScreen extends StatefulWidget {
+  const OnlineExamResultScreen({super.key});
+
   @override
-  _OnlineExamResultScreenState createState() => _OnlineExamResultScreenState();
+  State<OnlineExamResultScreen> createState() => _OnlineExamResultScreenState();
 }
 
 class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
@@ -51,8 +52,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   late AnimationController _animationController;
 
   // Theme colors for the app bar
-  final Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Medium maroon
   @override
   void initState() {
     super.initState();
@@ -60,7 +61,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
 
     // Initialize animation controller for the app bar
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
 
@@ -81,7 +82,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   void _showFilterBottomSheet(BuildContext parentContext) {
     showModalBottomSheet(
       context: parentContext,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       backgroundColor: Colors.white,
@@ -89,7 +90,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +100,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                     child: Container(
                       width: 40,
                       height: 4,
-                      margin: EdgeInsets.only(top: 8),
+                      margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
@@ -107,7 +108,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                     ),
                   ),
                   // Judul
-                  Text(
+                  const Text(
                     'Filter Status Ujian',
                     style: TextStyle(
                       fontSize: 18,
@@ -115,7 +116,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                       color: Color(0xFF8B0000),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Input Tanggal
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,7 +144,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                             }
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -159,7 +160,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                           ),
                         ),
                       ),
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '-',
@@ -190,7 +191,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                             }
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -208,18 +209,34 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Filter Status
-                  Column(
-                    children: [
-                      _buildFilterOption('Semua', setModalState, parentContext),
-                      _buildFilterOption(
-                          'Selesai', setModalState, parentContext),
-                      _buildFilterOption(
-                          'Belum Dimulai', setModalState, parentContext),
-                      _buildFilterOption(
-                          'Sedang Berlangsung', setModalState, parentContext),
-                    ],
+                  RadioGroup<String>(
+                    groupValue: _selectedFilter,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFilter = value ?? 'Semua';
+                        parentContext.read<OnlineExamCubit>().getOnlineExams(
+                              search: _searchController.text,
+                              startDate: _startDate,
+                              endDate: _endDate,
+                            );
+                      });
+                      setModalState(() {});
+                      Navigator.pop(context);
+                    },
+                    child: Column(
+                      children: [
+                        _buildFilterOption(
+                            'Semua', setModalState, parentContext),
+                        _buildFilterOption(
+                            'Selesai', setModalState, parentContext),
+                        _buildFilterOption(
+                            'Belum Dimulai', setModalState, parentContext),
+                        _buildFilterOption(
+                            'Sedang Berlangsung', setModalState, parentContext),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -249,7 +266,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
           },
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             color: Colors.transparent,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,20 +277,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                 ),
                 Radio<String>(
                   value: label,
-                  groupValue: _selectedFilter,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFilter = value ?? 'Semua';
-                      parentContext.read<OnlineExamCubit>().getOnlineExams(
-                            search: _searchController.text,
-                            startDate: _startDate,
-                            endDate: _endDate,
-                          );
-                    });
-                    setModalState(() {});
-                    Navigator.pop(context);
-                  },
-                  activeColor: Color(0xFF8B0000),
+                  activeColor: const Color(0xFF8B0000),
                 ),
               ],
             ),
@@ -299,7 +303,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
       child: Column(
         children: [
           if (_showSearchBar) _buildSearchBar(),
-          if (!_showSearchBar) SizedBox(height: 20),
+          if (!_showSearchBar) const SizedBox(height: 20),
           Expanded(
             child: _buildExamCard(),
           ),
@@ -310,7 +314,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      delay: Duration(milliseconds: 200),
+      delay: const Duration(milliseconds: 200),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Container(
@@ -320,7 +324,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -384,8 +388,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
           final filteredExams = state.exams.where((exam) {
             if (_selectedFilter == "Semua") return true;
             if (_selectedFilter == "Belum Dimulai") return exam.status == 0;
-            if (_selectedFilter == "Sedang Berlangsung")
+            if (_selectedFilter == "Sedang Berlangsung") {
               return exam.status == 1;
+            }
             if (_selectedFilter == "Selesai") return exam.status == 2;
             return false;
           }).toList()
@@ -446,13 +451,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
 
           return AnimationLimiter(
             child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: filteredExams.length,
               itemBuilder: (context, index) {
                 final exam = filteredExams[index];
                 return AnimationConfiguration.staggeredList(
                   position: index,
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   child: SlideAnimation(
                     verticalOffset: 50.0,
                     child: FadeInAnimation(
@@ -464,7 +469,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             ),
           );
         }
-        return Center(child: Text('No data available'));
+        return const Center(child: Text('No data available'));
       },
     );
   }
@@ -472,20 +477,20 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   Widget _buildModernExamCard(BuildContext context, dynamic exam) {
     // Define modern color scheme with soft maroon colors - consistent with onlineExamScreen
     final colorScheme = {
-      'primary': Color.fromARGB(255, 172, 33, 33),
-      'gradient1': Color(0xFF7D1F1F), // Lighter maroon
-      'gradient2': Color(0xFF9B2F2F), // Medium maroon
-      'gradient3': Color(0xFFBF4040), // Soft bright maroon
-      'neutral1': Color(0xFF2D3748), // Dark text
-      'neutral2': Color(0xFF718096), // Secondary text
-      'accent': Color(0xFFE53E3E), // Accent color
+      'primary': const Color.fromARGB(255, 172, 33, 33),
+      'gradient1': const Color(0xFF7D1F1F), // Lighter maroon
+      'gradient2': const Color(0xFF9B2F2F), // Medium maroon
+      'gradient3': const Color(0xFFBF4040), // Soft bright maroon
+      'neutral1': const Color(0xFF2D3748), // Dark text
+      'neutral2': const Color(0xFF718096), // Secondary text
+      'accent': const Color(0xFFE53E3E), // Accent color
     };
 
     // Improved calculation for text wrapping - same as onlineExamScreen.dart
     final double screenWidth = MediaQuery.of(context).size.width;
     final double availableWidth = screenWidth - 48; // 24px padding on each side
-    final double titleFontSize = 24.0;
-    final double lineHeight = 1.4;
+    const double titleFontSize = 24.0;
+    const double lineHeight = 1.4;
 
     // Calculate estimated number of lines based on character count and available width
     final int estimatedCharactersPerLine =
@@ -495,8 +500,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
     final double estimatedTextHeight =
         estimatedLines * (titleFontSize * lineHeight);
 
-    final double minHeight = 260.0; // Increased minimum height untuk header
-    final double maxHeight = 450.0; // Increased maximum height untuk header
+    const double minHeight = 260.0; // Increased minimum height untuk header
+    const double maxHeight = 450.0; // Increased maximum height untuk header
 
     // Sesuaikan headerHeight dengan batasan min dan max, plus extra space untuk wrapping
     final double headerHeight = math.min(
@@ -506,9 +511,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
     );
 
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 16),
+        margin: const EdgeInsets.symmetric(vertical: 16),
         child: Material(
           color: Colors.transparent,
           child: InkWell(
@@ -520,10 +525,10 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
             },
             borderRadius: BorderRadius.circular(32),
             highlightColor: Colors.transparent,
-            splashColor: colorScheme['primary']!.withOpacity(0.05),
+            splashColor: colorScheme['primary']!.withValues(alpha: 0.05),
             child: Ink(
               decoration: BoxDecoration(
-                color: Color.fromARGB(255, 237, 237, 237),
+                color: const Color.fromARGB(255, 237, 237, 237),
                 borderRadius: BorderRadius.circular(32),
               ),
               child: Stack(
@@ -536,7 +541,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                       Container(
                         height: headerHeight,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(32),
                             topRight: Radius.circular(32),
                           ),
@@ -559,7 +564,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                 size: Size.infinite,
                                 painter: Modern2025PatternPainter(
                                   primaryColor: Colors.white,
-                                  secondaryColor: Colors.white.withOpacity(0.5),
+                                  secondaryColor:
+                                      Colors.white.withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -575,7 +581,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                   shape: BoxShape.circle,
                                   gradient: RadialGradient(
                                     colors: [
-                                      Colors.white.withOpacity(0.2),
+                                      Colors.white.withValues(alpha: 0.2),
                                       Colors.transparent,
                                     ],
                                   ),
@@ -588,14 +594,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                               top: 20,
                               right: 24,
                               child: Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 10,
                                       spreadRadius: -5,
                                     ),
@@ -617,7 +624,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                               ? Colors.blue
                                               : Colors.green,
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       exam.status == 0
                                           ? 'Belum Dimulai'
@@ -664,9 +671,9 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                         letterSpacing: 0.3,
                                         shadows: [
                                           Shadow(
-                                            color:
-                                                Colors.black.withOpacity(0.5),
-                                            offset: Offset(0, 2),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.5),
+                                            offset: const Offset(0, 2),
                                             blurRadius: 4,
                                           ),
                                         ],
@@ -676,12 +683,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                       textAlign: TextAlign.left,
                                     ),
                                   ),
-                                  SizedBox(height: 16),
+                                  const SizedBox(height: 16),
                                   Container(
                                     width: 60,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.8),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.8),
                                       borderRadius: BorderRadius.circular(1.5),
                                     ),
                                   ),
@@ -694,8 +702,8 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
 
                       // Content Section - bottom padding for overlapping card
                       Container(
-                        padding: EdgeInsets.fromLTRB(24, 120, 24, 24),
-                        child: SizedBox(),
+                        padding: const EdgeInsets.fromLTRB(24, 120, 24, 24),
+                        child: const SizedBox(),
                       ),
                     ],
                   ),
@@ -711,15 +719,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                             spreadRadius: -5,
                           ),
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
+                            color: Colors.black.withValues(alpha: 0.07),
                             blurRadius: 5,
-                            offset: Offset(0, 1),
+                            offset: const Offset(0, 1),
                           ),
                         ],
                       ),
@@ -735,20 +743,20 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                             }
                           },
                           splashColor:
-                              colorScheme['primary']!.withOpacity(0.05),
+                              colorScheme['primary']!.withValues(alpha: 0.05),
                           highlightColor: Colors.transparent,
                           child: Column(
                             children: [
                               // Subject and View Results Section
                               Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
                                     Container(
-                                      padding: EdgeInsets.all(10),
+                                      padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         color: colorScheme['primary']!
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
@@ -757,7 +765,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                         size: 20,
                                       ),
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
@@ -774,7 +782,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 4),
                                           Text(
                                             exam.subjectName,
                                             style: TextStyle(
@@ -788,10 +796,10 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                     ),
                                     if (exam.status == 2)
                                       Container(
-                                        padding: EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           color: colorScheme['primary']!
-                                              .withOpacity(0.07),
+                                              .withValues(alpha: 0.07),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
@@ -809,15 +817,15 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                               Divider(
                                 height: 1,
                                 thickness: 1,
-                                color:
-                                    colorScheme['primary']!.withOpacity(0.08),
+                                color: colorScheme['primary']!
+                                    .withValues(alpha: 0.08),
                                 indent: 20,
                                 endIndent: 20,
                               ),
 
                               // Exam Details Section
                               Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -835,7 +843,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                               size: 16,
                                               color: colorScheme['primary'],
                                             ),
-                                            SizedBox(width: 6),
+                                            const SizedBox(width: 6),
                                             Text(
                                               'Tanggal',
                                               style: TextStyle(
@@ -846,7 +854,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           DateFormat('dd MMM yyyy', 'id_ID')
                                               .format(exam.startDate),
@@ -879,7 +887,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                               size: 16,
                                               color: colorScheme['accent'],
                                             ),
-                                            SizedBox(width: 6),
+                                            const SizedBox(width: 6),
                                             Text(
                                               'Durasi',
                                               style: TextStyle(
@@ -890,7 +898,7 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           '${exam.duration} menit',
                                           style: TextStyle(
@@ -922,13 +930,13 @@ class _OnlineExamResultScreenState extends State<OnlineExamResultScreen>
   Widget _buildSkeletonLoading() {
     return AnimationLimiter(
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: 3,
         itemBuilder: (context, index) {
           return AnimationConfiguration.staggeredList(
             position: index,
-            duration: Duration(milliseconds: 500),
-            child: SlideAnimation(
+            duration: const Duration(milliseconds: 500),
+            child: const SlideAnimation(
               verticalOffset: 50.0,
               child: FadeInAnimation(
                 child: SkeletonOnlineExamCard(),
@@ -962,7 +970,7 @@ class Modern2025PatternPainter extends CustomPainter {
       ..color = secondaryColor
       ..style = PaintingStyle.fill;
 
-    final double spacing = 40;
+    const double spacing = 40;
 
     // Draw curved lines
     for (double i = -size.width / 2; i < size.width * 1.5; i += spacing) {

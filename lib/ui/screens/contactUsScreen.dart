@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter/services.dart';
@@ -158,7 +157,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                 height: MediaQuery.of(context).size.height,
                 child: CustomPaint(
                   painter: BackgroundPainter(
-                    color: AppColorPalette.lightMaroon.withOpacity(0.1),
+                    color: AppColorPalette.lightMaroon.withValues(alpha: 0.1),
                   ),
                 ),
               ),
@@ -166,7 +165,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
               // Main Content with Animation
               SingleChildScrollView(
                 controller: _scrollController,
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: 20,
                   bottom: 20,
                   left: 20,
@@ -270,7 +269,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -310,7 +309,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
   }
 
   Widget _buildContactCard(IconData icon, String title, String content) {
-    void _handleTap() async {
+    void handleTap() async {
       HapticFeedback.lightImpact();
       String urlString = '';
       switch (icon) {
@@ -351,7 +350,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 5),
                 ),
@@ -360,7 +359,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: _handleTap,
+                onTap: handleTap,
                 borderRadius: BorderRadius.circular(24),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -369,7 +368,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColorPalette.accentPink.withOpacity(0.2),
+                          color: AppColorPalette.accentPink.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
@@ -406,7 +405,7 @@ class _ContactUsScreenState extends State<ContactUsScreen>
                       ),
                       Icon(
                         Icons.arrow_forward_ios_rounded,
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.5),
+                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.5),
                         size: 20,
                       ),
                     ],

@@ -77,7 +77,7 @@ class CustomErrorWidget extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: effectivePrimaryColor.withOpacity(0.3),
+                        color: effectivePrimaryColor.withValues(alpha: 0.3),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -85,7 +85,7 @@ class CustomErrorWidget extends StatelessWidget {
                   ),
                   child: ElevatedButton.icon(
                     onPressed: onRetry,
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.refresh_rounded,
                       size: 20,
                     ),

@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'dart:convert';
-
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
@@ -20,11 +18,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 // 1. Tambahkan enum untuk status waktu
-enum TimeSlotStatus {
-  before,
-  during,
-  after
-}
+enum TimeSlotStatus { before, during, after }
 
 class TeacherTodaysTimetableContainer extends StatefulWidget {
   const TeacherTodaysTimetableContainer({super.key});
@@ -49,7 +43,8 @@ class _TeacherTodaysTimetableContainerState
   @override
   void initState() {
     _controller = AnimationController(
-      duration: Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
+      duration:
+          Duration(milliseconds: appearDisappearAnimationDurationMilliseconds),
       vsync: this,
     );
     _iconAngleAnimation = Tween<double>(begin: 0, end: 180)
@@ -58,7 +53,7 @@ class _TeacherTodaysTimetableContainerState
       parent: _controller,
       curve: Curves.fastLinearToSlowEaseIn,
     );
-    
+
     // Initialize with today's data
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -66,7 +61,7 @@ class _TeacherTodaysTimetableContainerState
         context.read<TeacherMyTimetableCubit>().getTeacherMyTimetable();
       }
     });
-    
+
     super.initState();
   }
 
@@ -94,19 +89,19 @@ class _TeacherTodaysTimetableContainerState
 
   String getClassSectionName(int? classSectionId) {
     if (classSectionId == null) {
-      print("ClassSectionId is null");
+      debugPrint("ClassSectionId is null");
       return "-";
     }
 
     final classState = context.read<ClassesCubit>().state;
-    print("ClassState: $classState");
+    debugPrint("ClassState: $classState");
 
     if (classState is ClassesFetchSuccess) {
       try {
-        print("Checking class section ID: $classSectionId");
-        print(
+        debugPrint("Checking class section ID: $classSectionId");
+        debugPrint(
             "Primary classes: ${classState.primaryClasses.map((e) => '${e.name} (${e.id})')}");
-        print(
+        debugPrint(
             "Other classes: ${classState.classes.map((e) => '${e.name} (${e.id})')}");
 
         // Check in primary classes first
@@ -116,8 +111,8 @@ class _TeacherTodaysTimetableContainerState
         );
 
         if (primaryClass.id != 0) {
-          print("Found in primary classes: ${primaryClass.name}");
-          return primaryClass?.name ?? "";
+          debugPrint("Found in primary classes: ${primaryClass.name}");
+          return primaryClass.name ?? "";
         }
 
         // Then check in other classes
@@ -126,11 +121,11 @@ class _TeacherTodaysTimetableContainerState
           orElse: () => ClassSection(id: 0, name: "-", classId: 0),
         );
 
-        print(
+        debugPrint(
             "Found class section: ${classSection.name} for ID: $classSectionId");
-        return classSection?.name ?? "";
+        return classSection.name ?? "";
       } catch (e) {
-        print("Error finding class section: $e");
+        debugPrint("Error finding class section: $e");
         return "-";
       }
     }
@@ -148,9 +143,9 @@ class _TeacherTodaysTimetableContainerState
     DateTime todayEnd = DateTime(
         now.year, now.month, now.day, end.hour, end.minute, end.second);
 
-    print("Current time: $now");
-    print("Slot start time: $todayStart");
-    print("Slot end time: $todayEnd");
+    debugPrint("Current time: $now");
+    debugPrint("Slot start time: $todayStart");
+    debugPrint("Slot end time: $todayEnd");
 
     return now.isAfter(todayStart) && now.isBefore(todayEnd);
   }
@@ -227,33 +222,28 @@ class _TeacherTodaysTimetableContainerState
 
   @override
   Widget build(BuildContext context) {
-    DateTime now = DateTime.now();
-    String Datenow = DateFormat('HH:mm:ss').format(now);
-
     return BlocBuilder<TeacherMyTimetableCubit, TeacherMyTimetableState>(
       builder: (context, state) {
         if (state is TeacherMyTimetableFetchSuccess) {
-
-
           // Always filter for today's date
           final today = DateTime.now();
           final todayDayName = weekDays[today.weekday - 1].toLowerCase();
-          
+
           // Filter for today's slots and sort by start time
           final slots = state.timeTableSlots.where((element) {
             return element.day?.toLowerCase() == todayDayName;
           }).toList()
-          ..sort((a, b) {
-            // Sort by start time
-            final timeA = a.startTime ?? '';
-            final timeB = b.startTime ?? '';
-            return timeA.compareTo(timeB);
-          });
-
+            ..sort((a, b) {
+              // Sort by start time
+              final timeA = a.startTime ?? '';
+              final timeB = b.startTime ?? '';
+              return timeA.compareTo(timeB);
+            });
 
           if (slots.isEmpty) {
             return Container(
-              margin: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
+              margin:
+                  const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
               padding: const EdgeInsets.all(20.0),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
@@ -264,7 +254,7 @@ class _TeacherTodaysTimetableContainerState
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -324,8 +314,6 @@ class _TeacherTodaysTimetableContainerState
                       final isWithinSlot = isCurrentTimeWithinSlot(
                           timeTableSlot.startTime ?? "",
                           timeTableSlot.endTime ?? "");
-                      final isBeforeSlot = isCurrentTimeBeforeSlot(
-                          timeTableSlot.startTime ?? "");
 
                       // Update GestureDetector onTap
                       return GestureDetector(
@@ -344,20 +332,13 @@ class _TeacherTodaysTimetableContainerState
                                     ClassSection(id: 0, name: "-", classId: 0),
                               );
 
-                              TimeSlotStatus status = getTimeSlotStatus(
-                                timeTableSlot.startTime ?? "",
-                                timeTableSlot.endTime ?? "",
-                              );
-
-                            
-
                               // Navigasi ke mode view-only untuk status before dan after
                               Get.toNamed(
                                 Routes.teacherAddAttendanceSubjectScreen,
-                                arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                arguments: TeacherAddAttendanceSubjectScreen
+                                    .buildArguments(
                                   classSection: classSection,
                                   timeTableSlot: timeTableSlot,
-                               
                                 ),
                               );
                             }
@@ -402,8 +383,6 @@ class _TeacherTodaysTimetableContainerState
                               final isWithinSlot = isCurrentTimeWithinSlot(
                                   timeTableSlot.startTime ?? "",
                                   timeTableSlot.endTime ?? "");
-                              final isBeforeSlot = isCurrentTimeBeforeSlot(
-                                  timeTableSlot.startTime ?? "");
 
                               return GestureDetector(
                                 onTap: () {
@@ -430,21 +409,23 @@ class _TeacherTodaysTimetableContainerState
                                       switch (status) {
                                         case TimeSlotStatus.before:
                                           Utils.showSnackBar(
-                                            message: "Anda belum memasuki jam pelajaran.",
+                                            message:
+                                                "Anda belum memasuki jam pelajaran.",
                                             context: context,
                                           );
                                           break;
                                         case TimeSlotStatus.after:
-                                        
                                           break;
                                         case TimeSlotStatus.during:
                                           // Lanjutkan ke halaman pengisian
                                           Get.toNamed(
-                                            Routes.teacherAddAttendanceSubjectScreen,
-                                            arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                            Routes
+                                                .teacherAddAttendanceSubjectScreen,
+                                            arguments:
+                                                TeacherAddAttendanceSubjectScreen
+                                                    .buildArguments(
                                               classSection: classSection,
                                               timeTableSlot: timeTableSlot,
-                                          
                                             ),
                                           );
                                           return;
@@ -452,11 +433,13 @@ class _TeacherTodaysTimetableContainerState
 
                                       // Navigasi ke mode view-only untuk status before dan after
                                       Get.toNamed(
-                                        Routes.teacherAddAttendanceSubjectScreen,
-                                        arguments: TeacherAddAttendanceSubjectScreen.buildArguments(
+                                        Routes
+                                            .teacherAddAttendanceSubjectScreen,
+                                        arguments:
+                                            TeacherAddAttendanceSubjectScreen
+                                                .buildArguments(
                                           classSection: classSection,
                                           timeTableSlot: timeTableSlot,
-                                 
                                         ),
                                       );
                                     }

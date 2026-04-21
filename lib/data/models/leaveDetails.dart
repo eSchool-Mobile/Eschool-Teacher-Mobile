@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:eschool_saas_staff/data/models/role.dart';
+import 'package:flutter/foundation.dart';
 
 class LeaveDetails {
   final int? id;
@@ -75,23 +76,23 @@ class LeaveDetails {
         rejectionReason = json['rejection_reason'] as String?,
         decidedAt = json['decided_at'] as String?,
         requestedAt = json['requested_at'] as String? {
-    print('\n=== DEBUG: LeaveDetails.fromJson() ===');
-    print('Parsing JSON:');
-    print(JsonEncoder.withIndent('  ').convert(json));
-    print('Parsed data:');
-    print('id: $id');
-    print('leaveId: $leaveId');
-    print('date: $date');
-    print('type: $type');
-    print('schoolId: $schoolId');
-    print('leaveDate: $leaveDate');
-    print('status: $status');
-    print('statusLabel: $statusLabel');
-    print('rejectionReason: $rejectionReason');
-    print('decidedAt: $decidedAt');
-    print('requestedAt: $requestedAt');
-    print('leave: ${leave?.toJson()}');
-    print('=== DEBUG: End LeaveDetails.fromJson() ===\n');
+    debugPrint('\n=== DEBUG: LeaveDetails.fromJson() ===');
+    debugPrint('Parsing JSON:');
+    debugPrint(const JsonEncoder.withIndent('  ').convert(json));
+    debugPrint('Parsed data:');
+    debugPrint('id: $id');
+    debugPrint('leaveId: $leaveId');
+    debugPrint('date: $date');
+    debugPrint('type: $type');
+    debugPrint('schoolId: $schoolId');
+    debugPrint('leaveDate: $leaveDate');
+    debugPrint('status: $status');
+    debugPrint('statusLabel: $statusLabel');
+    debugPrint('rejectionReason: $rejectionReason');
+    debugPrint('decidedAt: $decidedAt');
+    debugPrint('requestedAt: $requestedAt');
+    debugPrint('leave: ${leave?.toJson()}');
+    debugPrint('=== DEBUG: End LeaveDetails.fromJson() ===\n');
   }
 
   Map<String, dynamic> toJson() => {

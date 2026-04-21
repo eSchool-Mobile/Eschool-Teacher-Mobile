@@ -1,8 +1,8 @@
-import 'dart:ffi';
 
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/subject.dart';
+import 'package:flutter/foundation.dart';
 
 class Assignment {
   Assignment({
@@ -50,8 +50,8 @@ class Assignment {
   final List<String> acceptedFile;
 
   factory Assignment.fromJson(Map<String, dynamic> json) {
-    print("DATA ABIS HIT");
-    print(json);
+    debugPrint("DATA ABIS HIT");
+    debugPrint(json.toString());
     return Assignment(
       id: json['id'] ?? 0,
       classSectionId: json['class_section_id'] ?? 0,

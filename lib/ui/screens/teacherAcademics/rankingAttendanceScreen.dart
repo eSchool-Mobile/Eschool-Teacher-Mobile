@@ -14,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
@@ -63,7 +62,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
   // Search functionality
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
   // Cache for class levels to keep filter always available
@@ -78,7 +77,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
         .addListener(_scrollListener); // Initialize class sections data
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        print("RankingAttendanceScreen: Initializing class sections data...");
+        debugPrint(
+            "RankingAttendanceScreen: Initializing class sections data...");
         context
             .read<ClassSectionsAndSubjectsCubit>()
             .getClassSectionsAndSubjects();
@@ -88,30 +88,31 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     }); // Listen to class sections state changes for debugging
     context.read<ClassSectionsAndSubjectsCubit>().stream.listen((state) {
       if (state is ClassSectionsAndSubjectsFetchSuccess) {
-        print(
+        debugPrint(
             "RankingAttendanceScreen: Classes loaded successfully - ${state.classSections.length} classes");
-        state.classSections
-            .forEach((cls) => print("Class: ${cls.name} (${cls.id})"));
+        for (var cls in state.classSections) {
+          debugPrint("Class: ${cls.name} (${cls.id})");
+        }
       } else if (state is ClassSectionsAndSubjectsFetchFailure) {
-        print(
+        debugPrint(
             "RankingAttendanceScreen: Failed to load classes - ${state.errorMessage}");
       } else if (state is ClassSectionsAndSubjectsFetchInProgress) {
-        print("RankingAttendanceScreen: Loading classes...");
+        debugPrint("RankingAttendanceScreen: Loading classes...");
       }
     }); // Listen to attendance ranking state changes to cache class levels
     context.read<AttendanceRankingCubit>().stream.listen((state) {
       if (state is AttendanceRankingFetchSuccess) {
-        print(
+        debugPrint(
             "RankingAttendanceScreen: Caching attendance data and class levels");
         _cachedAttendanceData = state.attendanceRanking;
         _cachedClassLevels = getClassLevels(state.attendanceRanking);
-        print(
+        debugPrint(
             "RankingAttendanceScreen: Cached ${_cachedClassLevels.length} class levels: $_cachedClassLevels");
       } else if (state is AttendanceRankingFetchFailure) {
-        print(
+        debugPrint(
             "RankingAttendanceScreen: Failed to load attendance data - ${state.errorMessage}");
       } else if (state is AttendanceRankingInProgress) {
-        print("RankingAttendanceScreen: Loading attendance data...");
+        debugPrint("RankingAttendanceScreen: Loading attendance data...");
       }
     });
 
@@ -121,7 +122,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       _cachedAttendanceData = currentAttendanceState.attendanceRanking;
       _cachedClassLevels =
           getClassLevels(currentAttendanceState.attendanceRanking);
-      print(
+      debugPrint(
           "RankingAttendanceScreen: Initial cache from current state - ${_cachedClassLevels.length} class levels");
     }
   }
@@ -205,25 +206,25 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
   Widget _buildRecapTable(AttendanceRanking attendanceRankings) {
     // Debug: Print original data
-    print(
+    debugPrint(
         "DEBUG: Original data - allStudents count: ${attendanceRankings.allStudents?.length ?? 0}");
-    print(
+    debugPrint(
         "DEBUG: Original data - groupedByClassLevel count: ${attendanceRankings.groupedByClassLevel?.length ?? 0}");
 
     // Debug: Print selected filters
-    print("DEBUG: Selected grade level: ${_selectedGradeLevel?.name}");
-    print("DEBUG: Selected class section: ${_selectedClassSection?.name}");
+    debugPrint("DEBUG: Selected grade level: ${_selectedGradeLevel?.name}");
+    debugPrint("DEBUG: Selected class section: ${_selectedClassSection?.name}");
 
     // Debug: Print available data structure
     if (attendanceRankings.groupedByClassLevel != null) {
-      print("DEBUG: Available class levels:");
+      debugPrint("DEBUG: Available class levels:");
       for (var classLevel in attendanceRankings.groupedByClassLevel!) {
-        print("  - Class Level: '${classLevel.classLevel}'");
+        debugPrint("  - Class Level: '${classLevel.classLevel}'");
       }
     }
 
     if (attendanceRankings.allStudents != null) {
-      print("DEBUG: Sample students:");
+      debugPrint("DEBUG: Sample students:");
       for (var i = 0;
           i <
               (attendanceRankings.allStudents!.length > 5
@@ -231,7 +232,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                   : attendanceRankings.allStudents!.length);
           i++) {
         var student = attendanceRankings.allStudents![i];
-        print(
+        debugPrint(
             "  - Student: '${student.studentName}', Class Level: '${student.classLevel}', Class Name: '${student.className}'");
       }
     }
@@ -239,14 +240,14 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     // Update cache with fresh data
     _cachedAttendanceData = attendanceRankings;
     _cachedClassLevels = getClassLevels(attendanceRankings);
-    print("DEBUG: Updated cache - class levels: $_cachedClassLevels");
+    debugPrint("DEBUG: Updated cache - class levels: $_cachedClassLevels");
 
     // First filter by grade level if selected
     AttendanceRanking filteredData = attendanceRankings;
     if (_selectedGradeLevel != null && _selectedGradeLevel!.name != null) {
       // Filter by selected grade level - this will affect which classes we see
       final gradeLevelName = _selectedGradeLevel!.name!;
-      print("DEBUG: Filtering by grade level: '$gradeLevelName'");
+      debugPrint("DEBUG: Filtering by grade level: '$gradeLevelName'");
 
       filteredData = AttendanceRanking(
         groupedByClassLevel:
@@ -258,7 +259,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                   levelName.contains(gradeLevelName) ||
                   levelName.startsWith(gradeLevelName));
 
-          print(
+          debugPrint(
               "DEBUG: Class level '$levelName' vs '$gradeLevelName' - matches: $matches");
           return matches;
         }).toList(),
@@ -275,13 +276,13 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                   classLevel.startsWith(gradeLevelName));
           final matches = classNameMatches || classLevelMatches;
 
-          print(
+          debugPrint(
               "DEBUG: Student '${student.studentName}' - className: '$className', classLevel: '$classLevel', classNameMatches: $classNameMatches, classLevelMatches: $classLevelMatches, final: $matches");
           return matches;
         }).toList(),
       );
 
-      print(
+      debugPrint(
           "DEBUG: After grade level filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
     }
 
@@ -289,7 +290,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     if (_selectedClassSection != null) {
       // Filter by selected class section
       final classSectionName = _selectedClassSection!.name ?? '';
-      print("DEBUG: Filtering by class section: '$classSectionName'");
+      debugPrint("DEBUG: Filtering by class section: '$classSectionName'");
 
       filteredData = AttendanceRanking(
         groupedByClassLevel:
@@ -301,7 +302,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           final startsWithMatch = levelName.startsWith(classSectionName);
           final matches = exactMatch || containsMatch || startsWithMatch;
 
-          print(
+          debugPrint(
               "DEBUG: Class level '$levelName' vs class section '$classSectionName' - exact: $exactMatch, contains: $containsMatch, starts: $startsWithMatch, final: $matches");
           return matches;
         }).toList(),
@@ -313,13 +314,13 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           final classNamePartialMatch = className.contains(classSectionName);
           final matches = classNameExactMatch || classNamePartialMatch;
 
-          print(
+          debugPrint(
               "DEBUG: Student '${student.studentName}' - className: '$className' vs '$classSectionName' - exact: $classNameExactMatch, partial: $classNamePartialMatch, final: $matches");
           return matches;
         }).toList(),
       );
 
-      print(
+      debugPrint(
           "DEBUG: After class section filter - groupedByClassLevel: ${filteredData.groupedByClassLevel?.length}, allStudents: ${filteredData.allStudents?.length}");
     }
 
@@ -327,7 +328,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     // create allStudents from groupedByClassLevel
     if ((filteredData.allStudents?.isEmpty ?? true) &&
         (filteredData.groupedByClassLevel?.isNotEmpty ?? false)) {
-      print("DEBUG: Converting groupedByClassLevel to allStudents");
+      debugPrint("DEBUG: Converting groupedByClassLevel to allStudents");
 
       List<AllStudents> generatedAllStudents = [];
 
@@ -340,7 +341,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
             className: topStudent.className,
             jumlahJpSum: topStudent.jumlahJpSum,
             point: topStudent.point,
-            alpha_count: topStudent.alpha_count,
+            alphaCount: topStudent.alphaCount,
           ));
         }
       }
@@ -357,7 +358,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
         allStudents: generatedAllStudents,
       );
 
-      print(
+      debugPrint(
           "DEBUG: Generated ${generatedAllStudents.length} students for allStudents");
     }
 
@@ -365,16 +366,16 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     bool hasNoData = (filteredData.allStudents?.isEmpty ?? true) &&
         (filteredData.groupedByClassLevel?.isEmpty ?? true);
 
-    print(
+    debugPrint(
         "DEBUG: allStudents empty: ${filteredData.allStudents?.isEmpty ?? true}");
-    print(
+    debugPrint(
         "DEBUG: groupedByClassLevel empty: ${filteredData.groupedByClassLevel?.isEmpty ?? true}");
-    print("DEBUG: Final hasNoData result: $hasNoData");
+    debugPrint("DEBUG: Final hasNoData result: $hasNoData");
 
     if (hasNoData) {
       return Center(
         child: Padding(
-          padding: EdgeInsets.only(top: 80),
+          padding: const EdgeInsets.only(top: 80),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -383,7 +384,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 size: 80,
                 color: Colors.grey.shade400,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "Tidak ada data peringkat kehadiran",
                 style: GoogleFonts.poppins(
@@ -393,7 +394,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 ),
               ),
               if (_selectedClassSection != null) ...[
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   "Coba ubah filter yang dipilih",
                   style: GoogleFonts.poppins(
@@ -412,13 +413,13 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     }
 
     // Debug print to help verify filter logic
-    print(
+    debugPrint(
         "RankingAttendanceScreen: _selectedGradeLevel = ${_selectedGradeLevel?.name}");
-    print(
+    debugPrint(
         "RankingAttendanceScreen: _selectedClassSection = ${_selectedClassSection?.name}");
-    print(
+    debugPrint(
         "RankingAttendanceScreen: allStudents count = ${filteredData.allStudents?.length ?? 0}");
-    print(
+    debugPrint(
         "RankingAttendanceScreen: groupedByClassLevel count = ${filteredData.groupedByClassLevel?.length ?? 0}");
 
     return AttendanceRankingContainer(
@@ -459,19 +460,20 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
                   onTap: _showGradeLevelFilter,
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.school_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             _selectedGradeLevel?.name ?? 'Semua Tingkatan',
@@ -494,15 +496,15 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
             Container(
               height: 24,
               width: 1.5,
-              margin: EdgeInsets.symmetric(horizontal: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.4),
-                    Colors.white.withOpacity(0.0),
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.4),
+                    Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -516,19 +518,20 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
                   onTap: _showClassSectionFilter,
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.class_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             _selectedClassSection?.name ?? 'Semua Kelas',
@@ -578,7 +581,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
             content: Text(message),
             backgroundColor: _maroonPrimary,
             behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -619,7 +622,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       // Show loading message if data is currently loading
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               SizedBox(
                 width: 20,
@@ -635,7 +638,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
           backgroundColor: _maroonPrimary,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -645,10 +648,10 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       // Show error message and retry option
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Gagal memuat data kelas. Coba lagi."),
+          content: const Text("Gagal memuat data kelas. Coba lagi."),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -671,7 +674,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               SizedBox(
                 width: 20,
@@ -687,7 +690,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
           backgroundColor: _maroonPrimary,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -704,10 +707,10 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
       if (currentState.gradeLevels.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Tidak ada tingkatan yang tersedia"),
+            content: const Text("Tidak ada tingkatan yang tersedia"),
             backgroundColor: _maroonPrimary,
             behavior: SnackBarBehavior.floating,
-            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
@@ -748,7 +751,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     } else if (currentState is GradeLevelFetchInProgress) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               SizedBox(
                 width: 20,
@@ -764,7 +767,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
           backgroundColor: _maroonPrimary,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -773,10 +776,10 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
     } else if (currentState is GradeLevelFetchFailure) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Gagal memuat tingkatan. Coba lagi."),
+          content: const Text("Gagal memuat tingkatan. Coba lagi."),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -795,7 +798,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Row(
+          content: const Row(
             children: [
               SizedBox(
                 width: 20,
@@ -811,7 +814,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
           ),
           backgroundColor: _maroonPrimary,
           behavior: SnackBarBehavior.floating,
-          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -847,7 +850,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 if (_isSearchActive)
                   Container(
                     height: 56,
-                    margin: EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    margin: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -857,9 +860,9 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 6,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -880,7 +883,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                           Icons.search,
                           color: _maroonPrimary,
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onChanged: (value) {
                         setState(() {
@@ -902,7 +906,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                       return BlocBuilder<AttendanceRankingCubit,
                           AttendanceRankingState>(
                         builder: (context, attendanceState) {
-                          print(
+                          debugPrint(
                               "Current attendance state: ${attendanceState.runtimeType}");
 
                           if (attendanceState is AttendanceRankingInProgress) {
@@ -959,7 +963,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
             scale: _fabAnimationController.value,
             child: FloatingActionButton(
               onPressed: () {
-                print("Manual refresh triggered via FAB");
+                debugPrint("Manual refresh triggered via FAB");
                 HapticFeedback.lightImpact();
                 context.read<GradeLevelCubit>().getGradeLevels();
                 context
@@ -969,7 +973,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Row(
+                    content: const Row(
                       children: [
                         SizedBox(
                           width: 20,
@@ -986,7 +990,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                     ),
                     backgroundColor: _maroonPrimary,
                     behavior: SnackBarBehavior.floating,
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
@@ -994,8 +999,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 );
               },
               backgroundColor: _maroonPrimary,
-              child: Icon(Icons.refresh_rounded, color: Colors.white),
               tooltip: "Refresh Data",
+              child: const Icon(Icons.refresh_rounded, color: Colors.white),
             ),
           );
         },
@@ -1017,35 +1022,35 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
   Widget _buildNoSearchResults() {
     return Center(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 60),
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 60),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Animated search icon with modern styling
             Container(
-              padding: EdgeInsets.all(32),
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    _maroonPrimary.withOpacity(0.1),
-                    _maroonLight.withOpacity(0.05),
+                    _maroonPrimary.withValues(alpha: 0.1),
+                    _maroonLight.withValues(alpha: 0.05),
                   ],
                 ),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _maroonPrimary.withOpacity(0.2),
+                  color: _maroonPrimary.withValues(alpha: 0.2),
                   width: 2,
                 ),
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: 64,
-                color: _maroonPrimary.withOpacity(0.7),
+                color: _maroonPrimary.withValues(alpha: 0.7),
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Main message
             Text(
@@ -1056,16 +1061,16 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 color: _maroonPrimary,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
 
             // Search query display
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               decoration: BoxDecoration(
-                color: _maroonPrimary.withOpacity(0.1),
+                color: _maroonPrimary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(
-                  color: _maroonPrimary.withOpacity(0.2),
+                  color: _maroonPrimary.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
               ),
@@ -1075,9 +1080,9 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                   Icon(
                     Icons.search,
                     size: 18,
-                    color: _maroonPrimary.withOpacity(0.7),
+                    color: _maroonPrimary.withValues(alpha: 0.7),
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Text(
                     '"$_searchQuery"',
                     style: GoogleFonts.poppins(
@@ -1090,7 +1095,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Description
             Text(
@@ -1102,7 +1107,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 height: 1.5,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Coba gunakan nama yang berbeda atau periksa ejaan.',
               textAlign: TextAlign.center,
@@ -1112,7 +1117,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 height: 1.4,
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Clear search button with modern design
             Container(
@@ -1120,9 +1125,9 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: _maroonPrimary.withOpacity(0.2),
+                    color: _maroonPrimary.withValues(alpha: 0.2),
                     blurRadius: 8,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -1134,7 +1139,7 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                     _isSearchActive = false;
                   });
                 },
-                icon: Icon(Icons.clear_rounded, size: 20),
+                icon: const Icon(Icons.clear_rounded, size: 20),
                 label: Text(
                   'Hapus Pencarian',
                   style: GoogleFonts.poppins(
@@ -1145,7 +1150,8 @@ class _RankingAttendanceScreenState extends State<RankingAttendanceScreen>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _maroonPrimary,
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 28, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 28, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),

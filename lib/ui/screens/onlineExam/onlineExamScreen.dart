@@ -20,6 +20,8 @@ import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class OnlineExamScreen extends StatefulWidget {
+  const OnlineExamScreen({super.key});
+
   static Widget getRouteInstance() {
     return MultiBlocProvider(
       providers: [
@@ -30,7 +32,7 @@ class OnlineExamScreen extends StatefulWidget {
           create: (context) => ClassSectionsAndSubjectsCubit(),
         ),
       ],
-      child: OnlineExamScreen(),
+      child: const OnlineExamScreen(),
     );
   }
 
@@ -65,9 +67,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   final ScrollController _scrollController = ScrollController();
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _highlightColor =
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _highlightColor =
       Color(0xFFB84D4D); // Softer bright maroon  @override
+  @override
   void initState() {
     super.initState();
     // Initialize date formatting for Indonesian locale
@@ -93,7 +96,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     });
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
@@ -101,13 +104,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     // Add this new controller for pulse animation
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     // Initialize the app bar animation controller
     _appBarAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
   }
 
@@ -137,7 +140,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   void _forceRefreshAfterRestore() {
     // Force refresh with multiple attempts to ensure the restored exam appears
     if (mounted) {
-      print('DEBUG: Force refresh attempt 1');
+      debugPrint('DEBUG: Force refresh attempt 1');
       // Clear any existing state first
       setState(() {});
 
@@ -145,17 +148,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       context.read<OnlineExamCubit>().getOnlineExams();
 
       // Try again after a short delay in case the first attempt doesn't catch the new data
-      Future.delayed(Duration(milliseconds: 1000), () {
+      Future.delayed(const Duration(milliseconds: 1000), () {
         if (mounted) {
-          print('DEBUG: Force refresh attempt 2');
+          debugPrint('DEBUG: Force refresh attempt 2');
           context.read<OnlineExamCubit>().getOnlineExams();
         }
       });
 
       // One more attempt after an even longer delay
-      Future.delayed(Duration(milliseconds: 2500), () {
+      Future.delayed(const Duration(milliseconds: 2500), () {
         if (mounted) {
-          print('DEBUG: Force refresh attempt 3');
+          debugPrint('DEBUG: Force refresh attempt 3');
           context.read<OnlineExamCubit>().getOnlineExams();
         }
       });
@@ -172,19 +175,19 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   @override
   Widget build(BuildContext context) {
     // Set status bar to transparent with light icons for better visibility on dark app bar
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       statusBarBrightness: Brightness.dark,
     ));
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
         // Make sure to stop animations before popping
         _animationController.stop();
         _pulseController.stop();
         _appBarAnimationController.stop();
-        return true;
       },
       child: Scaffold(
         backgroundColor: Colors.grey[50],
@@ -215,15 +218,15 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 _restoredExamId = result['examId'].toString();
 
                 // Wait longer to ensure the backend has processed the restore
-                Future.delayed(Duration(milliseconds: 1200), () {
+                Future.delayed(const Duration(milliseconds: 1200), () {
                   if (mounted) {
-                    print('DEBUG: Starting force refresh after restore');
+                    debugPrint('DEBUG: Starting force refresh after restore');
                     _forceRefreshAfterRestore();
                   }
                 });
 
                 // Remove highlight after 8 seconds
-                Future.delayed(Duration(seconds: 8), () {
+                Future.delayed(const Duration(seconds: 8), () {
                   if (mounted) {
                     setState(() {
                       _restoredExamId = null;
@@ -251,10 +254,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     return AnimationLimiter(
       child: CustomScrollView(
         controller: _scrollController,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           // Add padding for the app bar
-          SliverPadding(
+          const SliverPadding(
             padding: EdgeInsets.only(
                 top:
                     120), // Increased padding to create more space between appbar and search
@@ -283,7 +286,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   ),
                 );
               }
-              return SliverToBoxAdapter(child: SizedBox());
+              return const SliverToBoxAdapter(child: SizedBox());
             },
           ),
         ],
@@ -294,11 +297,11 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   Widget _buildSearchAndFilter() {
     return SliverToBoxAdapter(
       child: Padding(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           children: [
             _buildSearchBar(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildFilterSection(),
           ],
         ),
@@ -308,13 +311,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 10,
@@ -339,7 +342,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   )
                 : null,
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
           onChanged: (value) {
             setState(() {
@@ -401,17 +405,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           ..sort();
 
         return FadeInDown(
-          duration: Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 700),
           child: Container(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF8B0000).withOpacity(0.1),
+                  color: const Color(0xFF8B0000).withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -421,7 +425,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(Icons.filter_alt_rounded,
                             color: Color(0xFF8B0000)),
@@ -445,7 +449,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         });
                         context.read<OnlineExamCubit>().getOnlineExams();
                       },
-                      child: Text(
+                      child: const Text(
                         'Reset',
                         style: TextStyle(
                           color: Color(0xFF800020),
@@ -455,16 +459,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 // Tingkatan Dropdown
                 DropdownButtonFormField<String>(
-                  value: selectedTingkatan,
+                  initialValue: selectedTingkatan,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.layers, color: Color(0xFF8B0000)),
+                    prefixIcon:
+                        const Icon(Icons.layers, color: Color(0xFF8B0000)),
                     labelText: 'Pilih Tingkatan',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      borderSide: const BorderSide(color: Color(0xFF8B0000)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -472,7 +477,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Color(0xFF8B0000)),
+                      borderSide: const BorderSide(color: Color(0xFF8B0000)),
                     ),
                   ),
                   items: tingkatanList
@@ -493,16 +498,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       style: TextStyle(fontSize: 14, color: Colors.grey[600])),
                 ),
                 if (selectedTingkatan != null) ...[
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   // Kelas Dropdown
                   DropdownButtonFormField<String>(
-                    value: selectedKelas,
+                    initialValue: selectedKelas,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.class_, color: Color(0xFF8B0000)),
+                      prefixIcon:
+                          const Icon(Icons.class_, color: Color(0xFF8B0000)),
                       labelText: 'Pilih Kelas',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -510,7 +516,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
                       ),
                     ),
                     items: kelasList
@@ -532,17 +538,17 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   ),
                 ],
                 if (selectedKelas != null) ...[
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   // Mata Pelajaran Dropdown
                   DropdownButtonFormField<String>(
-                    value: selectedMapel,
+                    initialValue: selectedMapel,
                     decoration: InputDecoration(
                       prefixIcon:
-                          Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                          const Icon(Icons.menu_book, color: Color(0xFF8B0000)),
                       labelText: 'Pilih Mata Pelajaran',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -550,7 +556,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Color(0xFF8B0000)),
+                        borderSide: const BorderSide(color: Color(0xFF8B0000)),
                       ),
                     ),
                     items: mapelList
@@ -572,7 +578,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       if (matches.isNotEmpty) {
                         final selectedDetail = matches.first;
                         context.read<OnlineExamCubit>().getOnlineExams(
-                              subjectId: selectedDetail.class_subject_id,
+                              subjectId: selectedDetail.classSubjectId,
                               classSectionId: selectedDetail.classSection.id,
                             );
                       }
@@ -605,9 +611,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       // Debug: check if restored exam exists in the list
       final restoredExamExists =
           filteredExams.any((exam) => exam.id.toString() == _restoredExamId);
-      print('DEBUG: Looking for restored exam ID: $_restoredExamId');
-      print('DEBUG: Restored exam exists in list: $restoredExamExists');
-      print('DEBUG: Total exams in filtered list: ${filteredExams.length}');
+      debugPrint('DEBUG: Looking for restored exam ID: $_restoredExamId');
+      debugPrint('DEBUG: Restored exam exists in list: $restoredExamExists');
+      debugPrint(
+          'DEBUG: Total exams in filtered list: ${filteredExams.length}');
 
       filteredExams.sort((a, b) {
         final aIsRestored = a.id.toString() == _restoredExamId;
@@ -629,7 +636,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
       if (restoredExamExists && filteredExams.isNotEmpty) {
         final restoredExamIndex = filteredExams
             .indexWhere((exam) => exam.id.toString() == _restoredExamId);
-        print(
+        debugPrint(
             'DEBUG: Restored exam position after sorting: $restoredExamIndex');
       }
     } else {
@@ -657,13 +664,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     }
 
     return SliverPadding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       sliver: SliverList(
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             return AnimationConfiguration.staggeredList(
               position: index,
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               child: SlideAnimation(
                 verticalOffset: 50.0,
                 child: FadeInAnimation(
@@ -684,20 +691,20 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
     // Define modern color scheme with soft maroon colors
     final colorScheme = {
-      'primary': Color.fromARGB(255, 172, 33, 33),
-      'gradient1': Color(0xFF7D1F1F), // Lighter maroon
-      'gradient2': Color(0xFF9B2F2F), // Medium maroon
-      'gradient3': Color(0xFFBF4040), // Soft bright maroon
-      'neutral1': Color(0xFF333333), // Dark gray for primary text
-      'neutral2': Color(0xFF666666), // Medium gray for secondary text
-      'accent': Color(0xFF8B4513), // Brown accent color
+      'primary': const Color.fromARGB(255, 172, 33, 33),
+      'gradient1': const Color(0xFF7D1F1F), // Lighter maroon
+      'gradient2': const Color(0xFF9B2F2F), // Medium maroon
+      'gradient3': const Color(0xFFBF4040), // Soft bright maroon
+      'neutral1': const Color(0xFF333333), // Dark gray for primary text
+      'neutral2': const Color(0xFF666666), // Medium gray for secondary text
+      'accent': const Color(0xFF8B4513), // Brown accent color
     }; // Calculate the positioning for perfect centering
 
     // Improved calculation for text wrapping
     final double screenWidth = MediaQuery.of(context).size.width;
     final double availableWidth = screenWidth - 48; // 24px padding on each side
-    final double titleFontSize = 24.0;
-    final double lineHeight = 1.4;
+    const double titleFontSize = 24.0;
+    const double lineHeight = 1.4;
 
     // Calculate estimated number of lines based on character count and available width
     final int estimatedCharactersPerLine =
@@ -707,8 +714,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     final double estimatedTextHeight =
         estimatedLines * (titleFontSize * lineHeight);
 
-    final double minHeight = 260.0; // Increased minimum height untuk header
-    final double maxHeight = 450.0; // Increased maximum height untuk header
+    const double minHeight = 260.0; // Increased minimum height untuk header
+    const double maxHeight = 450.0; // Increased maximum height untuk header
 
     // Sesuaikan headerHeight dengan batasan min dan max, plus extra space untuk wrapping
     final double headerHeight = math.min(
@@ -718,24 +725,24 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     );
 
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 16),
+        margin: const EdgeInsets.symmetric(vertical: 16),
         decoration: isRecentlyRestored
             ? BoxDecoration(
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.3),
+                    color: Colors.green.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 2,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     blurRadius: 40,
                     spreadRadius: 5,
-                    offset: Offset(0, 0),
+                    offset: const Offset(0, 0),
                   ),
                 ],
               )
@@ -746,18 +753,18 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             onTap: () => Get.toNamed('/exam-questions/${exam.id}'),
             borderRadius: BorderRadius.circular(32),
             highlightColor: Colors.transparent,
-            splashColor: colorScheme['primary']!.withOpacity(0.05),
+            splashColor: colorScheme['primary']!.withValues(alpha: 0.05),
             child: Ink(
               decoration: BoxDecoration(
                 color: isRecentlyRestored
-                    ? Color.fromARGB(255, 240, 253,
+                    ? const Color.fromARGB(255, 240, 253,
                         244) // Light green tint for restored exam
-                    : Color.fromARGB(
+                    : const Color.fromARGB(
                         255, 237, 237, 237), // Very slightly off-white
                 borderRadius: BorderRadius.circular(32),
                 border: isRecentlyRestored
                     ? Border.all(
-                        color: Colors.green.withOpacity(0.3),
+                        color: Colors.green.withValues(alpha: 0.3),
                         width: 2,
                       )
                     : null,
@@ -773,7 +780,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       Container(
                         height: headerHeight, // Increased height
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(32),
                             topRight: Radius.circular(32),
                           ),
@@ -796,7 +803,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                 size: Size.infinite,
                                 painter: Modern2025PatternPainter(
                                   primaryColor: Colors.white,
-                                  secondaryColor: Colors.white.withOpacity(0.5),
+                                  secondaryColor:
+                                      Colors.white.withValues(alpha: 0.5),
                                 ),
                               ),
                             ),
@@ -812,7 +820,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                   shape: BoxShape.circle,
                                   gradient: RadialGradient(
                                     colors: [
-                                      Colors.white.withOpacity(0.2),
+                                      Colors.white.withValues(alpha: 0.2),
                                       Colors.transparent,
                                     ],
                                   ),
@@ -825,14 +833,15 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               top: 20,
                               right: 24,
                               child: Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 10,
                                       spreadRadius: -5,
                                     ),
@@ -844,7 +853,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     Icon(Icons.timer_outlined,
                                         size: 16,
                                         color: colorScheme['primary']),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       '${exam.duration} min',
                                       style: TextStyle(
@@ -882,9 +891,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                           letterSpacing: 0.3,
                                           shadows: [
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.5),
-                                              offset: Offset(0, 2),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.5),
+                                              offset: const Offset(0, 2),
                                               blurRadius: 4,
                                             ),
                                           ],
@@ -902,7 +911,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     width: 60,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.8),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.8),
                                       borderRadius: BorderRadius.circular(1.5),
                                     ),
                                   ),
@@ -946,7 +956,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     },
                                     icon: Icons.edit_outlined,
                                     label: 'Edit',
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
@@ -955,12 +965,12 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                         Color(0xFF00796B),
                                       ],
                                     ),
-                                    shadowColor:
-                                        Color(0xFF26A69A).withOpacity(0.4),
+                                    shadowColor: const Color(0xFF26A69A)
+                                        .withValues(alpha: 0.4),
                                   ),
                                 ),
 
-                                SizedBox(width: 16),
+                                const SizedBox(width: 16),
 
                                 // Archive Button - Modern Design
                                 Expanded(
@@ -968,7 +978,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                     onTap: () => _showDeleteConfirmation(exam),
                                     icon: Icons.archive_outlined,
                                     label: 'Arsip',
-                                    gradient: LinearGradient(
+                                    gradient: const LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
@@ -977,8 +987,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                         Color(0xFF6A1B24), // Deep maroon
                                       ],
                                     ),
-                                    shadowColor:
-                                        Color(0xFF812A33).withOpacity(0.4),
+                                    shadowColor: const Color(0xFF812A33)
+                                        .withValues(alpha: 0.4),
                                   ),
                                 ),
                               ],
@@ -1001,15 +1011,15 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                             spreadRadius: -5,
                           ),
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.07),
+                            color: Colors.black.withValues(alpha: 0.07),
                             blurRadius: 5,
-                            offset: Offset(0, 1),
+                            offset: const Offset(0, 1),
                           ),
                         ],
                       ),
@@ -1021,22 +1031,22 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                           onTap: () =>
                               Get.toNamed('/exam-questions/${exam.id}'),
                           splashColor:
-                              colorScheme['primary']!.withOpacity(0.05),
+                              colorScheme['primary']!.withValues(alpha: 0.05),
                           highlightColor: Colors.transparent,
                           child: Column(
                             children: [
                               // Top section: Manage Questions
                               Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   children: [
                                     // Icon Container - reduced padding
                                     Container(
-                                      padding:
-                                          EdgeInsets.all(10), // Reduced from 12
+                                      padding: const EdgeInsets.all(
+                                          10), // Reduced from 12
                                       decoration: BoxDecoration(
                                         color: colorScheme['primary']!
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Icon(
@@ -1045,7 +1055,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                         size: 20, // Reduced from 22
                                       ),
                                     ),
-                                    SizedBox(width: 12), // Reduced from 16
+                                    const SizedBox(
+                                        width: 12), // Reduced from 16
 
                                     // Text Content - with overflow handling
                                     Expanded(
@@ -1062,7 +1073,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                          SizedBox(height: 4),
+                                          const SizedBox(height: 4),
                                           Text(
                                             'Lihat dan atur soal pada ujian ini',
                                             style: TextStyle(
@@ -1077,11 +1088,11 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
                                     // Arrow Icon - reduced padding
                                     Container(
-                                      padding:
-                                          EdgeInsets.all(8), // Reduced from 10
+                                      padding: const EdgeInsets.all(
+                                          8), // Reduced from 10
                                       decoration: BoxDecoration(
                                         color: colorScheme['primary']!
-                                            .withOpacity(0.07),
+                                            .withValues(alpha: 0.07),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Icon(
@@ -1098,15 +1109,15 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               Divider(
                                 height: 1,
                                 thickness: 1,
-                                color:
-                                    colorScheme['primary']!.withOpacity(0.08),
+                                color: colorScheme['primary']!
+                                    .withValues(alpha: 0.08),
                                 indent: 20,
                                 endIndent: 20,
                               ),
 
                               // Bottom section: Dates display
                               Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceAround,
@@ -1124,7 +1135,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                               size: 16,
                                               color: colorScheme['primary'],
                                             ),
-                                            SizedBox(width: 6),
+                                            const SizedBox(width: 6),
                                             Text(
                                               'Mulai',
                                               style: TextStyle(
@@ -1135,7 +1146,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           DateFormat('dd MMM yyyy', 'id_ID')
                                               .format(exam.startDate),
@@ -1168,7 +1179,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                               size: 16,
                                               color: colorScheme['accent'],
                                             ),
-                                            SizedBox(width: 6),
+                                            const SizedBox(width: 6),
                                             Text(
                                               'Selesai',
                                               style: TextStyle(
@@ -1179,7 +1190,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 4),
+                                        const SizedBox(height: 4),
                                         Text(
                                           DateFormat('dd MMM yyyy', 'id_ID')
                                               .format(exam.endDate),
@@ -1225,13 +1236,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           BoxShadow(
             color: shadowColor,
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
             spreadRadius: -5,
           ),
           BoxShadow(
-            color: shadowColor.withOpacity(0.3),
+            color: shadowColor.withValues(alpha: 0.3),
             blurRadius: 3,
-            offset: Offset(0, 1),
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -1240,7 +1251,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.white.withOpacity(0.2),
+          splashColor: Colors.white.withValues(alpha: 0.2),
           highlightColor: Colors.transparent,
           child: Stack(
             children: [
@@ -1250,7 +1261,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
-                    image: DecorationImage(
+                    image: const DecorationImage(
                       image: NetworkImage(
                           'https://www.transparenttextures.com/patterns/cubes.png'),
                       fit: BoxFit.cover,
@@ -1265,9 +1276,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -1276,10 +1287,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         color: Colors.white,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       label,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
@@ -1298,7 +1309,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                 child: Container(
                   height: 12,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(16),
                       topRight: Radius.circular(16),
                     ),
@@ -1306,8 +1317,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.0),
+                        Colors.white.withValues(alpha: 0.2),
+                        Colors.white.withValues(alpha: 0.0),
                       ],
                     ),
                   ),
@@ -1322,21 +1333,21 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
 
   Widget _buildShimmerLoading() {
     return ListView.builder(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       itemCount: 3,
       itemBuilder: (_, index) {
-        return SkeletonOnlineExamCard();
+        return const SkeletonOnlineExamCard();
       },
     );
   }
 
   Widget _buildEmptyState() {
     return FadeIn(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -1346,7 +1357,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   size: 80,
                   color: Colors.grey[400],
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   'Belum ada ujian',
                   style: TextStyle(
@@ -1356,7 +1367,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   ),
                   textAlign: TextAlign.center,
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Text(
                   'Tambahkan ujian baru dengan menekan tombol +',
                   style: TextStyle(
@@ -1385,19 +1396,19 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           title: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Color(0xFF812A33).withOpacity(0.1),
+                  color: const Color(0xFF812A33).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.archive_rounded,
                   color: Color(0xFF812A33),
                   size: 28,
                 ),
               ),
-              SizedBox(width: 12),
-              Expanded(
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Text(
                   'Arsipkan Ujian',
                   style: TextStyle(
@@ -1415,13 +1426,13 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
             children: [
               Text(
                 'Apakah Anda yakin ingin mengarsipkan ujian "${exam.title}"?',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Color(0xFF555555),
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Ujian yang diarsipkan dapat dilihat kembali di menu Arsip.',
                 style: TextStyle(
                   fontSize: 14,
@@ -1429,14 +1440,14 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                   fontStyle: FontStyle.italic,
                 ),
               ),
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
               Row(
                 children: [
                   Expanded(
                     child: Container(
                       height: 56,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -1448,9 +1459,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Color(0xFF812A33).withOpacity(0.4),
+                            color:
+                                const Color(0xFF812A33).withValues(alpha: 0.4),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                             spreadRadius: -5,
                           ),
                         ],
@@ -1473,8 +1485,9 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Container(
-                                    padding: EdgeInsets.symmetric(vertical: 8),
-                                    child: Row(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: const Row(
                                       children: [
                                         Icon(Icons.check_circle,
                                             color: Colors.white),
@@ -1490,10 +1503,10 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                       ],
                                     ),
                                   ),
-                                  backgroundColor: Color(0xFF2E7D32),
-                                  duration: Duration(seconds: 2),
+                                  backgroundColor: const Color(0xFF2E7D32),
+                                  duration: const Duration(seconds: 2),
                                   behavior: SnackBarBehavior.floating,
-                                  margin: EdgeInsets.symmetric(
+                                  margin: const EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 10),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(30),
@@ -1502,7 +1515,8 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                                 ),
                               );
 
-                              Future.delayed(Duration(milliseconds: 800), () {
+                              Future.delayed(const Duration(milliseconds: 800),
+                                  () {
                                 if (mounted) {
                                   _refreshExams();
                                 }
@@ -1510,7 +1524,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                             } catch (e) {
                               if (!mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
+                                const SnackBar(
                                   content: Text('Gagal mengarsipkan ujian'),
                                   backgroundColor: Colors.red,
                                 ),
@@ -1518,26 +1532,26 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
                             }
                           },
                           borderRadius: BorderRadius.circular(16),
-                          splashColor: Colors.white.withOpacity(0.2),
+                          splashColor: Colors.white.withValues(alpha: 0.2),
                           highlightColor: Colors.transparent,
                           child: Center(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.archive_rounded,
                                     size: 20,
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(width: 12),
-                                Text(
+                                const SizedBox(width: 12),
+                                const Text(
                                   'Arsipkan Sekarang',
                                   style: TextStyle(
                                     color: Colors.white,
@@ -1560,7 +1574,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text(
+              child: const Text(
                 'Batal',
                 style: TextStyle(
                   color: Color(0xFF666666),
@@ -1596,7 +1610,7 @@ class Modern2025PatternPainter extends CustomPainter {
       ..color = secondaryColor
       ..style = PaintingStyle.fill;
 
-    final double spacing = 40;
+    const double spacing = 40;
 
     // Draw curved lines
     for (double i = -size.width / 2; i < size.width * 1.5; i += spacing) {

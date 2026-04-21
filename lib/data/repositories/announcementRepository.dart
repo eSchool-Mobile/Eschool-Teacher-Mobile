@@ -43,13 +43,13 @@ class AnnouncementRepository {
         "class_section_id": classSectionId
       });
 
-      // print("GETTING");
+      // debugPrint("GETTING");
 
       // String formattedJson = JsonEncoder.withIndent("  ").convert(result);
 
       // // Cetak per baris
       // for (var line in formattedJson.split("\n")) {
-      //   print(line);
+      //   debugPrint(line.toString());
       // }
 
       return (
@@ -168,11 +168,11 @@ class AnnouncementRepository {
           notificationDetails.createdAt.toString(),
           notificationDetails.toJson());
       if (kDebugMode) {
-        print("Done");
+        debugPrint("Done");
       }
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
   }
@@ -193,7 +193,7 @@ class AnnouncementRepository {
           temporarilyStoredNotificationsKey, notifications);
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
   }

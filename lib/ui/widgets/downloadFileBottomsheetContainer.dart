@@ -40,11 +40,12 @@ class _DownloadFileBottomsheetContainerState
   Widget build(BuildContext context) {
     return PopScope(
       canPop: true,
-      onPopInvoked: (didPop) {
-        if (context.read<DownloadFileCubit>().state is DownloadFileInProgress) {
-          context.read<DownloadFileCubit>().cancelDownloadProcess();
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          if (context.read<DownloadFileCubit>().state is DownloadFileInProgress) {
+            context.read<DownloadFileCubit>().cancelDownloadProcess();
+          }
         }
-        return;
       },
       child: CustomBottomsheet(
         titleLabelKey: fileDownloadingKey,
@@ -97,7 +98,7 @@ class _DownloadFileBottomsheetContainerState
                                     color: Theme.of(context)
                                         .colorScheme
                                         .onSurface
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                   ),
                                   Utils.buildProgressContainer(
                                     width: boxConstraints.maxWidth *

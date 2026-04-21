@@ -31,12 +31,12 @@ class _HolidayContainerState extends State<HolidayContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final holidayStartDate = DateTime.parse(widget.holiday.start_date ?? "");
-    final holidayEndDate = widget.holiday.end_date != null
-        ? DateTime.parse(widget.holiday.end_date!)
+    final holidayStartDate = DateTime.parse(widget.holiday.startDate ?? "");
+    final holidayEndDate = widget.holiday.endDate != null
+        ? DateTime.parse(widget.holiday.endDate!)
         : holidayStartDate;
-    final maroonColor = Color(0xFF800020);
-    final maroonLight = Color(0xFFAA6976);
+    const maroonColor = Color(0xFF800020);
+    const maroonLight = Color(0xFFAA6976);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -73,7 +73,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                 children: [
                   Container(
                     width: 110,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -91,7 +91,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                           child: Icon(
                             FontAwesomeIcons.calendar,
                             size: 30,
-                            color: Colors.white.withOpacity(0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                           ),
                         ),
                         Center(
@@ -119,24 +119,24 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   style: TextStyle(
                                     height: 1.2,
                                     fontSize: Utils.getScaledValue(context, 18),
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Center(
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 10, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Text(
                                     '${holidayStartDate.year}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w400,
@@ -170,7 +170,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   color: Colors.grey.shade600,
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Flexible(
                                 child: CustomTextContainer(
                                   textKey: widget.holiday.title ?? "",
@@ -186,8 +186,8 @@ class _HolidayContainerState extends State<HolidayContainer> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 8),
-                          if (widget.holiday.end_date != null)
+                          const SizedBox(height: 8),
+                          if (widget.holiday.endDate != null)
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -196,7 +196,7 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                   size: 12,
                                   color: Colors.grey.shade600,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
                                     holidayStartDate == holidayEndDate
@@ -211,8 +211,8 @@ class _HolidayContainerState extends State<HolidayContainer> {
                                 ),
                               ],
                             ),
-                          Spacer(),
-                          Row(
+                          const Spacer(),
+                          const Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Text(
@@ -254,10 +254,10 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maroonColor = Color(0xFF800020);
-    final holidayStartDate = DateTime.parse(holiday.start_date ?? "");
-    final holidayEndDate = holiday.end_date != null
-        ? DateTime.parse(holiday.end_date!)
+    const maroonColor = Color(0xFF800020);
+    final holidayStartDate = DateTime.parse(holiday.startDate ?? "");
+    final holidayEndDate = holiday.endDate != null
+        ? DateTime.parse(holiday.endDate!)
         : holidayStartDate;
 
     final bool isMultiDayHoliday = holidayStartDate != holidayEndDate;
@@ -267,7 +267,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
         ),
         padding: EdgeInsets.only(
           left: appContentHorizontalPadding,
@@ -282,9 +282,9 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                 MediaQuery.of(context).size.height * 0.85, // Limit max height
           ),
           child: SingleChildScrollView(
-            physics: ClampingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 20),
+              padding: const EdgeInsets.only(top: 20, bottom: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min, // Use minimum size
@@ -293,9 +293,9 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [maroonColor, Color(0xFFAA6976)],
@@ -306,7 +306,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                           children: [
                             Text(
                               holidayStartDate.day.toString(),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold,
@@ -315,15 +315,15 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                             Text(
                               Utils.getMonthFullName(holidayStartDate.month),
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 fontSize: 15,
                               ),
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               '${holidayStartDate.year}',
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.8),
+                                color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
                               ),
@@ -331,7 +331,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                           ],
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,10 +346,10 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               holiday.title ?? "",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                                 color: maroonColor,
@@ -373,12 +373,12 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
+                            const Icon(
                               FontAwesomeIcons.calendarDay,
                               size: 16,
                               color: maroonColor,
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Row(
                                 children: [
@@ -403,18 +403,18 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
+                      const Icon(
                         FontAwesomeIcons.circleInfo,
                         size: 16,
                         color: maroonColor,
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           'Detail Liburan:',
@@ -427,9 +427,9 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(12),
@@ -444,7 +444,7 @@ class HolidayDetailsBottomsheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 100), // Extra padding at bottom
+                  const SizedBox(height: 100), // Extra padding at bottom
                 ],
               ),
             ),

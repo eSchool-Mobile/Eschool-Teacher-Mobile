@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:eschool_saas_staff/utils/api.dart';
-import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart'; // Update this importimport 'package:eschool_saas_staff/data/models/bankSoalQuestion.dart';import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:dio/dio.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 class OnlineExamRepository {
   Future<Map<String, dynamic>> getOnlineExams(
       {String? search,
       int? subjectId,
-      dynamic? archive = null,
+      dynamic archive,
       int? classSectionId,
       int? sessionYearId,
       String status = 'active',
@@ -45,8 +45,8 @@ class OnlineExamRepository {
       );
 
       for (var line
-          in JsonEncoder.withIndent("  ").convert(response).split("\n")) {
-        print(line);
+          in const JsonEncoder.withIndent("  ").convert(response).split("\n")) {
+        debugPrint(line.toString());
       }
 
       return {
@@ -54,7 +54,7 @@ class OnlineExamRepository {
         'subjectDetails': response['data']['subjectDetails'] ?? [],
       };
     } catch (e) {
-      print("Repository Error: $e");
+      debugPrint("Repository Error: $e");
       rethrow;
     }
   }
@@ -78,12 +78,12 @@ class OnlineExamRepository {
         },
       );
 
-      print("===");
-      var encoder = JsonEncoder.withIndent("  "); // Indentasi 2 spasi
+      debugPrint("===");
+      var encoder = const JsonEncoder.withIndent("  "); // Indentasi 2 spasi
       String prettyJson = encoder.convert(response);
 
       // Split per baris dan print satu per satu
-      prettyJson.split('\n').forEach(print);
+      prettyJson.split('\n').forEach(debugPrint);
 
       // Check for error response
       if (response['error'] == true) {
@@ -100,7 +100,7 @@ class OnlineExamRepository {
 
       return {"marks": response['data']['marks'] ?? 0, "answers": []};
     } catch (e) {
-      print('Error getting online exam result answer: $e');
+      debugPrint('Error getting online exam result answer: $e');
       throw Exception(e.toString());
     }
   }
@@ -119,7 +119,7 @@ class OnlineExamRepository {
         },
       );
 
-      print("ERROR UPDATE ANSWER: $response");
+      debugPrint("ERROR UPDATE ANSWER: $response");
 
       if (response['error'] == true) {
         throw ApiException(
@@ -153,14 +153,14 @@ class OnlineExamRepository {
         },
       );
 
-      print('Update Exam Response: $response');
+      debugPrint('Update Exam Response: $response');
 
       if (response.containsKey('status') && response['error'] == true) {
         throw ApiException(
             response['message'] ?? 'Failed to update online exam');
       }
     } catch (e) {
-      print('Error updating online exam: $e');
+      debugPrint('Error updating online exam: $e');
       throw ApiException(e.toString());
     }
   }
@@ -182,9 +182,9 @@ class OnlineExamRepository {
         throw ApiException(response['message'] ?? 'Gagal menghapus ujian');
       }
 
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      print('Error deleting online exam: $e');
+      debugPrint('Error deleting online exam: $e');
       if (e is DioException) {
         final response = e.response?.data;
         if (e.response?.statusCode == 404) {
@@ -211,7 +211,7 @@ class OnlineExamRepository {
         },
       );
 
-      print('Restore Exam Response: $response');
+      debugPrint('Restore Exam Response: $response');
 
       if (response['error'] != false) {
         throw ApiException(
@@ -219,9 +219,9 @@ class OnlineExamRepository {
       }
 
       // Tunggu sebentar sebelum melanjutkan
-      await Future.delayed(Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
-      print('Error restoring online exam: $e');
+      debugPrint('Error restoring online exam: $e');
       throw ApiException(e.toString());
     }
   }
@@ -248,7 +248,7 @@ class OnlineExamRepository {
         },
       );
 
-      print('Create Exam Response: $response');
+      debugPrint('Create Exam Response: $response');
 
       if (response['error'] == false) {
         return response['data'] ?? {};
@@ -256,7 +256,7 @@ class OnlineExamRepository {
         throw Exception(response['message'] ?? 'Failed to create online exam');
       }
     } catch (e) {
-      print('Error creating exam: $e');
+      debugPrint('Error creating exam: $e');
       throw Exception(e.toString());
     }
   }
@@ -270,10 +270,10 @@ class OnlineExamRepository {
         queryParameters: bankId != null ? {'bank_id': bankId} : null,
       );
 
-      print('Questions Response: $response');
+      debugPrint('Questions Response: $response');
 
       // Debug di repository untuk melihat respons asli dari API
-      print('Raw Response: $response');
+      debugPrint('Raw Response: $response');
 
       if (response['error'] == false) {
         final data = response['data'] as Map<String, dynamic>;
@@ -281,7 +281,7 @@ class OnlineExamRepository {
 
         // Debug untuk melihat nilai versi pada data soal
         for (var q in examQuestions) {
-          print(
+          debugPrint(
               'Raw question data - ID: ${q['id']}, Version: ${q['version']}, Type: ${q['version'].runtimeType}');
         }
 
@@ -289,11 +289,11 @@ class OnlineExamRepository {
           // Parse options
           final options = (question['options'] as List?)?.first ?? {};
 
-          print("OK BELUM ERROR");
+          debugPrint("OK BELUM ERROR");
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
-            question_id: question['question_id'] ?? 0,
+            questionId: question['question_id'] ?? 0,
             question: question['question_text'] ?? '',
             correctAnswer: options['is_answer'] == 1 ? 'A' : '',
             marks: question['marks'] ?? 0,
@@ -309,7 +309,7 @@ class OnlineExamRepository {
         throw Exception(response['message'] ?? 'Failed to fetch questions');
       }
     } catch (e) {
-      print('Error fetching questionss: $e');
+      debugPrint('Error fetching questionss: $e');
       throw Exception(e.toString());
     }
   }
@@ -319,17 +319,17 @@ class OnlineExamRepository {
     try {
       final response = await Api.get(
           url:
-              "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=${search}",
+              "${Api.getOnlineExamQuestionListCorrection}?exam_id=${examId.toString()}&&search=$search",
           useAuthToken: true);
 
-      print("AMAN SINI 1");
+      debugPrint("AMAN SINI 1");
 
       if (response['error'] != true) {
         final data = response['data'] as Map<String, dynamic>;
-        print("AMAN SINI 2");
+        debugPrint("AMAN SINI 2");
         final examQuestions = data['exam_questions'] as List;
 
-        print("AMAN SINI 3");
+        debugPrint("AMAN SINI 3");
 
         return examQuestions.map((question) {
           final options = (question['options'] as List?)?.isNotEmpty == true
@@ -338,7 +338,7 @@ class OnlineExamRepository {
 
           return QuestionOnlineExam(
             id: question['id'] ?? 0,
-            question_id: question['question_id'] ?? 0,
+            questionId: question['question_id'] ?? 0,
             question: question['question_text'] ?? '',
             correctAnswer: options['is_answer'] == 1
                 ? 'A'
@@ -355,7 +355,7 @@ class OnlineExamRepository {
         throw Exception(response['message'] ?? 'Failed to fetch questions');
       }
     } catch (e) {
-      print('Error fetching questions: $e');
+      debugPrint('Error fetching questions: $e');
       throw Exception(e.toString());
     }
   }
@@ -367,27 +367,27 @@ class OnlineExamRepository {
         useAuthToken: true,
       );
 
-      print('Bank Soal Response: $response');
+      debugPrint('Bank Soal Response: $response');
 
       if (response['error'] == false && response['data'] != null) {
         // Extract exam data untuk mendapatkan class_section_id dan class_subject_id
 
         final examData = response['data']['exam'] as Map<String, dynamic>?;
 
-        print("AMAN HERE");
+        debugPrint("AMAN HERE");
 
         final classSectionId = examData?['class_section']?['id'] ?? 0;
 
-        print("AMAN HERE LGI 1");
+        debugPrint("AMAN HERE LGI 1");
 
         final classSubjectId = examData?['subject']?['id'] ?? 0;
-        print("AMAN HERE LGI 2");
+        debugPrint("AMAN HERE LGI 2");
 
         List bankList = response['data']['bank_soal'] ?? [];
 
-        print("AMAN HERE LGI 3");
+        debugPrint("AMAN HERE LGI 3");
 
-        print(bankList);
+        debugPrint(bankList.toString());
 
         return bankList.map((bank) {
           final bankData = Map<String, dynamic>.from(bank);
@@ -402,7 +402,7 @@ class OnlineExamRepository {
         throw Exception(response['message'] ?? 'Failed to fetch bank soal');
       }
     } catch (e) {
-      print('Error fetching bank soal: $e');
+      debugPrint('Error fetching bank soal: $e');
       throw Exception(e.toString());
     }
   }
@@ -420,17 +420,17 @@ class OnlineExamRepository {
       }
 
       // Debug: Log the data being sent
-      print('=== DEBUGGING STORE QUESTIONS ===');
-      print('assign_questions: $assignQuestions');
-      print('Data types in assign_questions:');
+      debugPrint('=== DEBUGGING STORE QUESTIONS ===');
+      debugPrint('assign_questions: $assignQuestions');
+      debugPrint('Data types in assign_questions:');
       assignQuestions.forEach((key, value) {
-        print('  $key: ${value.runtimeType}');
+        debugPrint('  $key: ${value.runtimeType}');
         value.forEach((k, v) {
-          print('    $k: $v (${v.runtimeType})');
+          debugPrint('    $k: $v (${v.runtimeType})');
         });
       });
-      print('merge_existing: true (Boolean)');
-      print('===================================');
+      debugPrint('merge_existing: true (Boolean)');
+      debugPrint('===================================');
 
       final response = await Api.postJson(
         url: Api.storeOnlineExamQuestions,
@@ -444,13 +444,13 @@ class OnlineExamRepository {
         },
       );
 
-      print('Store questions response: $response');
+      debugPrint('Store questions response: $response');
 
       if (response['error'] == true) {
         throw ApiException(response['message'] ?? 'Failed to store questions');
       }
     } catch (e) {
-      print('Error storing questions: $e');
+      debugPrint('Error storing questions: $e');
       throw ApiException(e.toString());
     }
   }
@@ -458,10 +458,10 @@ class OnlineExamRepository {
   Future<void> deleteOnlineExamQuestions(
       int examId, List<int> questionIds) async {
     try {
-      print('=== DELETE QUESTIONS REQUEST ===');
-      print('URL: ${Api.deleteQuestionOnlineExam}');
-      print('Exam ID: $examId');
-      print('Question IDs: $questionIds');
+      debugPrint('=== DELETE QUESTIONS REQUEST ===');
+      debugPrint('URL: ${Api.deleteQuestionOnlineExam}');
+      debugPrint('Exam ID: $examId');
+      debugPrint('Question IDs: $questionIds');
 
       final response = await Api.delete(
         url: Api.deleteQuestionOnlineExam,
@@ -476,9 +476,9 @@ class OnlineExamRepository {
         throw ApiException(response['message'] ?? 'Failed to delete questions');
       }
     } catch (e) {
-      print('=== DELETE QUESTIONS ERROR ===');
-      print('Error Type: ${e.runtimeType}');
-      print('Error Message: $e');
+      debugPrint('=== DELETE QUESTIONS ERROR ===');
+      debugPrint('Error Type: ${e.runtimeType}');
+      debugPrint('Error Message: $e');
       throw ApiException(e.toString());
     }
   }

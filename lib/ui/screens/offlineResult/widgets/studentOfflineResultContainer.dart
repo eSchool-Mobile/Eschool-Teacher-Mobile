@@ -175,7 +175,7 @@ class _StudentOfflineResultContainerState
                                           backgroundColor: Theme.of(context)
                                               .extension<CustomColors>()!
                                               .leaveRequestOverviewBackgroundColor!
-                                              .withOpacity(0.15)),
+                                              .withValues(alpha: 0.15)),
                                       _buildResultDetailsContainer(
                                           width:
                                               boxConstraints.maxWidth * (0.48),
@@ -187,7 +187,7 @@ class _StudentOfflineResultContainerState
                                           backgroundColor: Theme.of(context)
                                               .extension<CustomColors>()!
                                               .totalStaffOverviewBackgroundColor!
-                                              .withOpacity(0.15)),
+                                              .withValues(alpha: 0.15)),
                                     ],
                                   ),
                                   const SizedBox(
@@ -207,7 +207,7 @@ class _StudentOfflineResultContainerState
                                           backgroundColor: Theme.of(context)
                                               .extension<CustomColors>()!
                                               .totalStudentOverviewBackgroundColor!
-                                              .withOpacity(0.15)),
+                                              .withValues(alpha: 0.15)),
                                       _buildResultDetailsContainer(
                                           width:
                                               boxConstraints.maxWidth * (0.48),
@@ -217,7 +217,7 @@ class _StudentOfflineResultContainerState
                                           backgroundColor: Theme.of(context)
                                               .extension<CustomColors>()!
                                               .totalTeacherOverviewBackgroundColor!
-                                              .withOpacity(0.15)),
+                                              .withValues(alpha: 0.15)),
                                     ],
                                   ),
                                   const SizedBox(

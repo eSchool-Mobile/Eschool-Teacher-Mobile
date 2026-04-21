@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 
 class TeacherAnnouncementRepository {
   Future<
@@ -32,13 +33,13 @@ class TeacherAnnouncementRepository {
         queryParameters: queryParameters,
       );
 
-      print("GETTING");
+      debugPrint("GETTING");
 
-      String formattedJson = JsonEncoder.withIndent("  ").convert(result);
+      String formattedJson = const JsonEncoder.withIndent("  ").convert(result);
 
       // Cetak per baris
       for (var line in formattedJson.split("\n")) {
-        print(line);
+        debugPrint(line.toString());
       }
 
       return (

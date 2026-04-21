@@ -56,8 +56,7 @@ class Utils {
   }
 
   static double getScaledValue(BuildContext context, double value) {
-    final textScaleFactor = MediaQuery.of(context).textScaleFactor;
-    return value / textScaleFactor;
+    return value / MediaQuery.of(context).textScaler.scale(1);
   }
 
   static Locale getLocaleFromLanguageCode(String languageCode) {
@@ -203,7 +202,7 @@ class Utils {
       SnackBar(
         content: Text(
           message,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
           ),
         ),

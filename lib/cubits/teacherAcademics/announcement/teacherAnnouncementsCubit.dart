@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAnnouncementRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class TeacherAnnouncementsState {}
 
@@ -91,7 +92,7 @@ class TeacherAnnouncementsCubit extends Cubit<TeacherAnnouncementsState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherAnnouncementsFetchFailure(errorMessage: userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

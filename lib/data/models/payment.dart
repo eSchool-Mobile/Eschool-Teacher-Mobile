@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 // Updated model for payment status
 class PaymentStatus {
   final bool isFullyPaid;
@@ -29,20 +30,20 @@ class PaymentStatus {
     try {
       totalAmount = double.parse((json['total_amount'] ?? 0.0).toString());
     } catch (e) {
-      print("Error parsing total_amount: $e");
+      debugPrint("Error parsing total_amount: $e");
     }
 
     try {
       paidAmount = double.parse((json['paid_amount'] ?? 0.0).toString());
     } catch (e) {
-      print("Error parsing paid_amount: $e");
+      debugPrint("Error parsing paid_amount: $e");
     }
 
     try {
       remainingAmount =
           double.parse((json['remaining_amount'] ?? 0.0).toString());
     } catch (e) {
-      print("Error parsing remaining_amount: $e");
+      debugPrint("Error parsing remaining_amount: $e");
     }
 
     return PaymentStatus(
@@ -83,7 +84,7 @@ class PaymentHistory {
     try {
       amount = double.parse((json['amount'] ?? 0.0).toString());
     } catch (e) {
-      print("Error parsing amount in PaymentHistory: $e");
+      debugPrint("Error parsing amount in PaymentHistory: $e");
     }
 
     return PaymentHistory(

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class ExamStatusRepository {
   Future<StudentExamStatusResponse> getStudentExamStatus(int examId) async {
@@ -13,15 +14,15 @@ class ExamStatusRepository {
       );
 
       // Debug: Log the actual response format
-      print('API Response Type: ${result.runtimeType}');
-      print('API Response: $result');
+      debugPrint('API Response Type: ${result.runtimeType}');
+      debugPrint('API Response: $result');
 
       // Handle wrapped object response format (normal case)
-      print('Processing as Object response');
+      debugPrint('Processing as Object response');
       return StudentExamStatusResponse.fromJson(result);
     } on ApiException catch (apiError) {
       // Handle API specific errors
-      print('API Exception: ${apiError.errorMessage}');
+      debugPrint('API Exception: ${apiError.errorMessage}');
 
       // If the API throws "Invalid response format", it might be because
       // the server returned an array instead of expected object format
@@ -40,9 +41,9 @@ class ExamStatusRepository {
             ),
           );
 
-          print('Raw Response Status: ${response.statusCode}');
-          print('Raw Response Data Type: ${response.data.runtimeType}');
-          print('Raw Response Data: ${response.data}');
+          debugPrint('Raw Response Status: ${response.statusCode}');
+          debugPrint('Raw Response Data Type: ${response.data.runtimeType}');
+          debugPrint('Raw Response Data: ${response.data}');
 
           if (response.statusCode == 200 && response.data is List) {
             // Process the array response directly
@@ -53,8 +54,8 @@ class ExamStatusRepository {
                 try {
                   studentStatuses.add(StudentExamStatus.fromJson(item));
                 } catch (parseError) {
-                  print('Error parsing individual item: $parseError');
-                  print('Item data: $item');
+                  debugPrint('Error parsing individual item: $parseError');
+                  debugPrint('Item data: $item');
                 }
               }
             }
@@ -66,14 +67,14 @@ class ExamStatusRepository {
             );
           }
         } catch (rawError) {
-          print('Raw request also failed: $rawError');
+          debugPrint('Raw request also failed: $rawError');
         }
       }
 
       throw Exception('API Error: ${apiError.errorMessage}');
     } catch (e, stackTrace) {
-      print('Repository Error: $e');
-      print('Stack trace: $stackTrace');
+      debugPrint('Repository Error: $e');
+      debugPrint('Stack trace: $stackTrace');
       throw Exception('Failed to get exam status: $e');
     }
   }

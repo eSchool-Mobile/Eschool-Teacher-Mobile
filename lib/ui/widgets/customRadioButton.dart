@@ -10,13 +10,12 @@ class CustomRadioButton extends StatelessWidget {
   final String text;
 
   const CustomRadioButton(
-      {Key? key,
+      {super.key,
       required this.status,
       required this.groupValue,
       required this.onChanged,
       required this.color,
-      required this.text})
-      : super(key: key);
+      required this.text});
 
   @override
   Widget build(BuildContext context) {

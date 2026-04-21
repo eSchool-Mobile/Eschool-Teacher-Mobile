@@ -41,11 +41,13 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
   }) async {
     try {
       if (kDebugMode) {
-        print('📂 [FILE PICKER] Memulai pemilihan file:');
-        print('   📋 Tipe: ${type.toString()}');
-        print('   🔢 Multiple: $allowMultiple');
-        print('   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
-        print('   📝 Ekstensi: ${allowedExtensions?.join(", ") ?? "Semua"}');
+        debugPrint('📂 [FILE PICKER] Memulai pemilihan file:');
+        debugPrint('   📋 Tipe: ${type.toString()}');
+        debugPrint('   🔢 Multiple: $allowMultiple');
+        debugPrint(
+            '   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint(
+            '   📝 Ekstensi: ${allowedExtensions?.join(", ") ?? "Semua"}');
       }
 
       // Pick files
@@ -57,18 +59,20 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
 
       if (result == null || result.files.isEmpty) {
         if (kDebugMode) {
-          print('❌ [FILE PICKER] Tidak ada file yang dipilih');
+          debugPrint('❌ [FILE PICKER] Tidak ada file yang dipilih');
         }
         return null;
       }
 
+      if (context != null && !context.mounted) return null;
+
       if (kDebugMode) {
-        print('✅ [FILE PICKER] File terpilih: ${result.files.length}');
+        debugPrint('✅ [FILE PICKER] File terpilih: ${result.files.length}');
         for (int i = 0; i < result.files.length; i++) {
           final file = result.files[i];
           final fileSize = file.size;
           final sizeInMB = fileSize / (1024 * 1024);
-          print(
+          debugPrint(
               '   📄 [${i + 1}] ${file.name}: ${formatFileSize(fileSize)} (${sizeInMB.toStringAsFixed(2)} MB)');
         }
       }
@@ -101,12 +105,15 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
         );
       }
 
-      return compressedFiles.isNotEmpty ? compressedFiles : null;
+      return compressedFiles;
     } catch (e) {
       if (kDebugMode) {
-        print('Error in pickAndCompressFiles: $e');
+        debugPrint('Error in pickAndCompressFiles: $e');
       }
-      _showErrorSnackBar('Error memilih file: $e', context);
+      if (context != null) {
+        if (!context.mounted) return null;
+        _showErrorSnackBar('Error memilih file: $e', context);
+      }
       return null;
     }
   }
@@ -138,13 +145,17 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
           pickedImages.add(image);
         }
       } else {
-        final List<XFile> images = await picker.pickMultiImage();
+        final images = await picker.pickMultiImage(
+          imageQuality: 100, // Ambil original, kompres sendiri
+        );
         pickedImages.addAll(images);
       }
 
       if (pickedImages.isEmpty) {
         return null;
       }
+
+      if (context != null && !context.mounted) return null;
 
       List<File> compressedFiles = [];
 
@@ -173,9 +184,12 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
       return compressedFiles.isNotEmpty ? compressedFiles : null;
     } catch (e) {
       if (kDebugMode) {
-        print('Error in pickAndCompressImages: $e');
+        debugPrint('Error in pickAndCompressImages: $e');
       }
-      _showErrorSnackBar('Error memilih gambar: $e', context);
+      if (context != null) {
+        if (!context.mounted) return null;
+        _showErrorSnackBar('Error memilih gambar: $e', context);
+      }
       return null;
     }
   }
@@ -222,15 +236,16 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
     final originalSizeMB = originalSize / (1024 * 1024);
 
     if (kDebugMode) {
-      print('🗜️ [FILE COMPRESSION] Memulai kompresi file:');
-      print('   📁 Nama: ${platformFile.name}');
-      print(
+      debugPrint('🗜️ [FILE COMPRESSION] Memulai kompresi file:');
+      debugPrint('   📁 Nama: ${platformFile.name}');
+      debugPrint(
           '   📊 Ukuran asli: ${formatFileSize(originalSize)} (${originalSizeMB.toStringAsFixed(2)} MB)');
-      print('   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
-      print('   🔧 Kualitas: ${compressionQuality ?? "Auto"}');
+      debugPrint('   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
+      debugPrint('   🔧 Kualitas: ${compressionQuality ?? "Auto"}');
     }
 
     if (showProgress && context != null) {
+      if (!context.mounted) return null;
       return await _showCompressionDialog<PlatformFile>(
         context: context,
         compressionTask: () async {
@@ -249,14 +264,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
           final sizeDifference = originalSize - compressedSize;
 
           if (kDebugMode) {
-            print('✅ [FILE COMPRESSION] Kompresi selesai:');
-            print(
+            debugPrint('✅ [FILE COMPRESSION] Kompresi selesai:');
+            debugPrint(
                 '   📊 Ukuran hasil: ${formatFileSize(compressedSize)} (${compressedSizeMB.toStringAsFixed(2)} MB)');
-            print(
+            debugPrint(
                 '   💾 Penghematan: ${formatFileSize(sizeDifference)} (${compressionRatio.toStringAsFixed(1)}%)');
-            print('   📍 Path: ${compressedFile.path}');
+            debugPrint('   📍 Path: ${compressedFile.path}');
             if (compressedSize == originalSize) {
-              print(
+              debugPrint(
                   '   ℹ️  File tidak dikompres (sudah optimal atau format tidak didukung)');
             }
           }
@@ -285,14 +300,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
       final sizeDifference = originalSize - compressedSize;
 
       if (kDebugMode) {
-        print('✅ [FILE COMPRESSION] Kompresi selesai:');
-        print(
+        debugPrint('✅ [FILE COMPRESSION] Kompresi selesai:');
+        debugPrint(
             '   📊 Ukuran hasil: ${formatFileSize(compressedSize)} (${compressedSizeMB.toStringAsFixed(2)} MB)');
-        print(
+        debugPrint(
             '   💾 Penghematan: ${formatFileSize(sizeDifference)} (${compressionRatio.toStringAsFixed(1)}%)');
-        print('   📍 Path: ${compressedFile.path}');
+        debugPrint('   📍 Path: ${compressedFile.path}');
         if (compressedSize == originalSize) {
-          print(
+          debugPrint(
               '   ℹ️  File tidak dikompres (sudah optimal atau format tidak didukung)');
         }
       }
@@ -316,9 +331,9 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
     BuildContext? context,
   }) async {
     if (kDebugMode) {
-      print('🗜️ [BATCH COMPRESSION] Memulai kompresi batch:');
-      print('   📁 Jumlah file: ${platformFiles.length}');
-      print(
+      debugPrint('🗜️ [BATCH COMPRESSION] Memulai kompresi batch:');
+      debugPrint('   📁 Jumlah file: ${platformFiles.length}');
+      debugPrint(
           '   🎯 Target maksimal per file: ${maxSizeInMB.toStringAsFixed(2)} MB');
     }
 
@@ -342,7 +357,7 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
                 totalOriginalSize += originalSize;
 
                 if (kDebugMode) {
-                  print(
+                  debugPrint(
                       '   📄 [${i + 1}/${platformFiles.length}] ${platformFile.name}: ${formatFileSize(originalSize)}');
                 }
 
@@ -368,12 +383,12 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
                 final totalCompressionRatio = totalOriginalSize > 0
                     ? (totalSavings / totalOriginalSize * 100)
                     : 0.0;
-                print('✅ [BATCH COMPRESSION] Selesai:');
-                print(
+                debugPrint('✅ [BATCH COMPRESSION] Selesai:');
+                debugPrint(
                     '   📊 Total ukuran asli: ${formatFileSize(totalOriginalSize)}');
-                print(
+                debugPrint(
                     '   📊 Total ukuran hasil: ${formatFileSize(totalCompressedSize)}');
-                print(
+                debugPrint(
                     '   💾 Total penghematan: ${formatFileSize(totalSavings)} (${totalCompressionRatio.toStringAsFixed(1)}%)');
               }
 
@@ -399,7 +414,7 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
         totalOriginalSize += originalSize;
 
         if (kDebugMode) {
-          print(
+          debugPrint(
               '   📄 [${i + 1}/${platformFiles.length}] ${platformFile.name}: ${formatFileSize(originalSize)}');
         }
 
@@ -425,11 +440,12 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
         final totalCompressionRatio = totalOriginalSize > 0
             ? (totalSavings / totalOriginalSize * 100)
             : 0.0;
-        print('✅ [BATCH COMPRESSION] Selesai:');
-        print('   📊 Total ukuran asli: ${formatFileSize(totalOriginalSize)}');
-        print(
+        debugPrint('✅ [BATCH COMPRESSION] Selesai:');
+        debugPrint(
+            '   📊 Total ukuran asli: ${formatFileSize(totalOriginalSize)}');
+        debugPrint(
             '   📊 Total ukuran hasil: ${formatFileSize(totalCompressedSize)}');
-        print(
+        debugPrint(
             '   💾 Total penghematan: ${formatFileSize(totalSavings)} (${totalCompressionRatio.toStringAsFixed(1)}%)');
       }
 
@@ -451,15 +467,16 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
     final fileName = file.path.split('/').last;
 
     if (kDebugMode) {
-      print('🖼️ [IMAGE COMPRESSION] Memulai kompresi gambar:');
-      print('   📁 Nama: $fileName');
-      print(
+      debugPrint('🖼️ [IMAGE COMPRESSION] Memulai kompresi gambar:');
+      debugPrint('   📁 Nama: $fileName');
+      debugPrint(
           '   📊 Ukuran asli: ${formatFileSize(originalSize)} (${originalSizeMB.toStringAsFixed(2)} MB)');
-      print('   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
-      print('   🔧 Kualitas: ${compressionQuality ?? "Auto"}');
+      debugPrint('   🎯 Target maksimal: ${maxSizeInMB.toStringAsFixed(2)} MB');
+      debugPrint('   🔧 Kualitas: ${compressionQuality ?? "Auto"}');
     }
 
     if (showProgress && context != null) {
+      if (!context.mounted) return null;
       return await _showCompressionDialog<File>(
         context: context,
         compressionTask: () async {
@@ -477,14 +494,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
           final sizeDifference = originalSize - compressedSize;
 
           if (kDebugMode) {
-            print('✅ [IMAGE COMPRESSION] Kompresi gambar selesai:');
-            print(
+            debugPrint('✅ [IMAGE COMPRESSION] Kompresi gambar selesai:');
+            debugPrint(
                 '   📊 Ukuran hasil: ${formatFileSize(compressedSize)} (${compressedSizeMB.toStringAsFixed(2)} MB)');
-            print(
+            debugPrint(
                 '   💾 Penghematan: ${formatFileSize(sizeDifference)} (${compressionRatio.toStringAsFixed(1)}%)');
-            print('   📍 Path: ${compressedFile.path}');
+            debugPrint('   📍 Path: ${compressedFile.path}');
             if (compressedSize == originalSize) {
-              print(
+              debugPrint(
                   '   ℹ️  Gambar tidak dikompres (sudah optimal atau format tidak didukung)');
             }
           }
@@ -508,14 +525,14 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
       final sizeDifference = originalSize - compressedSize;
 
       if (kDebugMode) {
-        print('✅ [IMAGE COMPRESSION] Kompresi gambar selesai:');
-        print(
+        debugPrint('✅ [IMAGE COMPRESSION] Kompresi gambar selesai:');
+        debugPrint(
             '   📊 Ukuran hasil: ${formatFileSize(compressedSize)} (${compressedSizeMB.toStringAsFixed(2)} MB)');
-        print(
+        debugPrint(
             '   💾 Penghematan: ${formatFileSize(sizeDifference)} (${compressionRatio.toStringAsFixed(1)}%)');
-        print('   📍 Path: ${compressedFile.path}');
+        debugPrint('   📍 Path: ${compressedFile.path}');
         if (compressedSize == originalSize) {
-          print(
+          debugPrint(
               '   ℹ️  Gambar tidak dikompres (sudah optimal atau format tidak didukung)');
         }
       }
@@ -555,12 +572,12 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
   }
 
   /// Tampilkan dialog progress saat kompresi
-  Future<T?> _showCompressionDialog<T>({
+  Future<R?> _showCompressionDialog<R>({
     required BuildContext context,
-    required Future<T> Function() compressionTask,
+    required Future<R> Function() compressionTask,
     required String message,
   }) async {
-    T? result;
+    R? result;
 
     // Tampilkan dialog loading
     showDialog(
@@ -599,24 +616,22 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
       // Jalankan kompresi
       result = await compressionTask();
 
-      // Tutup dialog
-      if (context.mounted) {
-        Navigator.of(context).pop();
-      }
-
       // Tampilkan snackbar sukses
-      _showSuccessSnackBar('File berhasil dikompres!', context);
-    } catch (e) {
-      // Tutup dialog
       if (context.mounted) {
-        Navigator.of(context).pop();
+        _showSuccessSnackBar('File berhasil dikompres!', context);
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Compression error: $e');
       }
 
       // Tampilkan error
-      _showErrorSnackBar('Error saat kompresi: $e', context);
+      if (context.mounted) {
+        _showErrorSnackBar('Error saat kompresi: $e', context);
+      }
 
       if (kDebugMode) {
-        print('Compression error: $e');
+        debugPrint('Compression error: $e');
       }
     } finally {
       setState(() {
@@ -664,8 +679,9 @@ mixin FileCompressionMixin<T extends StatefulWidget> on State<T> {
   String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }

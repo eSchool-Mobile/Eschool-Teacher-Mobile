@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 /// Utility class untuk menangani format tanggal secara konsisten
 /// Semua format tanggal untuk API menggunakan ISO YYYY-MM-DD
@@ -19,11 +20,11 @@ class DateFormatter {
     try {
       final formatted =
           '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
-      print(
+      debugPrint(
           '🔍 [DATE_FORMATTER] Converting ${date.toString()} to API format (POST): $formatted');
       return formatted;
     } catch (e) {
-      print('❌ [DATE_FORMATTER] Error formatting date to API format: $e');
+      debugPrint('❌ [DATE_FORMATTER] Error formatting date to API format: $e');
       // Fallback manual
       return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
     }
@@ -35,11 +36,11 @@ class DateFormatter {
     try {
       final formatted =
           '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
-      print(
+      debugPrint(
           '🔍 [DATE_FORMATTER] Converting ${date.toString()} to GET request format: $formatted');
       return formatted;
     } catch (e) {
-      print(
+      debugPrint(
           '❌ [DATE_FORMATTER] Error formatting date to GET request format: $e');
       // Fallback manual
       return '${date.day.toString().padLeft(2, '0')}-${date.month.toString().padLeft(2, '0')}-${date.year}';
@@ -50,17 +51,17 @@ class DateFormatter {
   /// Digunakan untuk parsing response dari backend
   static DateTime? fromApiFormat(String? dateString) {
     if (dateString == null || dateString.isEmpty) {
-      print('⚠️ [DATE_FORMATTER] Date string is null or empty');
+      debugPrint('⚠️ [DATE_FORMATTER] Date string is null or empty');
       return null;
     }
 
     try {
       final parsed = _apiDateFormat.parse(dateString);
-      print(
+      debugPrint(
           '🔍 [DATE_FORMATTER] Parsed API date "$dateString" to: ${parsed.toString()}');
       return parsed;
     } catch (e) {
-      print('❌ [DATE_FORMATTER] Error parsing API date "$dateString": $e');
+      debugPrint('❌ [DATE_FORMATTER] Error parsing API date "$dateString": $e');
 
       // Fallback: coba parse manual untuk format YYYY-MM-DD
       try {
@@ -71,12 +72,12 @@ class DateFormatter {
           final day = int.parse(parts[2]);
 
           final fallbackDate = DateTime(year, month, day);
-          print(
+          debugPrint(
               '🔍 [DATE_FORMATTER] Fallback parsing successful: ${fallbackDate.toString()}');
           return fallbackDate;
         }
       } catch (fallbackError) {
-        print(
+        debugPrint(
             '❌ [DATE_FORMATTER] Fallback parsing also failed: $fallbackError');
       }
 
@@ -89,7 +90,7 @@ class DateFormatter {
     try {
       return _displayDateFormat.format(date);
     } catch (e) {
-      print('❌ [DATE_FORMATTER] Error formatting date to display format: $e');
+      debugPrint('❌ [DATE_FORMATTER] Error formatting date to display format: $e');
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
   }
@@ -99,7 +100,7 @@ class DateFormatter {
     try {
       return _displayDateFormatWithMonth.format(date);
     } catch (e) {
-      print('❌ [DATE_FORMATTER] Error formatting date with month: $e');
+      debugPrint('❌ [DATE_FORMATTER] Error formatting date with month: $e');
       return toDisplayFormat(date);
     }
   }
@@ -193,7 +194,7 @@ class DateFormatter {
         return toApiFormat(parsed);
       }
     } catch (e) {
-      print('❌ [DATE_FORMATTER] Error normalizing date "$dateString": $e');
+      debugPrint('❌ [DATE_FORMATTER] Error normalizing date "$dateString": $e');
     }
 
     return null;

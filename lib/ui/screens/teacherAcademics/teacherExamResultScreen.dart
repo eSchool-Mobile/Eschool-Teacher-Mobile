@@ -7,12 +7,8 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/exam/submitExamMarksC
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/exam.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -23,11 +19,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:animate_do/animate_do.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:math' show sin, cos, pi;
+import 'dart:math' show sin, cos;
 
 class TeacherExamResultScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -125,8 +119,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
   late TextEditingController searchController;
 
   // Animation controllers
-  late AnimationController _animationController;
-  late Animation<double> _animation;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
@@ -134,31 +126,20 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
   late AnimationController _appBarAnimationController;
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  static const Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
   @override
   void initState() {
     bulkMarksController = TextEditingController();
     searchController = TextEditingController();
 
     // Initialize animation controllers
-    _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    );
-    _animationController.forward();
-
     // Add pulse animation controller
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _pulseAnimation = CurvedAnimation(
@@ -169,7 +150,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     // Initialize app bar animation controller
     _appBarAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
     Future.delayed(Duration.zero, () {
@@ -188,7 +169,6 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     }
     bulkMarksController.dispose();
     searchController.dispose();
-    _animationController.dispose();
     _pulseController.dispose();
     _appBarAnimationController.dispose();
     super.dispose();
@@ -307,16 +287,16 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     left: 20,
                     right: 20,
                     child: SlideInUp(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       child: Material(
                         elevation: 10,
                         borderRadius: BorderRadius.circular(12),
                         color: Colors.transparent,
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
@@ -327,31 +307,32 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: [
                               BoxShadow(
-                                color: Color(0xFF43A047).withOpacity(0.3),
+                                color: const Color(0xFF43A047)
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 12,
-                                offset: Offset(0, 4),
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
                           child: Row(
                             children: [
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.check_circle_outline,
                                   color: Colors.white,
                                   size: 20,
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   message,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w600,
                                     fontSize: 14,
@@ -360,7 +341,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                               ),
                               IconButton(
                                 icon: Icon(Icons.close,
-                                    color: Colors.white.withOpacity(0.7),
+                                    color: Colors.white.withValues(alpha: 0.7),
                                     size: 18),
                                 onPressed: () {
                                   overlayEntry?.remove();
@@ -379,7 +360,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 Overlay.of(context).insert(overlayEntry!);
 
                 // Auto-dismiss after 3 seconds
-                Future.delayed(Duration(seconds: 3), () {
+                Future.delayed(const Duration(seconds: 3), () {
                   overlayEntry?.remove();
                   overlayEntry = null;
                 });
@@ -397,13 +378,13 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
   Widget _buildSearchAndFilter() {
     return SlideInUp(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
         child: Column(
           children: [
             _buildSearchBar(),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildFilterSection(),
           ],
         ),
@@ -413,13 +394,13 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 10,
@@ -429,7 +410,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
         ),
         child: TextField(
           controller: searchController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             hintText: 'Cari siswa...',
             prefixIcon: Icon(Icons.search, color: _primaryColor),
             border: InputBorder.none,
@@ -448,17 +429,17 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     return BlocBuilder<ClassesCubit, ClassesState>(
       builder: (context, state) {
         return FadeInDown(
-          duration: Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 700),
           child: Container(
-            padding: EdgeInsets.all(15),
+            padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: _primaryColor.withOpacity(0.1),
+                  color: _primaryColor.withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -468,7 +449,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
+                    const Row(
                       children: [
                         Icon(Icons.filter_alt_rounded, color: _primaryColor),
                         SizedBox(width: 10),
@@ -493,14 +474,14 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                           context.read<ClassesCubit>().getClasses();
                         });
                       },
-                      child: Text(
+                      child: const Text(
                         'Reset',
                         style: TextStyle(color: _primaryColor),
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 // Grade Level Dropdown
                 BlocBuilder<GradeLevelCubit, GradeLevelState>(
@@ -525,7 +506,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   },
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 // Class Section Dropdown
                 BlocBuilder<ClassesCubit, ClassesState>(
@@ -563,7 +544,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   },
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 // Exam Dropdown
                 BlocBuilder<ExamsCubit, ExamsState>(
@@ -593,7 +574,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   },
                 ),
 
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
 
                 // Subject Dropdown
                 BlocBuilder<ExamsCubit, ExamsState>(
@@ -644,13 +625,13 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
     required String label,
   }) {
     return DropdownButtonFormField<T>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: _primaryColor),
         labelText: label,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryColor),
+          borderSide: const BorderSide(color: _primaryColor),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -658,7 +639,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryColor),
+          borderSide: const BorderSide(color: _primaryColor),
         ),
       ),
       items: items,
@@ -676,19 +657,19 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
   Widget _buildBulkMarksAssignment() {
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
         width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -698,18 +679,18 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: _primaryColor.withOpacity(0.1),
+                    color: _primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.assignment_turned_in_rounded,
                     color: _primaryColor,
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   "Nilai Massal",
                   style: TextStyle(
@@ -720,7 +701,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -736,7 +717,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                       textAlign: TextAlign.center,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -744,20 +725,21 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         hintText: "Input Nilai",
                         hintStyle: TextStyle(color: Colors.grey[400]),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 15),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 15),
                       ),
                     ),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 InkWell(
                   onTap: applyBulkMarksToAll,
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     height: 50,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [_primaryColor, _accentColor],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -765,13 +747,13 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: _primaryColor.withOpacity(0.3),
+                          color: _primaryColor.withValues(alpha: 0.3),
                           blurRadius: 8,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
-                    child: Center(
+                    child: const Center(
                       child: Text(
                         "Terapkan",
                         style: TextStyle(
@@ -785,7 +767,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 ),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Row(
               children: [
                 Icon(
@@ -793,7 +775,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   size: 14,
                   color: Colors.grey[500],
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
                   "Tindakan ini akan mengubah nilai siswa",
                   style: TextStyle(
@@ -822,25 +804,25 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
     return AnimationConfiguration.staggeredList(
       position: index,
-      duration: Duration(milliseconds: 450),
+      duration: const Duration(milliseconds: 450),
       child: SlideAnimation(
         horizontalOffset: 50.0,
         child: FadeInAnimation(
           child: Container(
-            margin: EdgeInsets.only(bottom: 16),
+            margin: const EdgeInsets.only(bottom: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: _primaryColor.withOpacity(0.05),
+                  color: _primaryColor.withValues(alpha: 0.05),
                   blurRadius: 15,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
                 BoxShadow(
-                  color: accentColor.withOpacity(0.05),
+                  color: accentColor.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                   spreadRadius: 2,
                 ),
               ],
@@ -853,7 +835,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                splashColor: _primaryColor.withOpacity(0.05),
+                splashColor: _primaryColor.withValues(alpha: 0.05),
                 highlightColor: Colors.transparent,
                 onTap: () {
                   // Optional: Add focus to the text field when tapped
@@ -875,23 +857,23 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              _primaryColor.withOpacity(0.8),
+                              _primaryColor.withValues(alpha: 0.8),
                               _accentColor,
                             ],
                           ),
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: _primaryColor.withOpacity(0.2),
+                              color: _primaryColor.withValues(alpha: 0.2),
                               blurRadius: 8,
-                              offset: Offset(0, 3),
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
                         child: Center(
                           child: Text(
                             (index + 1).toString().padLeft(2, '0'),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                               color: Colors.white,
@@ -907,7 +889,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                           ),
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
 
                       // Student info
                       Expanded(
@@ -934,7 +916,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                 ),
                               ],
                             ),
-                            SizedBox(height: 6),
+                            const SizedBox(height: 6),
                             if (studentDetails.rollNumber != null)
                               Row(
                                 children: [
@@ -943,7 +925,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                     size: 14,
                                     color: Colors.grey[500],
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     "No. Absen: ${studentDetails.rollNumber}",
                                     style: TextStyle(
@@ -975,9 +957,9 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                           border: Border.all(color: Colors.grey[300]!),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               blurRadius: 4,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -987,7 +969,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                             // Background score indicator
                             if (controller.text.isNotEmpty)
                               AnimatedContainer(
-                                duration: Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 height: double.infinity,
                                 width: double.infinity,
                                 decoration: BoxDecoration(
@@ -996,8 +978,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                     begin: Alignment.topCenter,
                                     end: Alignment.bottomCenter,
                                     colors: [
-                                      _primaryColor.withOpacity(0.05),
-                                      _accentColor.withOpacity(0.08),
+                                      _primaryColor.withValues(alpha: 0.05),
+                                      _accentColor.withValues(alpha: 0.08),
                                     ],
                                   ),
                                 ),
@@ -1011,7 +993,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                               inputFormatters: [
                                 FilteringTextInputFormatter.digitsOnly
                               ],
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w700,
                                 color: _primaryColor,
@@ -1047,15 +1029,15 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
       builder: (context, studentState) {
         if (studentState is StudentsByClassSectionFetchSuccess) {
           return Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 20,
                   spreadRadius: 5,
-                  offset: Offset(0, -5),
+                  offset: const Offset(0, -5),
                 ),
               ],
             ),
@@ -1071,16 +1053,16 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                       left: 20,
                       right: 20,
                       child: SlideInUp(
-                        duration: Duration(milliseconds: 300),
+                        duration: const Duration(milliseconds: 300),
                         child: Material(
                           elevation: 10,
                           borderRadius: BorderRadius.circular(12),
                           color: Colors.transparent,
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
@@ -1093,32 +1075,33 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Color(0xFF43A047).withOpacity(0.3),
+                                  color: const Color(0xFF43A047)
+                                      .withValues(alpha: 0.3),
                                   blurRadius: 12,
-                                  offset: Offset(0, 4),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
                             child: Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.check_circle_outline,
                                     color: Colors.white,
                                     size: 20,
                                   ),
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 Expanded(
                                   child: Text(
                                     Utils.getTranslatedLabel(
                                         resultAddedSuccessfullyKey),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14,
@@ -1137,7 +1120,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                   Overlay.of(context).insert(overlayEntry);
 
                   // Auto-dismiss after 3 seconds
-                  Future.delayed(Duration(seconds: 3), () {
+                  Future.delayed(const Duration(seconds: 3), () {
                     overlayEntry?.remove();
                     overlayEntry = null;
                   });
@@ -1154,7 +1137,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     return Container(
                       height: 60,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
@@ -1167,16 +1150,16 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: _primaryColor.withOpacity(0.3),
+                            color: _primaryColor.withValues(alpha: 0.3),
                             blurRadius: 12 + (8 * _pulseAnimation.value),
-                            offset: Offset(0, 4),
+                            offset: const Offset(0, 4),
                             spreadRadius: -2 + (1 * _pulseAnimation.value),
                           ),
                           BoxShadow(
-                            color: _glowColor.withOpacity(
-                                0.1 + (0.1 * _pulseAnimation.value)),
+                            color: _glowColor.withValues(
+                                alpha: 0.1 + (0.1 * _pulseAnimation.value)),
                             blurRadius: 20 + (10 * _pulseAnimation.value),
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                             spreadRadius: 0,
                           ),
                         ],
@@ -1235,8 +1218,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                             }
                           },
                           borderRadius: BorderRadius.circular(16),
-                          highlightColor: Colors.white.withOpacity(0.1),
-                          splashColor: Colors.white.withOpacity(0.2),
+                          highlightColor: Colors.white.withValues(alpha: 0.1),
+                          splashColor: Colors.white.withValues(alpha: 0.2),
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
@@ -1250,8 +1233,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
                                         colors: [
-                                          Colors.white.withOpacity(0.1),
-                                          Colors.white.withOpacity(0.05),
+                                          Colors.white.withValues(alpha: 0.1),
+                                          Colors.white.withValues(alpha: 0.05),
                                         ],
                                       ).createShader(bounds);
                                     },
@@ -1262,8 +1245,9 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            Colors.white.withOpacity(0.1),
-                                            Colors.white.withOpacity(0.05),
+                                            Colors.white.withValues(alpha: 0.1),
+                                            Colors.white
+                                                .withValues(alpha: 0.05),
                                           ],
                                         ),
                                       ),
@@ -1271,7 +1255,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                         painter: PatternPainter(
                                           amplitude:
                                               4 + (2 * _pulseAnimation.value),
-                                          color: Colors.white.withOpacity(0.07),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.07),
                                         ),
                                       ),
                                     ),
@@ -1282,7 +1267,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                               // Button content
                               Center(
                                 child: state is SubmitExamMarksSubmitInProgress
-                                    ? SizedBox(
+                                    ? const SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
@@ -1302,16 +1287,17 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                                 scale: 1.0 +
                                                     0.1 * _pulseAnimation.value,
                                                 child: Container(
-                                                  padding: EdgeInsets.all(6),
+                                                  padding:
+                                                      const EdgeInsets.all(6),
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color: Colors.white
-                                                        .withOpacity(0.15 +
+                                                    color: Colors.white.withValues(
+                                                        alpha: 0.15 +
                                                             0.05 *
                                                                 _pulseAnimation
                                                                     .value),
                                                   ),
-                                                  child: Icon(
+                                                  child: const Icon(
                                                     Icons.check_circle_outline,
                                                     color: Colors.white,
                                                     size: 20,
@@ -1320,13 +1306,13 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                               );
                                             },
                                           ),
-                                          SizedBox(width: 12),
+                                          const SizedBox(width: 12),
 
                                           // Text with subtle animation
                                           Text(
                                             Utils.getTranslatedLabel(
                                                 submitResultKey),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.w700,
                                               fontSize: 17,
@@ -1356,12 +1342,12 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                       begin: Alignment.centerLeft,
                                       end: Alignment.centerRight,
                                       colors: [
-                                        Colors.white.withOpacity(0.1),
-                                        Colors.white.withOpacity(0.3),
-                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withValues(alpha: 0.1),
+                                        Colors.white.withValues(alpha: 0.3),
+                                        Colors.white.withValues(alpha: 0.1),
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.only(
+                                    borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(16),
                                       topRight: Radius.circular(16),
                                     ),
@@ -1379,14 +1365,14 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
             ),
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }
 
   Widget _buildStudentsList() {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: BlocConsumer<StudentsByClassSectionCubit,
           StudentsByClassSectionState>(
         listener: (context, state) {
@@ -1399,17 +1385,17 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
           if (_selectedClassSection == null || _selectedExam == null) {
             return Center(
               child: FadeIn(
-                duration: Duration(milliseconds: 800),
+                duration: const Duration(milliseconds: 800),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 40),
+                    const SizedBox(height: 40),
                     Icon(
                       Icons.assignment_outlined,
                       size: 80,
                       color: Colors.grey[400],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       "Pilih Kelas dan ujian untuk melihat hasil",
                       style: GoogleFonts.poppins(
@@ -1445,7 +1431,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                       size: 80,
                       color: Colors.grey[400],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       "Tidak ada hasil ujian",
                       style: TextStyle(
@@ -1473,25 +1459,25 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
               children: [
                 // Exam Info Header
                 FadeInUp(
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   child: Container(
-                    margin: EdgeInsets.only(bottom: 16),
-                    padding: EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _accentColor.withOpacity(0.9),
+                          _accentColor.withValues(alpha: 0.9),
                           _primaryColor,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(15),
                       boxShadow: [
                         BoxShadow(
-                          color: _primaryColor.withOpacity(0.3),
+                          color: _primaryColor.withValues(alpha: 0.3),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -1501,37 +1487,38 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(10),
+                              padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.assignment_outlined,
                                 color: Colors.white,
                                 size: 24,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     _selectedExam?.examName ?? "",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                     ),
                                   ),
-                                  SizedBox(height: 4),
+                                  const SizedBox(height: 4),
                                   Text(
                                     _selectedExamTimetableSubject
                                             ?.subjectName ??
                                         "",
                                     style: TextStyle(
-                                      color: Colors.white.withOpacity(0.9),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.9),
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -1541,7 +1528,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Row(
                           children: [
                             _buildExamInfoItem(
@@ -1549,12 +1536,12 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                               label: Utils().cleanClassName(
                                   _selectedClassSection?.fullName ?? ""),
                             ),
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             _buildExamInfoItem(
                               icon: Icons.people_outline,
                               label: "${state.studentDetailsList.length} Siswa",
                             ),
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             _buildExamInfoItem(
                               icon: Icons.grading_outlined,
                               label:
@@ -1572,44 +1559,45 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
 
                 // Students list heading with animation
                 FadeInLeft(
-                  duration: Duration(milliseconds: 600),
+                  duration: const Duration(milliseconds: 600),
                   child: Container(
-                    margin: EdgeInsets.only(bottom: 16),
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          _primaryColor.withOpacity(0.1),
+                          _primaryColor.withValues(alpha: 0.1),
                           Colors.transparent,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: _primaryColor.withOpacity(0.1),
+                        color: _primaryColor.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: _primaryColor.withOpacity(0.1),
+                            color: _primaryColor.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.people_alt_outlined,
                             color: _primaryColor,
                             size: 16,
                           ),
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         RichText(
                           text: TextSpan(
                             children: [
-                              TextSpan(
+                              const TextSpan(
                                 text: "Daftar Siswa ",
                                 style: TextStyle(
                                   fontSize: 16,
@@ -1622,7 +1610,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
-                                  color: _primaryColor.withOpacity(0.7),
+                                  color: _primaryColor.withValues(alpha: 0.7),
                                 ),
                               ),
                             ],
@@ -1643,7 +1631,7 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                     index: index,
                   );
                 }),
-                SizedBox(height: 100), // Bottom padding for scroll
+                const SizedBox(height: 100), // Bottom padding for scroll
               ],
             );
           } else if (state is StudentsByClassSectionFetchFailure) {
@@ -1670,10 +1658,10 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                 highlightColor: Colors.grey[100]!,
                 child: ListView.builder(
                   shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: 8,
                   itemBuilder: (_, __) => Container(
-                    margin: EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: 12),
                     height: 80,
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -1696,14 +1684,14 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
           Icon(
             icon,
             size: 16,
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
           ),
-          SizedBox(width: 6),
+          const SizedBox(width: 6),
           Expanded(
             child: Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -1756,8 +1744,8 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                         children: [
                           // Main content with search, filter and student list
                           SingleChildScrollView(
-                            padding: EdgeInsets.only(bottom: 70),
-                            physics: BouncingScrollPhysics(),
+                            padding: const EdgeInsets.only(bottom: 70),
+                            physics: const BouncingScrollPhysics(),
                             child: Column(
                               children: [
                                 _buildSearchAndFilter(),
@@ -1788,10 +1776,10 @@ class _TeacherExamResultScreenState extends State<TeacherExamResultScreen>
                       );
                     }
                     return ListView.builder(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 0, vertical: 20),
                       itemCount: 5,
-                      itemBuilder: (context, index) => SkeletonExamCard(),
+                      itemBuilder: (context, index) => const SkeletonExamCard(),
                     );
                   },
                 ),

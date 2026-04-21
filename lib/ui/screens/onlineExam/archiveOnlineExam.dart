@@ -6,11 +6,12 @@ import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ArchiveOnlineExam extends StatefulWidget {
+  const ArchiveOnlineExam({super.key});
+
   @override
   State<ArchiveOnlineExam> createState() => _ArchiveOnlineExamState();
 }
@@ -44,15 +45,15 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   late Animation<double> _pulseAnimation;
 
   // Theme colors - matching onlineExamScreen
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
   @override
   void initState() {
     super.initState();
     _loadArchivedExams();
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
@@ -63,7 +64,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
     // Add pulse animation controller
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _pulseAnimation = CurvedAnimation(
@@ -81,7 +82,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   }
 
   Future<void> _loadArchivedExams() async {
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (mounted) {
       context.read<OnlineExamCubit>().getArchivedExams();
     }
@@ -90,7 +91,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
   void _showFilterBottomSheet(BuildContext parentContext) {
     showModalBottomSheet(
       context: parentContext,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       backgroundColor: Colors.white,
@@ -98,7 +99,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,7 +109,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                     child: Container(
                       width: 40,
                       height: 4,
-                      margin: EdgeInsets.only(top: 8),
+                      margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
@@ -116,7 +117,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                     ),
                   ),
                   // Judul
-                  Text(
+                  const Text(
                     'Filter Ujian Arsip',
                     style: TextStyle(
                       fontSize: 18,
@@ -124,7 +125,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       color: Color(0xFF8B0000),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   // Input Tanggal
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -146,7 +147,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             }
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -162,7 +163,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           ),
                         ),
                       ),
-                      Padding(
+                      const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
                           '-',
@@ -187,7 +188,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             }
                           },
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 16),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey),
@@ -205,13 +206,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
                   // Filter mata pelajaran (jika diperlukan)
                   // ...
 
                   // Tombol Reset Filter
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Center(
                     child: ElevatedButton(
                       onPressed: () {
@@ -223,11 +224,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF8B0000),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        backgroundColor: const Color(0xFF8B0000),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Reset Filter',
                         style: TextStyle(color: Colors.white),
                       ),
@@ -263,7 +264,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      delay: Duration(milliseconds: 200),
+      delay: const Duration(milliseconds: 200),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Container(
@@ -273,7 +274,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -335,11 +336,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           final dateFilteredExams = filteredExams.where((exam) {
             if (_startDate != null && _endDate != null) {
               return exam.startDate.isAfter(_startDate!) &&
-                  exam.startDate.isBefore(_endDate!.add(Duration(days: 1)));
+                  exam.startDate
+                      .isBefore(_endDate!.add(const Duration(days: 1)));
             } else if (_startDate != null) {
               return exam.startDate.isAfter(_startDate!);
             } else if (_endDate != null) {
-              return exam.startDate.isBefore(_endDate!.add(Duration(days: 1)));
+              return exam.startDate
+                  .isBefore(_endDate!.add(const Duration(days: 1)));
             }
             return true;
           }).toList()
@@ -356,7 +359,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                     size: 80,
                     color: Colors.grey[400],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     _isSearching
                         ? 'Tidak ada ujian arsip yang cocok'
@@ -374,7 +377,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           }
 
           return ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: dateFilteredExams.length,
             itemBuilder: (context, index) {
               final exam = dateFilteredExams[index];
@@ -382,7 +385,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
             },
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }
@@ -395,7 +398,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           size: 16,
           color: Colors.grey[600],
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Expanded(
           child: Text(
             text,
@@ -419,7 +422,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -430,7 +433,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -440,7 +443,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       Flexible(
                         child: Text(
                           exam.title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF8B0000),
@@ -451,10 +454,10 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -466,7 +469,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                               ),
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           // Menu popup
                           PopupMenuButton<String>(
                             icon:
@@ -482,7 +485,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                               }
                             },
                             itemBuilder: (context) => [
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'restore',
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -494,7 +497,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                   ],
                                 ),
                               ),
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'delete',
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -512,7 +515,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     exam.subjectName,
                     style: TextStyle(
@@ -520,7 +523,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       fontSize: 14,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -531,7 +534,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                               .format(exam.startDate),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Expanded(
                         flex: 1,
                         child: _buildInfoRow(
@@ -557,7 +560,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -567,7 +570,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -690,7 +693,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
 
   Widget _buildArchiveExamSkeleton() {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: 6,
       itemBuilder: (context, index) {
         return _buildExamCardSkeleton();
@@ -705,7 +708,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           borderRadius: BorderRadius.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.white,
@@ -714,7 +717,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
                   shape: BoxShape.circle,
@@ -725,7 +728,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   size: 32,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Pulihkan Ujian',
                 style: TextStyle(
@@ -734,7 +737,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Apakah Anda yakin ingin memulihkan ujian ini?',
                 textAlign: TextAlign.center,
@@ -743,12 +746,19 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                      ),
                       child: Text(
                         'Batal',
                         style: TextStyle(
@@ -756,16 +766,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey[300]!),
-                        ),
-                      ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -774,12 +777,12 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           // Show modern loading dialog
                           Get.dialog(
                             Material(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               child: Center(
                                 child: Container(
                                   width: 320,
-                                  padding: EdgeInsets.all(40),
-                                  margin: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(40),
+                                  margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
@@ -792,16 +795,18 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.blue.withOpacity(0.3),
+                                        color:
+                                            Colors.blue.withValues(alpha: 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 0,
-                                        offset: Offset(0, 15),
+                                        offset: const Offset(0, 15),
                                       ),
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.8),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.8),
                                         blurRadius: 10,
                                         spreadRadius: -5,
-                                        offset: Offset(0, -5),
+                                        offset: const Offset(0, -5),
                                       ),
                                     ],
                                   ),
@@ -824,11 +829,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.blue.withOpacity(0.4),
+                                              color: Colors.blue
+                                                  .withValues(alpha: 0.4),
                                               blurRadius: 20,
                                               spreadRadius: 0,
-                                              offset: Offset(0, 8),
+                                              offset: const Offset(0, 8),
                                             ),
                                           ],
                                         ),
@@ -844,12 +849,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
                                                         Color>(
-                                                  Colors.white.withOpacity(0.8),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.8),
                                                 ),
                                               ),
                                             ),
                                             // Static icon
-                                            Icon(
+                                            const Icon(
                                               Icons.restore_rounded,
                                               color: Colors.white,
                                               size: 36,
@@ -857,7 +863,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 32),
+                                      const SizedBox(height: 32),
 
                                       // Title with gradient text effect
                                       ShaderMask(
@@ -868,7 +874,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                             Colors.blue[500]!
                                           ],
                                         ).createShader(bounds),
-                                        child: Text(
+                                        child: const Text(
                                           'Memulihkan Ujian',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -877,7 +883,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // Subtitle with better styling
                                       Text(
@@ -889,7 +895,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
@@ -898,7 +904,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
                                       // Progress dots animation
                                       Row(
@@ -907,7 +913,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         children: List.generate(
                                           3,
                                           (index) => Container(
-                                            margin: EdgeInsets.symmetric(
+                                            margin: const EdgeInsets.symmetric(
                                                 horizontal: 4),
                                             child: AnimatedBuilder(
                                               animation: _pulseAnimation,
@@ -916,8 +922,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                                   width: 8,
                                                   height: 8,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.blue[400]!
-                                                        .withOpacity(0.3 +
+                                                    color: Colors.blue[400]!.withValues(
+                                                        alpha: 0.3 +
                                                             0.7 *
                                                                 (((_pulseAnimation
                                                                             .value +
@@ -944,14 +950,20 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                               .read<OnlineExamCubit>()
                               .restoreOnlineExam(exam.id);
 
+                          if (!mounted) {
+                            Get.back();
+                            return;
+                          }
+
                           Get.back(); // Close loading
 
                           // Show auto-dismissing success snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.check_circle,
@@ -969,9 +981,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                 ),
                               ),
                               backgroundColor: Colors.green.shade400,
-                              duration: Duration(seconds: 2),
+                              duration: const Duration(seconds: 2),
                               behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
@@ -980,7 +992,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             ),
                           );
 
-                          await Future.delayed(Duration(milliseconds: 500));
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
 
                           // Navigate back to OnlineExamScreen with restored exam info
                           Get.back(result: {
@@ -996,22 +1009,22 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
                             snackPosition: SnackPosition.TOP,
-                            duration: Duration(seconds: 3),
+                            duration: const Duration(seconds: 3),
                           );
                         }
                       },
-                      child: Text(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
                         'Pulihkan',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -1033,7 +1046,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
           borderRadius: BorderRadius.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.white,
@@ -1042,7 +1055,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.red[50],
                   shape: BoxShape.circle,
@@ -1053,7 +1066,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   size: 32,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Hapus Permanen',
                 style: TextStyle(
@@ -1062,7 +1075,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Apakah Anda yakin ingin menghapus ujian ini secara permanen?\nTindakan ini tidak dapat dibatalkan.',
                 textAlign: TextAlign.center,
@@ -1071,7 +1084,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
@@ -1086,7 +1099,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -1094,12 +1107,12 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           Get.back(); // Tutup dialog konfirmasi                          // Show modern delete loading dialog
                           Get.dialog(
                             Material(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               child: Center(
                                 child: Container(
                                   width: 320,
-                                  padding: EdgeInsets.all(40),
-                                  margin: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(40),
+                                  margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
@@ -1112,16 +1125,18 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.red.withOpacity(0.3),
+                                        color:
+                                            Colors.red.withValues(alpha: 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 0,
-                                        offset: Offset(0, 15),
+                                        offset: const Offset(0, 15),
                                       ),
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.8),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.8),
                                         blurRadius: 10,
                                         spreadRadius: -5,
-                                        offset: Offset(0, -5),
+                                        offset: const Offset(0, -5),
                                       ),
                                     ],
                                   ),
@@ -1144,11 +1159,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.red.withOpacity(0.4),
+                                              color: Colors.red
+                                                  .withValues(alpha: 0.4),
                                               blurRadius: 20,
                                               spreadRadius: 0,
-                                              offset: Offset(0, 8),
+                                              offset: const Offset(0, 8),
                                             ),
                                           ],
                                         ),
@@ -1164,12 +1179,13 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
                                                         Color>(
-                                                  Colors.white.withOpacity(0.8),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.8),
                                                 ),
                                               ),
                                             ),
                                             // Static icon
-                                            Icon(
+                                            const Icon(
                                               Icons.delete_forever_rounded,
                                               color: Colors.white,
                                               size: 36,
@@ -1177,7 +1193,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 32),
+                                      const SizedBox(height: 32),
 
                                       // Title with gradient text effect
                                       ShaderMask(
@@ -1188,7 +1204,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                             Colors.red[500]!
                                           ],
                                         ).createShader(bounds),
-                                        child: Text(
+                                        child: const Text(
                                           'Menghapus Ujian',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -1197,7 +1213,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // Subtitle with better styling
                                       Text(
@@ -1209,7 +1225,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
@@ -1218,7 +1234,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
                                       // Progress dots animation
                                       Row(
@@ -1227,7 +1243,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                         children: List.generate(
                                           3,
                                           (index) => Container(
-                                            margin: EdgeInsets.symmetric(
+                                            margin: const EdgeInsets.symmetric(
                                                 horizontal: 4),
                                             child: AnimatedBuilder(
                                               animation: _pulseAnimation,
@@ -1236,8 +1252,8 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                                   width: 8,
                                                   height: 8,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.red[400]!
-                                                        .withOpacity(0.3 +
+                                                    color: Colors.red[400]!.withValues(
+                                                        alpha: 0.3 +
                                                             0.7 *
                                                                 (((_pulseAnimation
                                                                             .value +
@@ -1267,6 +1283,11 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                 mode: 'permanent',
                               );
 
+                          if (!mounted) {
+                            Get.back();
+                            return;
+                          }
+
                           // Tutup loading
                           Get.back();
 
@@ -1277,8 +1298,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.check_circle,
@@ -1296,9 +1318,9 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                                 ),
                               ),
                               backgroundColor: Colors.green.shade400,
-                              duration: Duration(seconds: 2),
+                              duration: const Duration(seconds: 2),
                               behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
@@ -1324,7 +1346,7 @@ class _ArchiveOnlineExamState extends State<ArchiveOnlineExam>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Hapus',
                         style: TextStyle(
                           color: Colors.white,

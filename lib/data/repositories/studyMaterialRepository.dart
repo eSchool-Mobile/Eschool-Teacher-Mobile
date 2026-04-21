@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:flutter/foundation.dart';
 
 class StudyMaterialRepository {
   Future<void> deleteStudyMaterial({required int fileId}) async {
@@ -60,10 +61,10 @@ class StudyMaterialRepository {
         savePath: savePath,
         updateDownloadedPercentage: updateDownloadedPercentage,
       );
-      print("OK GA ERROR");
+      debugPrint("OK GA ERROR");
     } catch (e) {
-      print("OK ERROR");
-      print(e);
+      debugPrint("OK ERROR");
+      debugPrint(e.toString());
       throw ApiException(e.toString());
     }
   }

@@ -9,11 +9,10 @@ import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 class EditExtracurricular extends StatefulWidget {
   final Extracurricular extracurricular;
 
-  const EditExtracurricular({Key? key, required this.extracurricular})
-      : super(key: key);
+  const EditExtracurricular({super.key, required this.extracurricular});
 
   @override
-  _EditExtracurricularState createState() => _EditExtracurricularState();
+  State<EditExtracurricular> createState() => _EditExtracurricularState();
 }
 
 class _EditExtracurricularState extends State<EditExtracurricular>
@@ -27,8 +26,8 @@ class _EditExtracurricularState extends State<EditExtracurricular>
   late AnimationController _animationController;
   late AnimationController _pulseController;
 
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _highlightColor = Color(0xFFB84D4D);
+  static const Color _primaryColor = Color(0xFF7A1E23);
+  static const Color _highlightColor = Color(0xFFB84D4D);
 
   @override
   void initState() {
@@ -41,14 +40,14 @@ class _EditExtracurricularState extends State<EditExtracurricular>
     selectedCoachId = widget.extracurricular.coachId;
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
   }
 
@@ -76,16 +75,16 @@ class _EditExtracurricularState extends State<EditExtracurricular>
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildBasicInfoSection(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildCoachSection(),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 _buildSubmitButton(),
               ],
             ),
@@ -97,24 +96,24 @@ class _EditExtracurricularState extends State<EditExtracurricular>
 
   Widget _buildBasicInfoSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Informasi Dasar',
               style: TextStyle(
                 fontSize: 18,
@@ -122,14 +121,14 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildAnimatedTextField(
               controller: _nameController,
               label: 'Nama Ekstrakurikuler',
               icon: Icons.sports_soccer,
               validator: (v) => v!.isEmpty ? 'Nama wajib diisi' : null,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildAnimatedTextField(
               controller: _descriptionController,
               label: 'Deskripsi',
@@ -146,24 +145,24 @@ class _EditExtracurricularState extends State<EditExtracurricular>
 
   Widget _buildCoachSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Pelatih/Pembina',
               style: TextStyle(
                 fontSize: 18,
@@ -171,7 +170,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildAnimatedTextField(
               controller: _coachController,
               label: 'ID Pelatih',
@@ -190,7 +189,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                 }
               },
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Pelatih saat ini: ${widget.extracurricular.coachName}',
               style: TextStyle(
@@ -234,7 +233,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryColor, width: 2),
+          borderSide: const BorderSide(color: _primaryColor, width: 2),
         ),
       ),
     );
@@ -242,20 +241,20 @@ class _EditExtracurricularState extends State<EditExtracurricular>
 
   Widget _buildSubmitButton() {
     return FadeInUp(
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
       child: Container(
         width: double.infinity,
         height: 55,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [_primaryColor, _highlightColor],
           ),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.3),
+              color: _primaryColor.withValues(alpha: 0.3),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -264,7 +263,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
           child: InkWell(
             onTap: _submitForm,
             borderRadius: BorderRadius.circular(15),
-            child: Center(
+            child: const Center(
               child: Text(
                 'Simpan Perubahan',
                 style: TextStyle(
@@ -284,7 +283,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
     if (_formKey.currentState?.validate() ?? false) {
       if (selectedCoachId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('ID Pelatih tidak valid'),
             backgroundColor: Colors.red,
           ),
@@ -301,19 +300,19 @@ class _EditExtracurricularState extends State<EditExtracurricular>
             elevation: 0,
             child: Center(
               child: Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -350,6 +349,8 @@ class _EditExtracurricularState extends State<EditExtracurricular>
               coachId: selectedCoachId!,
             );
 
+        if (!mounted) return;
+
         Navigator.pop(context); // Close loading dialog
 
         Get.dialog(
@@ -357,7 +358,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: Colors.white,
@@ -366,19 +367,19 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.check_circle,
                       color: Colors.green,
                       size: 60,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Berhasil!',
                     style: TextStyle(
                       fontSize: 24,
@@ -386,7 +387,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                       color: _primaryColor,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     'Perubahan berhasil disimpan',
                     textAlign: TextAlign.center,
@@ -395,7 +396,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       Get.back(); // Close dialog
@@ -406,10 +407,11 @@ class _EditExtracurricularState extends State<EditExtracurricular>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 12),
                     ),
-                    child: Text('OK', style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('OK', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -418,6 +420,7 @@ class _EditExtracurricularState extends State<EditExtracurricular>
           barrierDismissible: false,
         );
       } catch (e) {
+        if (!mounted) return;
         Navigator.pop(context); // Close loading dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

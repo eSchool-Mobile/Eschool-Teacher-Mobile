@@ -131,7 +131,7 @@ class _SelectAttachmentBottomSheetState
         height: 80,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: colorScheme.primary.withOpacity(0.15),
+          color: colorScheme.primary.withValues(alpha: 0.15),
         ),
         alignment: Alignment.center,
         child: Column(
@@ -139,7 +139,8 @@ class _SelectAttachmentBottomSheetState
           children: [
             SvgPicture.asset(
               iconPath,
-              color: colorScheme.primary,
+              colorFilter:
+                  ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
             ),
             const SizedBox(height: 5),
             Text(

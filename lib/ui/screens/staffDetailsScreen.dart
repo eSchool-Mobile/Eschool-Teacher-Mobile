@@ -103,7 +103,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: backgroundColor.withOpacity(0.2),
+              color: backgroundColor.withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -129,12 +129,12 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                         end: Alignment.bottomRight,
                         colors: [
                           backgroundColor,
-                          backgroundColor.withOpacity(0.8),
+                          backgroundColor.withValues(alpha: 0.8),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: backgroundColor.withOpacity(0.3),
+                          color: backgroundColor.withValues(alpha: 0.3),
                           blurRadius: 8,
                           offset: const Offset(0, 3),
                         ),
@@ -173,23 +173,23 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
       IconData? icon,
       Widget? actionWidget}) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: primaryMaroonColor.withOpacity(0.12),
+            color: primaryMaroonColor.withValues(alpha: 0.12),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             blurRadius: 8,
             offset: const Offset(-3, -3),
           ),
         ],
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -198,7 +198,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
           ],
         ),
         border: Border.all(
-          color: primaryMaroonColor.withOpacity(0.08),
+          color: primaryMaroonColor.withValues(alpha: 0.08),
           width: 1.5,
         ),
       ),
@@ -214,7 +214,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                 width: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: primaryMaroonColor.withOpacity(0.07),
+                  color: primaryMaroonColor.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -224,26 +224,26 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                 children: [
                   if (icon != null)
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            primaryMaroonColor.withOpacity(0.8),
+                            primaryMaroonColor.withValues(alpha: 0.8),
                             primaryMaroonColor,
                           ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: primaryMaroonColor.withOpacity(0.3),
+                            color: primaryMaroonColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      margin: EdgeInsets.only(right: 14),
+                      margin: const EdgeInsets.only(right: 14),
                       child: Icon(
                         icon,
                         color: Colors.white,
@@ -259,7 +259,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
-                            color: primaryMaroonColor.withOpacity(0.7),
+                            color: primaryMaroonColor.withValues(alpha: 0.7),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -275,7 +275,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                     ),
                   ),
                   if (actionWidget != null) ...[
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     actionWidget,
                   ],
                 ],
@@ -308,13 +308,13 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                 children: [
                   // Staff Profile Card
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroonColor.withOpacity(0.1),
+                          color: primaryMaroonColor.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -330,14 +330,14 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                primaryMaroonColor.withOpacity(0.7),
-                                primaryMaroonColor.withOpacity(0.9),
+                                primaryMaroonColor.withValues(alpha: 0.7),
+                                primaryMaroonColor.withValues(alpha: 0.9),
                                 primaryMaroonColor,
-                                primaryMaroonColor.withOpacity(0.9),
-                                primaryMaroonColor.withOpacity(0.7),
+                                primaryMaroonColor.withValues(alpha: 0.9),
+                                primaryMaroonColor.withValues(alpha: 0.7),
                               ],
                             ),
-                            borderRadius: BorderRadius.only(
+                            borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
                             ),
@@ -360,7 +360,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                         builder: (BuildContext context) {
                                           return Dialog(
                                             backgroundColor: Colors.transparent,
-                                            child: Container(
+                                            child: SizedBox(
                                               width: MediaQuery.of(context)
                                                       .size
                                                       .width *
@@ -418,7 +418,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                                     right: 10,
                                                     child: Material(
                                                       color: Colors.black
-                                                          .withOpacity(0.5),
+                                                          .withValues(alpha: 0.5),
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               20),
@@ -466,13 +466,13 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: primaryMaroonColor
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             width: 3,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: primaryMaroonColor
-                                                  .withOpacity(0.15),
+                                                  .withValues(alpha: 0.15),
                                               blurRadius: 10,
                                               offset: const Offset(0, 5),
                                             ),
@@ -502,7 +502,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                               LinearGradient(
                                             colors: [
                                               primaryMaroonColor,
-                                              Color(0xFFAA3855),
+                                              const Color(0xFFAA3855),
                                             ],
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
@@ -521,15 +521,15 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                         Row(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.symmetric(
+                                              padding: const EdgeInsets.symmetric(
                                                   horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: widget.staffDetails
                                                         .isActive()
                                                     ? Colors.green
-                                                        .withOpacity(0.1)
+                                                        .withValues(alpha: 0.1)
                                                     : Colors.red
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                 borderRadius:
                                                     BorderRadius.circular(20),
                                               ),
@@ -577,7 +577,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                               Icons.work,
                                               size: 16,
                                               color: primaryMaroonColor
-                                                  .withOpacity(0.7),
+                                                  .withValues(alpha: 0.7),
                                             ),
                                             const SizedBox(width: 4),
                                             Expanded(
@@ -611,13 +611,13 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
 
                   // Contact Buttons
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroonColor.withOpacity(0.1),
+                          color: primaryMaroonColor.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -633,14 +633,14 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                lightMaroonColor.withOpacity(0.7),
-                                lightMaroonColor.withOpacity(0.9),
+                                lightMaroonColor.withValues(alpha: 0.7),
+                                lightMaroonColor.withValues(alpha: 0.9),
                                 lightMaroonColor,
-                                lightMaroonColor.withOpacity(0.9),
-                                lightMaroonColor.withOpacity(0.7),
+                                lightMaroonColor.withValues(alpha: 0.9),
+                                lightMaroonColor.withValues(alpha: 0.7),
                               ],
                             ),
-                            borderRadius: BorderRadius.only(
+                            borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(20),
                               topRight: Radius.circular(20),
                             ),
@@ -659,7 +659,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                         ),
                         Padding(
                           padding:
-                              EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                              const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
                           child: Row(
                             children: [
                               _buildContactButton(
@@ -693,13 +693,13 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
 
                   // Staff Details Section
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroonColor.withOpacity(0.1),
+                          color: primaryMaroonColor.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -713,27 +713,27 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                           child: Row(
                             children: [
                               Container(
-                                padding: EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      primaryMaroonColor.withOpacity(0.9),
+                                      primaryMaroonColor.withValues(alpha: 0.9),
                                       primaryMaroonColor,
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color:
-                                          primaryMaroonColor.withOpacity(0.3),
+                                          primaryMaroonColor.withValues(alpha: 0.3),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
                                   ],
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.person_pin,
                                   color: Colors.white,
                                   size: 22,
@@ -760,17 +760,17 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                         ),
                         Container(
                           height: 2,
-                          margin: EdgeInsets.symmetric(horizontal: 16),
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                primaryMaroonColor.withOpacity(0.05),
-                                primaryMaroonColor.withOpacity(0.3),
-                                primaryMaroonColor.withOpacity(0.5),
-                                primaryMaroonColor.withOpacity(0.3),
-                                primaryMaroonColor.withOpacity(0.05),
+                                primaryMaroonColor.withValues(alpha: 0.05),
+                                primaryMaroonColor.withValues(alpha: 0.3),
+                                primaryMaroonColor.withValues(alpha: 0.5),
+                                primaryMaroonColor.withValues(alpha: 0.3),
+                                primaryMaroonColor.withValues(alpha: 0.05),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(2),
@@ -810,18 +810,18 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                               .removeCurrentSnackBar();
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                            content: Text(
+                                            content: const Text(
                                                 'Email disalin ke clipboard'),
                                             backgroundColor: primaryMaroonColor,
-                                            duration: Duration(seconds: 2),
+                                            duration: const Duration(seconds: 2),
                                           ));
                                         },
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
-                                          padding: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: primaryMaroonColor
-                                                .withOpacity(0.08),
+                                                .withValues(alpha: 0.08),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -853,18 +853,18 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                                               .removeCurrentSnackBar();
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
-                                            content: Text(
+                                            content: const Text(
                                                 'Nomor telepon disalin ke clipboard'),
                                             backgroundColor: primaryMaroonColor,
-                                            duration: Duration(seconds: 2),
+                                            duration: const Duration(seconds: 2),
                                           ));
                                         },
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
-                                          padding: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: lightMaroonColor
-                                                .withOpacity(0.08),
+                                                .withValues(alpha: 0.08),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                           ),
@@ -904,7 +904,7 @@ class _StaffDetailsScreenState extends State<StaffDetailsScreen>
                       ],
                     ),
                   ),
-                  SizedBox(height: 30),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),

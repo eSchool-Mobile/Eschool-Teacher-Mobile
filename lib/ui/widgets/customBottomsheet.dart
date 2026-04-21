@@ -17,7 +17,7 @@ class CustomBottomsheet extends StatelessWidget {
           width: 80,
           height: 5,
           decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12.5)),
         ),
         Padding(

@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/utils/env_switcher_util.dart';
 import 'package:flutter/material.dart';
 
 class GlobalEnvFab extends StatefulWidget {
-  const GlobalEnvFab({Key? key}) : super(key: key);
+  const GlobalEnvFab({super.key});
 
   @override
   State<GlobalEnvFab> createState() => _GlobalEnvFabState();

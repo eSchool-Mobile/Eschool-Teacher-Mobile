@@ -7,10 +7,10 @@ class RejectReasonDialog extends StatefulWidget {
   final VoidCallback? onCancel;
 
   const RejectReasonDialog({
-    Key? key,
+    super.key,
     required this.onReject,
     this.onCancel,
-  }) : super(key: key);
+  });
 
   @override
   State<RejectReasonDialog> createState() => _RejectReasonDialogState();
@@ -94,12 +94,13 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
   Widget build(BuildContext context) {
     const Color maroonPrimary = Color(0xFF800020);
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
         if (!_isSubmitting) {
           _handleCancel();
         }
-        return false;
       },
       child: AnimatedBuilder(
         animation: _animationController,
@@ -118,7 +119,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 4),
                       ),
@@ -136,10 +137,10 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                             Container(
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: maroonPrimary.withOpacity(0.1),
+                                color: maroonPrimary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.cancel_outlined,
                                 color: maroonPrimary,
                                 size: 24,
@@ -211,7 +212,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide:
-                                  BorderSide(color: maroonPrimary, width: 2),
+                                  const BorderSide(color: maroonPrimary, width: 2),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -269,6 +270,7 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                 backgroundColor: maroonPrimary,
                                 buttonTitle: "Tolak Cuti",
                                 showBorder: false,
+                                onTap: _isSubmitting ? null : _handleReject,
                                 child: _isSubmitting
                                     ? const SizedBox(
                                         width: 20,
@@ -281,7 +283,6 @@ class _RejectReasonDialogState extends State<RejectReasonDialog>
                                         ),
                                       )
                                     : null,
-                                onTap: _isSubmitting ? null : _handleReject,
                               ),
                             ),
                           ],

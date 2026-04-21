@@ -30,7 +30,9 @@ class SvgButton extends StatelessWidget {
         width: width ?? 25,
         child: SvgPicture.asset(
           svgIconUrl,
-          color: buttonColor ?? Theme.of(context).scaffoldBackgroundColor,
+          colorFilter: ColorFilter.mode(
+              buttonColor ?? Theme.of(context).scaffoldBackgroundColor,
+              BlendMode.srcIn),
         ),
       ),
     );

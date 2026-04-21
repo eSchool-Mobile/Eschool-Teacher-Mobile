@@ -180,7 +180,7 @@ class _CustomExpandableContainerState extends State<CustomExpandableContainer>
                               color: Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .withOpacity(0.76),
+                                  .withValues(alpha: 0.76),
                             ),
                           ),
                           const SizedBox(
@@ -277,7 +277,7 @@ class _CustomExpandableContainerState extends State<CustomExpandableContainer>
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
                 ),
                 padding: const EdgeInsets.all(5),
                 child: AnimatedBuilder(

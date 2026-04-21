@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/editProfileCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -217,7 +216,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
       required TextEditingController textEditingController,
       IconData? prefixIcon}) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -230,7 +229,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   size: 18,
                   color: primaryMaroon,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   labelTitle.tr,
                   style: GoogleFonts.poppins(
@@ -248,7 +247,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   offset: const Offset(0, 3),
                   blurRadius: 10,
                   spreadRadius: 0,
@@ -295,7 +294,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Widget _buildDateOfBirthContainer() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -308,7 +307,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   size: 18,
                   color: primaryMaroon,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   dateOfBirthKey.tr,
                   style: GoogleFonts.poppins(
@@ -360,7 +359,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     offset: const Offset(0, 3),
                     blurRadius: 10,
                     spreadRadius: 0,
@@ -405,7 +404,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   Widget _buildGenderSelector() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -418,7 +417,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                   size: 18,
                   color: primaryMaroon,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   genderKey.tr,
                   style: GoogleFonts.poppins(
@@ -460,7 +459,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
         duration: const Duration(milliseconds: 300),
         height: 56,
         decoration: BoxDecoration(
-          color: isSelected ? primaryMaroon.withOpacity(0.1) : Colors.white,
+          color: isSelected ? primaryMaroon.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? primaryMaroon : Colors.grey.shade200,
@@ -469,7 +468,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: primaryMaroon.withOpacity(0.15),
+                    color: primaryMaroon.withValues(alpha: 0.15),
                     blurRadius: 8,
                     spreadRadius: 1,
                     offset: const Offset(0, 3),
@@ -477,7 +476,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                 ]
               : [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 6,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -523,7 +522,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: primaryMaroon.withOpacity(0.3),
+              color: primaryMaroon.withValues(alpha: 0.3),
               offset: const Offset(0, 4),
               blurRadius: 15,
             ),
@@ -706,8 +705,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        primaryMaroon.withOpacity(0.1),
-                                        lightMaroon.withOpacity(0.05),
+                                        primaryMaroon.withValues(alpha: 0.1),
+                                        lightMaroon.withValues(alpha: 0.05),
                                       ],
                                     ),
                                   ),
@@ -726,8 +725,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       begin: Alignment.topRight,
                                       end: Alignment.bottomLeft,
                                       colors: [
-                                        accentMaroon.withOpacity(0.08),
-                                        primaryMaroon.withOpacity(0.03),
+                                        accentMaroon.withValues(alpha: 0.08),
+                                        primaryMaroon.withValues(alpha: 0.03),
                                       ],
                                     ),
                                   ),
@@ -741,15 +740,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: lightMaroon.withOpacity(0.1),
+                                    color: lightMaroon.withValues(alpha: 0.1),
                                     border: Border.all(
-                                      color: lightMaroon.withOpacity(0.2),
+                                      color: lightMaroon.withValues(alpha: 0.2),
                                       width: 1,
                                     ),
                                   ),
                                   child: Icon(
                                     Icons.school_outlined,
-                                    color: primaryMaroon.withOpacity(0.6),
+                                    color: primaryMaroon.withValues(alpha: 0.6),
                                     size: 24,
                                   ),
                                 ),
@@ -761,15 +760,15 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: accentMaroon.withOpacity(0.1),
+                                    color: accentMaroon.withValues(alpha: 0.1),
                                     border: Border.all(
-                                      color: accentMaroon.withOpacity(0.2),
+                                      color: accentMaroon.withValues(alpha: 0.2),
                                       width: 1,
                                     ),
                                   ),
                                   child: Icon(
                                     Icons.star_outline,
-                                    color: accentMaroon.withOpacity(0.7),
+                                    color: accentMaroon.withValues(alpha: 0.7),
                                     size: 20,
                                   ),
                                 ),
@@ -783,7 +782,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   height: 8,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: primaryMaroon.withOpacity(0.3),
+                                    color: primaryMaroon.withValues(alpha: 0.3),
                                   ),
                                 ),
                               ),
@@ -795,7 +794,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   height: 6,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: lightMaroon.withOpacity(0.4),
+                                    color: lightMaroon.withValues(alpha: 0.4),
                                   ),
                                 ),
                               ),
@@ -807,7 +806,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                   height: 4,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: accentMaroon.withOpacity(0.5),
+                                    color: accentMaroon.withValues(alpha: 0.5),
                                   ),
                                 ),
                               ),
@@ -824,25 +823,25 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                       end: Alignment.bottomRight,
                                       colors: [
                                         Colors.white,
-                                        Colors.white.withOpacity(0.95),
+                                        Colors.white.withValues(alpha: 0.95),
                                       ],
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: primaryMaroon.withOpacity(0.15),
+                                        color: primaryMaroon.withValues(alpha: 0.15),
                                         blurRadius: 20,
                                         spreadRadius: 8,
                                         offset: const Offset(0, 8),
                                       ),
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
+                                        color: Colors.black.withValues(alpha: 0.05),
                                         blurRadius: 15,
                                         spreadRadius: 2,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                     border: Border.all(
-                                      color: lightMaroon.withOpacity(0.1),
+                                      color: lightMaroon.withValues(alpha: 0.1),
                                       width: 2,
                                     ),
                                   ),
@@ -854,8 +853,8 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                         colors: [
-                                          primaryMaroon.withOpacity(0.05),
-                                          lightMaroon.withOpacity(0.03),
+                                          primaryMaroon.withValues(alpha: 0.05),
+                                          lightMaroon.withValues(alpha: 0.03),
                                         ],
                                       ),
                                     ),
@@ -890,10 +889,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                                                 LinearGradient(
                                                               colors: [
                                                                 lightMaroon
-                                                                    .withOpacity(
+                                                                    .withValues(alpha: 
                                                                         0.3),
                                                                 primaryMaroon
-                                                                    .withOpacity(
+                                                                    .withValues(alpha: 
                                                                         0.2),
                                                               ],
                                                             ),
@@ -921,10 +920,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                                                 LinearGradient(
                                                               colors: [
                                                                 lightMaroon
-                                                                    .withOpacity(
+                                                                    .withValues(alpha: 
                                                                         0.3),
                                                                 primaryMaroon
-                                                                    .withOpacity(
+                                                                    .withValues(alpha: 
                                                                         0.2),
                                                               ],
                                                             ),
@@ -945,10 +944,10 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                                               LinearGradient(
                                                             colors: [
                                                               lightMaroon
-                                                                  .withOpacity(
+                                                                  .withValues(alpha: 
                                                                       0.3),
                                                               primaryMaroon
-                                                                  .withOpacity(
+                                                                  .withValues(alpha: 
                                                                       0.2),
                                                             ],
                                                           ),
@@ -982,7 +981,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: primaryMaroon
-                                                          .withOpacity(0.4),
+                                                          .withValues(alpha: 0.4),
                                                       blurRadius: 12,
                                                       spreadRadius: 3,
                                                       offset:
@@ -1085,7 +1084,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
               // Loading indicator overlay
               if (state is EditProfileProgress)
                 Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   child: const Center(
                     child: CustomCircularProgressIndicator(),
                   ),

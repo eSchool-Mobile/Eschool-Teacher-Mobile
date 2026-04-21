@@ -1,17 +1,12 @@
-import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -20,7 +15,7 @@ import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 
 class ExamStatusScreen extends StatefulWidget {
-  const ExamStatusScreen({Key? key}) : super(key: key);
+  const ExamStatusScreen({super.key});
 
   static Route<dynamic> route() {
     return MaterialPageRoute(builder: (_) => const ExamStatusScreen());
@@ -38,8 +33,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     with TickerProviderStateMixin {
   OnlineExam? selectedExam;
   late AnimationController _animationController;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,11 +57,9 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   bool isAscending = true;
 
   // Soft maroon color palette matching OnlineExamScreen
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   final ScrollController _scrollController = ScrollController();
 
@@ -80,17 +71,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    // Add this new controller for pulse animation
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
-
     // Initial data fetch
     context.read<OnlineExamCubit>().getOnlineExams();
   }
@@ -98,7 +78,6 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _pulseController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -154,19 +133,21 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
         ) ??
         false;
 
+    if (!mounted) return;
+
     if (!confirm) return;
 
     // Check if exam is selected
     if (selectedExam == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tidak ada ujian yang dipilih')),
+        const SnackBar(content: Text('Tidak ada ujian yang dipilih')),
       );
       return;
     }
 
     // Show loading indicator
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Row(
           children: [
             SizedBox(
@@ -193,16 +174,18 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 status.id,
               );
 
+      if (!mounted) return;
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Status ujian berhasil dihapus'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Gagal menghapus status ujian'),
             backgroundColor: Colors.red,
           ),
@@ -218,79 +201,11 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     }
   }
 
-  // Custom status badge with animations
-  Widget _buildStatusIndicator(int status) {
-    final bool isActive = status == 1;
-
-    Widget indicator = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: isActive
-            ? Color(0xFFE6A65D).withOpacity(0.15)
-            : Color(0xFF2E8B57).withOpacity(0.15),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(
-          color: isActive
-              ? Color(0xFFE6A65D).withOpacity(0.5)
-              : Color(0xFF2E8B57).withOpacity(0.5),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isActive ? Icons.hourglass_empty : Icons.check_circle_outline,
-            size: 16,
-            color: isActive ? Color(0xFFE6A65D) : Color(0xFF2E8B57),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            isActive ? "Sedang Mengerjakan" : "Selesai",
-            style: GoogleFonts.poppins(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: isActive
-                  ? Color(0xFFE6A65D)
-                  : Color.fromARGB(255, 0, 155, 67),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    // Add pulsate animation for active students
-    if (isActive) {
-      return AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFFE6A65D)
-                      .withOpacity(0.2 * _animationController.value),
-                  blurRadius: 8 * _animationController.value,
-                  spreadRadius: 2 * _animationController.value,
-                ),
-              ],
-            ),
-            child: child,
-          );
-        },
-        child: indicator,
-      );
-    }
-
-    return indicator;
-  }
-
   // Modern exam dropdown with enhanced styling
   Widget _buildExamDropdown(List<OnlineExam> exams) {
     return FadeInDown(
-      delay: Duration(milliseconds: 300),
-      duration: Duration(milliseconds: 600),
+      delay: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 600),
       child: Container(
         margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
@@ -298,7 +213,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: _glowColor.withOpacity(0.1),
+              color: _glowColor.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -307,7 +222,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
         child: DropdownButtonHideUnderline(
           child: DropdownButton<OnlineExam>(
             isExpanded: true,
-            icon: Icon(Icons.keyboard_arrow_down_rounded,
+            icon: const Icon(Icons.keyboard_arrow_down_rounded,
                 color: _accentColor, size: 28),
             hint: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -355,13 +270,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   // Enhanced search bar
   Widget _buildSearchBar() {
     return FadeInDown(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
         height: 55,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black12,
               blurRadius: 10,
@@ -385,13 +300,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               fontSize: 15,
               color: Colors.grey[500],
             ),
-            prefixIcon: Icon(
+            prefixIcon: const Icon(
               Icons.search,
               color: _accentColor,
               size: 20,
             ),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           ),
         ),
       ),
@@ -405,7 +321,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
       child: Column(
         children: [
           _buildSearchBar(),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
 
           // Filter options
           Row(
@@ -485,17 +401,17 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                 child: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _primaryColor.withOpacity(0.1),
+                        color: _primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.sort_rounded,
                         color: _primaryColor,
                       ),
                     ),
-                    SizedBox(width: 14),
+                    const SizedBox(width: 14),
                     Text(
                       "Urutkan Berdasarkan",
                       style: GoogleFonts.poppins(
@@ -522,14 +438,16 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     final bool isSelected = sortBy == value;
 
     return Material(
-      color: isSelected ? _primaryColor.withOpacity(0.08) : Colors.transparent,
+      color: isSelected
+          ? _primaryColor.withValues(alpha: 0.08)
+          : Colors.transparent,
       child: ListTile(
         leading: Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isSelected
-                ? _primaryColor.withOpacity(0.15)
-                : Colors.grey.withOpacity(0.1),
+                ? _primaryColor.withValues(alpha: 0.15)
+                : Colors.grey.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -577,13 +495,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     int completedStudents = statuses.where((s) => s.status == 2).length;
 
     // New vibrant color scheme
-    final Color totalColor = Color(0xFF4361EE); // Vibrant blue
-    final Color activeColor = Color(0xFF06D6A0); // Fresh teal
-    final Color completedColor = Color(0xFFFFBF47); // Golden yellow
+    const Color totalColor = Color(0xFF4361EE); // Vibrant blue
+    const Color activeColor = Color(0xFF06D6A0); // Fresh teal
+    const Color completedColor = Color(0xFFFFBF47); // Golden yellow
 
     return FadeInDown(
-      delay: Duration(milliseconds: 300),
-      duration: Duration(milliseconds: 800),
+      delay: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 800),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         child: Row(
@@ -593,7 +511,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               totalStudents.toString(),
               Icons.people_alt_rounded,
               totalColor,
-              totalColor.withOpacity(0.1),
+              totalColor.withValues(alpha: 0.1),
             ),
             const SizedBox(width: 10),
             _buildStatCard(
@@ -601,7 +519,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               activeStudents.toString(),
               Icons.play_circle_rounded,
               activeColor,
-              activeColor.withOpacity(0.1),
+              activeColor.withValues(alpha: 0.1),
             ),
             const SizedBox(width: 10),
             _buildStatCard(
@@ -609,7 +527,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               completedStudents.toString(),
               Icons.emoji_events_rounded,
               completedColor,
-              completedColor.withOpacity(0.1),
+              completedColor.withValues(alpha: 0.1),
             ),
           ],
         ),
@@ -627,14 +545,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              color.withOpacity(0.7),
+              color.withValues(alpha: 0.7),
               color,
             ],
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
               blurRadius: 10,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -646,11 +564,11 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.95),
+                  color: Colors.white.withValues(alpha: 0.95),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: color.withOpacity(0.3),
+                      color: color.withValues(alpha: 0.3),
                       blurRadius: 8,
                       spreadRadius: 0,
                       offset: const Offset(0, 2),
@@ -681,7 +599,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     style: GoogleFonts.poppins(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -697,7 +615,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
   // Student status list with filtering and sorting
   Widget _buildStudentStatusList(List<StudentExamStatus> statuses) {
     if (statuses.isEmpty) {
-      return _NoDataContainer(
+      return const _NoDataContainer(
         title: "Tidak ada data status ujian",
         message: "Belum ada siswa yang mengerjakan ujian ini",
       );
@@ -784,26 +702,26 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     final bool isActive = status.status == 1;
 
     // Corrected color scheme - using golden yellow for completed
-    final Color activeColor = Color(0xFF06D6A0);
-    final Color completedColor = Color(0xFFFFBF47);
+    const Color activeColor = Color(0xFF06D6A0);
+    const Color completedColor = Color(0xFFFFBF47);
     final Color currentColor = isActive ? activeColor : completedColor;
 
     return AnimatedContainer(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: currentColor.withOpacity(0.15),
+            color: currentColor.withValues(alpha: 0.15),
             blurRadius: 15,
             spreadRadius: 0,
             offset: const Offset(0, 5),
           ),
         ],
         border: Border.all(
-          color: currentColor.withOpacity(0.2),
+          color: currentColor.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -828,12 +746,18 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: isActive
-                              ? [Color(0xFF06D6A0), Color(0xFF1fc8db)]
-                              : [Color(0xFFFFBF47), Color(0xFFf4a261)],
+                              ? [
+                                  const Color(0xFF06D6A0),
+                                  const Color(0xFF1fc8db)
+                                ]
+                              : [
+                                  const Color(0xFFFFBF47),
+                                  const Color(0xFFf4a261)
+                                ],
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: currentColor.withOpacity(0.3),
+                            color: currentColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             spreadRadius: 1,
                             offset: const Offset(0, 3),
@@ -872,7 +796,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               _buildEnhancedStatusBadge(status.status),
                             ],
                           ),
@@ -882,9 +806,9 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                               Icon(
                                 Icons.school_rounded,
                                 size: 16,
-                                color: currentColor.withOpacity(0.8),
+                                color: currentColor.withValues(alpha: 0.8),
                               ),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   status.sectionName != null
@@ -906,7 +830,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                   ],
                 ),
                 // Add an empty SizedBox to create vertical space
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
               ],
             ),
           ),
@@ -933,14 +857,14 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withOpacity(0.3),
+                        color: Colors.red.withValues(alpha: 0.3),
                         spreadRadius: 0,
                         blurRadius: 6,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Padding(
+                  child: const Padding(
                     padding: EdgeInsets.all(8),
                     child: Icon(
                       Icons.delete_outline,
@@ -965,168 +889,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
     return name.length > 1 ? name.substring(0, 2) : name;
   }
 
-  Widget _buildTimeInfoRow(
-      String label, String time, IconData icon, Color color) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.7),
-                color,
-              ],
-            ),
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: color.withOpacity(0.2),
-                blurRadius: 5,
-                spreadRadius: 0,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Icon(
-            icon,
-            size: 16,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.black45,
-              ),
-            ),
-            Text(
-              time,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  // Progress bar for active exams
-  Widget _buildEnhancedDurationProgressBar(String startTime, Color color) {
-    // Calculate elapsed time
-    double progress = 0.6; // This would be calculated based on actual time
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.8),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    Icons.timer_outlined,
-                    size: 12,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(width: 6),
-                Text(
-                  "Durasi",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.8),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                "60%", // This would be calculated
-                style: GoogleFonts.poppins(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Stack(
-          children: [
-            // Background
-            Container(
-              height: 8,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            // Progress
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              height: 8,
-              width: MediaQuery.of(context).size.width *
-                  progress *
-                  0.65, // Approximate width
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    color.withOpacity(0.7),
-                    color,
-                  ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-                borderRadius: BorderRadius.circular(4),
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withOpacity(0.3),
-                    blurRadius: 5,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   // Shimmer loading animation
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
       baseColor: Colors.grey[300]!,
       highlightColor: Colors.grey[100]!,
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1139,7 +908,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Shimmer searchbar
             Container(
@@ -1150,7 +919,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               ),
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Shimmer stat cards
             Row(
@@ -1164,7 +933,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Container(
                     height: 70,
@@ -1174,7 +943,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Container(
                     height: 70,
@@ -1187,13 +956,13 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
               ],
             ),
 
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
 
             // Shimmer student cards
             for (int i = 0; i < 5; i++) ...[
               Container(
                 height: 160,
-                margin: EdgeInsets.only(bottom: 12),
+                margin: const EdgeInsets.only(bottom: 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
@@ -1224,7 +993,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
           builder: (context, state) {
             if (state is OnlineExamSuccess) {
               if (state.exams.isEmpty) {
-                return _NoDataContainer(
+                return const _NoDataContainer(
                   title: "Tidak ada ujian",
                   message: "Belum ada ujian yang dibuat",
                 );
@@ -1240,7 +1009,7 @@ class _ExamStatusScreenState extends State<ExamStatusScreen>
                         if (selectedExam == null) {
                           return Center(
                             child: FadeIn(
-                              duration: Duration(milliseconds: 800),
+                              duration: const Duration(milliseconds: 800),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -1315,13 +1084,12 @@ class _NoDataContainer extends StatelessWidget {
   final String title;
   final String message;
 
-  const _NoDataContainer({Key? key, required this.title, required this.message})
-      : super(key: key);
+  const _NoDataContainer({required this.title, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return FadeIn(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -1331,7 +1099,7 @@ class _NoDataContainer extends StatelessWidget {
               size: 80,
               color: Colors.grey[400],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               title,
               style: GoogleFonts.poppins(
@@ -1340,7 +1108,7 @@ class _NoDataContainer extends StatelessWidget {
                 color: Colors.grey[600],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: Text(
@@ -1361,8 +1129,8 @@ class _NoDataContainer extends StatelessWidget {
 
 Widget _buildEnhancedStatusBadge(int status) {
   final bool isActive = status == 1;
-  final Color activeColor = Color(0xFF06D6A0);
-  final Color completedColor =
+  const Color activeColor = Color(0xFF06D6A0);
+  const Color completedColor =
       Color(0xFFFFBF47); // Changed to golden yellow to match statistics
 
   return Container(
@@ -1372,15 +1140,15 @@ Widget _buildEnhancedStatusBadge(int status) {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isActive
-              ? [activeColor.withOpacity(0.7), activeColor]
-              : [completedColor.withOpacity(0.7), completedColor],
+              ? [activeColor.withValues(alpha: 0.7), activeColor]
+              : [completedColor.withValues(alpha: 0.7), completedColor],
         ),
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
             color: isActive
-                ? activeColor.withOpacity(0.3)
-                : completedColor.withOpacity(0.3),
+                ? activeColor.withValues(alpha: 0.3)
+                : completedColor.withValues(alpha: 0.3),
             blurRadius: 8,
             spreadRadius: 0,
             offset: const Offset(0, 2),

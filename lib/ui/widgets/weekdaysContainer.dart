@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 
-
 class WeekdaysContainer extends StatefulWidget {
   final String selectedDayKey;
   final Function(String newSelection) onSelectionChange;
@@ -15,7 +14,7 @@ class WeekdaysContainer extends StatefulWidget {
       required this.onSelectionChange});
 
   @override
-  _WeekdaysContainerState createState() => _WeekdaysContainerState();
+  State<WeekdaysContainer> createState() => _WeekdaysContainerState();
 }
 
 class _WeekdaysContainerState extends State<WeekdaysContainer> {
@@ -40,7 +39,7 @@ class _WeekdaysContainerState extends State<WeekdaysContainer> {
 
     String fullDayName =
         dayMapping[abbreviatedDayKey.toLowerCase()] ?? abbreviatedDayKey;
-    print("Day selection changed to: $abbreviatedDayKey -> $fullDayName");
+    debugPrint("Day selection changed to: $abbreviatedDayKey -> $fullDayName");
 
     setState(() {
       _selectedDayKey = abbreviatedDayKey;

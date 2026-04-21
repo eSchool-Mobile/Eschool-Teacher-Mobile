@@ -6,15 +6,9 @@ import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/multiSelectionValueBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:file_picker/file_picker.dart';
@@ -24,7 +18,6 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math';
-import 'dart:ui';
 
 class EditAnnouncementScreen extends StatefulWidget {
   final Announcement announcement;
@@ -83,7 +76,6 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
 
   int _activeSection = 0; // 0 = title, 1 = description, 2 = classes, 3 = files
   double _contentOpacity = 0.0;
-  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -97,7 +89,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
       if (mounted) {
         context.read<ClassesCubit>().getClasses();
         _formAnimationController.forward();
-        Future.delayed(Duration(milliseconds: 200), () {
+        Future.delayed(const Duration(milliseconds: 200), () {
           setState(() {
             _contentOpacity = 1.0;
           });
@@ -161,14 +153,15 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
               return Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withOpacity(0.0),
-                        Colors.white.withOpacity(0.9),
+                        Colors.white.withValues(alpha: 0.0),
+                        Colors.white.withValues(alpha: 0.9),
                         Colors.white,
                       ],
                     ),
@@ -183,8 +176,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Container(
-                              padding: EdgeInsets.symmetric(vertical: 8),
-                              child: Row(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(Icons.check_circle, color: Colors.white),
@@ -201,9 +194,9 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                               ),
                             ),
                             backgroundColor: Colors.green.shade400,
-                            duration: Duration(seconds: 2),
+                            duration: const Duration(seconds: 2),
                             behavior: SnackBarBehavior.floating,
-                            margin: EdgeInsets.symmetric(
+                            margin: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 10),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -213,16 +206,13 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                         );
 
                         // Add slight delay before popping
-                        Future.delayed(Duration(milliseconds: 2200), () {
+                        Future.delayed(const Duration(milliseconds: 2200), () {
                           if (context.mounted) {
                             Get.back(result: true);
                           }
                         });
                       } else if (editGeneralAnnouncementState
                           is EditGeneralAnnouncementFailure) {
-                        setState(() {
-                          _isSubmitting = false;
-                        });
                         Utils.showSnackBar(
                             message: editGeneralAnnouncementState.errorMessage,
                             context: context);
@@ -231,7 +221,6 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                     builder: (context, editGeneralAnnouncementState) {
                       final bool isLoading = editGeneralAnnouncementState
                           is EditGeneralAnnouncementInProgress;
-                      _isSubmitting = isLoading;
 
                       return PopScope(
                         canPop: !isLoading,
@@ -250,8 +239,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: isLoading
-                                    ? Colors.grey.withOpacity(0.3)
-                                    : _maroonPrimary.withOpacity(0.3),
+                                    ? Colors.grey.withValues(alpha: 0.3)
+                                    : _maroonPrimary.withValues(alpha: 0.3),
                                 offset: const Offset(0, 4),
                                 blurRadius: 12,
                                 spreadRadius: -2,
@@ -262,8 +251,9 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                             color: Colors.transparent,
                             child: InkWell(
                               borderRadius: BorderRadius.circular(16),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor:
+                                  Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: () {
                                 if (isLoading) return;
 
@@ -300,14 +290,10 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                         classSectionIds: _selectedClassSections
                                             .map((e) => e.id ?? 0)
                                             .toList());
-
-                                setState(() {
-                                  _isSubmitting = true;
-                                });
                               },
                               child: Center(
                                 child: isLoading
-                                    ? SizedBox(
+                                    ? const SizedBox(
                                         width: 24,
                                         height: 24,
                                         child: CircularProgressIndicator(
@@ -318,12 +304,12 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                     : Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Icon(
+                                          const Icon(
                                             Icons.save_rounded,
                                             color: Colors.white,
                                             size: 22,
                                           ),
-                                          SizedBox(width: 12),
+                                          const SizedBox(width: 12),
                                           Text(
                                             Utils.getTranslatedLabel(editKey),
                                             style: GoogleFonts.poppins(
@@ -360,24 +346,25 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
       {bool isActive = false}) {
     return AnimatedOpacity(
       opacity: _contentOpacity,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       child: Container(
-        margin: EdgeInsets.only(bottom: 24),
+        margin: const EdgeInsets.only(bottom: 24),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: isActive
-                  ? _maroonPrimary.withOpacity(0.1)
-                  : Colors.black.withOpacity(0.05),
+                  ? _maroonPrimary.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
               spreadRadius: isActive ? 2 : 0,
             ),
           ],
           border: isActive
-              ? Border.all(color: _maroonPrimary.withOpacity(0.3), width: 1.5)
+              ? Border.all(
+                  color: _maroonPrimary.withValues(alpha: 0.3), width: 1.5)
               : Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
@@ -385,12 +372,12 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
           children: [
             // Header
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isActive
-                    ? _maroonPrimary.withOpacity(0.08)
+                    ? _maroonPrimary.withValues(alpha: 0.08)
                     : Colors.grey.shade50,
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
@@ -398,16 +385,16 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isActive
-                          ? _maroonPrimary.withOpacity(0.1)
+                          ? _maroonPrimary.withValues(alpha: 0.1)
                           : Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: icon,
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -438,7 +425,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
 
             // Content
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: content,
             ),
           ],
@@ -456,7 +443,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8F5F7),
+      backgroundColor: const Color(0xFFF8F5F7),
       body: Stack(
         children: [
           // Background decoration
@@ -501,11 +488,11 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                   builder: (context, state) {
                     if (state is ClassesFetchSuccess) {
                       return AnimatedOpacity(
-                        duration: Duration(milliseconds: 500),
+                        duration: const Duration(milliseconds: 500),
                         opacity: _formAnimationController.value,
                         child: SingleChildScrollView(
                           controller: _scrollController,
-                          padding: EdgeInsets.only(
+                          padding: const EdgeInsets.only(
                               left: 16, right: 16, bottom: 100, top: 16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -552,7 +539,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                             width: 1.5,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
                                           horizontal: 16,
                                           vertical: 16,
                                         ),
@@ -613,7 +601,8 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                             width: 1.5,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
                                           horizontal: 16,
                                           vertical: 16,
                                         ),
@@ -670,7 +659,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                         });
                                       },
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 16,
                                           vertical: 14,
                                         ),
@@ -693,7 +682,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                               color: _maroonLight,
                                               size: 20,
                                             ),
-                                            SizedBox(width: 12),
+                                            const SizedBox(width: 12),
                                             Text(
                                               Utils.getTranslatedLabel(
                                                   classSectionKey),
@@ -702,7 +691,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                 color: Colors.grey.shade700,
                                               ),
                                             ),
-                                            Spacer(),
+                                            const Spacer(),
                                             Icon(
                                               Icons.arrow_forward_ios_rounded,
                                               color: Colors.grey.shade400,
@@ -713,15 +702,15 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                       ),
                                     ),
 
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
 
                                     // Selected classes
                                     if (_selectedClassSections.isNotEmpty)
                                       Container(
-                                        padding: EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(16),
                                         decoration: BoxDecoration(
-                                          color:
-                                              _maroonPrimary.withOpacity(0.05),
+                                          color: _maroonPrimary.withValues(
+                                              alpha: 0.05),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
@@ -736,7 +725,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                   color: _maroonPrimary,
                                                   size: 16,
                                                 ),
-                                                SizedBox(width: 8),
+                                                const SizedBox(width: 8),
                                                 Text(
                                                   'Kelas Terpilih: ${_selectedClassSections.length}',
                                                   style: GoogleFonts.poppins(
@@ -747,14 +736,15 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 12),
+                                            const SizedBox(height: 12),
                                             Wrap(
                                               spacing: 10,
                                               runSpacing: 10,
                                               children: _selectedClassSections
                                                   .map((classSection) {
                                                 return Container(
-                                                  padding: EdgeInsets.symmetric(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
                                                     horizontal: 12,
                                                     vertical: 8,
                                                   ),
@@ -765,14 +755,17 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                             30),
                                                     border: Border.all(
                                                       color: _maroonLight
-                                                          .withOpacity(0.3),
+                                                          .withValues(
+                                                              alpha: 0.3),
                                                     ),
                                                     boxShadow: [
                                                       BoxShadow(
                                                         color: Colors.black
-                                                            .withOpacity(0.03),
+                                                            .withValues(
+                                                                alpha: 0.03),
                                                         blurRadius: 4,
-                                                        offset: Offset(0, 2),
+                                                        offset:
+                                                            const Offset(0, 2),
                                                       ),
                                                     ],
                                                   ),
@@ -785,7 +778,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                         color: _maroonLight,
                                                         size: 16,
                                                       ),
-                                                      SizedBox(width: 6),
+                                                      const SizedBox(width: 6),
                                                       Text(
                                                         classSection.fullName ??
                                                             "-",
@@ -808,7 +801,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                       )
                                     else
                                       Container(
-                                        padding: EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(16),
                                         decoration: BoxDecoration(
                                           color: Colors.amber.shade50,
                                           borderRadius:
@@ -824,7 +817,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                               color: Colors.amber.shade800,
                                               size: 20,
                                             ),
-                                            SizedBox(width: 12),
+                                            const SizedBox(width: 12),
                                             Expanded(
                                               child: Text(
                                                 'Pilih minimal satu kelas untuk melanjutkan',
@@ -861,7 +854,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                             CrossAxisAlignment.start,
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 6,
                                             ),
@@ -879,13 +872,13 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: 12),
+                                          const SizedBox(height: 12),
                                           Column(
                                             children:
                                                 _files.map((studyMaterial) {
                                               return Container(
-                                                margin:
-                                                    EdgeInsets.only(bottom: 12),
+                                                margin: const EdgeInsets.only(
+                                                    bottom: 12),
                                                 child: StudyMaterialContainer(
                                                   onDeleteStudyMaterial:
                                                       (fileId) {
@@ -905,7 +898,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                               );
                                             }).toList(),
                                           ),
-                                          Divider(height: 32),
+                                          const Divider(height: 32),
                                         ],
                                       ),
 
@@ -919,18 +912,18 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                       },
                                       child: Container(
                                         width: double.infinity,
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                           horizontal: 16,
                                           vertical: 16,
                                         ),
                                         decoration: BoxDecoration(
-                                          color:
-                                              _maroonPrimary.withOpacity(0.08),
+                                          color: _maroonPrimary.withValues(
+                                              alpha: 0.08),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                            color:
-                                                _maroonPrimary.withOpacity(0.2),
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.2),
                                             width: 1.5,
                                             style: BorderStyle.solid,
                                           ),
@@ -938,10 +931,10 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                         child: Column(
                                           children: [
                                             Container(
-                                              padding: EdgeInsets.all(12),
+                                              padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
                                                 color: _maroonPrimary
-                                                    .withOpacity(0.1),
+                                                    .withValues(alpha: 0.1),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
@@ -950,7 +943,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                 size: 28,
                                               ),
                                             ),
-                                            SizedBox(height: 12),
+                                            const SizedBox(height: 12),
                                             Text(
                                               'Tambah File Lampiran',
                                               style: GoogleFonts.poppins(
@@ -959,7 +952,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                                 color: _maroonPrimary,
                                               ),
                                             ),
-                                            SizedBox(height: 8),
+                                            const SizedBox(height: 8),
                                             Text(
                                               'File gambar dan dokumen (jpg, png, pdf, doc, dll)',
                                               style: GoogleFonts.poppins(
@@ -979,9 +972,9 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(height: 16),
+                                          const SizedBox(height: 16),
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 6,
                                             ),
@@ -999,13 +992,13 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                                               ),
                                             ),
                                           ),
-                                          SizedBox(height: 12),
+                                          const SizedBox(height: 12),
                                           Column(
                                             children: List.generate(
                                                 _pickedFiles.length, (index) {
                                               return Container(
-                                                margin:
-                                                    EdgeInsets.only(bottom: 12),
+                                                margin: const EdgeInsets.only(
+                                                    bottom: 12),
                                                 child: CustomFileContainer(
                                                   backgroundColor: Colors.white,
                                                   onDelete: () {
@@ -1049,7 +1042,7 @@ class _EditAnnouncementScreenState extends State<EditAnnouncementScreen>
                           CustomCircularProgressIndicator(
                             indicatorColor: _maroonPrimary,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Memuat data...',
                             style: GoogleFonts.poppins(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 class ExtracurricularTimetableEntry {
   final int? id;
   final String? extracurricularId;
@@ -52,7 +53,7 @@ class ExtracurricularTimetableEntry {
       'end_time': _formatTimeForAPI(endTime),
     };
 
-    print('🔍 [TIMETABLE ENTRY] API Request Body: $requestBody');
+    debugPrint('🔍 [TIMETABLE ENTRY] API Request Body: $requestBody');
     return requestBody;
   }
 

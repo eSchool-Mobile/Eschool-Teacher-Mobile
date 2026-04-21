@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/repositories/attendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class SubmitAttendanceState {}
 
@@ -50,7 +51,7 @@ class SubmitAttendanceCubit extends Cubit<SubmitAttendanceState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(SubmitAttendanceFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -67,8 +68,8 @@ class SubmitAttendanceCubit extends Cubit<SubmitAttendanceState> {
         return 3;
       case StudentAttendanceStatus.alpa:
         return 4;
-      default:
-        return 0; // Default ke absent jika status tidak dikenali
+      // default removed
+      // return 0 removed
     }
   }
 }

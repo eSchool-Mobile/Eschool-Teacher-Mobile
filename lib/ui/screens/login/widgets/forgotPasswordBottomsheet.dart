@@ -90,7 +90,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
             end: Alignment.bottomCenter,
             colors: [
               Colors.white,
-              _lightMaroon.withOpacity(0.1),
+              _lightMaroon.withValues(alpha: 0.1),
             ],
           ),
         ),
@@ -116,17 +116,17 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                           width: 120,
                           margin: const EdgeInsets.only(bottom: 20),
                           decoration: BoxDecoration(
-                            color: _lightMaroon.withOpacity(0.3),
+                            color: _lightMaroon.withValues(alpha: 0.3),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: _primaryMaroon.withOpacity(0.2),
+                                color: _primaryMaroon.withValues(alpha: 0.2),
                                 blurRadius: 15,
                                 spreadRadius: 1,
                               ),
                             ],
                             border: Border.all(
-                              color: _primaryMaroon.withOpacity(0.5),
+                              color: _primaryMaroon.withValues(alpha: 0.5),
                               width: 2,
                             ),
                           ),
@@ -137,7 +137,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                                 height: 80,
                                 width: 80,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.8),
+                                  color: Colors.white.withValues(alpha: 0.8),
                                   shape: BoxShape.circle,
                                 ),
                               ),
@@ -161,10 +161,10 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                       vertical: 10,
                     ),
                     decoration: BoxDecoration(
-                      color: _lightMaroon.withOpacity(0.2),
+                      color: _lightMaroon.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: _primaryMaroon.withOpacity(0.3),
+                        color: _primaryMaroon.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -244,7 +244,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                         horizontal: 16,
                         vertical: 10,
                       ),
-                      backgroundColor: _lightMaroon.withOpacity(0.15),
+                      backgroundColor: _lightMaroon.withValues(alpha: 0.15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -291,8 +291,8 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
           boxShadow: [
             BoxShadow(
               color: focusNode.hasFocus
-                  ? _primaryMaroon.withOpacity(0.4)
-                  : Colors.grey.withOpacity(0.1),
+                  ? _primaryMaroon.withValues(alpha: 0.4)
+                  : Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
               spreadRadius: focusNode.hasFocus ? 2 : 0,
@@ -334,7 +334,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
                     color: focusNode.hasFocus
-                        ? _primaryMaroon.withOpacity(0.15)
+                        ? _primaryMaroon.withValues(alpha: 0.15)
                         : Colors.grey.shade50,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(15),
@@ -434,7 +434,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
           ),
           boxShadow: [
             BoxShadow(
-              color: _primaryMaroon.withOpacity(0.5),
+              color: _primaryMaroon.withValues(alpha: 0.5),
               blurRadius: 15,
               offset: const Offset(0, 8),
               spreadRadius: 2,
@@ -445,8 +445,8 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
           color: Colors.transparent,
           child: InkWell(
             borderRadius: BorderRadius.circular(15),
-            splashColor: _accentColor.withOpacity(0.2),
-            highlightColor: _accentColor.withOpacity(0.1),
+            splashColor: _accentColor.withValues(alpha: 0.2),
+            highlightColor: _accentColor.withValues(alpha: 0.1),
             onTap: () {
               if (state is SendPasswordResetEmailInProgress) {
                 return;
@@ -470,7 +470,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
             },
             child: Center(
               child: state is SendPasswordResetEmailInProgress
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 28,
                       height: 28,
                       child: CircularProgressIndicator(
@@ -498,7 +498,7 @@ class _ForgotPasswordBottomsheetState extends State<ForgotPasswordBottomsheet>
                             child: Container(
                               padding: const EdgeInsets.all(5),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularTimetable.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class ExtracurricularTimetableState {}
 
@@ -28,15 +29,15 @@ class ExtracurricularTimetableCubit
       : super(ExtracurricularTimetableInitial());
 
   Future<void> getExtracurricularTimetable() async {
-    print('🚀 [EXTRACURRICULAR TIMETABLE CUBIT] Fetching timetable...');
+    debugPrint('🚀 [EXTRACURRICULAR TIMETABLE CUBIT] Fetching timetable...');
     emit(ExtracurricularTimetableLoading());
     try {
       final timetables = await _repository.getExtracurricularTimetable();
-      print(
+      debugPrint(
           '✅ [EXTRACURRICULAR TIMETABLE CUBIT] Success: ${timetables.length} items');
       emit(ExtracurricularTimetableSuccess(timetables));
     } catch (e) {
-      print('❌ [EXTRACURRICULAR TIMETABLE CUBIT] Error: $e');
+      debugPrint('❌ [EXTRACURRICULAR TIMETABLE CUBIT] Error: $e');
       emit(ExtracurricularTimetableFailure(e.toString()));
     }
   }

@@ -6,23 +6,17 @@ import 'package:eschool_saas_staff/data/models/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/offlineExamTimetableSlot.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:confetti/confetti.dart';
-import 'package:lottie/lottie.dart';
 import 'package:flutter/services.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
@@ -59,7 +53,7 @@ class _ExamsScreenState extends State<ExamsScreen>
   late AnimationController _controller;
   final ScrollController _scrollController = ScrollController();
   late ConfettiController _confettiController;
-  bool _isRefreshing = false;
+
   String _filterStatus = "Semua"; // New variable for status filter
   bool _isFiltering = false;
   DateTime? _startDate; // For date range filtering
@@ -80,20 +74,14 @@ class _ExamsScreenState extends State<ExamsScreen>
   final Color cardTextSecondary =
       const Color(0xFF6D6D6D); // Medium gray for secondary text
 
-  bool _showFilters = false;
-  late AnimationController _pulseController;
-  Color _highlightColor = const Color(0xFFD98E73); // Same as accentColor
+  final bool _showFilters = false;
 
+  @override
   void initState() {
     super.initState();
     _controller = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
     _controller.forward();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
 
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 2),
@@ -116,11 +104,12 @@ class _ExamsScreenState extends State<ExamsScreen>
     });
   }
 
+  @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
     _confettiController.dispose();
-    _pulseController.dispose();
+
     super.dispose();
   }
 
@@ -137,30 +126,10 @@ class _ExamsScreenState extends State<ExamsScreen>
   }
 
   Future<void> getExams() async {
-    setState(() {
-      _isRefreshing = true;
-    });
-
     context.read<OfflineExamsCubit>().getOfflineExams(
         status: 3,
         mediumId: _selectedMedium?.id,
         sessionYearId: _selectedSessionYear?.id);
-
-    setState(() {
-      _isRefreshing = false;
-    });
-  }
-
-  void _toggleFilter() {
-    setState(() {
-      _isFiltering = !_isFiltering;
-      if (!_isFiltering) {
-        _filterStatus = 'Semua';
-        _startDate = null;
-        _endDate = null;
-        getExams();
-      }
-    });
   }
 
   List<OfflineExam> _filterExams(List<OfflineExam> exams) {
@@ -172,12 +141,15 @@ class _ExamsScreenState extends State<ExamsScreen>
       // Filter by status
       if (_filterStatus != "Semua") {
         final statusKey = exam.getOfflineStatusKey().toLowerCase();
-        if (_filterStatus == "Selesai" && statusKey != 'completed')
+        if (_filterStatus == "Selesai" && statusKey != 'completed') {
           return false;
-        if (_filterStatus == "Sedang Berlangsung" && statusKey != 'ongoing')
+        }
+        if (_filterStatus == "Sedang Berlangsung" && statusKey != 'ongoing') {
           return false;
-        if (_filterStatus == "Akan Datang" && statusKey != 'upcoming')
+        }
+        if (_filterStatus == "Akan Datang" && statusKey != 'upcoming') {
           return false;
+        }
       }
 
       // Filter by date range
@@ -195,7 +167,7 @@ class _ExamsScreenState extends State<ExamsScreen>
 
           if (_endDate != null) {
             // Add one day to include the end date fully
-            final endDatePlusOne = _endDate!.add(Duration(days: 1));
+            final endDatePlusOne = _endDate!.add(const Duration(days: 1));
             if (examDate.isAfter(endDatePlusOne)) {
               return false;
             }
@@ -213,7 +185,7 @@ class _ExamsScreenState extends State<ExamsScreen>
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // Allow the modal to take up more space
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       backgroundColor: Colors.white,
@@ -237,7 +209,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       child: Container(
                         width: 40,
                         height: 4,
-                        margin: EdgeInsets.only(top: 8, bottom: 16),
+                        margin: const EdgeInsets.only(top: 8, bottom: 16),
                         decoration: BoxDecoration(
                           color: Colors.grey[400],
                           borderRadius: BorderRadius.circular(2),
@@ -253,7 +225,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                         color: primaryColor,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     // Date Range Filter
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -277,7 +249,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                               }
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 16),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
@@ -294,7 +266,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                             ),
                           ),
                         ),
-                        Padding(
+                        const Padding(
                           padding: EdgeInsets.symmetric(horizontal: 8),
                           child: Text(
                             '-',
@@ -321,7 +293,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                               }
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   vertical: 12, horizontal: 16),
                               decoration: BoxDecoration(
                                 border: Border.all(color: Colors.grey),
@@ -339,23 +311,34 @@ class _ExamsScreenState extends State<ExamsScreen>
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     // Status Filter Options - wrap in Container with fixed height
                     Container(
-                      constraints: BoxConstraints(maxHeight: 200),
-                      child: ListView(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        children: [
-                          _buildFilterOption('Semua', setModalState),
-                          _buildFilterOption('Selesai', setModalState),
-                          _buildFilterOption('Akan Datang', setModalState),
-                          _buildFilterOption(
-                              'Sedang Berlangsung', setModalState),
-                        ],
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      child: RadioGroup<String>(
+                        groupValue: _filterStatus,
+                        onChanged: (value) {
+                          setModalState(() {
+                            _filterStatus = value ?? 'Semua';
+                          });
+                          setState(() {
+                            _filterStatus = value ?? 'Semua';
+                          });
+                        },
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            _buildFilterOption('Semua', setModalState),
+                            _buildFilterOption('Selesai', setModalState),
+                            _buildFilterOption('Akan Datang', setModalState),
+                            _buildFilterOption(
+                                'Sedang Berlangsung', setModalState),
+                          ],
+                        ),
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     // Apply Filter Button
                     SizedBox(
                       width: double.infinity,
@@ -369,15 +352,15 @@ class _ExamsScreenState extends State<ExamsScreen>
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryColor,
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text('Terapkan Filter'),
+                        child: const Text('Terapkan Filter'),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     // Reset Filter Button
                     if (_filterStatus != "Semua" ||
                         _startDate != null ||
@@ -403,7 +386,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                             foregroundColor:
                                 primaryColor, // Changed to maroon color
                           ),
-                          child: Text(
+                          child: const Text(
                             'Reset Filter',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
@@ -435,7 +418,7 @@ class _ExamsScreenState extends State<ExamsScreen>
           },
           child: Container(
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             color: Colors.transparent,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -446,15 +429,6 @@ class _ExamsScreenState extends State<ExamsScreen>
                 ),
                 Radio<String>(
                   value: label,
-                  groupValue: _filterStatus,
-                  onChanged: (value) {
-                    setModalState(() {
-                      _filterStatus = value ?? 'Semua';
-                    });
-                    setState(() {
-                      _filterStatus = value ?? 'Semua';
-                    });
-                  },
                   activeColor: primaryColor,
                 ),
               ],
@@ -491,8 +465,9 @@ class _ExamsScreenState extends State<ExamsScreen>
 
     for (var exam in sortedExams) {
       // Skip if date is missing or empty
-      if (exam.examStartingDate == null || exam.examStartingDate!.isEmpty)
+      if (exam.examStartingDate == null || exam.examStartingDate!.isEmpty) {
         continue;
+      }
       try {
         final dateTime = DateTime.parse(exam.examStartingDate!);
         final monthYear =
@@ -533,14 +508,14 @@ class _ExamsScreenState extends State<ExamsScreen>
 
     final statusKey = exam.getOfflineStatusKey().toLowerCase();
     final isCompleted = statusKey == 'completed';
-    final isUpcoming = statusKey == 'upcoming';
+
     final isOngoing = statusKey == 'ongoing';
 
     final statusColor = _getStatusColor(statusKey);
 
     // Define header colors to match page header
     final headerStartColor = primaryColor; // 0xFF8B2635
-    final headerEndColor =
+    const headerEndColor =
         Color(0xFF5A2223); // Deeper shade matching page header
 
     // Generate random angle for the background pattern
@@ -555,8 +530,8 @@ class _ExamsScreenState extends State<ExamsScreen>
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              splashColor: statusColor.withOpacity(0.1),
-              highlightColor: statusColor.withOpacity(0.05),
+              splashColor: statusColor.withValues(alpha: 0.1),
+              highlightColor: statusColor.withValues(alpha: 0.05),
               onTap: () {
                 if (hasTimetable) {
                   HapticFeedback.mediumImpact();
@@ -579,7 +554,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       borderRadius: BorderRadius.circular(20),
                       child: CustomPaint(
                         painter: ExamCardBackgroundPainter(
-                          color: statusColor.withOpacity(0.06),
+                          color: statusColor.withValues(alpha: 0.06),
                           angle: randomAngle.toDouble(),
                         ),
                       ),
@@ -590,17 +565,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                   Container(
                     padding: const EdgeInsets.all(0),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: statusColor.withOpacity(0.1),
+                          color: statusColor.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 8),
                           spreadRadius: 2,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           blurRadius: 15,
                           offset: const Offset(0, 4),
                           spreadRadius: -5,
@@ -611,7 +586,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                       children: [
                         // Header with status & date - Updated to match page header gradient
                         ClipRRect(
-                          borderRadius: BorderRadius.only(
+                          borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(20),
                             topRight: Radius.circular(20),
                           ),
@@ -626,15 +601,15 @@ class _ExamsScreenState extends State<ExamsScreen>
                                 ],
                               ),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 12, horizontal: 20),
                             child: Row(
                               children: [
                                 // Status indicator with icon
                                 Container(
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.25),
+                                    color: Colors.white.withValues(alpha: 0.25),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Icon(
@@ -647,7 +622,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                     size: 18,
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
                                   _getStatusText(statusKey),
                                   style: GoogleFonts.poppins(
@@ -656,28 +631,27 @@ class _ExamsScreenState extends State<ExamsScreen>
                                     color: Colors.white,
                                   ),
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 // Date display
                                 if (examDate != null)
                                   Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.25),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.25),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.calendar_today,
                                           color: Colors.white,
                                           size: 14,
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Text(
-                                          examDate != null
-                                              ? _getDayName(examDate.weekday)
-                                              : "-",
+                                          _getDayName(examDate.weekday),
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500,
@@ -714,7 +688,8 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   borderRadius: BorderRadius.circular(14),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: headerStartColor.withOpacity(0.3),
+                                      color: headerStartColor.withValues(
+                                          alpha: 0.3),
                                       blurRadius: 10,
                                       offset: const Offset(2, 3),
                                     ),
@@ -755,7 +730,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
                                               color: Colors.white
-                                                  .withOpacity(0.85),
+                                                  .withValues(alpha: 0.85),
                                             ),
                                           ),
                                         ],
@@ -781,15 +756,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    SizedBox(height: 10),
+                                    const SizedBox(height: 10),
                                     Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 10, vertical: 5),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.08),
+                                        color:
+                                            statusColor.withValues(alpha: 0.08),
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
-                                          color: statusColor.withOpacity(0.2),
+                                          color: statusColor.withValues(
+                                              alpha: 0.2),
                                           width: 1,
                                         ),
                                       ),
@@ -799,9 +776,10 @@ class _ExamsScreenState extends State<ExamsScreen>
                                           Icon(
                                             Icons.groups_rounded,
                                             size: 16,
-                                            color: statusColor.withOpacity(0.7),
+                                            color: statusColor.withValues(
+                                                alpha: 0.7),
                                           ),
-                                          SizedBox(width: 6),
+                                          const SizedBox(width: 6),
                                           Text(
                                             Utils().cleanClassName(
                                                 exam.className ?? "-"),
@@ -821,17 +799,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                           ),
                         ), // Footer with timetable indicator - always show, with loading state when needed
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.05),
-                            borderRadius: BorderRadius.only(
+                            color: statusColor.withValues(alpha: 0.05),
+                            borderRadius: const BorderRadius.only(
                               bottomLeft: Radius.circular(20),
                               bottomRight: Radius.circular(20),
                             ),
                             border: Border(
                               top: BorderSide(
-                                color: statusColor.withOpacity(0.1),
+                                color: statusColor.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
@@ -844,9 +822,9 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   Icon(
                                     Icons.schedule,
                                     size: 16,
-                                    color: statusColor.withOpacity(0.7),
+                                    color: statusColor.withValues(alpha: 0.7),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   // Show loading indicator if timetableSlots is null
                                   exam.timetableSlots == null
                                       ? Row(
@@ -859,7 +837,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                                 color: statusColor,
                                               ),
                                             ),
-                                            SizedBox(width: 8),
+                                            const SizedBox(width: 8),
                                             Text(
                                               "Memuat...",
                                               style: GoogleFonts.poppins(
@@ -987,18 +965,18 @@ class _ExamsScreenState extends State<ExamsScreen>
         children: [
           // Icon with subtle animation
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               emptyIcon,
               size: 64,
-              color: primaryColor.withOpacity(0.7),
+              color: primaryColor.withValues(alpha: 0.7),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             emptyMessage,
             style: GoogleFonts.poppins(
@@ -1008,7 +986,7 @@ class _ExamsScreenState extends State<ExamsScreen>
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "Coba ubah filter atau refresh halaman",
             style: GoogleFonts.poppins(
@@ -1018,7 +996,7 @@ class _ExamsScreenState extends State<ExamsScreen>
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -1027,7 +1005,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                   _startDate != null ||
                   _endDate != null)
                 Container(
-                  margin: EdgeInsets.only(right: 8),
+                  margin: const EdgeInsets.only(right: 8),
                   child: OutlinedButton.icon(
                     onPressed: () {
                       setState(() {
@@ -1037,13 +1015,14 @@ class _ExamsScreenState extends State<ExamsScreen>
                       });
                       getExams();
                     },
-                    icon: Icon(Icons.clear_all, size: 18),
-                    label: Text("Reset Filter"),
+                    icon: const Icon(Icons.clear_all, size: 18),
+                    label: const Text("Reset Filter"),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: primaryColor,
-                      side: BorderSide(color: primaryColor.withOpacity(0.5)),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      side: BorderSide(
+                          color: primaryColor.withValues(alpha: 0.5)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -1054,28 +1033,29 @@ class _ExamsScreenState extends State<ExamsScreen>
               Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [primaryColor, primaryColor.withOpacity(0.8)],
+                    colors: [primaryColor, primaryColor.withValues(alpha: 0.8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
+                      color: primaryColor.withValues(alpha: 0.3),
                       blurRadius: 10,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
                 child: ElevatedButton.icon(
                   onPressed: getExams,
-                  icon: Icon(Icons.refresh_rounded, size: 18),
-                  label: Text("Refresh"),
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text("Refresh"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     foregroundColor: Colors.white,
                     shadowColor: Colors.transparent,
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -1097,16 +1077,16 @@ class _ExamsScreenState extends State<ExamsScreen>
     return ListView.builder(
       itemCount: 3,
       itemBuilder: (context, index) {
-        return SkeletonExamCard();
+        return const SkeletonExamCard();
       },
     );
   }
 
   Widget _buildHeader() {
     return SlideInDown(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(15, 15, 15, 10),
+        padding: const EdgeInsets.fromLTRB(15, 15, 15, 10),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1130,7 +1110,7 @@ class _ExamsScreenState extends State<ExamsScreen>
               // Filter indicator chips - show applied filters
               if (_isFiltering)
                 Container(
-                  margin: EdgeInsets.only(top: 16),
+                  margin: const EdgeInsets.only(top: 16),
                   height: 40,
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -1171,15 +1151,17 @@ class _ExamsScreenState extends State<ExamsScreen>
                               getExams();
                             },
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
                               decoration: BoxDecoration(
-                                color: primaryColor.withOpacity(
-                                    0.1), // Changed to maroon with opacity
+                                color: primaryColor.withValues(
+                                    alpha:
+                                        0.1), // Changed to maroon with opacity
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: primaryColor.withOpacity(
-                                      0.5), // Changed to maroon with opacity
+                                  color: primaryColor.withValues(
+                                      alpha:
+                                          0.5), // Changed to maroon with opacity
                                   width: 1,
                                 ),
                               ),
@@ -1188,7 +1170,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                                   Icon(Icons.close,
                                       color: primaryColor,
                                       size: 16), // Changed to maroon color
-                                  SizedBox(width: 4),
+                                  const SizedBox(width: 4),
                                   Text(
                                     "Reset",
                                     style: TextStyle(
@@ -1213,7 +1195,7 @@ class _ExamsScreenState extends State<ExamsScreen>
               // Show filters row - Session Years and Medium filters remain
               if (_showFilters)
                 Container(
-                  margin: EdgeInsets.only(top: 16, bottom: 8),
+                  margin: const EdgeInsets.only(top: 16, bottom: 8),
                   height: 50,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
@@ -1255,7 +1237,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                           }
                         },
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       _buildFilterOptionChip(
                         label: _selectedMedium?.name ?? "Bahasa",
                         icon: Icons.language_rounded,
@@ -1340,19 +1322,19 @@ class _ExamsScreenState extends State<ExamsScreen>
     required Color color,
   }) {
     return Container(
-      margin: EdgeInsets.only(right: 8),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      margin: const EdgeInsets.only(right: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
       child: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.w500,
         ),
@@ -1381,7 +1363,7 @@ class _ExamsScreenState extends State<ExamsScreen>
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.15),
+                color: Colors.grey.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
               ),
@@ -1413,7 +1395,7 @@ class _ExamsScreenState extends State<ExamsScreen>
               Icon(
                 Icons.arrow_drop_down,
                 color: isResetFilter
-                    ? Colors.white.withOpacity(0.8)
+                    ? Colors.white.withValues(alpha: 0.8)
                     : Colors.grey[600], // Changed for Reset Filter
               ),
             ],
@@ -1452,7 +1434,7 @@ class _ExamsScreenState extends State<ExamsScreen>
 
                   return ListView.builder(
                     controller: _scrollController,
-                    padding: EdgeInsets.fromLTRB(15, 0, 15, 20),
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 20),
                     itemCount: groupedExams.length,
                     itemBuilder: (context, index) {
                       final monthYear = groupedExams.keys.elementAt(index);
@@ -1462,7 +1444,7 @@ class _ExamsScreenState extends State<ExamsScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
-                            margin: EdgeInsets.only(top: 20, bottom: 10),
+                            margin: const EdgeInsets.only(top: 20, bottom: 10),
                             child: Text(
                               monthYear,
                               style: TextStyle(
@@ -1472,12 +1454,8 @@ class _ExamsScreenState extends State<ExamsScreen>
                               ),
                             ),
                           ),
-                          ...exams
-                              .asMap()
-                              .entries
-                              .map((entry) =>
-                                  _buildExamItem(entry.value, entry.key))
-                              .toList(),
+                          ...exams.asMap().entries.map((entry) =>
+                              _buildExamItem(entry.value, entry.key)),
                         ],
                       );
                     },
@@ -1498,47 +1476,6 @@ class _ExamsScreenState extends State<ExamsScreen>
       ),
     );
   }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Animation<double> get _pulseAnimation => CurvedAnimation(
-        parent: _pulseController,
-        curve: Curves.easeInOut,
-      );
 }
 
 class OfflineExamTimetableBottomsheet extends StatelessWidget {
@@ -1602,7 +1539,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
         children: [
           // Exam Header Card with glass effect
           _buildExamHeaderCard(context),
-          SizedBox(height: 20), // Timetable content
+          const SizedBox(height: 20), // Timetable content
           Flexible(
             child: timetableSlots == null
                 ? _buildLoadingState() // Tampilkan loading state jika timetableSlots == null
@@ -1622,7 +1559,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.25),
+            color: primaryColor.withValues(alpha: 0.25),
             blurRadius: 15,
             offset: const Offset(0, 5),
             spreadRadius: 0,
@@ -1656,7 +1593,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
             Positioned.fill(
               child: CustomPaint(
                 painter: ModernPatternPainter(
-                  color: Colors.white.withOpacity(0.07),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -1672,9 +1609,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      Colors.white.withOpacity(0.2),
-                      Colors.white.withOpacity(0.1),
-                      Colors.white.withOpacity(0.0),
+                      Colors.white.withValues(alpha: 0.2),
+                      Colors.white.withValues(alpha: 0.1),
+                      Colors.white.withValues(alpha: 0.0),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
@@ -1702,13 +1639,13 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.9),
-                              Colors.white.withOpacity(0.4),
+                              Colors.white.withValues(alpha: 0.9),
+                              Colors.white.withValues(alpha: 0.4),
                             ],
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -1736,7 +1673,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     Colors.white,
-                                    Colors.white.withOpacity(0.9),
+                                    Colors.white.withValues(alpha: 0.9),
                                   ],
                                 ).createShader(bounds);
                               },
@@ -1748,9 +1685,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                   height: 1.2,
                                   shadows: [
-                                    Shadow(
+                                    const Shadow(
                                       color: Colors.black26,
-                                      offset: const Offset(0, 1),
+                                      offset: Offset(0, 1),
                                       blurRadius: 3,
                                     ),
                                   ],
@@ -1765,10 +1702,10 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 5),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1,
                                 ),
                               ),
@@ -1797,10 +1734,10 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             width: 1.5,
                           ),
                         ),
@@ -1820,7 +1757,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                       : "-",
                                 ),
 
-                                SizedBox(width: 16),
+                                const SizedBox(width: 16),
 
                                 // End date
                                 _buildDateInfo(
@@ -1837,9 +1774,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
                             const SizedBox(height: 12),
                             Divider(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 height: 1),
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
 
                             // Stats Row
                             Row(
@@ -1890,9 +1827,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(6),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -1901,7 +1838,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
               size: 16,
             ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1910,7 +1847,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                   title,
                   style: GoogleFonts.poppins(
                     fontSize: 11,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(
@@ -1939,9 +1876,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -1950,7 +1887,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
               size: 18,
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1958,7 +1895,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                 label,
                 style: GoogleFonts.poppins(
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                 ),
               ),
               Text(
@@ -2012,9 +1949,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
   Widget _buildTimetableContent(BuildContext context,
       Map<String, List<OfflineExamTimeTableSlot>> groupedByDate) {
     return ListView.builder(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       shrinkWrap: true,
-      padding: EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 24),
       itemCount: groupedByDate.length,
       itemBuilder: (context, dateIndex) {
         final date = groupedByDate.keys.elementAt(dateIndex);
@@ -2044,21 +1981,21 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Adding padding to shift the circular date to the right
-                  SizedBox(width: 15),
+                  const SizedBox(width: 15),
                   // Day number in circle
                   Container(
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [primaryColor, Color(0xFF5A2223)],
+                        colors: [primaryColor, const Color(0xFF5A2223)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.25),
+                          color: primaryColor.withValues(alpha: 0.25),
                           blurRadius: 10,
                           offset: const Offset(0, 3),
                         ),
@@ -2075,7 +2012,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(width: 14),
+                  const SizedBox(width: 14),
 
                   // Day name and date
                   Expanded(
@@ -2094,7 +2031,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                 height: 1.1,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               parsedDate != null
                                   ? DateFormat('MMMM yyyy', 'id')
@@ -2114,7 +2051,8 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
                   // Exam count chip
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   ),
                 ],
               ),
@@ -2174,9 +2112,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     blurRadius: 10,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                     spreadRadius: 0,
                   ),
                 ],
@@ -2192,18 +2130,18 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                         end: Alignment.bottomRight,
                         colors: [
                           primaryColor,
-                          Color(0xFF5A2223), // Deeper complementary shade
+                          const Color(0xFF5A2223), // Deeper complementary shade
                         ],
                       ),
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(16),
                         topRight: Radius.circular(16),
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(0.2),
+                          color: primaryColor.withValues(alpha: 0.2),
                           blurRadius: 8,
-                          offset: Offset(0, 1),
+                          offset: const Offset(0, 1),
                         ),
                       ],
                     ),
@@ -2212,7 +2150,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                         // Decorative elegant circle patterns
                         Positioned.fill(
                           child: ClipRRect(
-                            borderRadius: BorderRadius.only(
+                            borderRadius: const BorderRadius.only(
                               topLeft: Radius.circular(16),
                               topRight: Radius.circular(16),
                             ),
@@ -2225,29 +2163,29 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
                         // Main content
                         Padding(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 18, vertical: 16),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // Subject icon
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     width: 1,
                                   ),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.book,
                                   size: 16,
                                   color: Colors.white,
                                 ),
                               ),
-                              SizedBox(width: 14),
+                              const SizedBox(width: 14),
 
                               // Subject name with improved typography
                               Expanded(
@@ -2259,7 +2197,8 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                       style: GoogleFonts.poppins(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w400,
-                                        color: Colors.white.withOpacity(0.7),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.7),
                                         letterSpacing: 0.5,
                                       ),
                                     ),
@@ -2271,7 +2210,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                         color: Colors.white,
                                         height: 1.2,
                                         shadows: [
-                                          Shadow(
+                                          const Shadow(
                                             color: Colors.black26,
                                             offset: Offset(0, 1),
                                             blurRadius: 2,
@@ -2285,23 +2224,24 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
                               // Elegant time display
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      Colors.white.withOpacity(0.95),
-                                      Colors.white.withOpacity(0.85),
+                                      Colors.white.withValues(alpha: 0.95),
+                                      Colors.white.withValues(alpha: 0.85),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.1),
                                       blurRadius: 4,
-                                      offset: Offset(0, 2),
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
@@ -2313,9 +2253,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                       size: 14,
                                       color: primaryColor,
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
-                                      "${Utils.formatTime(
+                                      Utils.formatTime(
                                         timeOfDay: TimeOfDay(
                                           hour: Utils.getHourFromTimeDetails(
                                               time: slot.startTime!),
@@ -2324,7 +2264,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                                   time: slot.startTime!),
                                         ),
                                         context: context,
-                                      )}",
+                                      ),
                                       style: GoogleFonts.poppins(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -2343,7 +2283,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
                   // Details section
                   Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
                         // Time and duration info
@@ -2356,7 +2296,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                               icon: Icons.timer_outlined,
                               color: primaryColor,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             _buildInfoItem(
                               title: "Waktu Selesai",
                               value: Utils.formatTime(
@@ -2369,11 +2309,11 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                                 context: context,
                               ),
                               icon: Icons.access_time_filled_rounded,
-                              color: Color(0xFF5A6ACF),
+                              color: const Color(0xFF5A6ACF),
                             ),
                           ],
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
 
                         // Marks row
                         Row(
@@ -2382,14 +2322,14 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
                               title: "Nilai Total",
                               value: "${slot.totalMarks ?? 0}",
                               icon: Icons.assignment_rounded,
-                              color: Color(0xFF43A047),
+                              color: const Color(0xFF43A047),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             _buildInfoItem(
                               title: "Nilai Kelulusan",
                               value: "${slot.passingMarks ?? 0}",
                               icon: Icons.check_circle_rounded,
-                              color: Color(0xFFE57373),
+                              color: const Color(0xFFE57373),
                             ),
                           ],
                         ),
@@ -2423,9 +2363,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Row(
           children: [
@@ -2471,18 +2411,18 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
+              color: primaryColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.event_busy,
               size: 64,
-              color: primaryColor.withOpacity(0.7),
+              color: primaryColor.withValues(alpha: 0.7),
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             "Tidak ada jadwal tersedia",
             style: GoogleFonts.poppins(
@@ -2491,7 +2431,7 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
               color: primaryColor,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             "Jadwal ujian akan ditampilkan di sini",
             style: GoogleFonts.poppins(
@@ -2533,9 +2473,9 @@ class OfflineExamTimetableBottomsheet extends StatelessWidget {
 
   Widget _buildLoadingState() {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
       itemCount: 6,
-      itemBuilder: (context, index) => SkeletonExamCard(),
+      itemBuilder: (context, index) => const SkeletonExamCard(),
     ).animate().fadeIn(duration: 500.ms);
   }
 }
@@ -2558,7 +2498,7 @@ class ExamCardBackgroundPainter extends CustomPainter {
     canvas.rotate(angle * (3.14159 / 180));
     canvas.translate(-center.dx, -center.dy);
 
-    final spacing = 12.0;
+    const spacing = 12.0;
     for (double i = -size.width; i < size.width * 2; i += spacing) {
       canvas.drawLine(
         Offset(i, -size.height),
@@ -2612,7 +2552,7 @@ class CornerDecoratorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.4)
+      ..color = color.withValues(alpha: 0.4)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -2631,7 +2571,7 @@ class CornerDecoratorPainter extends CustomPainter {
       ..lineTo(size.width, size.height * 0.5)
       ..close();
 
-    canvas.drawPath(path2, paint..color = color.withOpacity(0.6));
+    canvas.drawPath(path2, paint..color = color.withValues(alpha: 0.6));
   }
 
   @override
@@ -2696,14 +2636,14 @@ class ElegantCirclesDecorationPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color.withOpacity(0.2)
+      ..color = color.withValues(alpha: 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
 
     // Draw multiple decorative circles with varying sizes and positions
     for (int i = 0; i < 5; i++) {
       double opacity = 0.1 - (i * 0.02);
-      paint.color = color.withOpacity(opacity > 0 ? opacity : 0.01);
+      paint.color = color.withValues(alpha: opacity > 0 ? opacity : 0.01);
 
       // Large circle in the top right
       canvas.drawCircle(
@@ -2722,7 +2662,7 @@ class ElegantCirclesDecorationPainter extends CustomPainter {
 
     // Add a few accent dots
     paint.style = PaintingStyle.fill;
-    paint.color = color.withOpacity(0.2);
+    paint.color = color.withValues(alpha: 0.2);
 
     canvas.drawCircle(
       Offset(size.width * 0.95, size.height * 0.15),

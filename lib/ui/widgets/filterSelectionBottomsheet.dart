@@ -50,13 +50,13 @@ class FilterSelectionBottomsheet<T> extends StatelessWidget {
                 ),
                 // Add Divider if not the last item
                 if (index < values.length)
-                  Divider(
+                  const Divider(
                     // color: Colors.grey, // Customize as needed
                     thickness: 0.5, // Adjust the thickness
                   ),
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );

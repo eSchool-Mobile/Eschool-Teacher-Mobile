@@ -274,12 +274,12 @@ class Api {
 
     // Log bearer token for debugging
     if (useAuthToken) {
-      print(
+      debugPrint(
           '🔑 [API] Bearer Token: ${jwtToken.isNotEmpty ? "Bearer $jwtToken" : "NO TOKEN"}');
-      print('🏫 [API] School Code: ${schoolCode ?? "NO SCHOOL CODE"}');
+      debugPrint('🏫 [API] School Code: $schoolCode');
     }
 
-    print(
+    debugPrint(
         '🔑 [API] Auth Token: ${jwtToken.isNotEmpty ? "Present" : "Missing"}, School: $schoolCode');
 
     return {
@@ -299,7 +299,7 @@ class Api {
   }
 
   static Future<XFile> fetchImg(String url) async {
-    var response = await http.get(Uri.parse("${storageUrl}${url}"));
+    var response = await http.get(Uri.parse("$storageUrl$url"));
 
     if (response.statusCode == 200) {
       return XFile.fromData(response.bodyBytes, mimeType: 'image/jpeg');
@@ -518,7 +518,7 @@ class Api {
                 ? response.data.substring(0, 200) + '...<truncated>'
                 : response.data)
             : response.data.toString().length > 200
-                ? response.data.toString().substring(0, 200) + '...<truncated>'
+                ? '${response.data.toString().substring(0, 200)}...<truncated>'
                 : response.data.toString(),
       });
       if (response.statusCode == 200) {
@@ -559,7 +559,7 @@ class Api {
           'expectedFormat': 'Map or PDF bytes',
           'actualType': response.data.runtimeType.toString(),
           'responseData': response.data.toString().length > 500
-              ? response.data.toString().substring(0, 500) + '...<truncated>'
+              ? '${response.data.toString().substring(0, 500)}...<truncated>'
               : response.data.toString(),
           'isPdfEndpoint': isPdfEndpoint,
         });
@@ -592,13 +592,13 @@ class Api {
         updateDownloadedPercentage((count / total) * 100);
       }));
     } on DioException catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw ApiException(
           e.error is SocketException ? noInternetKey : defaultErrorMessageKey);
     } on ApiException catch (e) {
       throw ApiException(e.errorMessage);
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw ApiException(defaultErrorMessageKey);
     }
   }

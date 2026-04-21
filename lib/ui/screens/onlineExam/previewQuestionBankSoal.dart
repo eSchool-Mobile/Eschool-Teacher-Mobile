@@ -32,8 +32,8 @@ class PreviewQuestionBankSoal extends StatefulWidget {
     required this.examId,
     required this.classSectionId,
     required this.classSubjectId,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   State<PreviewQuestionBankSoal> createState() =>
@@ -56,7 +56,7 @@ class UltraModernPatternPainter extends CustomPainter {
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
-    final double spacing = 30;
+    const double spacing = 30;
     for (double i = -size.width; i < size.width * 2; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
@@ -88,43 +88,25 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _allQuestions = [];
   List<dynamic> _filteredQuestions = [];
-  bool _showSearch = false;
-  Map<int, Set<int>> _selectedQuestions = {};
+  final Map<int, Set<int>> _selectedQuestions = {};
   late AnimationController _selectionController;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-  bool _hasShownTooltip = false;
+
+  final bool _hasShownTooltip = false;
   // New properties for swipeable cards
-  Map<int, PageController> _pageControllers = {};
-  Map<int, int> _activeVersionIndices = {};
+  final Map<int, PageController> _pageControllers = {};
+  final Map<int, int> _activeVersionIndices = {};
   bool _hasShownSwipeGuide = false;
   // Define the border radius for cards
   final BorderRadius cardBorderRadius = BorderRadius.circular(28);
 
-  // Properties for question detail view
-  Map<String, String> _questionImages = {};
-
   // New color variables
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
 
   @override
   void initState() {
     super.initState();
-    _selectionController =
-        AnimationController(duration: Duration(milliseconds: 400), vsync: this);
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
+    _selectionController = AnimationController(
+        duration: const Duration(milliseconds: 400), vsync: this);
 
     _fetchQuestions();
     _searchController.addListener(_filterQuestionsLocally);
@@ -133,7 +115,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   @override
   void dispose() {
     _selectionController.dispose();
-    _pulseController.dispose();
     _searchController.removeListener(_filterQuestionsLocally);
     _searchController.dispose();
 
@@ -175,8 +156,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           );
       _filterQuestionsLocally();
     } catch (e) {
-      print('Error fetching questions: $e');
-      print('Technical error: $e');
+      debugPrint('Error fetching questions: $e');
+      debugPrint('Technical error: $e');
       // The error will be handled by the BlocConsumer in the UI
     }
   }
@@ -207,7 +188,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     .toLowerCase();
             return questionText.contains(query);
           } catch (e) {
-            print('Error filtering question: $e');
+            debugPrint('Error filtering question: $e');
             return false;
           }
         }).toList();
@@ -302,13 +283,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     }
   }
 
-  bool _isVersionSelected(int questionIndex, int versionIndex) {
-    if (!_selectedQuestions.containsKey(questionIndex)) {
-      return false;
-    }
-    return _selectedQuestions[questionIndex]!.contains(versionIndex);
-  }
-
   bool _isVersionDisabled(dynamic question, int versionIndex) {
     // If the question doesn't have a versions array or the index is out of bounds, return false
     if (question.versions == null || versionIndex >= question.versions.length) {
@@ -328,49 +302,49 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.info_outline_rounded,
                 color: Color(0xFF7A1E23),
                 size: 48,
               ),
-              SizedBox(height: 16),
-              Text(
+              const SizedBox(height: 16),
+              const Text(
                 'Bantuan',
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(
+              const Text(
                 'Ketuk soal untuk memilihnya. Soal yang sudah dipilih akan ditandai dengan centang.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 15),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Soal yang sudah ditambahkan ke ujian akan muncul dalam keadaan terkunci.',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 15),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Container(
-                padding: EdgeInsets.all(12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Color(0xFF7A1E23).withOpacity(0.1),
+                  color: const Color(0xFF7A1E23).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Color(0xFF7A1E23).withOpacity(0.3),
+                    color: const Color(0xFF7A1E23).withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   children: [
                     Icon(
                       Icons.touch_app_rounded,
@@ -392,87 +366,21 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => Get.back(),
-                child: Text('Mengerti'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF7A1E23),
+                  backgroundColor: const Color(0xFF7A1E23),
                   foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+                child: const Text('Mengerti'),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGlowingIconButton(
-      IconData icon, VoidCallback onTap, Color highlightColor) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      _glowColor.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCircleButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: Colors.white.withOpacity(0.15),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          customBorder: CircleBorder(),
-          onTap: () {
-            HapticFeedback.lightImpact();
-            onTap();
-          },
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
           ),
         ),
       ),
@@ -487,10 +395,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       appBar: CustomModernAppBar(
         title: widget.bank.name,
         icon: Icons.question_answer,
-        fabAnimationController: _pulseController,
-        primaryColor:
-            Color(0xFF7A1E23), // Using the maroon color from state variables
-        lightColor: Color(0xFFB84D4D),
+        fabAnimationController: _selectionController,
+        primaryColor: const Color(
+            0xFF7A1E23), // Using the maroon color from state variables
+        lightColor: const Color(0xFFB84D4D),
         onBackPressed: () => Navigator.of(context).pop(),
         showHelperButton: true,
         onHelperPressed: _showHelpInfo,
@@ -514,7 +422,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         _filterQuestionsLocally();
                       });
                     } catch (e) {
-                      print('Error processing questions: $e');
+                      debugPrint('Error processing questions: $e');
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content:
@@ -527,7 +435,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 },
                 builder: (context, state) {
                   if (state is QuestionBankLoading && _allQuestions.isEmpty) {
-                    return SkeletonPreviewQuestionBankSoal(itemCount: 6);
+                    return const SkeletonPreviewQuestionBankSoal(itemCount: 6);
                   } else if (state is QuestionBankError &&
                       _allQuestions.isEmpty) {
                     return CustomErrorWidget(
@@ -547,20 +455,20 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       ),
       floatingActionButton: _selectedQuestions.isNotEmpty
           ? Container(
-              margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
+              margin: const EdgeInsets.only(bottom: 16.0, right: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   SlideInLeft(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
-                      margin: EdgeInsets.only(right: 12.0),
+                      margin: const EdgeInsets.only(right: 12.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 10)
                         ],
                       ),
@@ -571,12 +479,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               setState(() => _selectedQuestions.clear()),
                           borderRadius: BorderRadius.circular(30),
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             child: Row(
                               children: [
                                 Icon(Icons.clear, color: Colors.grey[700]),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text('Batal',
                                     style: TextStyle(
                                         color: Colors.grey[700],
@@ -589,7 +497,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ),
                   SlideInRight(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -599,7 +507,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.blue[600]!.withOpacity(0.3),
+                              color: Colors.blue[600]!.withValues(alpha: 0.3),
                               blurRadius: 10)
                         ],
                       ),
@@ -609,14 +517,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           onTap: _saveSelectedQuestions,
                           borderRadius: BorderRadius.circular(30),
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 12),
                             child: Row(
                               children: [
-                                Icon(Icons.save, color: Colors.white),
-                                SizedBox(width: 8),
+                                const Icon(Icons.save, color: Colors.white),
+                                const SizedBox(width: 8),
                                 Text('Simpan ${_selectedQuestions.length} Soal',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold)),
                               ],
@@ -643,16 +551,16 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         if (!_hasShownTooltip)
           if (_allQuestions.length > 5)
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       spreadRadius: 0,
-                      offset: Offset(0, 5))
+                      offset: const Offset(0, 5))
                 ],
               ),
               child: TextField(
@@ -663,7 +571,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
             ),
@@ -673,8 +581,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               : Stack(
                   children: [
                     ListView.builder(
-                      padding: EdgeInsets.only(top: 8, bottom: 24),
-                      physics: AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 8, bottom: 24),
+                      physics: const AlwaysScrollableScrollPhysics(),
                       itemCount: _filteredQuestions.length,
                       itemBuilder: (context, index) {
                         final question = _filteredQuestions[index];
@@ -690,28 +598,30 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         left: 0,
                         right: 0,
                         child: FadeIn(
-                          duration: Duration(seconds: 1),
+                          duration: const Duration(seconds: 1),
                           child: Center(
                             child: Container(
-                              margin: EdgeInsets.symmetric(horizontal: 32.0),
-                              padding: EdgeInsets.symmetric(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 32.0),
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 16.0, vertical: 12.0),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(16.0),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
+                                    color: Colors.black.withValues(alpha: 0.1),
                                     blurRadius: 8.0,
-                                    offset: Offset(0, 4),
+                                    offset: const Offset(0, 4),
                                   ),
                                 ],
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.swipe, color: Color(0xFF8B0000)),
-                                  SizedBox(width: 12.0),
+                                  const Icon(Icons.swipe,
+                                      color: Color(0xFF8B0000)),
+                                  const SizedBox(width: 12.0),
                                   Flexible(
                                     child: Column(
                                       crossAxisAlignment:
@@ -726,7 +636,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                             fontWeight: FontWeight.w500,
                                           ),
                                         ),
-                                        SizedBox(height: 4.0),
+                                        const SizedBox(height: 4.0),
                                         Text(
                                           'Beberapa soal memiliki beberapa versi yang dapat dilihat',
                                           style: TextStyle(
@@ -737,7 +647,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                     ),
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.close, size: 16.0),
+                                    icon: const Icon(Icons.close, size: 16.0),
                                     onPressed: () {
                                       setState(() {
                                         _hasShownSwipeGuide = true;
@@ -759,7 +669,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
   Widget _buildNoDataWidget() {
     return FadeIn(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -769,7 +679,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               size: 80,
               color: Colors.grey[400],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               _searchController.text.isNotEmpty
                   ? 'Tidak ada soal yang cocok'
@@ -780,7 +690,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 color: Colors.grey[600],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               _searchController.text.isNotEmpty
                   ? 'Coba gunakan kata kunci lain'
@@ -810,12 +720,12 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     bool isVersionDisabled = _isVersionDisabled(question, activeVersionIndex);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
         children: [
           // Main card dan PageView
           AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             decoration: BoxDecoration(
               color: Colors.white,
@@ -828,18 +738,21 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               boxShadow: [
                 BoxShadow(
                   color: isSelected
-                      ? Theme.of(context).colorScheme.secondary.withOpacity(0.3)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withValues(alpha: 0.3)
                       : _getTypeColor(
                               question.versions[activeVersionIndex].type)
-                          .withOpacity(0.12),
+                          .withValues(alpha: 0.12),
                   blurRadius: isSelected ? 15 : 40,
-                  offset: Offset(0, 15),
+                  offset: const Offset(0, 15),
                   spreadRadius: isSelected ? 2 : 0,
                 ),
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
-                    offset: Offset(0, 8)),
+                    offset: const Offset(0, 8)),
               ],
             ),
             child: ClipRRect(
@@ -903,14 +816,15 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                     borderRadius: BorderRadius.circular(28),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.withOpacity(0.5),
+                                        color:
+                                            Colors.grey.withValues(alpha: 0.5),
                                         // Gradient overlay untuk efek visual yang lebih menarik
                                         gradient: LinearGradient(
                                           begin: Alignment.topCenter,
                                           end: Alignment.bottomCenter,
                                           colors: [
-                                            Colors.grey.withOpacity(0.6),
-                                            Colors.grey.withOpacity(0.7),
+                                            Colors.grey.withValues(alpha: 0.6),
+                                            Colors.grey.withValues(alpha: 0.7),
                                           ],
                                         ),
                                       ),
@@ -923,28 +837,30 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                                 MainAxisAlignment.center,
                                             children: [
                                               Container(
-                                                padding: EdgeInsets.all(12),
+                                                padding:
+                                                    const EdgeInsets.all(12),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   color: Colors.white
-                                                      .withOpacity(0.15),
+                                                      .withValues(alpha: 0.15),
                                                 ),
-                                                child: Icon(Icons.lock,
+                                                child: const Icon(Icons.lock,
                                                     color: Colors.white,
                                                     size: 32),
                                               ),
-                                              SizedBox(height: 16),
+                                              const SizedBox(height: 16),
                                               Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 20,
-                                                    vertical: 10),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 20,
+                                                        vertical: 10),
                                                 decoration: BoxDecoration(
                                                   color: Colors.black
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   borderRadius:
                                                       BorderRadius.circular(20),
                                                 ),
-                                                child: Text(
+                                                child: const Text(
                                                   'Versi soal ini sudah ditambahkan',
                                                   style: TextStyle(
                                                     color: Colors.white,
@@ -980,7 +896,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 Positioned.fill(
                   child: GestureDetector(
                     onTap: () {
-                      print(
+                      debugPrint(
                           'Tap detected on question $index, version $activeVersionIndex');
                       // Tambahkan umpan balik haptic untuk memastikan tap terdeteksi
                       HapticFeedback.mediumImpact();
@@ -992,9 +908,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           snackPosition: SnackPosition.BOTTOM,
                           backgroundColor: Colors.orange,
                           colorText: Colors.white,
-                          margin: EdgeInsets.all(16),
+                          margin: const EdgeInsets.all(16),
                           borderRadius: 8,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                         );
                       } else {
                         setState(() {
@@ -1021,14 +937,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               top: 8,
               right: 8,
               child: TweenAnimationBuilder<double>(
-                duration: Duration(milliseconds: 350),
+                duration: const Duration(milliseconds: 350),
                 curve: Curves.elasticOut,
                 tween: Tween<double>(begin: 0.0, end: 1.0),
                 builder: (context, value, child) {
                   return Transform.scale(
                     scale: value,
                     child: Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.secondary,
                         shape: BoxShape.circle,
@@ -1037,13 +953,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             blurRadius: 10,
                             spreadRadius: 0,
                           ),
                         ],
                       ),
-                      child: Icon(Icons.check, color: Colors.white, size: 16),
+                      child: const Icon(Icons.check,
+                          color: Colors.white, size: 16),
                     ),
                   );
                 },
@@ -1063,7 +980,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         AspectRatio(
           aspectRatio: 2,
           child: ClipRRect(
-            borderRadius: BorderRadius.only(
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),
             ),
@@ -1075,9 +992,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   colors: [
                     _getTypeColor(version.type),
                     Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
-                    _getTypeColor(version.type).withOpacity(0.85),
+                    _getTypeColor(version.type).withValues(alpha: 0.85),
                   ],
-                  stops: [0.2, 0.6, 0.9],
+                  stops: const [0.2, 0.6, 0.9],
                 ),
               ),
               child: Stack(
@@ -1086,8 +1003,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   // Pattern background
                   CustomPaint(
                     painter: UltraModernPatternPainter(
-                      primaryColor: Colors.white.withOpacity(0.12),
-                      secondaryColor: Colors.white.withOpacity(0.06),
+                      primaryColor: Colors.white.withValues(alpha: 0.12),
+                      secondaryColor: Colors.white.withValues(alpha: 0.06),
                     ),
                     size: Size.infinite,
                   ),
@@ -1103,10 +1020,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         shape: BoxShape.circle,
                         gradient: RadialGradient(
                           colors: [
-                            Colors.white.withOpacity(0.3),
-                            Colors.white.withOpacity(0)
+                            Colors.white.withValues(alpha: 0.3),
+                            Colors.white.withValues(alpha: 0)
                           ],
-                          stops: [0.1, 1.0],
+                          stops: const [0.1, 1.0],
                         ),
                       ),
                     ),
@@ -1117,16 +1034,17 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     top: 20,
                     left: 20,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                            color: Colors.white.withOpacity(0.5), width: 1),
+                            color: Colors.white.withValues(alpha: 0.5),
+                            width: 1),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
+                            color: Colors.black.withValues(alpha: 0.15),
                             blurRadius: 15,
                             spreadRadius: -5,
                           ),
@@ -1135,8 +1053,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            Colors.white.withOpacity(0.4),
-                            Colors.white.withOpacity(0.1)
+                            Colors.white.withValues(alpha: 0.4),
+                            Colors.white.withValues(alpha: 0.1)
                           ],
                         ),
                       ),
@@ -1148,10 +1066,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             color: Colors.white,
                             size: 18,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
                             _getTypeName(version.type),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
@@ -1166,28 +1084,28 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     top: 20,
                     right: 20,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 8,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.star_rounded,
                             color: Colors.amber,
                             size: 16,
                           ),
-                          SizedBox(width: 5),
+                          const SizedBox(width: 5),
                           Text(
                             '${question.defaultPoint} poin',
                             style: TextStyle(
@@ -1206,28 +1124,28 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     top: 58,
                     right: 20,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.history,
                             color: Colors.white,
                             size: 14,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
-                            "Versi ${totalVersions - versionIndex}/${totalVersions}",
-                            style: TextStyle(
+                            "Versi ${totalVersions - versionIndex}/$totalVersions",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
@@ -1250,18 +1168,18 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           width: 40,
                           height: 4,
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             borderRadius: BorderRadius.circular(2),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                                 blurRadius: 3,
                                 spreadRadius: 1,
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
                         Text(
                           version.name,
                           style: TextStyle(
@@ -1272,11 +1190,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             letterSpacing: 0.3,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withOpacity(0.3),
+                                color: Colors.black.withValues(alpha: 0.3),
                                 blurRadius: 5,
                               ),
                               Shadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 8,
                               ),
                             ],
@@ -1293,7 +1211,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           ),
         ), // Content section with improved layout
         Container(
-          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1310,19 +1228,20 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         end: Alignment.bottomCenter,
                         colors: [
                           _getTypeColor(version.type),
-                          _getTypeColor(version.type).withOpacity(0.6),
+                          _getTypeColor(version.type).withValues(alpha: 0.6),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _getTypeColor(version.type).withOpacity(0.4),
+                          color: _getTypeColor(version.type)
+                              .withValues(alpha: 0.4),
                           blurRadius: 8,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     "Konten Pertanyaan",
                     style: TextStyle(
@@ -1334,19 +1253,19 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                 ],
               ), // Question content
-              SizedBox(height: 14),
+              const SizedBox(height: 14),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(14),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: Colors.grey.shade100),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -1363,9 +1282,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   overflow: TextOverflow.ellipsis,
                 ),
               ), // Options section
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -1378,14 +1297,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
                       spreadRadius: 0,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                   border: Border.all(
-                    color: _getTypeColor(version.type).withOpacity(0.2),
+                    color: _getTypeColor(version.type).withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -1399,8 +1318,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.08),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -1408,8 +1327,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           width: 42,
                           height: 42,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.12),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -1417,8 +1336,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.15),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: _getTypeColor(version.type),
@@ -1434,7 +1353,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       ],
                     ),
 
-                    SizedBox(width: 18),
+                    const SizedBox(width: 18),
 
                     // Options text
                     Column(
@@ -1447,7 +1366,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             fontSize: 13.5,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '${version.options.length} Opsi',
                           style: TextStyle(
@@ -1459,14 +1378,15 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       ],
                     ),
 
-                    Spacer(),
+                    const Spacer(),
 
                     // Arrow indicator
                     Container(
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: _getTypeColor(version.type).withOpacity(0.1),
+                        color:
+                            _getTypeColor(version.type).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Icon(
@@ -1480,8 +1400,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ), // Version indicators - moved from Positioned widget to here
               if (totalVersions > 1)
                 Container(
-                  margin: EdgeInsets.only(top: 16),
-                  padding: EdgeInsets.symmetric(vertical: 6),
+                  margin: const EdgeInsets.only(top: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(totalVersions, (index) {
@@ -1491,14 +1411,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         onTap: () {
                           _getPageController(question.id).animateToPage(
                             index, // Directly use index instead of inverting it
-                            duration: Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                           );
                         },
                         child: Container(
                           width: isActive ? 24 : 8,
                           height: 8,
-                          margin: EdgeInsets.symmetric(horizontal: 3),
+                          margin: const EdgeInsets.symmetric(horizontal: 3),
                           decoration: BoxDecoration(
                             color: isActive
                                 ? _getTypeColor(version.type)
@@ -1510,7 +1430,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     }),
                   ),
                 ), // Small spacer at the end
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
             ],
           ),
         ),
@@ -1525,22 +1445,22 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           backgroundColor: Colors.transparent,
           elevation: 0,
           child: Container(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
-                    offset: Offset(0, 10))
+                    offset: const Offset(0, 10))
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                       color: Colors.blue[50], shape: BoxShape.circle),
                   child: SizedBox(
@@ -1551,16 +1471,16 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
                           strokeWidth: 3)),
                 ),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Text('Menyimpan Soal',
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Colors.grey[800])),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text('Mohon tunggu sebentar...',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 LinearProgressIndicator(
                     backgroundColor: Colors.blue[50],
                     valueColor:
@@ -1570,7 +1490,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           ),
         ),
         barrierDismissible: false,
-        barrierColor: Colors.black.withOpacity(0.5),
+        barrierColor: Colors.black.withValues(alpha: 0.5),
       );
 
       final repository = OnlineExamRepository();
@@ -1580,7 +1500,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       Map<String, Map<String, dynamic>> assignQuestions = {};
       for (var question in existingQuestions) {
         assignQuestions[question.id.toString()] = {
-          'question_id': question.question_id,
+          'question_id': question.questionId,
           'marks': question.marks,
           'from_bank': false // Boolean value for JSON
         };
@@ -1618,35 +1538,37 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           child: Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check_circle_outline, color: Colors.green, size: 60),
-                SizedBox(height: 20),
-                Text('Berhasil!',
+                const Icon(Icons.check_circle_outline,
+                    color: Colors.green, size: 60),
+                const SizedBox(height: 20),
+                const Text('Berhasil!',
                     style:
                         TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                SizedBox(height: 10),
-                Text('Soal berhasil ditambahkan ke ujian',
+                const SizedBox(height: 10),
+                const Text('Soal berhasil ditambahkan ke ujian',
                     textAlign: TextAlign.center),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Get.back();
                     Get.toNamed(Routes.questionOnlineExam
                         .replaceAll(':id', widget.examId.toString()));
                   },
-                  child: Text('Lihat Daftar Soal',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green[600],
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
                     elevation: 2,
                   ),
+                  child: const Text('Lihat Daftar Soal',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
@@ -1660,7 +1582,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           backgroundColor: Colors.red,
           colorText: Colors.white,
           snackPosition: SnackPosition.BOTTOM,
-          duration: Duration(seconds: 5));
+          duration: const Duration(seconds: 5));
     }
   }
 
@@ -1676,7 +1598,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.all(12),
+        insetPadding: const EdgeInsets.all(12),
         child: Container(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.9,
@@ -1687,15 +1609,15 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: _getTypeColor(version.type).withOpacity(0.3),
+                color: _getTypeColor(version.type).withValues(alpha: 0.3),
                 blurRadius: 30,
-                offset: Offset(0, 15),
+                offset: const Offset(0, 15),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -1705,7 +1627,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Ultra Modern Header with Advanced Gradient & Effects
-                Container(
+                SizedBox(
                   height: 200,
                   child: Stack(
                     children: [
@@ -1717,12 +1639,14 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             end: Alignment.bottomRight,
                             colors: [
                               _getTypeColor(version.type),
-                              _getTypeColor(version.type).withOpacity(0.9),
+                              _getTypeColor(version.type)
+                                  .withValues(alpha: 0.9),
                               Color.lerp(_getTypeColor(version.type),
                                   Colors.black, 0.15)!,
-                              _getTypeColor(version.type).withOpacity(0.85),
+                              _getTypeColor(version.type)
+                                  .withValues(alpha: 0.85),
                             ],
-                            stops: [0.0, 0.4, 0.7, 1.0],
+                            stops: const [0.0, 0.4, 0.7, 1.0],
                           ),
                         ),
                       ),
@@ -1731,8 +1655,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       Positioned.fill(
                         child: CustomPaint(
                           painter: UltraModernPatternPainter(
-                            primaryColor: Colors.white.withOpacity(0.08),
-                            secondaryColor: Colors.white.withOpacity(0.04),
+                            primaryColor: Colors.white.withValues(alpha: 0.08),
+                            secondaryColor:
+                                Colors.white.withValues(alpha: 0.04),
                           ),
                         ),
                       ),
@@ -1748,11 +1673,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(0.25),
-                                Colors.white.withOpacity(0.08),
-                                Colors.white.withOpacity(0),
+                                Colors.white.withValues(alpha: 0.25),
+                                Colors.white.withValues(alpha: 0.08),
+                                Colors.white.withValues(alpha: 0),
                               ],
-                              stops: [0.0, 0.6, 1.0],
+                              stops: const [0.0, 0.6, 1.0],
                             ),
                           ),
                         ),
@@ -1768,11 +1693,11 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(0.15),
-                                Colors.white.withOpacity(0.05),
-                                Colors.white.withOpacity(0),
+                                Colors.white.withValues(alpha: 0.15),
+                                Colors.white.withValues(alpha: 0.05),
+                                Colors.white.withValues(alpha: 0),
                               ],
-                              stops: [0.0, 0.7, 1.0],
+                              stops: const [0.0, 0.7, 1.0],
                             ),
                           ),
                         ),
@@ -1780,7 +1705,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
 
                       // Main content
                       Padding(
-                        padding: EdgeInsets.fromLTRB(28, 20, 20, 28),
+                        padding: const EdgeInsets.fromLTRB(28, 20, 20, 28),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1790,27 +1715,29 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               children: [
                                 // Question type badge with enhanced design
                                 Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 10),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Colors.white.withOpacity(0.25),
-                                        Colors.white.withOpacity(0.15),
+                                        Colors.white.withValues(alpha: 0.25),
+                                        Colors.white.withValues(alpha: 0.15),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(25),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.3),
                                       width: 1.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
                                         blurRadius: 10,
-                                        offset: Offset(0, 4),
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
@@ -1818,9 +1745,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Container(
-                                        padding: EdgeInsets.all(6),
+                                        padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -1829,10 +1757,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                           size: 18,
                                         ),
                                       ),
-                                      SizedBox(width: 10),
+                                      const SizedBox(width: 10),
                                       Text(
                                         _getTypeName(version.type),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
@@ -1850,20 +1778,22 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Colors.white.withOpacity(0.2),
-                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withValues(alpha: 0.2),
+                                        Colors.white.withValues(alpha: 0.1),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.25),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.25),
                                       width: 1,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
                                         blurRadius: 8,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -1872,7 +1802,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(16),
                                       onTap: () => Get.back(),
-                                      child: Padding(
+                                      child: const Padding(
                                         padding: EdgeInsets.all(12),
                                         child: Icon(
                                           Icons.close_rounded,
@@ -1886,7 +1816,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               ],
                             ),
 
-                            Spacer(),
+                            const Spacer(),
 
                             // Main title section
                             Row(
@@ -1908,38 +1838,38 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                           height: 1.1,
                                           shadows: [
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.3),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.3),
                                               blurRadius: 8,
-                                              offset: Offset(0, 3),
+                                              offset: const Offset(0, 3),
                                             ),
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 15,
-                                              offset: Offset(0, 6),
+                                              offset: const Offset(0, 6),
                                             ),
                                           ],
                                         ),
                                       ),
 
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
 
                                       // Enhanced subtitle with badges
                                       Row(
                                         children: [
                                           // Points Badge
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 5),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.2),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                               border: Border.all(
                                                 color: Colors.white
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 width: 1,
                                               ),
                                             ),
@@ -1951,12 +1881,13 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                                   color: Colors.amber[200],
                                                   size: 12,
                                                 ),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text(
                                                   '${adaptedQuestion['marks']} Poin',
                                                   style: TextStyle(
                                                     color: Colors.white
-                                                        .withOpacity(0.95),
+                                                        .withValues(
+                                                            alpha: 0.95),
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -1972,7 +1903,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                               ],
                             ),
 
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -1982,7 +1913,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 // Content with enhanced design
                 Flexible(
                   child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     child: _buildModernDetailQuestionContent(
                         adaptedQuestion, version),
                   ),
@@ -2037,32 +1968,32 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     final questionVersion = question['questionVersion'] as Map<String, dynamic>;
 
     return Padding(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Question Stats Card
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  _getTypeColor(version.type).withOpacity(0.08),
-                  _getTypeColor(version.type).withOpacity(0.04),
+                  _getTypeColor(version.type).withValues(alpha: 0.08),
+                  _getTypeColor(version.type).withValues(alpha: 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _getTypeColor(version.type).withOpacity(0.2),
+                color: _getTypeColor(version.type).withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _getTypeColor(version.type).withOpacity(0.1),
+                  color: _getTypeColor(version.type).withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -2072,9 +2003,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getTypeColor(version.type).withOpacity(0.15),
+                        color:
+                            _getTypeColor(version.type).withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -2083,7 +2015,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'Informasi Soal',
                       style: TextStyle(
@@ -2094,7 +2026,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -2105,7 +2037,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         _getTypeColor(version.type),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: _buildModernInfoCard(
                         'Opsi',
@@ -2120,7 +2052,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Question Text Section
           _buildModernSection(
@@ -2129,7 +2061,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             _getTypeColor(version.type),
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -2139,9 +2071,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -2149,9 +2081,10 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getTypeColor(version.type).withOpacity(0.1),
+                      color: _getTypeColor(version.type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -2163,7 +2096,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     parseHtmlString(questionVersion['question']),
                     style: TextStyle(
@@ -2178,7 +2111,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Options Section
           if (question['options'].isNotEmpty) ...[
@@ -2197,7 +2130,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
 
           // Images Section
@@ -2213,7 +2146,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
 
           // Feedback Section
@@ -2224,7 +2157,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               Colors.orange[600]!,
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -2240,7 +2173,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 child: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.orange[100],
                         borderRadius: BorderRadius.circular(8),
@@ -2251,7 +2184,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         question['feedback'],
@@ -2267,7 +2200,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 ),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
 
           // Notes Section
@@ -2278,7 +2211,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               Colors.purple[600]!,
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -2294,7 +2227,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                 child: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Colors.purple[100],
                         borderRadius: BorderRadius.circular(8),
@@ -2305,7 +2238,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         question['notes'],
@@ -2324,7 +2257,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           ],
 
           // Extra spacing at bottom
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -2337,33 +2270,33 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withOpacity(0.1),
-                color.withOpacity(0.05),
+                color.withValues(alpha: 0.1),
+                color.withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               width: 1.5,
             ),
           ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: TextStyle(
@@ -2375,7 +2308,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             ],
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         content,
       ],
     );
@@ -2385,19 +2318,19 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   Widget _buildModernInfoCard(
       String label, String value, IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -2407,7 +2340,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
           Row(
             children: [
               Icon(icon, color: color, size: 18),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
               Text(
                 label,
                 style: TextStyle(
@@ -2418,7 +2351,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             value,
             style: TextStyle(
@@ -2439,23 +2372,23 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
     final optionLetter = String.fromCharCode(65 + index); // A, B, C, D...
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: isCorrect
-                ? Colors.green.withOpacity(0.15)
-                : Colors.black.withOpacity(0.05),
+                ? Colors.green.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: isCorrect
                 ? LinearGradient(
@@ -2500,17 +2433,17 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       boxShadow: [
                         BoxShadow(
                           color: isCorrect
-                              ? Colors.green.withOpacity(0.3)
-                              : Colors.grey.withOpacity(0.2),
+                              ? Colors.green.withValues(alpha: 0.3)
+                              : Colors.grey.withValues(alpha: 0.2),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: Center(
                       child: Text(
                         optionLetter,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -2518,7 +2451,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   // Option text
                   Expanded(
                     child: Text(
@@ -2534,9 +2467,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                   ),
                   // Correct answer indicator
                   if (isCorrect) ...[
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Container(
-                      padding: EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
                         color: Colors.green[100],
                         borderRadius: BorderRadius.circular(8),
@@ -2552,9 +2485,9 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               ),
               // Feedback section
               if (option['feedback'].isNotEmpty) ...[
-                SizedBox(height: 12),
+                const SizedBox(height: 12),
                 Container(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: Colors.blue[50],
                     borderRadius: BorderRadius.circular(10),
@@ -2567,7 +2500,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           color: Colors.blue[100],
                           borderRadius: BorderRadius.circular(6),
@@ -2578,7 +2511,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                           size: 16,
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2591,7 +2524,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                                 color: Colors.blue[700],
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               option['feedback'],
                               style: TextStyle(
@@ -2617,8 +2550,8 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
   // Helper method to build modern image items
   Widget _buildModernImageItem(String imagePath) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -2632,16 +2565,16 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
         border: Border.all(color: Colors.grey[200]!, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
@@ -2652,7 +2585,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               size: 24,
             ),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2665,7 +2598,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
                     color: Colors.grey[700],
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   imagePath,
                   style: TextStyle(
@@ -2679,7 +2612,7 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
             ),
           ),
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: Colors.blue[50],
               borderRadius: BorderRadius.circular(8),
@@ -2688,187 +2621,6 @@ class _PreviewQuestionBankSoalState extends State<PreviewQuestionBankSoal>
               Icons.open_in_new_rounded,
               color: Colors.blue[600],
               size: 16,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Legacy helper methods (kept for compatibility)
-  Widget _buildSection(String title, IconData icon, Widget content) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: Colors.grey[600], size: 20),
-            SizedBox(width: 8),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        content,
-      ],
-    );
-  }
-
-  // Helper method to build info rows
-  Widget _buildInfoRow(String label, String value) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-          Text(
-            ': ',
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method to build option items
-  Widget _buildOptionItem(Map<String, dynamic> option, int index) {
-    final isCorrect = option['isCorrect'] == true;
-
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isCorrect ? Colors.green[50] : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isCorrect ? Colors.green[300]! : Colors.grey[300]!,
-          width: isCorrect ? 2 : 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: isCorrect ? Colors.green[600] : Colors.grey[400],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    String.fromCharCode(65 + index), // A, B, C, D...
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  parseHtmlString(option['text']),
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isCorrect ? FontWeight.w600 : FontWeight.normal,
-                    color: isCorrect ? Colors.green[800] : Colors.grey[800],
-                  ),
-                ),
-              ),
-              if (isCorrect)
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green[600],
-                  size: 20,
-                ),
-            ],
-          ),
-          if (option['feedback'].isNotEmpty) ...[
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.lightbulb_outline,
-                    color: Colors.blue[600],
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      option['feedback'],
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.blue[800],
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  // Helper method to build image items (placeholder)
-  Widget _buildImageItem(String imagePath) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 12),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.image, color: Colors.grey[600]),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              imagePath,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
-              ),
             ),
           ),
         ],

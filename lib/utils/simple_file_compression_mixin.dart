@@ -18,10 +18,10 @@ mixin SimpleFileCompressionMixin {
   }) async {
     try {
       if (kDebugMode) {
-        print('\n🚀 [FILE PICKER] Starting file selection and compression...');
-        print('   📋 File type: $fileType');
-        print('   📊 Max size: ${maxSizeInMB.toStringAsFixed(2)} MB');
-        print('   💪 Force compress: $forceCompress');
+        debugPrint('\n🚀 [FILE PICKER] Starting file selection and compression...');
+        debugPrint('   📋 File type: $fileType');
+        debugPrint('   📊 Max size: ${maxSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint('   💪 Force compress: $forceCompress');
       }
 
       // Pick files
@@ -33,7 +33,7 @@ mixin SimpleFileCompressionMixin {
 
       if (result == null) {
         if (kDebugMode) {
-          print('   ❌ User cancelled file picker');
+          debugPrint('   ❌ User cancelled file picker');
         }
         return null;
       }
@@ -45,24 +45,24 @@ mixin SimpleFileCompressionMixin {
 
       if (selectedFiles.isEmpty) {
         if (kDebugMode) {
-          print('   ❌ No files selected');
+          debugPrint('   ❌ No files selected');
         }
         return null;
       }
 
       if (kDebugMode) {
-        print('   ✅ Selected ${selectedFiles.length} file(s)');
+        debugPrint('   ✅ Selected ${selectedFiles.length} file(s)');
         for (int i = 0; i < selectedFiles.length; i++) {
           final file = selectedFiles[i];
           final size = await file.length();
-          print(
+          debugPrint(
               '     📄 File ${i + 1}: ${file.path.split('/').last} (${SimpleFileCompressionUtils.formatFileSize(size)})');
         }
       }
 
       // Compress files
       if (kDebugMode) {
-        print('\n🔄 [COMPRESSION] Processing files...');
+        debugPrint('\n🔄 [COMPRESSION] Processing files...');
       }
 
       List<File> compressedFiles = [];
@@ -71,7 +71,7 @@ mixin SimpleFileCompressionMixin {
         final file = selectedFiles[i];
 
         if (kDebugMode) {
-          print('\n   📁 Processing file ${i + 1}/${selectedFiles.length}');
+          debugPrint('\n   📁 Processing file ${i + 1}/${selectedFiles.length}');
         }
 
         try {
@@ -85,16 +85,16 @@ mixin SimpleFileCompressionMixin {
           compressedFiles.add(compressedFile);
         } catch (e) {
           if (kDebugMode) {
-            print('   ❌ Error compressing file ${file.path}: $e');
+            debugPrint('   ❌ Error compressing file ${file.path}: $e');
           }
           compressedFiles.add(file); // Use original file if compression fails
         }
       }
 
       if (kDebugMode) {
-        print('\n✅ [COMPRESSION SUMMARY]');
-        print('   📊 Total files processed: ${selectedFiles.length}');
-        print('   ✅ Successfully processed: ${compressedFiles.length}');
+        debugPrint('\n✅ [COMPRESSION SUMMARY]');
+        debugPrint('   📊 Total files processed: ${selectedFiles.length}');
+        debugPrint('   ✅ Successfully processed: ${compressedFiles.length}');
 
         // Calculate total size reduction
         int totalOriginalSize = 0;
@@ -113,18 +113,18 @@ mixin SimpleFileCompressionMixin {
                 100)
             : 0.0;
 
-        print(
+        debugPrint(
             '   📊 Total original size: ${SimpleFileCompressionUtils.formatFileSize(totalOriginalSize)}');
-        print(
+        debugPrint(
             '   📊 Total compressed size: ${SimpleFileCompressionUtils.formatFileSize(totalCompressedSize)}');
-        print('   📉 Total reduction: ${totalReduction.toStringAsFixed(1)}%');
-        print('🎉 [COMPRESSION COMPLETE]\n');
+        debugPrint('   📉 Total reduction: ${totalReduction.toStringAsFixed(1)}%');
+        debugPrint('🎉 [COMPRESSION COMPLETE]\n');
       }
 
       return compressedFiles;
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [CRITICAL ERROR] File picker and compression failed: $e');
+        debugPrint('❌ [CRITICAL ERROR] File picker and compression failed: $e');
       }
       return null;
     }
@@ -174,7 +174,7 @@ mixin SimpleFileCompressionMixin {
     bool forceCompress = true,
   }) async {
     if (kDebugMode) {
-      print(
+      debugPrint(
           '\n🔄 [EXISTING FILES COMPRESSION] Processing ${files.length} files...');
     }
 

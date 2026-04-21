@@ -59,10 +59,10 @@ class AssignmentDetailMonitoringScreen extends StatefulWidget {
   final String teacherName;
 
   const AssignmentDetailMonitoringScreen({
-    Key? key,
+    super.key,
     required this.teacherId,
     required this.teacherName,
-  }) : super(key: key);
+  });
 
   static Widget getRouteInstance(
       {required int teacherId, required String teacherName}) {
@@ -210,26 +210,25 @@ class _AssignmentDetailMonitoringScreenState
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(options[index]),
-                      leading: Radio(
-                        value: options[index],
-                        groupValue: _selectedClass == '' && index == 0
-                            ? 'Semua Kelas'
-                            : _selectedClass,
-                        activeColor: maroonPrimary,
-                        onChanged: (value) {
-                          Navigator.pop(context);
-                          _changeClass(
-                              value == 'Semua Kelas' ? '' : value ?? '');
-                        },
-                      ),
-                    );
+                child: RadioGroup<String>(
+                  groupValue:
+                      _selectedClass == '' ? 'Semua Kelas' : _selectedClass,
+                  onChanged: (value) {
+                    Navigator.pop(context);
+                    _changeClass(value == 'Semua Kelas' ? '' : value ?? '');
                   },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(options[index]),
+                        leading: Radio<String>(
+                          value: options[index],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -273,27 +272,27 @@ class _AssignmentDetailMonitoringScreenState
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: options.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(options[index]),
-                      leading: Radio(
-                        value: options[index],
-                        groupValue: _selectedSubject == '' && index == 0
-                            ? 'Semua Mata Pelajaran'
-                            : _selectedSubject,
-                        activeColor: maroonPrimary,
-                        onChanged: (value) {
-                          Navigator.pop(context);
-                          _changeSubject(value == 'Semua Mata Pelajaran'
-                              ? ''
-                              : value ?? '');
-                        },
-                      ),
-                    );
+                child: RadioGroup<String>(
+                  groupValue: _selectedSubject == ''
+                      ? 'Semua Mata Pelajaran'
+                      : _selectedSubject,
+                  onChanged: (value) {
+                    Navigator.pop(context);
+                    _changeSubject(
+                        value == 'Semua Mata Pelajaran' ? '' : value ?? '');
                   },
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: options.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(options[index]),
+                        leading: Radio<String>(
+                          value: options[index],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -320,7 +319,7 @@ class _AssignmentDetailMonitoringScreenState
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
-            dialogBackgroundColor: Colors.white,
+            dialogTheme: const DialogThemeData(backgroundColor: Colors.white),
           ),
           child: child!,
         );
@@ -337,7 +336,7 @@ class _AssignmentDetailMonitoringScreenState
   Widget _buildAppbarAndFilters() {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
+      child: SizedBox(
         height:
             MediaQuery.of(context).padding.top + 210, // Height to fit 3 rows
         child: Stack(
@@ -353,12 +352,12 @@ class _AssignmentDetailMonitoringScreenState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF690013),
+                          const Color(0xFF690013),
                           maroonPrimary,
-                          Color(0xFFA12948),
+                          const Color(0xFFA12948),
                           maroonLight,
                         ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
                         transform:
                             GradientRotation(_animationController.value * 0.02),
                       ).createShader(bounds);
@@ -374,7 +373,7 @@ class _AssignmentDetailMonitoringScreenState
                             maroonPrimary,
                           ],
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           bottomLeft: Radius.circular(30),
                           bottomRight: Radius.circular(30),
                         ),
@@ -389,7 +388,7 @@ class _AssignmentDetailMonitoringScreenState
             Positioned.fill(
               child: CustomPaint(
                 painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -408,11 +407,11 @@ class _AssignmentDetailMonitoringScreenState
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.2),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
-                        stops: [0.0, 0.5, 1.0],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
@@ -432,10 +431,10 @@ class _AssignmentDetailMonitoringScreenState
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -449,15 +448,16 @@ class _AssignmentDetailMonitoringScreenState
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor:
+                                  Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: () => Navigator.of(context).pop(),
                               child: Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.arrow_back_ios_rounded,
                                   color: Colors.white,
                                   size: 22,
@@ -476,9 +476,9 @@ class _AssignmentDetailMonitoringScreenState
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.4),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),
@@ -502,23 +502,25 @@ class _AssignmentDetailMonitoringScreenState
                                           angle:
                                               _animationController.value * 0.05,
                                           child: Container(
-                                            padding: EdgeInsets.all(6),
+                                            padding: const EdgeInsets.all(6),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               gradient: LinearGradient(
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                                 colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.9),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.4),
                                                 ],
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   blurRadius: 4,
-                                                  offset: Offset(0, 2),
+                                                  offset: const Offset(0, 2),
                                                 ),
                                               ],
                                             ),
@@ -532,7 +534,7 @@ class _AssignmentDetailMonitoringScreenState
                                       },
                                     ),
 
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
 
                                     // Title text with glowing effect
                                     ShaderMask(
@@ -542,7 +544,7 @@ class _AssignmentDetailMonitoringScreenState
                                           end: Alignment.bottomCenter,
                                           colors: [
                                             Colors.white,
-                                            Colors.white.withOpacity(0.9),
+                                            Colors.white.withValues(alpha: 0.9),
                                           ],
                                         ).createShader(bounds);
                                       },
@@ -553,7 +555,7 @@ class _AssignmentDetailMonitoringScreenState
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           shadows: [
-                                            Shadow(
+                                            const Shadow(
                                               color: Colors.black26,
                                               offset: Offset(0, 1),
                                               blurRadius: 3,
@@ -587,10 +589,10 @@ class _AssignmentDetailMonitoringScreenState
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -602,19 +604,21 @@ class _AssignmentDetailMonitoringScreenState
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: () => _showClassFilter(context),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor:
+                                  Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.class_rounded,
                                       color: Colors.white,
                                       size: 16,
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
                                         _selectedClass.isEmpty
@@ -638,15 +642,15 @@ class _AssignmentDetailMonitoringScreenState
                         Container(
                           height: 24,
                           width: 1.5,
-                          margin: EdgeInsets.symmetric(horizontal: 8),
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.4),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),
@@ -658,19 +662,21 @@ class _AssignmentDetailMonitoringScreenState
                             color: Colors.transparent,
                             child: InkWell(
                               onTap: () => _showSubjectFilter(context),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor:
+                                  Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 12),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.book_outlined,
                                       color: Colors.white,
                                       size: 16,
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
                                         _selectedSubject.isEmpty
@@ -709,15 +715,15 @@ class _AssignmentDetailMonitoringScreenState
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
                           spreadRadius: 0,
                         )
@@ -727,11 +733,11 @@ class _AssignmentDetailMonitoringScreenState
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () => _showDateRangePicker(context),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withValues(alpha: 0.1),
+                        splashColor: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(15),
                         child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -741,13 +747,13 @@ class _AssignmentDetailMonitoringScreenState
                                 height: 38,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withValues(alpha: 0.4),
                                     width: 1,
                                   ),
                                 ),
-                                child: Center(
+                                child: const Center(
                                   child: Icon(
                                     Icons.calendar_today_rounded,
                                     color: Colors.white,
@@ -755,7 +761,7 @@ class _AssignmentDetailMonitoringScreenState
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,7 +769,8 @@ class _AssignmentDetailMonitoringScreenState
                                   Text(
                                     'Rentang Tanggal',
                                     style: GoogleFonts.poppins(
-                                      color: Colors.white.withOpacity(0.9),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.9),
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -809,10 +816,10 @@ class _AssignmentDetailMonitoringScreenState
             height: 140,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: maroonPrimary.withOpacity(0.05),
+              color: maroonPrimary.withValues(alpha: 0.05),
               boxShadow: [
                 BoxShadow(
-                  color: maroonPrimary.withOpacity(0.05),
+                  color: maroonPrimary.withValues(alpha: 0.05),
                   blurRadius: 20,
                   spreadRadius: 10,
                 ),
@@ -821,7 +828,7 @@ class _AssignmentDetailMonitoringScreenState
             child: Icon(
               Icons.assignment_outlined,
               size: 80,
-              color: maroonLight.withOpacity(0.7),
+              color: maroonLight.withValues(alpha: 0.7),
             ),
           )
               .animate()
@@ -839,7 +846,7 @@ class _AssignmentDetailMonitoringScreenState
                   maroonPrimary,
                   maroonLight,
                 ],
-                stops: [0.0, 0.5, 1.0],
+                stops: const [0.0, 0.5, 1.0],
               ).createShader(bounds);
             },
             blendMode: BlendMode.srcIn,
@@ -859,16 +866,16 @@ class _AssignmentDetailMonitoringScreenState
 
           // Empty state subtitle with decorative container
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.03),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   spreadRadius: 0,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
               border: Border.all(
@@ -915,12 +922,6 @@ class _AssignmentDetailMonitoringScreenState
     );
   }
 
-  Color _getProgressColor(int rate) {
-    if (rate >= 75) return Color(0xFF2E8B57); // Elegant green
-    if (rate >= 50) return Color(0xFFFF9800); // Warm orange
-    return Color(0xFFD32F2F); // Vibrant red
-  }
-
   Widget _buildAssignmentCardSkeleton() {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
@@ -929,19 +930,19 @@ class _AssignmentDetailMonitoringScreenState
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.06),
+            color: maroonPrimary.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.grey.withOpacity(0.06),
+            color: Colors.grey.withValues(alpha: 0.06),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
         ],
         border: Border.all(
-          color: maroonLight.withOpacity(0.1),
+          color: maroonLight.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -1034,7 +1035,7 @@ class _AssignmentDetailMonitoringScreenState
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -1090,7 +1091,7 @@ class _AssignmentDetailMonitoringScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: maroonPrimary.withOpacity(0.2),
+                  color: maroonPrimary.withValues(alpha: 0.2),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -1105,7 +1106,7 @@ class _AssignmentDetailMonitoringScreenState
                   Container(
                     width: 42,
                     height: 42,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -1142,7 +1143,7 @@ class _AssignmentDetailMonitoringScreenState
                   Container(
                     width: 40,
                     height: 40,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
@@ -1199,24 +1200,24 @@ class _AssignmentDetailMonitoringScreenState
                         children: [
                           // Enhanced header for assignment count with gradient
                           Container(
-                            margin: EdgeInsets.only(bottom: 20),
-                            padding: EdgeInsets.symmetric(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  maroonPrimary.withOpacity(0.9),
-                                  maroonLight.withOpacity(0.9),
+                                  maroonPrimary.withValues(alpha: 0.9),
+                                  maroonLight.withValues(alpha: 0.9),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
                                 BoxShadow(
-                                  color: maroonPrimary.withOpacity(0.2),
+                                  color: maroonPrimary.withValues(alpha: 0.2),
                                   blurRadius: 10,
-                                  offset: Offset(0, 4),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
@@ -1228,19 +1229,20 @@ class _AssignmentDetailMonitoringScreenState
                                   height: 42,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: Colors.white.withOpacity(0.15),
+                                    color: Colors.white.withValues(alpha: 0.15),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.3),
                                       width: 2,
                                     ),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.assignment_rounded,
                                     color: Colors.white,
                                     size: 22,
                                   ),
                                 ),
-                                SizedBox(width: 16),
+                                const SizedBox(width: 16),
 
                                 // Assignment count and information
                                 Expanded(
@@ -1257,13 +1259,14 @@ class _AssignmentDetailMonitoringScreenState
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
                                         '${assignments.length} tugas ditemukan',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.white.withOpacity(0.9),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.9),
                                         ),
                                       ),
                                     ],
@@ -1282,10 +1285,10 @@ class _AssignmentDetailMonitoringScreenState
                                         color: Colors.white,
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.15),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.15),
                                             blurRadius: 8,
-                                            offset: Offset(0, 3),
+                                            offset: const Offset(0, 3),
                                             spreadRadius: -2 +
                                                 _animationController.value * 2,
                                           ),
@@ -1324,7 +1327,7 @@ class _AssignmentDetailMonitoringScreenState
                                     begin: 10,
                                     end: 0,
                                     delay: Duration(milliseconds: 100 * index));
-                          }).toList(),
+                          }),
                         ],
                       ),
                     );
@@ -1339,7 +1342,7 @@ class _AssignmentDetailMonitoringScreenState
                           Icon(
                             Icons.assignment_outlined,
                             size: 64,
-                            color: maroonLight.withOpacity(0.5),
+                            color: maroonLight.withValues(alpha: 0.5),
                           ),
                           const SizedBox(height: 16),
                           Text(

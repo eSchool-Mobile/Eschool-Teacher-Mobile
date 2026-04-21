@@ -4,15 +4,15 @@ class ModernBackground extends StatelessWidget {
   final Widget child;
 
   const ModernBackground({
-    Key? key,
+    super.key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryMaroon = Color(0xFF800020);
-    final Color softMaroon = Color(0xFFD27D8F);
-    final Color goldAccent = Color(0xFFFFD700);
+    const Color primaryMaroon = Color(0xFF800020);
+    const Color softMaroon = Color(0xFFD27D8F);
+    const Color goldAccent = Color(0xFFFFD700);
 
     return Stack(
       children: [
@@ -49,7 +49,7 @@ class ModernCurvePainter extends CustomPainter {
       ..strokeWidth = 0;
 
     // First wave (bottom layer)
-    paint.color = secondaryColor.withOpacity(0.1);
+    paint.color = secondaryColor.withValues(alpha: 0.1);
     var path1 = Path();
     path1.moveTo(0, size.height * 0.75);
     path1.quadraticBezierTo(
@@ -69,7 +69,7 @@ class ModernCurvePainter extends CustomPainter {
     canvas.drawPath(path1, paint);
 
     // Second wave (middle layer)
-    paint.color = primaryColor.withOpacity(0.1);
+    paint.color = primaryColor.withValues(alpha: 0.1);
     var path2 = Path();
     path2.moveTo(0, size.height * 0.8);
     path2.quadraticBezierTo(
@@ -89,7 +89,7 @@ class ModernCurvePainter extends CustomPainter {
     canvas.drawPath(path2, paint);
 
     // Top decorative curves
-    paint.color = accentColor.withOpacity(0.05);
+    paint.color = accentColor.withValues(alpha: 0.05);
     var path3 = Path();
     path3.moveTo(0, size.height * 0.2);
     path3.quadraticBezierTo(
@@ -109,7 +109,7 @@ class ModernCurvePainter extends CustomPainter {
     canvas.drawPath(path3, paint);
 
     // Additional flowing curves
-    paint.color = accentColor.withOpacity(0.03);
+    paint.color = accentColor.withValues(alpha: 0.03);
     var path4 = Path();
     path4.moveTo(0, size.height * 0.45);
     path4.quadraticBezierTo(
@@ -128,7 +128,7 @@ class ModernCurvePainter extends CustomPainter {
 
     // Floating circles decoration
     final decorPaint = Paint()
-      ..color = primaryColor.withOpacity(0.03)
+      ..color = primaryColor.withValues(alpha: 0.03)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
 
@@ -160,7 +160,7 @@ class ModernCurvePainter extends CustomPainter {
     );
 
     // Additional flowing curves
-    paint.color = secondaryColor.withOpacity(0.03);
+    paint.color = secondaryColor.withValues(alpha: 0.03);
     var flowPath = Path();
     flowPath.moveTo(0, size.height * 0.4);
     flowPath.quadraticBezierTo(

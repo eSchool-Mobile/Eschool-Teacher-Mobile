@@ -9,7 +9,6 @@ import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
@@ -97,7 +96,7 @@ class _RecapAttendanceSubjectScreenState
       return;
     }
     // Add your logic here to fetch data based on selected year and month
-    print('Getting recap for Year: $_selectedYear, Month: $_selectedMonth');
+    debugPrint('Getting recap for Year: $_selectedYear, Month: $_selectedMonth');
   }
 
   void _showYearPicker() {
@@ -105,8 +104,8 @@ class _RecapAttendanceSubjectScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Pilih Tahun'),
-          content: Container(
+          title: const Text('Pilih Tahun'),
+          content: SizedBox(
             width: 300,
             height: 300,
             child: YearPicker(
@@ -151,7 +150,7 @@ class _RecapAttendanceSubjectScreenState
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Pilih Bulan untuk Tahun $_selectedYear'),
-          content: Container(
+          content: SizedBox(
             width: 300,
             height: 400,
             child: ListView.builder(
@@ -179,7 +178,7 @@ class _RecapAttendanceSubjectScreenState
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Batal'),
+              child: const Text('Batal'),
             ),
           ],
         );
@@ -210,7 +209,7 @@ class _RecapAttendanceSubjectScreenState
         throw 'Could not launch $url';
       }
     } catch (e) {
-      print('Error launching URL: $e');
+      debugPrint('Error launching URL: $e');
     }
   }
 
@@ -254,7 +253,7 @@ class _RecapAttendanceSubjectScreenState
     return SingleChildScrollView(
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.only(
+      padding: const EdgeInsets.only(
         // Adjust top padding to position content below the app bar
         top: 180, // Reduced padding to minimize white space
         bottom: 25,
@@ -310,30 +309,30 @@ class _RecapAttendanceSubjectScreenState
                   }
                 },
                 borderRadius: BorderRadius.circular(12),
-                highlightColor: Colors.white.withOpacity(0.1),
-                splashColor: Colors.white.withOpacity(0.2),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
+                splashColor: Colors.white.withValues(alpha: 0.2),
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              Colors.white.withOpacity(0.9),
-                              Colors.white.withOpacity(0.4),
+                              Colors.white.withValues(alpha: 0.9),
+                              Colors.white.withValues(alpha: 0.4),
                             ],
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 4,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -343,7 +342,7 @@ class _RecapAttendanceSubjectScreenState
                           size: 16,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Text(
                         _selectedMonth != null
                             ? '${_getMonthName(_selectedMonth!)} $_selectedYear'
@@ -353,7 +352,7 @@ class _RecapAttendanceSubjectScreenState
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           shadows: [
-                            Shadow(
+                            const Shadow(
                               color: Colors.black26,
                               offset: Offset(0, 1),
                               blurRadius: 3,
@@ -361,10 +360,10 @@ class _RecapAttendanceSubjectScreenState
                           ],
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Icon(
                         Icons.arrow_drop_down_rounded,
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         size: 24,
                       ),
                     ],
@@ -391,7 +390,7 @@ class _RecapAttendanceSubjectScreenState
                     context.read<ClassesCubit>().getAllClasses();
 
                 // Debugging to check if we're getting classes
-                print(
+                debugPrint(
                     "Received ${allClasses.length} total classes (primary + other)");
 
                 if (teacherId != null) {
@@ -401,17 +400,17 @@ class _RecapAttendanceSubjectScreenState
 
                   // If no filtered classes found, just show all classes
                   if (_filteredClassSections.isEmpty) {
-                    print(
+                    debugPrint(
                         "No filtered classes found, showing all ${allClasses.length} classes");
                     return _buildRecapTable(allClasses);
                   } else {
-                    print(
+                    debugPrint(
                         "Found ${_filteredClassSections.length} classes for teacher ID: $teacherId");
                     return _buildRecapTable(_filteredClassSections);
                   }
                 } else {
                   // If teacherId is null, show all classes
-                  print("Teacher ID is null, showing all classes");
+                  debugPrint("Teacher ID is null, showing all classes");
                   return _buildRecapTable(allClasses);
                 }
               }

@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class SignInState {}
 
@@ -49,8 +50,8 @@ class SignInCubit extends Cubit<SignInState> {
         ),
       );
     } catch (e) {
-      print("ERRORNYA PT 2");
-      print(e);
+      debugPrint("ERRORNYA PT 2");
+      debugPrint(e.toString());
       emit(SignInFailure(e.toString()));
     }
   }

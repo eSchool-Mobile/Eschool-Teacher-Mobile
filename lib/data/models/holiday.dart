@@ -1,7 +1,7 @@
 class Holiday {
   final int? id;
-  final String? start_date;
-  final String? end_date;
+  final String? startDate;
+  final String? endDate;
   final String? title;
   final String? description;
   final int? schoolId;
@@ -11,8 +11,8 @@ class Holiday {
 
   Holiday({
     this.id,
-    this.start_date,
-    this.end_date,
+    this.startDate,
+    this.endDate,
     this.title,
     this.description,
     this.schoolId,
@@ -23,8 +23,8 @@ class Holiday {
 
   Holiday copyWith({
     int? id,
-    String? start_date,
-    String? end_date,
+    String? startDate,
+    String? endDate,
     String? title,
     String? description,
     int? schoolId,
@@ -34,8 +34,8 @@ class Holiday {
   }) {
     return Holiday(
       id: id ?? this.id,
-      start_date: start_date ?? this.start_date,
-      end_date: end_date ?? this.end_date,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       title: title ?? this.title,
       description: description ?? this.description,
       schoolId: schoolId ?? this.schoolId,
@@ -47,20 +47,20 @@ class Holiday {
 
   Holiday.fromJson(Map<String, dynamic> json)
       : id = json['id'] as int?,
-        start_date = json['start_date'] as String?,
-        end_date = json['end_date'] as String?,
+        startDate = json['start_date'] as String?,
+        endDate = json['end_date'] as String?,
         title = json['title'] as String?,
         description = json['description'] as String?,
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
-       defaultDateFormat = json['default_date_format']?['start_date'] as String?;
-
+        defaultDateFormat =
+            json['default_date_format']?['start_date'] as String?;
 
   Map<String, dynamic> toJson() => {
         'id': id,
-        'start_date': start_date,
-        'end_date': end_date,
+        'start_date': startDate,
+        'end_date': endDate,
         'title': title,
         'description': description,
         'school_id': schoolId,

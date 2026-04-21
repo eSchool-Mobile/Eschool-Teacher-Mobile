@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/models/staffSalary.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class AuthState {}
 
@@ -46,13 +47,13 @@ class AuthCubit extends Cubit<AuthState> {
 
     // Store schools data if provided
     if (schools != null) {
-      print('DEBUG: AuthCubit.authenticateUser - storing schools: $schools');
-      print(
+      debugPrint('DEBUG: AuthCubit.authenticateUser - storing schools: $schools');
+      debugPrint(
           'DEBUG: AuthCubit.authenticateUser - schools length: ${schools.length}');
       await authRepository.setSchoolsData(schools);
-      print('DEBUG: AuthCubit.authenticateUser - schools stored successfully');
+      debugPrint('DEBUG: AuthCubit.authenticateUser - schools stored successfully');
     } else {
-      print('DEBUG: AuthCubit.authenticateUser - schools is null');
+      debugPrint('DEBUG: AuthCubit.authenticateUser - schools is null');
     }
 
     //emit new state

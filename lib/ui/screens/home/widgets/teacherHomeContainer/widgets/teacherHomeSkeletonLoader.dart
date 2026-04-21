@@ -116,7 +116,7 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
         borderRadius: BorderRadius.circular(20.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -443,7 +443,7 @@ class _TeacherHomeSkeletonLoaderState extends State<TeacherHomeSkeletonLoader>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withValues(alpha: 0.03),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),

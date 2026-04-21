@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class OnlineExam {
   final int id;
   final int classSectionId;
@@ -31,7 +29,7 @@ class OnlineExam {
       classSectionId: json['class_section']['id'] ?? 0,
       classSubjectId: json['class_subject']['id'] ?? 0,
       title: json['title'] ?? '',
-      examKey: json['exam_key'].toString() ?? '',
+      examKey: json['exam_key']?.toString() ?? '',
       duration: json['duration'] ?? 0, // Parse from JSON
       startDate: DateTime.parse(json['start_date'] ?? ''),
       endDate: DateTime.parse(json['end_date'] ?? ''),

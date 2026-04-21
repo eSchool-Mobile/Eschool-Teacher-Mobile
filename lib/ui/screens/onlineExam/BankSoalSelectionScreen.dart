@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -24,7 +23,7 @@ class LightRaysPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final center = Offset(size.width / 2, size.height / 2);
-    final rays = 12;
+    const rays = 12;
     final maxLength = size.width > size.height ? size.width : size.height;
 
     for (int i = 0; i < rays; i++) {
@@ -50,9 +49,9 @@ class BankSoalSelectionScreen extends StatefulWidget {
   final int examId;
 
   const BankSoalSelectionScreen({
-    Key? key,
+    super.key,
     required this.examId,
-  }) : super(key: key);
+  });
 
   @override
   State<BankSoalSelectionScreen> createState() =>
@@ -71,7 +70,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
       backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: false,
-      bottomNavigationBar: SizedBox.shrink(),
+      bottomNavigationBar: const SizedBox.shrink(),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(MediaQuery.of(context).padding.top + 80),
         child: CustomModernAppBar(
@@ -119,18 +118,18 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   late AnimationController _searchExpandController;
 
   late Animation<double> _pulseAnimation;
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _accentColor = Color(0xFF9D3C3C);
-  final Color _highlightColor = Color(0xFFB84D4D);
+  static const Color _primaryColor = Color(0xFF7A1E23);
+  static const Color _accentColor = Color(0xFF9D3C3C);
+  static const Color _highlightColor = Color(0xFFB84D4D);
   final List<Color> _cardGradients = [
-    Color(0xFF7A2828),
-    Color(0xFF9D3C3C),
-    Color(0xFFAF4F4F),
-    Color(0xFFB84D4D),
-    Color(0xFFC65454),
-    Color(0xFFAA3939),
-    Color(0xFF8F2D2D),
-    Color(0xFFB14040),
+    const Color(0xFF7A2828),
+    const Color(0xFF9D3C3C),
+    const Color(0xFFAF4F4F),
+    const Color(0xFFB84D4D),
+    const Color(0xFFC65454),
+    const Color(0xFFAA3939),
+    const Color(0xFF8F2D2D),
+    const Color(0xFFB14040),
   ];
   @override
   void initState() {
@@ -138,39 +137,39 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     context.read<QuestionOnlineExamCubit>().getBankSoal(widget.examId);
 
     _backgroundAnimationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 30000))
+        vsync: this, duration: const Duration(milliseconds: 30000))
       ..repeat();
     _waveAnimationController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 7000))
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 7000))
           ..repeat();
     _floatingIconsController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 2000))
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 2000))
           ..repeat(reverse: true);
     _cardHoverController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
     _breathingController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 3000))
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 3000))
           ..repeat(reverse: true);
     _rotationController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 10000))
+        vsync: this, duration: const Duration(milliseconds: 10000))
       ..repeat();
     _pulseController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 1200))
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 1200))
           ..repeat(reverse: true);
     _loadingController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 1500))
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
           ..repeat();
     _tabTransitionController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
     _searchExpandController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 300));
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
     _pulseAnimation =
         CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
     // Fix untuk menghilangkan warna maroon di bagian bawah layar
     // Set system navigation bar menjadi putih, bukan maroon
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: Colors.white,
@@ -193,7 +192,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     _searchExpandController.dispose();
     // Reset system UI overlay style to default untuk mencegah warna maroon
     // mengikuti ke halaman lain
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
       systemNavigationBarColor: Colors.white,
@@ -226,25 +225,25 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
           color: Colors.grey[100],
           borderRadius: BorderRadius.circular(16),
           border:
-              Border.all(color: _highlightColor.withOpacity(0.3), width: 1.5),
+              Border.all(color: _highlightColor.withValues(alpha: 0.3), width: 1.5),
           boxShadow: [
             BoxShadow(
-                color: _accentColor.withOpacity(0.2),
+                color: _accentColor.withValues(alpha: 0.2),
                 blurRadius: 15,
                 spreadRadius: 0,
-                offset: Offset(0, 5))
+                offset: const Offset(0, 5))
           ],
         ),
         child: TextField(
           controller: _searchController,
           onChanged: (query) => _filterBanks(query, banks),
-          style: TextStyle(color: _primaryColor),
+          style: const TextStyle(color: _primaryColor),
           decoration: InputDecoration(
             hintText: 'Cari bank soal...',
             hintStyle: TextStyle(color: Colors.grey[600]),
-            prefixIcon: Icon(Icons.search, color: _primaryColor),
+            prefixIcon: const Icon(Icons.search, color: _primaryColor),
             border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           ),
         ),
       ),
@@ -265,9 +264,10 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                 .contains(_searchController.text.toLowerCase()))
             .toList();
       }
-      if (state.banks.isEmpty)
+      if (state.banks.isEmpty) {
         return _buildEmptyView("Tidak ada bank soal yang tersedia",
             "Silakan tambahkan bank soal baru.");
+      }
       return Column(
           children: [Expanded(child: _buildBankList(_filteredBanks))]);
     }
@@ -282,11 +282,11 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
         ),
       );
     }
-    return SizedBox();
+    return const SizedBox();
   }
 
   Widget _buildLoadingView() {
-    return SkeletonBankSoalSelectionScreen(
+    return const SkeletonBankSoalSelectionScreen(
       itemCount: 6,
       showSearch: false,
     );
@@ -300,21 +300,21 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
           Icon(
             Icons.assignment_outlined,
             size: 80,
-            color: _accentColor.withOpacity(0.6),
+            color: _accentColor.withValues(alpha: 0.6),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
               color: _primaryColor,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             subtitle,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 16,
               color: _accentColor,
             ),
@@ -334,8 +334,8 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
     }
     return Stack(children: [
       ListView.builder(
-        padding: EdgeInsets.fromLTRB(20, 10, 20, 100),
-        physics: BouncingScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(20, 10, 20, 100),
+        physics: const BouncingScrollPhysics(),
         itemCount: banks.length,
         itemBuilder: (context, index) {
           final bank = banks[index];
@@ -354,46 +354,46 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
               HapticFeedback.selectionClick();
             },
             onTapCancel: () => setState(() => _hoveredCardIndex = -1),
-            onTapUp: (_) => Future.delayed(Duration(milliseconds: 300),
+            onTapUp: (_) => Future.delayed(const Duration(milliseconds: 300),
                 () => mounted ? setState(() => _hoveredCardIndex = -1) : null),
             child: Transform.translate(
               offset: Offset(0, isHovered ? -5 : 0),
               child: AnimatedContainer(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 curve: Curves.easeOutCubic,
-                margin: EdgeInsets.only(bottom: 24),
+                margin: const EdgeInsets.only(bottom: 24),
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            cardBaseColor.withOpacity(isHovered ? 1.0 : 0.85),
+                            cardBaseColor.withValues(alpha: isHovered ? 1.0 : 0.85),
                             HSLColor.fromColor(cardBaseColor)
                                 .withLightness(HSLColor.fromColor(cardBaseColor)
                                         .lightness *
                                     0.7)
                                 .toColor()
-                                .withOpacity(isHovered ? 0.95 : 0.8),
+                                .withValues(alpha: isHovered ? 0.95 : 0.8),
                           ],
-                          stops: [0.3, 1.0],
+                          stops: const [0.3, 1.0],
                         ),
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
                               color: neonGlowColor
-                                  .withOpacity(isHovered ? 0.35 : 0.15),
+                                  .withValues(alpha: isHovered ? 0.35 : 0.15),
                               blurRadius: isHovered ? 25 : 15,
                               spreadRadius: isHovered ? 2 : 0),
                           BoxShadow(
-                              color: cardBaseColor.withOpacity(0.5),
+                              color: cardBaseColor.withValues(alpha: 0.5),
                               blurRadius: 15,
                               spreadRadius: -3,
-                              offset: Offset(0, 8)),
+                              offset: const Offset(0, 8)),
                         ],
                       ),
                       child: Column(
@@ -413,14 +413,14 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                         colors: [
-                                          Colors.white.withOpacity(1.0),
-                                          Colors.white.withOpacity(0.9),
-                                          Colors.white.withOpacity(1.0)
+                                          Colors.white.withValues(alpha: 1.0),
+                                          Colors.white.withValues(alpha: 0.9),
+                                          Colors.white.withValues(alpha: 1.0)
                                         ],
                                       ).createShader(bounds),
                                       child: Text(
                                         bank.name,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 20,
                                           height: 1.2,
                                           fontWeight: FontWeight.bold,
@@ -434,10 +434,10 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     AnimatedContainer(
-                                      duration: Duration(milliseconds: 400),
-                                      margin: EdgeInsets.symmetric(vertical: 8),
+                                      duration: const Duration(milliseconds: 400),
+                                      margin: const EdgeInsets.symmetric(vertical: 8),
                                       height: 2,
                                       width: isHovered ? 180 : 80,
                                       decoration: BoxDecoration(
@@ -445,25 +445,25 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                           begin: Alignment.centerLeft,
                                           end: Alignment.centerRight,
                                           colors: [
-                                            Colors.white.withOpacity(0.8),
-                                            Colors.white.withOpacity(0.2)
+                                            Colors.white.withValues(alpha: 0.8),
+                                            Colors.white.withValues(alpha: 0.2)
                                           ],
                                         ),
                                         borderRadius: BorderRadius.circular(2),
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 7),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
+                                        color: Colors.white.withValues(alpha: 0.15),
                                         borderRadius: BorderRadius.circular(30),
                                         border: Border.all(
                                             color:
-                                                Colors.white.withOpacity(0.2),
+                                                Colors.white.withValues(alpha: 0.2),
                                             width: 1),
-                                        boxShadow: [
+                                        boxShadow: const [
                                           BoxShadow(
                                               color: Colors.black12,
                                               blurRadius: 8,
@@ -472,7 +472,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                       ),
                                       child: Text(
                                         '${bank.soal.length} Soal',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
                                             fontSize: 14),
@@ -482,7 +482,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                 ),
                               ),
                               AnimatedContainer(
-                                duration: Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 width: isHovered ? 50 : 45,
                                 height: isHovered ? 50 : 45,
                                 decoration: BoxDecoration(
@@ -492,25 +492,25 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                                     end: Alignment.bottomRight,
                                     colors: isHovered
                                         ? [
-                                            Colors.white.withOpacity(0.3),
-                                            Colors.white.withOpacity(0.1)
+                                            Colors.white.withValues(alpha: 0.3),
+                                            Colors.white.withValues(alpha: 0.1)
                                           ]
                                         : [
-                                            Colors.white.withOpacity(0.2),
-                                            Colors.white.withOpacity(0.05)
+                                            Colors.white.withValues(alpha: 0.2),
+                                            Colors.white.withValues(alpha: 0.05)
                                           ],
                                   ),
                                   boxShadow: isHovered
                                       ? [
                                           BoxShadow(
                                               color: neonGlowColor
-                                                  .withOpacity(0.4),
+                                                  .withValues(alpha: 0.4),
                                               blurRadius: 15,
                                               spreadRadius: 1)
                                         ]
                                       : [],
                                   border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color: Colors.white.withValues(alpha: 0.3),
                                       width: 1),
                                 ),
                                 child: AnimatedBuilder(
@@ -543,7 +543,7 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
                         height: 30,
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: neonGlowColor.withOpacity(0.1)),
+                            color: neonGlowColor.withValues(alpha: 0.1)),
                       ),
                     ),
                   ],
@@ -557,11 +557,11 @@ class _BankSoalSelectionScreenState extends State<BankSoalSelectionScreen>
   }
 
   void navigateToPreview(BankSoalQuestion bank) {
-    print('Navigating to preview with:');
-    print('Bank ID: ${bank.id}');
-    print('Exam ID: ${widget.examId}');
-    print('Class Section ID: ${bank.classSectionId}');
-    print('Class Subject ID: ${bank.classSubjectId}');
+    debugPrint('Navigating to preview with:');
+    debugPrint('Bank ID: ${bank.id}');
+    debugPrint('Exam ID: ${widget.examId}');
+    debugPrint('Class Section ID: ${bank.classSectionId}');
+    debugPrint('Class Subject ID: ${bank.classSubjectId}');
 
     if (bank.classSectionId == 0 || bank.classSubjectId == 0) {
       getx.Get.snackbar('Error', 'Data kelas atau mata pelajaran tidak valid',

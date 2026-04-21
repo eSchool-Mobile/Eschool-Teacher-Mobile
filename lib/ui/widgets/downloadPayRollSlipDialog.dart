@@ -26,13 +26,13 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
     super.initState();
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        print("=== UI INITIATED PAYROLL PDF DOWNLOAD ===");
-        print("Payroll Details:");
-        print("ID: ${widget.payRoll.id}");
-        print("Title: ${widget.payRoll.title}");
-        print("Month: ${widget.payRoll.month}");
-        print("Year: ${widget.payRoll.year}");
-        print("Amount: ${widget.payRoll.amount}");
+        debugPrint("=== UI INITIATED PAYROLL PDF DOWNLOAD ===");
+        debugPrint("Payroll Details:");
+        debugPrint("ID: ${widget.payRoll.id}");
+        debugPrint("Title: ${widget.payRoll.title}");
+        debugPrint("Month: ${widget.payRoll.month}");
+        debugPrint("Year: ${widget.payRoll.year}");
+        debugPrint("Amount: ${widget.payRoll.amount}");
 
         context.read<DownloadPayRollSlipCubit>().downloadPayRollSlip(
             payRollId: widget.payRoll.id ?? 0,
@@ -52,10 +52,10 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
           final file = File(state.downloadedFilePath);
           if (file.existsSync()) {
             OpenFilex.open(state.downloadedFilePath).then((result) {
-              print("File open result: ${result.message}");
+              debugPrint("File open result: ${result.message}");
 
               // If file opening failed, show a user-friendly message
-              if (result.type != ResultType.done) {
+              if (result.type != ResultType.done && context.mounted) {
                 Utils.showSnackBar(
                     message:
                         "Slip gaji berhasil diunduh namun tidak dapat dibuka otomatis. File tersimpan di: ${state.downloadedFilePath}",
@@ -63,10 +63,12 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
               }
             });
           } else {
-            Utils.showSnackBar(
-                message:
-                    "File slip gaji tidak dapat ditemukan setelah download",
-                context: context);
+            if (context.mounted) {
+              Utils.showSnackBar(
+                  message:
+                      "File slip gaji tidak dapat ditemukan setelah download",
+                  context: context);
+            }
           }
         } else if (state is DownloadPayRollSlipFailure) {
           Get.back();
@@ -86,7 +88,9 @@ class _DownloadPayRollSlipDialogState extends State<DownloadPayRollSlipDialog> {
                 "Data slip gaji kosong. Silakan hubungi administrator.";
           }
 
-          Utils.showSnackBar(message: userMessage, context: context);
+          if (context.mounted) {
+            Utils.showSnackBar(message: userMessage, context: context);
+          }
         }
       },
       child: AlertDialog(

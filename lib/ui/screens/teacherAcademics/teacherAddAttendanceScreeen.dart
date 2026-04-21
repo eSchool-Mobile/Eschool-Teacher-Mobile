@@ -58,8 +58,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   DateTime _selectedDateTime = DateTime.now();
   ClassSection? _selectedClassSection;
 
-  bool _isSendNotificationToGuardian = false;
-  bool _isHoliday = false;
+  final bool _isSendNotificationToGuardian = false;
+  final bool _isHoliday = false;
 
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
@@ -98,7 +98,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   void initState() {
     super.initState();
 
-    print('timetable');
+    debugPrint('timetable');
     // Initialize animation controllers
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
@@ -112,11 +112,11 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         context.read<ClassesCubit>().stream.listen((state) {
           if (state is ClassesFetchSuccess && _selectedClassSection == null) {
             if (state.primaryClasses.isNotEmpty) {
-              print(
+              debugPrint(
                   "Auto-selecting first class: ${state.primaryClasses.first.fullName}");
               changeClassSectionSelection(state.primaryClasses.first);
             } else if (state.primaryClasses.isNotEmpty) {
-              print(
+              debugPrint(
                   "Auto-selecting first available class: ${state.primaryClasses.first.fullName}");
               changeClassSectionSelection(state.primaryClasses.first);
             }
@@ -126,12 +126,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         // Listen to StudentsByClassSectionCubit state changes for debugging
         context.read<StudentsByClassSectionCubit>().stream.listen((state) {
           if (state is StudentsByClassSectionFetchSuccess) {
-            print(
+            debugPrint(
                 "✅ Students loaded successfully: ${state.studentDetailsList.length} students");
           } else if (state is StudentsByClassSectionFetchFailure) {
-            print("❌ Failed to load students: ${state.errorMessage}");
+            debugPrint("❌ Failed to load students: ${state.errorMessage}");
           } else if (state is StudentsByClassSectionFetchInProgress) {
-            print("⌛ Loading students...");
+            debugPrint("⌛ Loading students...");
           }
         });
       }
@@ -147,7 +147,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
           type: null,
         )
         .catchError((error) {
-      print('Error: $error');
+      debugPrint('Error: $error');
     });
   }
 
@@ -199,9 +199,9 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
               final matchedAttendance = attendance
                   .firstWhereOrNull((element) => element.studentId == e.id);
 
-              print(matchedAttendance);
+              debugPrint(matchedAttendance.toString());
 
-              print('Found attendance record: ${matchedAttendance?.type}');
+              debugPrint('Found attendance record: ${matchedAttendance?.type}');
 
               return StudentAttendance.fromStudentDetails(
                   studentDetails: e, type: matchedAttendance?.type);
@@ -245,7 +245,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(top: 20, bottom: 90),
+        padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
             if (state is AttendanceFetchSuccess) {
@@ -284,15 +284,15 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
 
                   // Students attendance list
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -307,18 +307,18 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary.withValues(alpha: 0.9),
                                 _maroonPrimary,
                                 _maroonLight,
                               ],
                             ),
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16)),
+                                const BorderRadius.vertical(top: Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 10,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -326,12 +326,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                             children: [
                               // Animated icon
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.people_alt_rounded,
                                   color: Colors.white,
                                   size: 20,
@@ -419,15 +419,15 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
 
                   // Students container skeleton with same structure
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -440,7 +440,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           decoration: BoxDecoration(
                             color: Colors.grey.shade300,
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16)),
+                                const BorderRadius.vertical(top: Radius.circular(16)),
                           ),
                           child: Row(
                             children: [
@@ -468,10 +468,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                         ),
 
                         // Student list skeleton
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
+                        const Padding(
+                          padding: EdgeInsets.symmetric(
                               horizontal: 16, vertical: 8),
-                          child: const SkeletonAttendanceList(itemCount: 8),
+                          child: SkeletonAttendanceList(itemCount: 8),
                         ),
                       ],
                     ),
@@ -522,12 +522,12 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withOpacity(0.0),
-                      Colors.white.withOpacity(0.8),
+                      Colors.white.withValues(alpha: 0.0),
+                      Colors.white.withValues(alpha: 0.8),
                       Colors.white,
                       Colors.white,
                     ],
-                    stops: [0.0, 0.2, 0.5, 1.0],
+                    stops: const [0.0, 0.2, 0.5, 1.0],
                   ),
                 ),
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -538,7 +538,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                       // Always use the active button colors
                       colors: [
                         _maroonPrimary,
-                        Color(0xFF9A1E3C),
+                        const Color(0xFF9A1E3C),
                         _maroonLight,
                       ],
                       begin: Alignment.centerLeft,
@@ -548,7 +548,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                     // Always show the shadow
                     boxShadow: [
                       BoxShadow(
-                        color: _maroonPrimary.withOpacity(0.3),
+                        color: _maroonPrimary.withValues(alpha: 0.3),
                         offset: const Offset(0, 4),
                         blurRadius: 12,
                         spreadRadius: 0,
@@ -560,19 +560,19 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                     color: Colors.transparent,
                     child: InkWell(
                       borderRadius: BorderRadius.circular(14),
-                      highlightColor: Colors.white.withOpacity(0.1),
-                      splashColor: Colors.white.withOpacity(0.2),
+                      highlightColor: Colors.white.withValues(alpha: 0.1),
+                      splashColor: Colors.white.withValues(alpha: 0.2),
                       onTap: () {
                         // Log detailed submission data
-                        print('=== ATTENDANCE SUBMISSION DATA ===');
-                        print(
+                        debugPrint('=== ATTENDANCE SUBMISSION DATA ===');
+                        debugPrint(
                             '📅 Date: ${Utils.formatDate(_selectedDateTime)}');
-                        print(
+                        debugPrint(
                             '🏫 Class: ${_selectedClassSection?.fullName} (ID: ${_selectedClassSection?.id})');
-                        print(
+                        debugPrint(
                             '🔔 Send Notification: $_isSendNotificationToGuardian');
-                        print('📅 Is Holiday: $_isHoliday');
-                        print('👥 Attendance Report:');
+                        debugPrint('📅 Is Holiday: $_isHoliday');
+                        debugPrint('👥 Attendance Report:');
 
                         for (var attendance in attendanceReport) {
                           String status = '';
@@ -586,10 +586,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                             default:
                               status = '❓ Unknown';
                           }
-                          print(
+                          debugPrint(
                               '   Student ID: ${attendance.studentId} - Status: $status');
                         }
-                        print('================================');
+                        debugPrint('================================');
 
                         try {
                           context
@@ -604,8 +604,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                     _isHoliday ? [] : attendanceReport,
                               );
                         } catch (e) {
-                          print('Error submitting attendance: $e');
-                          print('Error details: ${e.toString()}');
+                          debugPrint('Error submitting attendance: $e');
+                          debugPrint('Error details: ${e.toString()}');
                         }
                       },
                       child: Center(
@@ -623,8 +623,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                           },
                           child: submitAttendanceState
                                   is SubmitAttendanceInProgress
-                              ? Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                              ? const Padding(
+                                  padding: EdgeInsets.all(8.0),
                                   key: ValueKey<String>("loading"),
                                   child: SizedBox(
                                     width: 24,
@@ -636,10 +636,10 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                   ),
                                 )
                               : Row(
-                                  key: ValueKey<String>("button"),
+                                  key: const ValueKey<String>("button"),
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.check_circle_outline,
                                       color: Colors.white,
                                       size: 24,
@@ -656,11 +656,11 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                     ),
                                     if (attendanceReport.isNotEmpty)
                                       Container(
-                                        margin: EdgeInsets.only(left: 12),
-                                        padding: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.only(left: 12),
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white.withValues(alpha: 0.2),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
@@ -712,13 +712,13 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         // Show search input if search is active
         if (_isSearchVisible) {
           return Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
@@ -736,19 +736,19 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                 decoration: InputDecoration(
                   hintText: 'Cari nama siswa...',
                   hintStyle: GoogleFonts.poppins(
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                   prefixIcon: Icon(
                     Icons.search_rounded,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     size: 20,
                   ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: Icon(
                             Icons.clear_rounded,
-                            color: Colors.white.withOpacity(0.8),
+                            color: Colors.white.withValues(alpha: 0.8),
                             size: 20,
                           ),
                           onPressed: () {
@@ -761,7 +761,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                       : null,
                   border: InputBorder.none,
                   contentPadding:
-                      EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ),
@@ -793,19 +793,19 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                       getAttendance();
                     }
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.calendar_today_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             Utils.formatDate(_selectedDateTime),
@@ -828,15 +828,15 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
             Container(
               height: 24,
               width: 1.5,
-              margin: EdgeInsets.symmetric(horizontal: 8),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.4),
-                    Colors.white.withOpacity(0.0),
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.4),
+                    Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -869,19 +869,19 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                       }
                     }
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.class_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             _selectedClassSection?.fullName ?? 'Pilih Kelas',
@@ -993,15 +993,15 @@ class CustomSuccessMessage {
               );
             },
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 8,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -1009,7 +1009,7 @@ class CustomSuccessMessage {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.check_circle, color: textColor, size: 24),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Flexible(
                     child: Text(
                       message,

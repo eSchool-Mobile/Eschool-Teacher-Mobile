@@ -53,21 +53,21 @@ class _StudentSubjectAttendanceItemContainerState
             ? Theme.of(context)
                 .extension<CustomColors>()!
                 .totalStudentOverviewBackgroundColor!
-                .withOpacity(0.1)
+                .withValues(alpha: 0.1)
             : selectedValue == StudentAttendanceStatus.sick
                 ? Theme.of(context)
                     .extension<CustomColors>()!
                     .sickBackgroundColor!
-                    .withOpacity(0.1)
+                    .withValues(alpha: 0.1)
                 : selectedValue == StudentAttendanceStatus.permission
                     ? Theme.of(context)
                         .extension<CustomColors>()!
                         .permissionBackgroundColor!
-                        .withOpacity(0.1)
+                        .withValues(alpha: 0.1)
                     : Theme.of(context)
                         .extension<CustomColors>()!
                         .totalStaffOverviewBackgroundColor!
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(5),
       ),
       child: DropdownButton<StudentAttendanceStatus>(
@@ -182,26 +182,26 @@ class _StudentSubjectAttendanceItemContainerState
                         ? Theme.of(context)
                             .extension<CustomColors>()!
                             .totalStaffOverviewBackgroundColor!
-                            .withOpacity(0.1)
+                            .withValues(alpha: 0.1)
                         : widget.isSick
                             ? Theme.of(context)
                                 .extension<CustomColors>()!
                                 .sickBackgroundColor!
-                                .withOpacity(0.1)
+                                .withValues(alpha: 0.1)
                             : widget.isPermission
                                 ? Theme.of(context)
                                     .extension<CustomColors>()!
                                     .permissionBackgroundColor!
-                                    .withOpacity(0.1)
+                                    .withValues(alpha: 0.1)
                                 : widget.isAlpa
                                     ? Theme.of(context)
                                         .extension<CustomColors>()!
                                         .totalStudentOverviewBackgroundColor!
-                                        .withOpacity(0.1)
+                                        .withValues(alpha: 0.1)
                                     : Theme.of(context)
                                         .extension<CustomColors>()!
                                         .totalStudentOverviewBackgroundColor!
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(5)),
                 child: CustomTextContainer(
                   textKey: widget.isPresent

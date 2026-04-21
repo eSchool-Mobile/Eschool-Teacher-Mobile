@@ -1,10 +1,10 @@
-import 'dart:convert';
 
 import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class ClassSectionsAndSubjectsState {}
 
@@ -38,7 +38,7 @@ class ClassSectionsAndSubjectsCubit
   void getClassSectionsAndSubjects(
       {int? classSectionId, int? gradeLevelId}) async {
     try {
-      print(
+      debugPrint(
           "ClassSectionsAndSubjectsCubit: Starting to fetch class sections and subjects");
       emit(ClassSectionsAndSubjectsFetchInProgress());
 
@@ -47,7 +47,7 @@ class ClassSectionsAndSubjectsCubit
         gradeLevelId: gradeLevelId,
       );
 
-      print(
+      debugPrint(
           "ClassSectionsAndSubjectsCubit: Received classes - Primary: ${classesResult.primaryClasses.length}, Other: ${classesResult.classes.length}");
 
       //
@@ -56,7 +56,7 @@ class ClassSectionsAndSubjectsCubit
       classSections
           .addAll(List<ClassSection>.from(classesResult.primaryClasses));
 
-      print(
+      debugPrint(
           "ClassSectionsAndSubjectsCubit: Combined total classes: ${classSections.length}");
 
       emit(ClassSectionsAndSubjectsFetchSuccess(
@@ -64,10 +64,10 @@ class ClassSectionsAndSubjectsCubit
           subjects: await _academicRepository.getClassSectionSubjects(
               classSectionId: classSectionId ?? classSections.first.id ?? 0)));
     } catch (e) {
-      print("ClassSectionsAndSubjectsCubit: Error occurred - $e");
+      debugPrint("ClassSectionsAndSubjectsCubit: Error occurred - $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ClassSectionsAndSubjectsFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

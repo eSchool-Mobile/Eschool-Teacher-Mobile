@@ -15,7 +15,7 @@ class CustomModernAppBarWithTabs extends StatefulWidget
   final Widget? tabContent; // Tab content to show below the AppBar
 
   const CustomModernAppBarWithTabs({
-    Key? key,
+    super.key,
     required this.title,
     required this.icon,
     required this.fabAnimationController,
@@ -24,7 +24,7 @@ class CustomModernAppBarWithTabs extends StatefulWidget
     this.onBackPressed,
     this.height = 120, // Default to larger height to accommodate tabs
     this.tabContent,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomModernAppBarWithTabs> createState() =>
@@ -40,7 +40,7 @@ class _CustomModernAppBarWithTabsState
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).padding.top + widget.height,
         child: Stack(
           children: [
@@ -55,19 +55,19 @@ class _CustomModernAppBarWithTabsState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF690013),
+                          const Color(0xFF690013),
                           widget.primaryColor,
-                          Color(0xFFA12948),
+                          const Color(0xFFA12948),
                           widget.lightColor,
                         ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
                         transform: GradientRotation(
                             widget.fabAnimationController.value * 0.02),
                       ).createShader(bounds);
                     },
                     blendMode: BlendMode.srcATop,
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -91,7 +91,7 @@ class _CustomModernAppBarWithTabsState
             Positioned.fill(
               child: CustomPaint(
                 painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -110,11 +110,11 @@ class _CustomModernAppBarWithTabsState
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.2),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
-                        stops: [0.0, 0.5, 1.0],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
@@ -138,10 +138,10 @@ class _CustomModernAppBarWithTabsState
                       child: Container(
                         height: 56,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.12),
+                          color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(15),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             width: 1.5,
                           ),
                         ),
@@ -158,17 +158,17 @@ class _CustomModernAppBarWithTabsState
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(12),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.1),
+                                            Colors.white.withValues(alpha: 0.1),
                                         splashColor:
-                                            Colors.white.withOpacity(0.2),
+                                            Colors.white.withValues(alpha: 0.2),
                                         onTap: widget.onBackPressed,
                                         child: Container(
-                                          padding: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
-                                          child: Icon(
+                                          child: const Icon(
                                             Icons.arrow_back_ios_rounded,
                                             color: Colors.white,
                                             size: 22,
@@ -181,7 +181,7 @@ class _CustomModernAppBarWithTabsState
                                     .fadeIn(
                                         duration: 400.ms, curve: Curves.easeOut)
                                     .slideX(begin: -0.3, end: 0)
-                                : SizedBox(),
+                                : const SizedBox(),
 
                             // Animated divider
                             widget.onBackPressed != null
@@ -193,14 +193,14 @@ class _CustomModernAppBarWithTabsState
                                         begin: Alignment.topCenter,
                                         end: Alignment.bottomCenter,
                                         colors: [
-                                          Colors.white.withOpacity(0.0),
-                                          Colors.white.withOpacity(0.4),
-                                          Colors.white.withOpacity(0.0),
+                                          Colors.white.withValues(alpha: 0.0),
+                                          Colors.white.withValues(alpha: 0.4),
+                                          Colors.white.withValues(alpha: 0.0),
                                         ],
                                       ),
                                     ),
                                   )
-                                : SizedBox(),
+                                : const SizedBox(),
 
                             // Title with animated badge
                             Expanded(
@@ -223,7 +223,7 @@ class _CustomModernAppBarWithTabsState
                                                       .value *
                                                   0.05,
                                               child: Container(
-                                                padding: EdgeInsets.all(6),
+                                                padding: const EdgeInsets.all(6),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   gradient: LinearGradient(
@@ -231,17 +231,17 @@ class _CustomModernAppBarWithTabsState
                                                     end: Alignment.bottomRight,
                                                     colors: [
                                                       Colors.white
-                                                          .withOpacity(0.9),
+                                                          .withValues(alpha: 0.9),
                                                       Colors.white
-                                                          .withOpacity(0.4),
+                                                          .withValues(alpha: 0.4),
                                                     ],
                                                   ),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.2),
+                                                          .withValues(alpha: 0.2),
                                                       blurRadius: 4,
-                                                      offset: Offset(0, 2),
+                                                      offset: const Offset(0, 2),
                                                     ),
                                                   ],
                                                 ),
@@ -255,7 +255,7 @@ class _CustomModernAppBarWithTabsState
                                           },
                                         ),
 
-                                        SizedBox(width: 12),
+                                        const SizedBox(width: 12),
 
                                         // Title text with glowing effect
                                         ShaderMask(
@@ -265,7 +265,7 @@ class _CustomModernAppBarWithTabsState
                                               end: Alignment.bottomCenter,
                                               colors: [
                                                 Colors.white,
-                                                Colors.white.withOpacity(0.9),
+                                                Colors.white.withValues(alpha: 0.9),
                                               ],
                                             ).createShader(bounds);
                                           },
@@ -276,7 +276,7 @@ class _CustomModernAppBarWithTabsState
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold,
                                               shadows: [
-                                                Shadow(
+                                                const Shadow(
                                                   color: Colors.black26,
                                                   offset: Offset(0, 1),
                                                   blurRadius: 3,
@@ -306,12 +306,12 @@ class _CustomModernAppBarWithTabsState
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                           child: Container(
-                            padding: EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.12),
+                              color: Colors.white.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(15),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 width: 1.5,
                               ),
                             ),
@@ -322,8 +322,8 @@ class _CustomModernAppBarWithTabsState
                           .animate()
                           .fadeIn(duration: 300.ms, curve: Curves.easeOut)
                           .scale(
-                            begin: Offset(0.95, 0.95),
-                            end: Offset(1.0, 1.0),
+                            begin: const Offset(0.95, 0.95),
+                            end: const Offset(1.0, 1.0),
                           ),
                     ),
                 ],

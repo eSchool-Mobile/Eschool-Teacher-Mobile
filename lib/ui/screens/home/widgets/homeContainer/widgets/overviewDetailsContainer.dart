@@ -29,7 +29,7 @@ class OverviewDetailsContainer extends StatelessWidget {
       height: double.maxFinite,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-          color: backgroundColor.withOpacity(0.1),
+          color: backgroundColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8.0)),
       child: Column(
         children: [
@@ -61,7 +61,7 @@ class OverviewDetailsContainer extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.75)),
+                            .withValues(alpha: 0.75)),
                   )
                 ],
               ),
@@ -88,7 +88,7 @@ class OverviewDetailsContainer extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.76)),
+                            .withValues(alpha: 0.76)),
                   ),
                   const Spacer(),
                   Icon(
@@ -98,7 +98,7 @@ class OverviewDetailsContainer extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .secondary
-                        .withOpacity(0.76),
+                        .withValues(alpha: 0.76),
                   )
                 ],
               ),

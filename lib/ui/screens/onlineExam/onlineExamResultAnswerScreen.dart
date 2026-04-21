@@ -1,16 +1,10 @@
-import 'dart:convert';
-
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddAttendanceSubjectScreen.dart';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
-import 'package:glassmorphism/glassmorphism.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:intl/intl.dart';
 
 class OnlineExamResultAnswerScreen extends StatefulWidget {
   final int examId;
@@ -19,15 +13,14 @@ class OnlineExamResultAnswerScreen extends StatefulWidget {
   final String questionType;
 
   const OnlineExamResultAnswerScreen(
-      {Key? key,
+      {super.key,
       required this.examId,
       required this.questionId,
       required this.examName,
-      required this.questionType})
-      : super(key: key);
+      required this.questionType});
 
   @override
-  _OnlineExamResultAnswerScreenState createState() =>
+  State<OnlineExamResultAnswerScreen> createState() =>
       _OnlineExamResultAnswerScreenState();
 }
 
@@ -58,8 +51,8 @@ class _OnlineExamResultAnswerScreenState
   late AnimationController _animationController;
 
   // Theme colors for the app bar
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
   @override
   void initState() {
     super.initState();
@@ -69,7 +62,7 @@ class _OnlineExamResultAnswerScreenState
 
     // Initialize animation controller for the app bar
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
@@ -138,7 +131,7 @@ class _OnlineExamResultAnswerScreenState
                     borderRadius: BorderRadius.circular(25),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -174,7 +167,7 @@ class _OnlineExamResultAnswerScreenState
                   ),
                 ),
               )
-            : SizedBox(height: 10));
+            : const SizedBox(height: 10));
   }
 
   Widget _buildExamCard() {
@@ -186,8 +179,7 @@ class _OnlineExamResultAnswerScreenState
         if (state is OnlineExamFailure && _allAnswers.isEmpty) {
           return Center(
             child: CustomErrorWidget(
-              message: state.message ??
-                  "Tidak dapat terhubung ke server, mohon periksa koneksi internet anda dan coba lagi",
+              message: state.message,
               onRetry: () {
                 context.read<OnlineExamCubit>().getOnlineExamResultAnswer(
                     examId: widget.examId,
@@ -249,13 +241,13 @@ class _OnlineExamResultAnswerScreenState
                   return FadeInUp(
                     delay: Duration(milliseconds: index * 100),
                     child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 8),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             blurRadius: 10,
                             spreadRadius: 5,
                           ),
@@ -284,10 +276,10 @@ class _OnlineExamResultAnswerScreenState
                                   end: Alignment.bottomRight,
                                 ),
                               ),
-                              padding: EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(16),
                               child: Text(
                                 answer.studentName ?? 'Unknown',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -295,10 +287,10 @@ class _OnlineExamResultAnswerScreenState
                               ),
                             ),
                             Container(
-                              padding:
-                                  EdgeInsets.only(left: 16, right: 16, top: 16),
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, top: 16),
                               child: ConstrainedBox(
-                                constraints: BoxConstraints(
+                                constraints: const BoxConstraints(
                                   minHeight: 50,
                                   maxHeight: 200,
                                 ),
@@ -312,7 +304,7 @@ class _OnlineExamResultAnswerScreenState
                                         border: Border.all(
                                             color: Colors.grey[200]!),
                                       ),
-                                      padding: EdgeInsets.all(12),
+                                      padding: const EdgeInsets.all(12),
                                       child: Text(
                                         answer.answer,
                                         style: TextStyle(
@@ -335,7 +327,7 @@ class _OnlineExamResultAnswerScreenState
                                       ? 16
                                       : 8),
                               margin: EdgeInsets.zero,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Colors.white,
                               ),
                               child: widget.questionType != 'multiple_choice' &&
@@ -389,7 +381,7 @@ class _OnlineExamResultAnswerScreenState
                                                       color: Colors.grey[200]!),
                                                 ),
                                                 contentPadding:
-                                                    EdgeInsets.symmetric(
+                                                    const EdgeInsets.symmetric(
                                                         vertical: 10,
                                                         horizontal: 8),
                                               ),
@@ -398,19 +390,22 @@ class _OnlineExamResultAnswerScreenState
                                                     .digitsOnly,
                                                 TextInputFormatter.withFunction(
                                                     (oldValue, newValue) {
-                                                  if (newValue.text.isEmpty)
+                                                  if (newValue.text.isEmpty) {
                                                     return newValue;
+                                                  }
                                                   final intValue = int.tryParse(
                                                           newValue.text) ??
                                                       0;
-                                                  if (intValue < 0)
-                                                    return TextEditingValue(
+                                                  if (intValue < 0) {
+                                                    return const TextEditingValue(
                                                         text: '0');
+                                                  }
                                                   if (intValue >
-                                                      answer.totalMarks)
+                                                      answer.totalMarks) {
                                                     return TextEditingValue(
                                                         text: answer.totalMarks
                                                             .toString());
+                                                  }
                                                   return newValue;
                                                 }),
                                               ],
@@ -462,7 +457,7 @@ class _OnlineExamResultAnswerScreenState
           top: BorderSide(
               color: Colors.grey.shade400, width: 2), // Border garis atas
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 2,
@@ -470,14 +465,14 @@ class _OnlineExamResultAnswerScreenState
           ),
         ],
       ),
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: SizedBox(
         width: double.infinity, // Lebar penuh
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF8B0000), // Warna maroon
+            backgroundColor: const Color(0xFF8B0000), // Warna maroon
             foregroundColor: Colors.white, // Warna teks putih
-            padding: EdgeInsets.symmetric(vertical: 14),
+            padding: const EdgeInsets.symmetric(vertical: 14),
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           ),
@@ -491,15 +486,16 @@ class _OnlineExamResultAnswerScreenState
                         'student_id':
                             int.tryParse(entry.key.split(":")[0]) ?? 0,
                         'marks': int.tryParse(entry.value.text) ?? 0,
-                        "question_id": widget.questionId ?? 0,
+                        "question_id": widget.questionId,
                         "answer_id": int.tryParse(entry.key.split(":")[1]) ?? 0,
                         "is_answer":
                             (int.tryParse(entry.value.text) ?? 0) > 0 ? 1 : 0
                       };
                     }).toList())) {
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
+                  content: const Text(
                     "Nilai berhasil disimpan!",
                     style: TextStyle(color: Colors.white),
                   ),
@@ -507,9 +503,10 @@ class _OnlineExamResultAnswerScreenState
                 ),
               );
             } else {
+              if (!context.mounted) return;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
+                  content: const Text(
                     "Gagal menyimpan nilai!",
                     style: TextStyle(color: Colors.white),
                   ),
@@ -518,7 +515,7 @@ class _OnlineExamResultAnswerScreenState
               );
             }
           },
-          child: Text(
+          child: const Text(
             "Simpan",
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),

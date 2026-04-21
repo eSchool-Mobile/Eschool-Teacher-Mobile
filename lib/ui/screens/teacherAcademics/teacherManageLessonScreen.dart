@@ -10,15 +10,9 @@ import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditLessonScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherManageTopicScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customExpandableContainer.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customTitleDescriptionContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -31,15 +25,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 
 // Define our theme colors
-final Color maroonPrimary = Color(0xFF8B1F41);
-final Color maroonLight = Color(0xFFAC3B5C);
-final Color maroonDark = Color(0xFF6A0F2A);
-final Color accentColor = Color(0xFFF5EBE0);
-final Color bgColor = Color(0xFFFAF6F2);
-final Color cardColor = Colors.white;
-final Color textDarkColor = Color(0xFF2D2D2D);
-final Color textMediumColor = Color(0xFF717171);
-final Color borderColor = Color(0xFFE8E8E8);
+const Color maroonPrimary = Color(0xFF8B1F41);
+const Color maroonLight = Color(0xFFAC3B5C);
+const Color maroonDark = Color(0xFF6A0F2A);
+const Color accentColor = Color(0xFFF5EBE0);
+const Color bgColor = Color(0xFFFAF6F2);
+const Color cardColor = Colors.white;
+const Color textDarkColor = Color(0xFF2D2D2D);
+const Color textMediumColor = Color(0xFF717171);
+const Color borderColor = Color(0xFFE8E8E8);
 
 class TeacherManageLessonScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -86,7 +80,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
     // Initialize animations
     _fadeController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -97,11 +91,11 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
     _slideController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.2),
+      begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -213,17 +207,17 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Container(
-                    padding: EdgeInsets.symmetric(vertical: 12),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.check_circle_rounded,
+                        const Icon(Icons.check_circle_rounded,
                             color: Colors.white, size: 24),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Text(
                             "${Utils.getTranslatedLabel(lessonDeletedSuccessfullyKey)} ${lesson.name}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontFamily: 'Poppins',
@@ -235,9 +229,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                     ),
                   ),
                   backgroundColor: Colors.green.shade600,
-                  duration: Duration(seconds: 3),
+                  duration: const Duration(seconds: 3),
                   behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                   elevation: 6,
@@ -248,15 +243,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline_rounded, color: Colors.white),
-                        SizedBox(width: 12),
+                        const Icon(Icons.error_outline_rounded,
+                            color: Colors.white),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             "${Utils.getTranslatedLabel(unableToDeleteLessonKey)} ${lesson.name}",
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontFamily: 'Poppins',
@@ -268,9 +264,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                     ),
                   ),
                   backgroundColor: maroonPrimary,
-                  duration: Duration(seconds: 3),
+                  duration: const Duration(seconds: 3),
                   behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -282,7 +279,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
           builder: (context, state) {
             return TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: 600),
+              duration: const Duration(milliseconds: 600),
               curve: Curves.easeOutCubic,
               builder: (context, value, child) {
                 return Transform.translate(
@@ -294,21 +291,21 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 );
               },
               child: Container(
-                margin: EdgeInsets.only(bottom: 30),
+                margin: const EdgeInsets.only(bottom: 30),
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withOpacity(0.1),
+                      color: maroonPrimary.withValues(alpha: 0.1),
                       blurRadius: 25,
-                      offset: Offset(0, 12),
+                      offset: const Offset(0, 12),
                       spreadRadius: 0,
                     ),
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.03),
+                      color: Colors.black.withValues(alpha: 0.03),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     )
                   ],
                 ),
@@ -322,10 +319,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                         children: [
                           // Sophisticated background with animated gradient
                           AnimatedContainer(
-                            duration: Duration(milliseconds: 300),
+                            duration: const Duration(milliseconds: 300),
                             height: 130,
                             width: double.infinity,
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
                                   Color(0xFFF9F0F5),
@@ -348,8 +345,8 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withOpacity(0.08),
-                                    maroonPrimary.withOpacity(0.03)
+                                    maroonPrimary.withValues(alpha: 0.08),
+                                    maroonPrimary.withValues(alpha: 0.03)
                                   ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
@@ -367,8 +364,8 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                 shape: BoxShape.circle,
                                 gradient: LinearGradient(
                                   colors: [
-                                    maroonPrimary.withOpacity(0.06),
-                                    maroonPrimary.withOpacity(0.02)
+                                    maroonPrimary.withValues(alpha: 0.06),
+                                    maroonPrimary.withValues(alpha: 0.02)
                                   ],
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
@@ -385,16 +382,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                             child: Container(
                               height: 6,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [maroonPrimary, maroonLight],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: maroonPrimary.withOpacity(0.2),
+                                    color: maroonPrimary.withValues(alpha: 0.2),
                                     blurRadius: 10,
-                                    offset: Offset(0, 2),
+                                    offset: const Offset(0, 2),
                                     spreadRadius: -2,
                                   )
                                 ],
@@ -404,7 +401,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
                           // Enhanced content layout
                           Padding(
-                            padding: EdgeInsets.fromLTRB(26, 24, 20, 0),
+                            padding: const EdgeInsets.fromLTRB(26, 24, 20, 0),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -424,20 +421,20 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                           height: 1.2,
                                         ),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
 
                                       // Elegant topic counter with improved styling
                                       Container(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color:
-                                              maroonPrimary.withOpacity(0.08),
+                                          color: maroonPrimary.withValues(
+                                              alpha: 0.08),
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
-                                            color:
-                                                maroonPrimary.withOpacity(0.15),
+                                            color: maroonPrimary.withValues(
+                                                alpha: 0.15),
                                             width: 1,
                                           ),
                                         ),
@@ -467,7 +464,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     elevation: 12,
-                                    offset: Offset(0, 50),
+                                    offset: const Offset(0, 50),
                                     color: Colors.white,
                                     onSelected: (value) {
                                       if (value == 'edit') {
@@ -490,8 +487,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                           }
                                         });
                                       } else if (value == 'delete') {
-                                        if (state is DeleteLessonInProgress)
+                                        if (state is DeleteLessonInProgress) {
                                           return;
+                                        }
                                         HapticFeedback.mediumImpact();
                                         showDialog<bool>(
                                           context: context,
@@ -516,13 +514,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                         child: TweenAnimationBuilder<double>(
                                           tween: Tween<double>(
                                               begin: 0.9, end: 1.0),
-                                          duration: Duration(milliseconds: 200),
+                                          duration:
+                                              const Duration(milliseconds: 200),
                                           builder: (context, value, child) {
                                             return Transform.scale(
                                               scale: value,
                                               child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 8, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 8),
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
@@ -538,9 +539,11 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                     BoxShadow(
                                                       color: Colors
                                                           .blue.shade500
-                                                          .withOpacity(0.3),
+                                                          .withValues(
+                                                              alpha: 0.3),
                                                       blurRadius: 12,
-                                                      offset: Offset(0, 4),
+                                                      offset:
+                                                          const Offset(0, 4),
                                                       spreadRadius: -2,
                                                     )
                                                   ],
@@ -551,21 +554,23 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          EdgeInsets.all(6),
+                                                          const EdgeInsets.all(
+                                                              6),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
-                                                            .withOpacity(0.25),
+                                                            .withValues(
+                                                                alpha: 0.25),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(10),
                                                       ),
-                                                      child: Icon(
+                                                      child: const Icon(
                                                         Icons.edit_rounded,
                                                         color: Colors.white,
                                                         size: 20,
                                                       ),
                                                     ),
-                                                    SizedBox(width: 12),
+                                                    const SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
                                                         'Edit',
@@ -593,13 +598,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                         child: TweenAnimationBuilder<double>(
                                           tween: Tween<double>(
                                               begin: 0.9, end: 1.0),
-                                          duration: Duration(milliseconds: 300),
+                                          duration:
+                                              const Duration(milliseconds: 300),
                                           builder: (context, value, child) {
                                             return Transform.scale(
                                               scale: value,
                                               child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 8, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 8),
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
@@ -614,9 +622,11 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.red.shade500
-                                                          .withOpacity(0.3),
+                                                          .withValues(
+                                                              alpha: 0.3),
                                                       blurRadius: 12,
-                                                      offset: Offset(0, 4),
+                                                      offset:
+                                                          const Offset(0, 4),
                                                       spreadRadius: -2,
                                                     )
                                                   ],
@@ -627,22 +637,24 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          EdgeInsets.all(6),
+                                                          const EdgeInsets.all(
+                                                              6),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
-                                                            .withOpacity(0.25),
+                                                            .withValues(
+                                                                alpha: 0.25),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(10),
                                                       ),
-                                                      child: Icon(
+                                                      child: const Icon(
                                                         Icons
                                                             .delete_outline_rounded,
                                                         color: Colors.white,
                                                         size: 20,
                                                       ),
                                                     ),
-                                                    SizedBox(width: 12),
+                                                    const SizedBox(width: 12),
                                                     Expanded(
                                                       child: Text(
                                                         'Delete',
@@ -666,7 +678,8 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                     child: TweenAnimationBuilder<double>(
                                       tween:
                                           Tween<double>(begin: 0.8, end: 1.0),
-                                      duration: Duration(milliseconds: 300),
+                                      duration:
+                                          const Duration(milliseconds: 300),
                                       builder: (context, value, child) {
                                         return Transform.scale(
                                           scale: value,
@@ -703,16 +716,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: maroonPrimary
-                                                      .withOpacity(0.1),
+                                                      .withValues(alpha: 0.1),
                                                   blurRadius: 10,
-                                                  offset: Offset(0, 4),
+                                                  offset: const Offset(0, 4),
                                                   spreadRadius: -2,
                                                 ),
                                               ],
                                             ),
                                             child: state
                                                     is DeleteLessonInProgress
-                                                ? Center(
+                                                ? const Center(
                                                     child: SizedBox(
                                                       width: 20,
                                                       height: 20,
@@ -723,7 +736,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                       ),
                                                     ),
                                                   )
-                                                : Icon(
+                                                : const Icon(
                                                     Icons.more_vert_rounded,
                                                     color: maroonPrimary,
                                                     size: 22,
@@ -742,7 +755,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
                       // Enhanced description section with refined styling
                       Container(
-                        padding: EdgeInsets.fromLTRB(26, 22, 26, 24),
+                        padding: const EdgeInsets.fromLTRB(26, 22, 26, 24),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border(
@@ -758,18 +771,19 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                             Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: maroonPrimary.withOpacity(0.08),
+                                    color:
+                                        maroonPrimary.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.description_outlined,
                                     color: maroonPrimary,
                                     size: 18,
                                   ),
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 Text(
                                   Utils.getTranslatedLabel(descriptionKey),
                                   style: GoogleFonts.poppins(
@@ -780,12 +794,12 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                 ),
                               ],
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
                             // Elegant description container with enhanced readability
                             Container(
                               width: double.infinity,
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 20),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
@@ -812,7 +826,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                       // Study materials section with enhanced styling
                       if (lesson.studyMaterials.isNotEmpty)
                         Container(
-                          padding: EdgeInsets.all(26),
+                          padding: const EdgeInsets.all(26),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             border: Border(
@@ -828,18 +842,19 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               Row(
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: maroonPrimary.withOpacity(0.08),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.attach_file_rounded,
                                       color: maroonPrimary,
                                       size: 18,
                                     ),
                                   ),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Text(
                                     "Materi Pembelajaran",
                                     style: GoogleFonts.poppins(
@@ -848,26 +863,26 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                       color: textDarkColor,
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
 
                                   // Animated counter badge
                                   TweenAnimationBuilder<double>(
                                     tween: Tween<double>(begin: 0.8, end: 1.0),
-                                    duration: Duration(milliseconds: 300),
+                                    duration: const Duration(milliseconds: 300),
                                     builder: (context, value, child) {
                                       return Transform.scale(
                                         scale: value,
                                         child: Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color:
-                                                maroonPrimary.withOpacity(0.1),
+                                            color: maroonPrimary.withValues(
+                                                alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: maroonPrimary
-                                                  .withOpacity(0.2),
+                                              color: maroonPrimary.withValues(
+                                                  alpha: 0.2),
                                               width: 1,
                                             ),
                                           ),
@@ -885,7 +900,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
 
                               // Enhanced file list container
                               Container(
@@ -919,14 +934,14 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                 )
                                               : null,
                                         ),
-                                        padding: EdgeInsets.all(18),
+                                        padding: const EdgeInsets.all(18),
                                         child: Row(
                                           children: [
                                             // Enhanced file icon
                                             Container(
                                               width: 48,
                                               height: 48,
-                                              padding: EdgeInsets.all(12),
+                                              padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
                                                 color: Colors.white,
                                                 borderRadius:
@@ -934,9 +949,10 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Colors.black
-                                                        .withOpacity(0.05),
+                                                        .withValues(
+                                                            alpha: 0.05),
                                                     blurRadius: 10,
-                                                    offset: Offset(0, 3),
+                                                    offset: const Offset(0, 3),
                                                     spreadRadius: -2,
                                                   ),
                                                 ],
@@ -947,12 +963,12 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                               ),
                                               child: Icon(
                                                 _getFileTypeIcon(
-                                                    material.fileName ?? ""),
+                                                    material.fileName),
                                                 color: maroonPrimary,
                                                 size: 20,
                                               ),
                                             ),
-                                            SizedBox(width: 16),
+                                            const SizedBox(width: 16),
 
                                             // Enhanced file info
                                             Expanded(
@@ -961,7 +977,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    material.fileName ?? "File",
+                                                    material.fileName,
                                                     style: GoogleFonts.poppins(
                                                       fontSize: 14.5,
                                                       fontWeight:
@@ -972,12 +988,12 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
-                                                  SizedBox(height: 4),
+                                                  const SizedBox(height: 4),
                                                   Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                            vertical: 3),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 3),
                                                     decoration: BoxDecoration(
                                                       color:
                                                           Colors.grey.shade200,
@@ -987,8 +1003,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                     ),
                                                     child: Text(
                                                       _getFileType(
-                                                          material.fileName ??
-                                                              ""),
+                                                          material.fileName),
                                                       style:
                                                           GoogleFonts.poppins(
                                                         fontSize: 11,
@@ -1034,14 +1049,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                                       BoxShadow(
                                                         color: Colors
                                                             .blue.shade700
-                                                            .withOpacity(0.25),
+                                                            .withValues(
+                                                                alpha: 0.25),
                                                         blurRadius: 12,
-                                                        offset: Offset(0, 4),
+                                                        offset:
+                                                            const Offset(0, 4),
                                                         spreadRadius: -3,
                                                       ),
                                                     ],
                                                   ),
-                                                  child: Icon(
+                                                  child: const Icon(
                                                     Icons.download_rounded,
                                                     color: Colors.white,
                                                     size: 22,
@@ -1062,7 +1079,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
 
                       // Premium view topics button
                       Container(
-                        padding: EdgeInsets.all(26),
+                        padding: const EdgeInsets.all(26),
                         child: Material(
                           color: Colors.transparent,
                           child: InkWell(
@@ -1085,7 +1102,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                             borderRadius: BorderRadius.circular(20),
                             child: Ink(
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
+                                gradient: const LinearGradient(
                                   colors: [maroonPrimary, maroonDark],
                                   begin: Alignment.centerLeft,
                                   end: Alignment.centerRight,
@@ -1093,20 +1110,21 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: maroonPrimary.withOpacity(0.3),
+                                    color: maroonPrimary.withValues(alpha: 0.3),
                                     blurRadius: 18,
-                                    offset: Offset(0, 8),
+                                    offset: const Offset(0, 8),
                                     spreadRadius: -6,
                                   ),
                                 ],
                               ),
                               child: Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.symmetric(vertical: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(width: 14),
+                                    const SizedBox(width: 14),
                                     Text(
                                       "${Utils.getTranslatedLabel(viewTopicsKey)}${lesson.topicsCount != 0 ? ' (${lesson.topicsCount})' : ''}",
                                       style: GoogleFonts.poppins(
@@ -1116,8 +1134,8 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                         letterSpacing: 0.3,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
-                                    Icon(
+                                    const SizedBox(width: 10),
+                                    const Icon(
                                       Icons.arrow_forward_rounded,
                                       color: Colors.white,
                                       size: 18,
@@ -1200,7 +1218,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
       case 'wav':
         return 'Audio File';
       default:
-        return extension.toUpperCase() + ' File';
+        return '${extension.toUpperCase()} File';
     }
   }
 
@@ -1238,15 +1256,15 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.menu_book_outlined,
                             color: textMediumColor,
                             size: 80,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             Utils.getTranslatedLabel(noLessonKey),
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
@@ -1273,7 +1291,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Add initial padding at the top of the list
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Lessons
                       ...List.generate(
@@ -1313,14 +1331,14 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                           color: Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(40),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.menu_book_outlined,
                           size: 40,
                           color: maroonPrimary,
                         ),
                       ),
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         "Pilih kelas dan mata pelajaran terlebih dahulu",
                         textAlign: TextAlign.center,
                         style: TextStyle(
@@ -1346,13 +1364,13 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
         _selectedClassSection != null && _selectedSubject != null;
 
     if (!showButton) {
-      return SizedBox.shrink();
+      return const SizedBox.shrink();
     }
 
     return Align(
       alignment: Alignment.bottomCenter,
       child: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30),
           topRight: Radius.circular(30),
         ),
@@ -1374,19 +1392,19 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 ],
                 stops: const [0.0, 0.3, 0.6, 1.0],
               ),
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
               ),
               border: Border.all(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: maroonPrimary.withOpacity(0.3),
+                  color: maroonPrimary.withValues(alpha: 0.3),
                   blurRadius: 20,
-                  offset: Offset(0, -5),
+                  offset: const Offset(0, -5),
                   spreadRadius: -2,
                 ),
               ],
@@ -1397,7 +1415,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 // Positioned.fill(
                 //   child: CustomPaint(
                 //     painter: AppBarDecorationPainter(
-                //       color: Colors.white.withOpacity(0.07),
+                //       color: Colors.white.withValues(alpha: 0.07),
                 //     ),
                 //   ),
                 // ),
@@ -1407,7 +1425,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                   right: -40,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0.8, end: 1.0),
-                    duration: Duration(milliseconds: 2000),
+                    duration: const Duration(milliseconds: 2000),
                     curve: Curves.easeInOut,
                     builder: (context, value, child) {
                       return Container(
@@ -1417,9 +1435,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              Colors.white.withOpacity(0.2 * value),
-                              Colors.white.withOpacity(0.1 * value),
-                              Colors.white.withOpacity(0.0),
+                              Colors.white.withValues(alpha: 0.2 * value),
+                              Colors.white.withValues(alpha: 0.1 * value),
+                              Colors.white.withValues(alpha: 0.0),
                             ],
                             stops: const [0.0, 0.5, 1.0],
                           ),
@@ -1433,7 +1451,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                 Center(
                   child: TweenAnimationBuilder<double>(
                     tween: Tween<double>(begin: 0.95, end: 1.0),
-                    duration: Duration(milliseconds: 500),
+                    duration: const Duration(milliseconds: 500),
                     builder: (context, value, child) {
                       return Transform.scale(
                         scale: value,
@@ -1458,16 +1476,16 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               });
                             },
                             borderRadius: BorderRadius.circular(15),
-                            highlightColor: Colors.white.withOpacity(0.1),
-                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withValues(alpha: 0.1),
+                            splashColor: Colors.white.withValues(alpha: 0.2),
                             child: Container(
                               height: 56,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.12),
+                                color: Colors.white.withValues(alpha: 0.12),
                                 borderRadius: BorderRadius.circular(15),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1.5,
                                 ),
                               ),
@@ -1484,26 +1502,26 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            Colors.white.withOpacity(0.9),
-                                            Colors.white.withOpacity(0.4),
+                                            Colors.white.withValues(alpha: 0.9),
+                                            Colors.white.withValues(alpha: 0.4),
                                           ],
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.2),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.2),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.add_rounded,
                                         color: maroonPrimary,
                                         size: 20,
                                       ),
                                     ),
-                                    SizedBox(width: 12),
+                                    const SizedBox(width: 12),
                                     // Title text with glowing effect - same as AppBar title
                                     ShaderMask(
                                       shaderCallback: (Rect bounds) {
@@ -1512,7 +1530,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                           end: Alignment.bottomCenter,
                                           colors: [
                                             Colors.white,
-                                            Colors.white.withOpacity(0.9),
+                                            Colors.white.withValues(alpha: 0.9),
                                           ],
                                         ).createShader(bounds);
                                       },
@@ -1524,9 +1542,9 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
                                           shadows: [
-                                            Shadow(
+                                            const Shadow(
                                               color: Colors.black26,
-                                              offset: const Offset(0, 1),
+                                              offset: Offset(0, 1),
                                               blurRadius: 3,
                                             ),
                                           ],
@@ -1734,7 +1752,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
         content: Text(message),
         backgroundColor: maroonPrimary,
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -1842,7 +1860,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                           ),
                           Expanded(
                             child: ListView.builder(
-                              padding: EdgeInsets.only(
+                              padding: const EdgeInsets.only(
                                 top: 20,
                                 left: 16,
                                 right: 16,
@@ -1850,7 +1868,7 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                               ),
                               itemCount: 5,
                               itemBuilder: (context, index) =>
-                                  SkeletonLessonCard(),
+                                  const SkeletonLessonCard(),
                             ),
                           ),
                         ],
@@ -1887,14 +1905,15 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
                     ),
                     Expanded(
                       child: ListView.builder(
-                        padding: EdgeInsets.only(
+                        padding: const EdgeInsets.only(
                           top: 20,
                           left: 16,
                           right: 16,
                           bottom: 20,
                         ),
                         itemCount: 5,
-                        itemBuilder: (context, index) => SkeletonLessonCard(),
+                        itemBuilder: (context, index) =>
+                            const SkeletonLessonCard(),
                       ),
                     ),
                   ],

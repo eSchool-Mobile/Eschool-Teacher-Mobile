@@ -46,7 +46,7 @@ class CreateLessonCubit extends Cubit<CreateLessonState> {
       emit(CreateLessonSuccess());
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       emit(CreateLessonFailure(e.toString()));
     }

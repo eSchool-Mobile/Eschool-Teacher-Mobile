@@ -1,8 +1,5 @@
 import 'package:eschool_saas_staff/cubits/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:eschool_saas_staff/cubits/chat/chatParentsUserChatHistoryCubit.dart';
-import 'package:eschool_saas_staff/cubits/chat/chatStaffsUserChatHistoryCubit.dart';
-import 'package:eschool_saas_staff/cubits/chat/chatStudentsUserChatHistoryCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
 import 'package:eschool_saas_staff/cubits/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
@@ -159,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     Align(
                       alignment: Alignment.topCenter,
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: 120),
+                        padding: const EdgeInsets.only(bottom: 120),
                         child: IndexedStack(
                           index: _currentSelectedBottomNavIndex,
                           children: [

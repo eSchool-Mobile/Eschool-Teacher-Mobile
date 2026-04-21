@@ -1,13 +1,6 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/menusWithTitleContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customMenuTile.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -68,8 +61,10 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                   MediaQuery.of(context).size.height),
               painter: BackgroundPatternPainter(
                 animation: _animation,
-                primaryColor: AppColorPalette.primaryMaroon.withOpacity(0.03),
-                accentColor: AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                primaryColor:
+                    AppColorPalette.primaryMaroon.withValues(alpha: 0.03),
+                accentColor:
+                    AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
               ),
             );
           },
@@ -106,7 +101,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Jadwal",
                         icon: Icons.schedule,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 0,
                         menus: [
                           _buildMenuItem(
@@ -135,7 +131,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           context: context,
                           title: "Kehadiran", // Ganti dari attendanceKey
                           icon: Icons.people,
-                          iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                          iconColor:
+                              const Color(0xFF8B0000).withValues(alpha: 0.9),
                           index: 1,
                           menus: [
                             _buildMenuItem(
@@ -192,7 +189,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Mata Pelajaran", // Ganti dari subjectLessonKey
                         icon: Icons.book,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 2,
                         menus: [
                           _buildMenuItem(
@@ -221,7 +219,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Bank Soal",
                         icon: Icons.library_books,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 3,
                         menus: [
                           _buildMenuItem(
@@ -240,7 +239,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Tugas Siswa", // Ganti dari studentAssignmentKey
                         icon: Icons.assignment,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 4,
                         menus: [
                           _buildMenuItem(
@@ -260,7 +260,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Pengumuman", // Ganti dari messageKey
                         icon: Icons.announcement,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 5,
                         menus: [
                           _buildMenuItem(
@@ -280,7 +281,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Ujian Offline", // Ganti dari offlineExamKey
                         icon: Icons.school,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 6,
                         menus: [
                           _buildMenuItem(
@@ -308,7 +310,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Ujian Online",
                         icon: Icons.computer,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 7,
                         menus: [
                           _buildMenuItem(
@@ -341,7 +344,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                         context: context,
                         title: "Ekstrakurikuler",
                         icon: Icons.sports_soccer,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 8,
                         menus: [
                           _buildMenuItem(
@@ -389,20 +393,6 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
     );
   }
 
-  Widget _buildWelcomeSection(BuildContext context, bool isWalas) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMenuSection({
     required BuildContext context,
     required String title,
@@ -425,19 +415,19 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                 end: Alignment.bottomRight,
                 colors: [
                   Colors.white,
-                  Colors.white.withOpacity(0.95),
+                  Colors.white.withValues(alpha: 0.95),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withOpacity(0.1),
+                  color: iconColor.withValues(alpha: 0.1),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
               ],
               border: Border.all(
-                color: iconColor.withOpacity(0.05),
+                color: iconColor.withValues(alpha: 0.05),
                 width: 1,
               ),
             ),
@@ -455,14 +445,14 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              iconColor.withOpacity(0.2),
-                              iconColor.withOpacity(0.1),
+                              iconColor.withValues(alpha: 0.2),
+                              iconColor.withValues(alpha: 0.1),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: iconColor.withOpacity(0.1),
+                              color: iconColor.withValues(alpha: 0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -493,9 +483,9 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        iconColor.withOpacity(0.05),
-                        iconColor.withOpacity(0.2),
-                        iconColor.withOpacity(0.05),
+                        iconColor.withValues(alpha: 0.05),
+                        iconColor.withValues(alpha: 0.2),
+                        iconColor.withValues(alpha: 0.05),
                       ],
                     ),
                   ),
@@ -533,15 +523,15 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      AppColorPalette.primaryMaroon.withOpacity(0.05),
-                      AppColorPalette.secondaryMaroon.withOpacity(0.1),
+                      AppColorPalette.primaryMaroon.withValues(alpha: 0.05),
+                      AppColorPalette.secondaryMaroon.withValues(alpha: 0.1),
                     ],
                   )
                 : null,
             borderRadius: BorderRadius.circular(16),
             border: isHovered
                 ? Border.all(
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                     width: 1,
                   )
                 : null,
@@ -551,7 +541,7 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: onTap,
-              splashColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+              splashColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
               highlightColor: Colors.transparent,
               child: Padding(
                 padding:
@@ -563,14 +553,15 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isHovered
-                            ? AppColorPalette.primaryMaroon.withOpacity(0.1)
-                            : AppColorPalette.warmBeige.withOpacity(0.5),
+                            ? AppColorPalette.primaryMaroon
+                                .withValues(alpha: 0.1)
+                            : AppColorPalette.warmBeige.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                         boxShadow: isHovered
                             ? [
                                 BoxShadow(
                                   color: AppColorPalette.primaryMaroon
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -603,8 +594,8 @@ class _TeacherAcademicsContainerState extends State<TeacherAcademicsContainer>
                           isHovered ? 8.0 : 0.0, 0.0, 0.0),
                       child: Icon(
                         Icons.arrow_forward_ios,
-                        color: Colors.black
-                            .withOpacity(0.5), // Changed to black with opacity
+                        color: Colors.black.withValues(
+                            alpha: 0.5), // Changed to black with opacity
                         size: 16,
                       ),
                     ),

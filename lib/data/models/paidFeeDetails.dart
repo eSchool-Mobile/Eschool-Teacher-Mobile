@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/models/payment.dart';
+import 'package:flutter/foundation.dart';
 
 class PaidFeeDetails {
   final int? id;
@@ -44,28 +45,21 @@ class PaidFeeDetails {
   }
 
   factory PaidFeeDetails.fromJson(Map<String, dynamic> json) {
-    // Handle both the old and new API formats
     if (json.containsKey('payment_status')) {
-      // New API format
       final paymentStatus = PaymentStatus.fromJson(
           Map<String, dynamic>.from(json['payment_status'] ?? {}));
 
       final List<PaymentHistory> history = [];
       if (json.containsKey('payment_history')) {
         if (json['payment_history'] is List) {
-          // Handle case where payment_history is a List
           history.addAll((json['payment_history'] as List)
               .map((item) => PaymentHistory.fromJson(
                   Map<String, dynamic>.from(item ?? {})))
               .toList());
         } else if (json['payment_history'] is Map) {
-          // Handle case where payment_history is a Map (not a List as expected)
           try {
-            // If it's a map with numeric keys (like {0: {...}, 1: {...}}), try to extract values
             final Map<String, dynamic> paymentMap =
                 Map<String, dynamic>.from(json['payment_history']);
-
-            // Convert map values to a list if possible
             final values = paymentMap.values.toList();
             if (values.isNotEmpty) {
               history.addAll(values
@@ -74,8 +68,7 @@ class PaidFeeDetails {
                   .toList());
             }
           } catch (e) {
-            // If any error occurs during conversion, just leave history empty
-            print("Error parsing payment_history: $e");
+            debugPrint("Error parsing payment_history: $e");
           }
         }
       }
@@ -91,17 +84,16 @@ class PaidFeeDetails {
         paymentHistory: history,
       );
     } else {
-      // Old API format for backward compatibility
       return PaidFeeDetails(
         id: json['id'] as int?,
         feesId: json['fees_id'] as int?,
         studentId: json['student_id'] as int?,
         isFullyPaid: (json['is_fully_paid'] as int?) == 1,
         totalAmount: double.parse(
-            ((json['total_amount'] ?? json['amount'] ?? 0)).toString()),
+            (json['total_amount'] ?? json['amount'] ?? 0).toString()),
         paidAmount: double.parse((json['amount'] ?? 0).toString()),
-        remainingAmount: 0.0, // Not available in old API
-        paymentHistory: [], // Not available in old API
+        remainingAmount: 0.0,
+        paymentHistory: [],
       );
     }
   }

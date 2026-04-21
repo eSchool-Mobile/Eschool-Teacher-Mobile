@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/models/fee.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class FeeRepository {
   Future<List<Fee>> getFees() async {
@@ -14,10 +15,10 @@ class FeeRepository {
       }
 
       // Return empty list if data is not in the expected format
-      print("Unexpected API response format in getFees: ${result.keys}");
+      debugPrint("Unexpected API response format in getFees: ${result.keys}");
       return [];
     } catch (e) {
-      print("Error in getFees: $e");
+      debugPrint("Error in getFees: $e");
       throw ApiException(e.toString());
     }
   }
@@ -64,15 +65,15 @@ class FeeRepository {
           url: Api.getStudentsFeeStatus, queryParameters: queryParams);
 
       // Debug: Print the structure of the response
-      print("API Response Structure: ${result.keys}");
+      debugPrint("API Response Structure: ${result.keys}");
       if (result.containsKey('data')) {
-        print(
+        debugPrint(
             "Data Structure: ${result['data'] is Map ? 'Map' : (result['data'] is List ? 'List' : 'Other')}");
         if (result['data'] is Map && result['data'].containsKey('data')) {
-          print(
+          debugPrint(
               "Data.data Structure: ${result['data']['data'] is Map ? 'Map' : (result['data']['data'] is List ? 'List' : 'Other')}");
           if (result['data']['data'] is Map) {
-            print(
+            debugPrint(
                 "Data.data Keys: ${(result['data']['data'] as Map).keys.take(5).join(', ')}...");
           }
         }
@@ -93,7 +94,7 @@ class FeeRepository {
           }
         }
       } catch (e) {
-        print("Error parsing meta information: $e");
+        debugPrint("Error parsing meta information: $e");
         // Continue with default values if meta parsing fails
       }
 
@@ -107,14 +108,14 @@ class FeeRepository {
 
           // Case 1: dataList is a List (original format)
           if (dataList is List) {
-            print("API returned List for student data");
+            debugPrint("API returned List for student data");
             students = dataList
                 .map((studentDetails) {
                   try {
                     return StudentDetails.fromJson(
                         Map<String, dynamic>.from(studentDetails ?? {}));
                   } catch (e) {
-                    print("Error parsing individual student: $e");
+                    debugPrint("Error parsing individual student: $e");
                     return null;
                   }
                 })
@@ -124,8 +125,8 @@ class FeeRepository {
           }
           // Case 2: dataList is a Map with numeric keys (new format from API)
           else if (dataList is Map) {
-            print("API returned Map instead of List for student data");
-            print("Map keys: ${dataList.keys.take(5).join(', ')}");
+            debugPrint("API returned Map instead of List for student data");
+            debugPrint("Map keys: ${dataList.keys.take(5).join(', ')}");
 
             // Convert Map values to a list
             final values = dataList.values.toList();
@@ -137,12 +138,12 @@ class FeeRepository {
                         return StudentDetails.fromJson(
                             Map<String, dynamic>.from(studentDetails));
                       } else {
-                        print(
+                        debugPrint(
                             "Invalid student data type: ${studentDetails.runtimeType}");
                         return null;
                       }
                     } catch (e) {
-                      print("Error parsing individual student: $e");
+                      debugPrint("Error parsing individual student: $e");
                       return null;
                     }
                   })
@@ -151,18 +152,18 @@ class FeeRepository {
                   .toList();
             }
           } else {
-            print("Unexpected data type for students: ${dataList.runtimeType}");
+            debugPrint("Unexpected data type for students: ${dataList.runtimeType}");
           }
         } else {
-          print("Invalid API response structure: missing 'data.data'");
+          debugPrint("Invalid API response structure: missing 'data.data'");
           if (result.containsKey('data')) {
-            print("'data' is type: ${result['data'].runtimeType}");
+            debugPrint("'data' is type: ${result['data'].runtimeType}");
           }
         }
 
-        print("Successfully parsed ${students.length} students");
+        debugPrint("Successfully parsed ${students.length} students");
       } catch (e) {
-        print("Error parsing student data: $e");
+        debugPrint("Error parsing student data: $e");
         // Continue with empty list if student data parsing fails
       }
 
@@ -200,7 +201,7 @@ class FeeRepository {
                 0,
       );
     } catch (e) {
-      print("Error in getStudentsFeePaymentStatus: $e");
+      debugPrint("Error in getStudentsFeePaymentStatus: $e");
       throw ApiException(e.toString());
     }
   }
@@ -211,12 +212,12 @@ class FeeRepository {
     try {
       // Validate that at least one payment ID is provided
       if (paymentHistoryIds.isEmpty) {
-        print("Error: No payment records selected");
+        debugPrint("Error: No payment records selected");
         throw ApiException("No payment records selected");
       }
 
-      print("===== DOWNLOADING FEE RECEIPT =====");
-      print("Payment History IDs: $paymentHistoryIds");
+      debugPrint("===== DOWNLOADING FEE RECEIPT =====");
+      debugPrint("Payment History IDs: $paymentHistoryIds");
 
       // Convert the list of IDs to the correct format for API
       // The API expects payment_history_id[0], payment_history_id[1], etc format
@@ -225,7 +226,7 @@ class FeeRepository {
         params['payment_history_id[$i]'] = paymentHistoryIds[i].toString();
       }
 
-      print("Request Parameters: $params");
+      debugPrint("Request Parameters: $params");
 
       // Make the API request with payment history IDs
       final result = await Api.get(
@@ -233,30 +234,30 @@ class FeeRepository {
         queryParameters: params,
       );
 
-      print("Full Response Data: $result");
+      debugPrint("Full Response Data: $result");
 
       // Validate response format
       if (result['error'] == true) {
-        print("API returned error: ${result['message']}");
+        debugPrint("API returned error: ${result['message']}");
         throw ApiException(result['message'] ?? "Unknown error occurred");
       }
 
       if (!result.containsKey('pdf')) {
-        print(
+        debugPrint(
             "PDF key not found in response. Available keys: ${result.keys.toList()}");
         throw ApiException("Could not generate receipt. Please try again.");
       }
 
       final pdfData = (result['pdf'] ?? "").toString();
       if (pdfData.isEmpty) {
-        print("Error: Generated PDF data is empty");
+        debugPrint("Error: Generated PDF data is empty");
         throw ApiException("Generated receipt is empty");
       }
 
-      print("PDF data length: ${pdfData.length}");
+      debugPrint("PDF data length: ${pdfData.length}");
       return pdfData;
     } catch (e) {
-      print("Error in downloadStudentFeeReceipt: $e");
+      debugPrint("Error in downloadStudentFeeReceipt: $e");
       if (e is ApiException) {
         rethrow;
       }

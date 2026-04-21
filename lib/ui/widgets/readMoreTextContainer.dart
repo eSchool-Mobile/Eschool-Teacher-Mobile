@@ -30,7 +30,7 @@ class ReadMoreTextContainer extends StatelessWidget {
       trimExpandedText: '  lebih sedikit',
       style: textStyle ??
           TextStyle(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.75)),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75)),
       lessStyle: showLessTextStyle ?? showMoreAndReadLessTextStyle,
       moreStyle: showMoreTextStyle ?? showMoreAndReadLessTextStyle,
     );

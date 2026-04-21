@@ -32,7 +32,7 @@ class CustomTabContainer extends StatelessWidget {
             color: Theme.of(context)
                 .colorScheme
                 .primary
-                .withOpacity(isSelected ? 1.0 : 0.0),
+                .withValues(alpha: isSelected ? 1.0 : 0.0),
             border: Border.all(color: Theme.of(context).colorScheme.tertiary),
             borderRadius: BorderRadius.circular(8.0)),
         alignment: Alignment.center,

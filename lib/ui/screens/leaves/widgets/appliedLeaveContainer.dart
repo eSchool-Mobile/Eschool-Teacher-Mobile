@@ -7,7 +7,6 @@ import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/statusWithFadedBackgroundContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/textWithFadedBackgroundContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -78,7 +77,7 @@ class AppliedLeaveContainer extends StatelessWidget {
                     child: Row(
                       children: [
                         StatusWithFadedBackgroundContainer(
-                            backgroundColor: leaveStatusColor.withOpacity(0.1),
+                            backgroundColor: leaveStatusColor.withValues(alpha: 0.1),
                             textColor: leaveStatusColor,
                             titleKey: getLeaveRequestStatusKey(
                                 getLeaveRequestStatusEnumFromValue(
@@ -146,7 +145,7 @@ class AppliedLeaveDetailsBottomsheet extends StatelessWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.76)),
+                            .withValues(alpha: 0.76)),
                   ),
                   CustomTextContainer(
                     textKey: leaveRequest.reason ?? "",
@@ -193,7 +192,7 @@ class AppliedLeaveDetailsBottomsheet extends StatelessWidget {
                           ),
                           title: CustomTextContainer(
                             textKey:
-                                "${Utils.formatDate(DateTime.parse(leaveDetail.date!))}",
+                                Utils.formatDate(DateTime.parse(leaveDetail.date!)),
                             style: TextStyle(
                                 fontSize: Utils.getScaledValue(context, 15)),
                           ),

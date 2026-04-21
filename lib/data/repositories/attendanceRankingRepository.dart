@@ -3,17 +3,18 @@ import 'dart:convert';
 import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
 
 class AttendanceRankingRepository {
   Future<AttendanceRanking> getAttendanceRankings({String? search}) async {
     try {
-      final headers = await Api.headers();
+      final headers = Api.headers();
       
       // Pastikan URL valid
       final url = Uri.parse(Api.getAttendanceRanking);
       
-      print("Request URL: ${url.toString()}"); // Debug log
-      print("Headers: $headers"); // Debug log
+      debugPrint("Request URL: ${url.toString()}"); // Debug log
+      debugPrint("Headers: $headers"); // Debug log
 
       final response = await http.get(
         url,
@@ -25,8 +26,8 @@ class AttendanceRankingRepository {
         },
       );
 
-      print("Response status: ${response.statusCode}"); // Debug log
-      print("Response body: ${response.body}"); // Debug log
+      debugPrint("Response status: ${response.statusCode}"); // Debug log
+      debugPrint("Response body: ${response.body}"); // Debug log
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -38,7 +39,7 @@ class AttendanceRankingRepository {
         throw ApiException("Error ${response.statusCode}: ${response.body}");
       }
     } catch (e) {
-      print("Error fetching attendance ranking: $e");
+      debugPrint("Error fetching attendance ranking: $e");
       throw ApiException(e.toString());
     }
   }

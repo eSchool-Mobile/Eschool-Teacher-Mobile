@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'dart:ui';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/data/models/user.dart';
@@ -9,8 +7,10 @@ import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class CreateExtracurricular extends StatefulWidget {
+  const CreateExtracurricular({super.key});
+
   @override
-  _CreateExtracurricularState createState() => _CreateExtracurricularState();
+  State<CreateExtracurricular> createState() => _CreateExtracurricularState();
 }
 
 class _CreateExtracurricularState extends State<CreateExtracurricular>
@@ -27,21 +27,21 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
   late AnimationController _animationController;
   late AnimationController _pulseController;
 
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _highlightColor = Color(0xFFB84D4D);
+  static const Color _primaryColor = Color(0xFF7A1E23);
+  static const Color _highlightColor = Color(0xFFB84D4D);
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     // Fetch teachers/staff list
@@ -72,16 +72,16 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildBasicInfoSection(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildCoachSection(),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 _buildSubmitButton(),
               ],
             ),
@@ -93,24 +93,24 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
 
   Widget _buildBasicInfoSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Informasi Dasar',
               style: TextStyle(
                 fontSize: 18,
@@ -118,14 +118,14 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             _buildAnimatedTextField(
               controller: _nameController,
               label: 'Nama Ekstrakurikuler',
               icon: Icons.sports_soccer,
               validator: (v) => v!.isEmpty ? 'Nama wajib diisi' : null,
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildAnimatedTextField(
               controller: _descriptionController,
               label: 'Deskripsi',
@@ -142,24 +142,24 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
 
   Widget _buildCoachSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Pembina',
               style: TextStyle(
                 fontSize: 18,
@@ -167,7 +167,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             BlocConsumer<ExtracurricularCubit, ExtracurricularState>(
               listener: (context, state) {
                 if (state is TeachersStaffSuccess) {
@@ -179,7 +179,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
               },
               builder: (context, state) {
                 if (state is TeachersStaffLoading) {
-                  return Center(
+                  return const Center(
                     child: Padding(
                       padding: EdgeInsets.all(20),
                       child: CircularProgressIndicator(color: _primaryColor),
@@ -189,15 +189,15 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
 
                 if (state is TeachersStaffFailure) {
                   return Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.error_outline, color: Colors.red),
-                        SizedBox(width: 10),
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
                             'Gagal memuat daftar guru/staff',
@@ -210,7 +210,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                 .read<ExtracurricularCubit>()
                                 .getTeachersStaffList();
                           },
-                          child: Text('Coba Lagi'),
+                          child: const Text('Coba Lagi'),
                         ),
                       ],
                     ),
@@ -222,22 +222,22 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                     // Selected coach display
                     if (selectedCoachId != null)
                       Container(
-                        padding: EdgeInsets.all(12),
-                        margin: EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 12),
                         decoration: BoxDecoration(
-                          color: _primaryColor.withOpacity(0.1),
+                          color: _primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: _primaryColor, width: 2),
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(
+                            const CircleAvatar(
                               radius: 20,
                               backgroundColor: _primaryColor,
                               child: Icon(Icons.person,
                                   color: Colors.white, size: 20),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -251,7 +251,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                   ),
                                   Text(
                                     selectedCoachName ?? '',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
                                       color: _primaryColor,
@@ -261,7 +261,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.close, color: Colors.red),
+                              icon: const Icon(Icons.close, color: Colors.red),
                               onPressed: () {
                                 setState(() {
                                   selectedCoachId = null;
@@ -280,7 +280,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                         onTap: () => _showCoachSelectionDialog(),
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
-                          padding: EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             gradient: selectedCoachId == null
                                 ? LinearGradient(
@@ -293,8 +293,8 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                   )
                                 : LinearGradient(
                                     colors: [
-                                      _primaryColor.withOpacity(0.05),
-                                      _primaryColor.withOpacity(0.1),
+                                      _primaryColor.withValues(alpha: 0.05),
+                                      _primaryColor.withValues(alpha: 0.1),
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -303,16 +303,16 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                             border: Border.all(
                               color: selectedCoachId == null
                                   ? Colors.grey.shade300
-                                  : _primaryColor.withOpacity(0.5),
+                                  : _primaryColor.withValues(alpha: 0.5),
                               width: selectedCoachId == null ? 1.5 : 2,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: selectedCoachId == null
-                                    ? Colors.grey.withOpacity(0.1)
-                                    : _primaryColor.withOpacity(0.1),
+                                    ? Colors.grey.withValues(alpha: 0.1)
+                                    : _primaryColor.withValues(alpha: 0.1),
                                 blurRadius: 8,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -320,11 +320,11 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                             children: [
                               // Icon with modern styling
                               Container(
-                                padding: EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: selectedCoachId == null
                                       ? Colors.grey.shade200
-                                      : _primaryColor.withOpacity(0.1),
+                                      : _primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -337,7 +337,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                   size: 24,
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
 
                               // Text content with better hierarchy
                               Expanded(
@@ -359,7 +359,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                             : FontWeight.w600,
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       selectedCoachId == null
                                           ? 'Ketuk untuk memilih guru atau staff'
@@ -376,11 +376,11 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
 
                               // Arrow with modern styling
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   color: selectedCoachId == null
                                       ? Colors.grey.shade100
-                                      : _primaryColor.withOpacity(0.1),
+                                      : _primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
@@ -403,8 +403,8 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
             // Enhanced helper text with better styling
             if (selectedCoachId == null)
               Container(
-                margin: EdgeInsets.only(top: 12),
-                padding: EdgeInsets.all(12),
+                margin: const EdgeInsets.only(top: 12),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(12),
@@ -420,7 +420,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                       color: Colors.blue.shade600,
                       size: 16,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Pilih guru atau staff yang akan menjadi pelatih/pembina ekstrakurikuler ini',
@@ -473,17 +473,18 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
               children: [
                 // Modern Header with gradient background
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        _primaryColor.withOpacity(0.1),
-                        _primaryColor.withOpacity(0.05),
+                        _primaryColor.withValues(alpha: 0.1),
+                        _primaryColor.withValues(alpha: 0.05),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(24),
                       topRight: Radius.circular(24),
                     ),
@@ -492,23 +493,23 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                     children: [
                       // Modern icon container
                       Container(
-                        padding: EdgeInsets.all(12),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: _primaryColor.withOpacity(0.1),
+                          color: _primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.person_search_rounded,
                           color: _primaryColor,
                           size: 28,
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Pilih Pembina',
                               style: TextStyle(
                                 fontSize: 22,
@@ -516,7 +517,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                 color: _primaryColor,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               'Pilih guru atau staff sebagai pembina',
                               style: TextStyle(
@@ -535,7 +536,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                           onTap: () => Navigator.pop(context),
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
-                            padding: EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(12),
@@ -555,7 +556,8 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                 // Content area with padding
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 20),
                     child: Column(
                       children: [
                         // Modern Search field
@@ -564,9 +566,9 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withOpacity(0.1),
+                                color: Colors.grey.withValues(alpha: 0.1),
                                 blurRadius: 8,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -593,13 +595,13 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                 fontSize: 16,
                               ),
                               prefixIcon: Container(
-                                margin: EdgeInsets.all(12),
-                                padding: EdgeInsets.all(8),
+                                margin: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: _primaryColor.withOpacity(0.1),
+                                  color: _primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.search_rounded,
                                   color: _primaryColor,
                                   size: 20,
@@ -617,8 +619,8 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                         },
                                         borderRadius: BorderRadius.circular(8),
                                         child: Container(
-                                          margin: EdgeInsets.all(12),
-                                          padding: EdgeInsets.all(8),
+                                          margin: const EdgeInsets.all(12),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Colors.grey.shade100,
                                             borderRadius:
@@ -647,45 +649,45 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(16),
                                 borderSide: BorderSide(
-                                  color: _primaryColor.withOpacity(0.5),
+                                  color: _primaryColor.withValues(alpha: 0.5),
                                   width: 2,
                                 ),
                               ),
                               filled: true,
                               fillColor: Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 16,
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // User count with modern styling
                         Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           decoration: BoxDecoration(
-                            color: _primaryColor.withOpacity(0.05),
+                            color: _primaryColor.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _primaryColor.withOpacity(0.1),
+                              color: _primaryColor.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.people_rounded,
                                 color: _primaryColor,
                                 size: 16,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 '${filteredUsers.length} pembina',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: _primaryColor,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -694,7 +696,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                             ],
                           ),
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // User list
                         Expanded(
@@ -706,7 +708,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                       Icon(Icons.person_off,
                                           size: 64,
                                           color: Colors.grey.shade400),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                       Text(
                                         'Tidak ada guru/staff ditemukan',
                                         style: TextStyle(
@@ -725,10 +727,11 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                         selectedCoachId == user.id;
 
                                     return Container(
-                                      margin: EdgeInsets.only(bottom: 12),
+                                      margin: const EdgeInsets.only(bottom: 12),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? _primaryColor.withOpacity(0.1)
+                                            ? _primaryColor.withValues(
+                                                alpha: 0.1)
                                             : Colors.white,
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
@@ -740,10 +743,12 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                         boxShadow: [
                                           BoxShadow(
                                             color: isSelected
-                                                ? _primaryColor.withOpacity(0.1)
-                                                : Colors.grey.withOpacity(0.05),
+                                                ? _primaryColor.withValues(
+                                                    alpha: 0.1)
+                                                : Colors.grey
+                                                    .withValues(alpha: 0.05),
                                             blurRadius: 8,
-                                            offset: Offset(0, 2),
+                                            offset: const Offset(0, 2),
                                           ),
                                         ],
                                       ),
@@ -760,7 +765,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                           borderRadius:
                                               BorderRadius.circular(16),
                                           child: Padding(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 24, vertical: 16),
                                             child: Row(
                                               children: [
@@ -802,7 +807,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                                         : null,
                                                   ),
                                                 ),
-                                                SizedBox(width: 20),
+                                                const SizedBox(width: 20),
 
                                                 // User info
                                                 Expanded(
@@ -825,10 +830,11 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                                           fontSize: 16,
                                                         ),
                                                       ),
-                                                      SizedBox(height: 4),
+                                                      const SizedBox(height: 4),
                                                       Container(
-                                                        padding: EdgeInsets
-                                                            .symmetric(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
                                                           horizontal: 8,
                                                           vertical: 4,
                                                         ),
@@ -836,8 +842,9 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                                             BoxDecoration(
                                                           color: isSelected
                                                               ? _primaryColor
-                                                                  .withOpacity(
-                                                                      0.1)
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.1)
                                                               : Colors.grey
                                                                   .shade100,
                                                           borderRadius:
@@ -865,12 +872,14 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                                                 // Selection indicator
                                                 if (isSelected)
                                                   Container(
-                                                    padding: EdgeInsets.all(8),
-                                                    decoration: BoxDecoration(
+                                                    padding:
+                                                        const EdgeInsets.all(8),
+                                                    decoration:
+                                                        const BoxDecoration(
                                                       color: _primaryColor,
                                                       shape: BoxShape.circle,
                                                     ),
-                                                    child: Icon(
+                                                    child: const Icon(
                                                       Icons.check_rounded,
                                                       color: Colors.white,
                                                       size: 16,
@@ -926,7 +935,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: _primaryColor, width: 2),
+          borderSide: const BorderSide(color: _primaryColor, width: 2),
         ),
       ),
     );
@@ -934,20 +943,20 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
 
   Widget _buildSubmitButton() {
     return FadeInUp(
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
       child: Container(
         width: double.infinity,
         height: 55,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [_primaryColor, _highlightColor],
           ),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.3),
+              color: _primaryColor.withValues(alpha: 0.3),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -956,7 +965,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
           child: InkWell(
             onTap: _submitForm,
             borderRadius: BorderRadius.circular(15),
-            child: Center(
+            child: const Center(
               child: Text(
                 'Simpan Ekstrakurikuler',
                 style: TextStyle(
@@ -976,7 +985,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
     if (_formKey.currentState?.validate() ?? false) {
       if (selectedCoachId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('ID Pelatih tidak valid'),
             backgroundColor: Colors.red,
           ),
@@ -993,19 +1002,19 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
             elevation: 0,
             child: Center(
               child: Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -1041,6 +1050,8 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
               coachId: selectedCoachId!,
             );
 
+        if (!mounted) return;
+
         Navigator.pop(context); // Close loading dialog
 
         Get.dialog(
@@ -1048,7 +1059,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             child: Container(
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 color: Colors.white,
@@ -1057,19 +1068,19 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.check_circle,
                       color: Colors.green,
                       size: 60,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Berhasil!',
                     style: TextStyle(
                       fontSize: 24,
@@ -1077,7 +1088,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                       color: _primaryColor,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     'Ekstrakurikuler ditambahkan',
                     textAlign: TextAlign.center,
@@ -1086,7 +1097,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {
                       Get.back(); // Close dialog
@@ -1097,10 +1108,11 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 12),
                     ),
-                    child: Text('OK', style: TextStyle(color: Colors.white)),
+                    child:
+                        const Text('OK', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
@@ -1109,6 +1121,7 @@ class _CreateExtracurricularState extends State<CreateExtracurricular>
           barrierDismissible: false,
         );
       } catch (e) {
+        if (!mounted) return;
         Navigator.pop(context); // Close loading dialog
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

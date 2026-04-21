@@ -92,7 +92,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
   // Search functionality
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
   // Animation controller for FAB and other animated elements
@@ -184,8 +184,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
     }
 
     final monthNumber = getSelectedMonthNumber();
-    print(
-        "Getting staff payroll for: Year: ${_selectedYear ?? 0}, Month: $monthNumber (${_selectedMonthKey})");
+    debugPrint(
+        "Getting staff payroll for: Year: ${_selectedYear ?? 0}, Month: $monthNumber ($_selectedMonthKey)");
 
     context
         .read<StaffsPayrollCubit>()
@@ -217,12 +217,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withOpacity(0.0),
-                        Colors.white.withOpacity(0.8),
+                        Colors.white.withValues(alpha: 0.0),
+                        Colors.white.withValues(alpha: 0.8),
                         Colors.white,
                         Colors.white,
                       ],
-                      stops: [0.0, 0.2, 0.5, 1.0],
+                      stops: const [0.0, 0.2, 0.5, 1.0],
                     ),
                   ),
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
@@ -232,12 +232,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       gradient: LinearGradient(
                         colors: _selectedStaffs.isEmpty
                             ? [
-                                _maroonPrimary.withOpacity(0.5),
-                                _maroonLight.withOpacity(0.5),
+                                _maroonPrimary.withValues(alpha: 0.5),
+                                _maroonLight.withValues(alpha: 0.5),
                               ]
                             : [
                                 _maroonPrimary,
-                                Color(0xFF9A1E3C),
+                                const Color(0xFF9A1E3C),
                                 _maroonLight,
                               ],
                         begin: Alignment.centerLeft,
@@ -248,7 +248,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                           ? []
                           : [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 offset: const Offset(0, 4),
                                 blurRadius: 12,
                                 spreadRadius: 0,
@@ -260,8 +260,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(14),
-                        highlightColor: Colors.white.withOpacity(0.1),
-                        splashColor: Colors.white.withOpacity(0.2),
+                        highlightColor: Colors.white.withValues(alpha: 0.1),
+                        splashColor: Colors.white.withValues(alpha: 0.2),
                         onTap: () {
                           if (_selectedStaffs.isEmpty) {
                             return;
@@ -305,8 +305,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                           final monthNumber = getSelectedMonthNumber();
                           final year = _selectedYear ?? 0;
 
-                          print(
-                              "Submitting payrolls: Year: $year, Month: $monthNumber (${_selectedMonthKey})");
+                          debugPrint(
+                              "Submitting payrolls: Year: $year, Month: $monthNumber ($_selectedMonthKey)");
 
                           context
                               .read<SubmitStaffsPayRollCubit>()
@@ -333,8 +333,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                             },
                             child: submitStaffsPayRollState
                                     is SubmitStaffsPayRollInProgress
-                                ? Padding(
-                                    padding: const EdgeInsets.all(8.0),
+                                ? const Padding(
+                                    padding: EdgeInsets.all(8.0),
                                     key: ValueKey<String>("loading"),
                                     child: SizedBox(
                                       width: 24,
@@ -346,10 +346,10 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                     ),
                                   )
                                 : Row(
-                                    key: ValueKey<String>("button"),
+                                    key: const ValueKey<String>("button"),
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.check_circle_outline,
                                         color: Colors.white,
                                         size: 24,
@@ -366,12 +366,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                       ),
                                       if (_selectedStaffs.isNotEmpty)
                                         Container(
-                                          margin: EdgeInsets.only(left: 12),
-                                          padding: EdgeInsets.symmetric(
+                                          margin: const EdgeInsets.only(left: 12),
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
                                             color:
-                                                Colors.white.withOpacity(0.2),
+                                                Colors.white.withValues(alpha: 0.2),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                           ),
@@ -427,7 +427,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
           if (staffList.isEmpty && _searchQuery.isNotEmpty) {
             return Padding(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: 20, // Reduced padding since AppBar handles the top spacing
                 left: 16,
                 right: 16,
@@ -464,7 +464,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                 displacement: 100,
                 child: SingleChildScrollView(
                   controller: _scrollController,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     bottom: 100,
                     // Reduced top padding since AppBar handles spacing
                     top: 20,
@@ -499,15 +499,15 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       // Staff list with container styling
                       Container(
                         margin:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(16),
                           color: Colors.white,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
@@ -522,18 +522,18 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    _maroonPrimary.withOpacity(0.9),
+                                    _maroonPrimary.withValues(alpha: 0.9),
                                     _maroonPrimary,
                                     _maroonLight,
                                   ],
                                 ),
-                                borderRadius: BorderRadius.vertical(
+                                borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(16)),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _maroonPrimary.withOpacity(0.3),
+                                    color: _maroonPrimary.withValues(alpha: 0.3),
                                     blurRadius: 10,
-                                    offset: Offset(0, 3),
+                                    offset: const Offset(0, 3),
                                   ),
                                 ],
                               ),
@@ -541,12 +541,12 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                 children: [
                                   // Animated icon
                                   Container(
-                                    padding: EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.payments_rounded,
                                       color: Colors.white,
                                       size: 20,
@@ -578,7 +578,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                           style: GoogleFonts.poppins(
                                             fontSize: 12,
                                             color:
-                                                Colors.white.withOpacity(0.8),
+                                                Colors.white.withValues(alpha: 0.8),
                                           ),
                                         ),
                                       ],
@@ -590,7 +590,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
+                                      color: Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Center(
@@ -604,8 +604,8 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                       ),
                                     ),
                                   ).animate().fadeIn(duration: 400.ms).scale(
-                                      begin: Offset(0.8, 0.8),
-                                      end: Offset(1.0, 1.0),
+                                      begin: const Offset(0.8, 0.8),
+                                      end: const Offset(1.0, 1.0),
                                       duration: 400.ms),
                                 ],
                               ),
@@ -694,7 +694,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                       margin: const EdgeInsets.only(bottom: 2),
                                       decoration: BoxDecoration(
                                         color: isSelected
-                                            ? _maroonPrimary.withOpacity(0.05)
+                                            ? _maroonPrimary.withValues(alpha: 0.05)
                                             : Colors.white,
                                         border: index != staffList.length - 1
                                             ? Border(
@@ -742,7 +742,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                             // Empty state if no staff
                             if (staffList.isEmpty && _searchQuery.isEmpty)
                               Container(
-                                padding: EdgeInsets.symmetric(vertical: 40),
+                                padding: const EdgeInsets.symmetric(vertical: 40),
                                 child: Column(
                                   children: [
                                     Icon(
@@ -750,7 +750,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                       size: 60,
                                       color: Colors.grey[300],
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       'Belum ada data staff',
                                       style: GoogleFonts.poppins(
@@ -759,7 +759,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       'Data staff akan ditampilkan di sini',
                                       style: GoogleFonts.poppins(
@@ -827,20 +827,20 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       );
                     }
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     height: 48,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.calendar_today_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             (_selectedYear?.toString()) ?? 'Tahun',
@@ -851,7 +851,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Icon(
+                        const Icon(
                           Icons.arrow_drop_down,
                           color: Colors.white,
                           size: 20,
@@ -867,15 +867,15 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
             Container(
               height: 24,
               width: 1.5,
-              margin: EdgeInsets.symmetric(horizontal: 4),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.white.withOpacity(0.0),
-                    Colors.white.withOpacity(0.4),
-                    Colors.white.withOpacity(0.0),
+                    Colors.white.withValues(alpha: 0.0),
+                    Colors.white.withValues(alpha: 0.4),
+                    Colors.white.withValues(alpha: 0.0),
                   ],
                 ),
               ),
@@ -904,20 +904,20 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       );
                     }
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
                     height: 48,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.event_rounded,
                           color: Colors.white,
                           size: 16,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Flexible(
                           child: Text(
                             Utils.getTranslatedLabel(_selectedMonthKey),
@@ -928,7 +928,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        Icon(
+                        const Icon(
                           Icons.arrow_drop_down,
                           color: Colors.white,
                           size: 20,
@@ -958,7 +958,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -989,7 +989,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                 },
               ),
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
     );
   }
 
@@ -1101,7 +1101,7 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
         color: _maroonPrimary,
         displacement: 100,
         child: SingleChildScrollView(
-          padding: EdgeInsets.only(
+          padding: const EdgeInsets.only(
             bottom: 100,
             top: 20,
           ),
@@ -1131,15 +1131,15 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
 
               // Staff list container skeleton
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
-                      offset: Offset(0, 5),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -1152,10 +1152,10 @@ class _ManagePayrollsScreenState extends State<ManagePayrollsScreen>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
+                            const BorderRadius.vertical(top: Radius.circular(16)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),

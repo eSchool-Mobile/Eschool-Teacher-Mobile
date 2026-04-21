@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class TimeTableOfTeacherState {}
 
@@ -35,7 +36,7 @@ class TimeTableOfTeacherCubit extends Cubit<TimeTableOfTeacherState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TimeTableOfTeacherFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

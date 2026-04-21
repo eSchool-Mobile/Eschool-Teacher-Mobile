@@ -110,7 +110,7 @@ class _AllowancesAndDeductionsScreenState
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withOpacity(0.15),
+                  color: _maroonPrimary.withValues(alpha: 0.15),
                   blurRadius: 25,
                   offset: const Offset(0, 10),
                   spreadRadius: 0,
@@ -200,7 +200,7 @@ class _AllowancesAndDeductionsScreenState
     required Color color,
     required bool isPositive,
   }) {
-    final baseSalary = 5000000.0;
+    const baseSalary = 5000000.0;
     final percentage = (amount / baseSalary * 100);
 
     return Container(
@@ -208,10 +208,10 @@ class _AllowancesAndDeductionsScreenState
       decoration: BoxDecoration(
         color: _cardBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -225,7 +225,7 @@ class _AllowancesAndDeductionsScreenState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -238,7 +238,7 @@ class _AllowancesAndDeductionsScreenState
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -295,7 +295,7 @@ class _AllowancesAndDeductionsScreenState
   }
 
   Widget _buildNetSalaryCard(double allowances, double deductions) {
-    final baseSalary = 5000000.0;
+    const baseSalary = 5000000.0;
     final netSalary = baseSalary + allowances - deductions;
     final salaryIncrease = allowances - deductions;
     final increasePercentage = (salaryIncrease / baseSalary * 100);
@@ -315,7 +315,7 @@ class _AllowancesAndDeductionsScreenState
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: _maroonPrimary.withOpacity(0.3),
+            color: _maroonPrimary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -329,10 +329,10 @@ class _AllowancesAndDeductionsScreenState
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.account_balance_wallet_outlined,
                   color: Colors.white,
                   size: 28,
@@ -343,7 +343,7 @@ class _AllowancesAndDeductionsScreenState
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -365,7 +365,7 @@ class _AllowancesAndDeductionsScreenState
                 'Total Gaji Diterima',
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -374,8 +374,8 @@ class _AllowancesAndDeductionsScreenState
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: salaryIncrease >= 0
-                      ? Colors.green.withOpacity(0.2)
-                      : Colors.red.withOpacity(0.2),
+                      ? Colors.green.withValues(alpha: 0.2)
+                      : Colors.red.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -420,7 +420,7 @@ class _AllowancesAndDeductionsScreenState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -430,7 +430,7 @@ class _AllowancesAndDeductionsScreenState
                         'Gaji Pokok',
                         style: GoogleFonts.poppins(
                           fontSize: 10,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -443,7 +443,7 @@ class _AllowancesAndDeductionsScreenState
                             'Rp',
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -473,7 +473,7 @@ class _AllowancesAndDeductionsScreenState
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -483,7 +483,7 @@ class _AllowancesAndDeductionsScreenState
                         'Selisih',
                         style: GoogleFonts.poppins(
                           fontSize: 10,
-                          color: Colors.white.withOpacity(0.7),
+                          color: Colors.white.withValues(alpha: 0.7),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -496,7 +496,7 @@ class _AllowancesAndDeductionsScreenState
                             '${salaryIncrease >= 0 ? '+' : '-'}Rp',
                             style: GoogleFonts.poppins(
                               fontSize: 12,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -537,7 +537,7 @@ class _AllowancesAndDeductionsScreenState
     required bool isAllowance,
     required int index,
   }) {
-    final baseSalary = 5000000.0;
+    const baseSalary = 5000000.0;
     final percentage = (amount / baseSalary * 100);
 
     return Container(
@@ -561,14 +561,14 @@ class _AllowancesAndDeductionsScreenState
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: isAllowance
-                    ? _maroonLight.withOpacity(0.2)
-                    : _maroonDeep.withOpacity(0.2),
+                    ? _maroonLight.withValues(alpha: 0.2)
+                    : _maroonDeep.withValues(alpha: 0.2),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
                   color: (isAllowance ? _maroonLight : _maroonDeep)
-                      .withOpacity(0.06),
+                      .withValues(alpha: 0.06),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                   spreadRadius: 0,
@@ -583,7 +583,7 @@ class _AllowancesAndDeductionsScreenState
                   height: 50,
                   decoration: BoxDecoration(
                     color: (isAllowance ? _maroonLight : _maroonDeep)
-                        .withOpacity(0.1),
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
@@ -618,7 +618,7 @@ class _AllowancesAndDeductionsScreenState
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: (isAllowance ? _maroonLight : _maroonDeep)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -668,7 +668,7 @@ class _AllowancesAndDeductionsScreenState
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: (isAllowance ? _maroonLight : _maroonDeep)
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -760,7 +760,7 @@ class _AllowancesAndDeductionsScreenState
 
   // Helper function to calculate actual amount from StaffSalary
   double calculateActualAmount(dynamic item) {
-    final baseSalary = 5000000.0;
+    const baseSalary = 5000000.0;
 
     if (item.allowanceOrDeductionInPercentage()) {
       // If it's percentage-based, calculate from base salary
@@ -915,7 +915,7 @@ class _AllowancesAndDeductionsScreenState
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: _maroonPrimary.withOpacity(0.08),
+                        color: _maroonPrimary.withValues(alpha: 0.08),
                         blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
@@ -990,7 +990,7 @@ class _AllowancesAndDeductionsScreenState
               ),
             );
           }
-          return SkeletonAllowancesAndDeductionsCard()
+          return const SkeletonAllowancesAndDeductionsCard()
               .animate()
               .fadeIn(duration: 500.ms)
               .scaleXY(

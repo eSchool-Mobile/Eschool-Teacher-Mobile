@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class UserDetailsRepository {
   Future<({Map<String, String> enabledModules, List<String> permissions})>
@@ -17,11 +18,11 @@ class UserDetailsRepository {
     } catch (e) {
       // TEMPORARY WORKAROUND: If backend returns HTML/empty response, return empty permissions
       // This allows user to continue but with restricted access until backend is fixed
-      print(
+      debugPrint(
           '⚠️ WARNING: Failed to fetch permissions from backend: ${e.toString()}');
-      print(
+      debugPrint(
           '⚠️ WORKAROUND: Returning empty permissions. User access will be restricted.');
-      print(
+      debugPrint(
           '⚠️ ACTION REQUIRED: Backend must fix /api/staff/features-permission endpoint');
 
       // Return empty permissions instead of throwing error

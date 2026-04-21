@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class GeneralLeavesState {}
 
@@ -29,33 +30,33 @@ class GeneralLeavesCubit extends Cubit<GeneralLeavesState> {
 
   void getGeneralLeaves({required LeaveDayType leaveDayType}) async {
     try {
-      print('=== DEBUG: Fetching General Leaves ===');
-      print('LeaveDayType: $leaveDayType');
+      debugPrint('=== DEBUG: Fetching General Leaves ===');
+      debugPrint('LeaveDayType: $leaveDayType');
 
       emit(GeneralLeavesFetchInProgress());
-      print('State: GeneralLeavesFetchInProgress');
+      debugPrint('State: GeneralLeavesFetchInProgress');
 
       final leaves =
           await _leaveRepository.getLeaves(leaveDayType: leaveDayType);
-      print('Leaves fetched successfully');
-      print('Number of leaves: ${leaves.length}');
+      debugPrint('Leaves fetched successfully');
+      debugPrint('Number of leaves: ${leaves.length}');
       if (leaves.isEmpty) {
-        print('WARNING: No leaves found in response');
+        debugPrint('WARNING: No leaves found in response');
       } else {
-        print('First leave details: ${leaves.first.toString()}');
+        debugPrint('First leave details: ${leaves.first.toString()}');
       }
 
       emit(GeneralLeavesFetchSuccess(leaves: leaves));
-      print('State: GeneralLeavesFetchSuccess with ${leaves.length} leaves');
-      print('=== DEBUG: End Fetching General Leaves ===\n');
+      debugPrint('State: GeneralLeavesFetchSuccess with ${leaves.length} leaves');
+      debugPrint('=== DEBUG: End Fetching General Leaves ===\n');
     } catch (e) {
-      print('=== DEBUG: Error Fetching General Leaves ===');
-      print('Error: $e');
-      print('Stack trace:\n${StackTrace.current}');
-      print('=== DEBUG: End Error ===\n');
+      debugPrint('=== DEBUG: Error Fetching General Leaves ===');
+      debugPrint('Error: $e');
+      debugPrint('Stack trace:\n${StackTrace.current}');
+      debugPrint('=== DEBUG: End Error ===\n');
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(GeneralLeavesFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

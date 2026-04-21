@@ -85,7 +85,7 @@ class StudentRepository {
               data: {'count': studentsData.length});
         } else if (students is List) {
           // Non-paginated students structure: data.students
-          studentsData = students as List;
+          studentsData = students;
           AppLogger.debug(
               scope, 'Using non-paginated students response structure',
               data: {'count': studentsData.length});
@@ -113,7 +113,7 @@ class StudentRepository {
             scope, 'Empty or invalid data structure, using empty list',
             data: {
               'responseData':
-                  result['data']?.toString()?.substring(0, 200) ?? 'null',
+                  result['data']?.toString().substring(0, 200) ?? 'null',
               'dataType': result['data']?.runtimeType.toString() ?? 'null',
               'dataKeys': result['data'] is Map
                   ? (result['data'] as Map).keys.toList()
@@ -124,7 +124,7 @@ class StudentRepository {
       AppLogger.info(scope, 'Request success', data: {
         'studentsCount': studentsData.length,
         'sampleData': studentsData.isNotEmpty
-            ? studentsData.first.toString().substring(0, 100) + '...'
+            ? '${studentsData.first.toString().substring(0, 100)}...'
             : null,
       });
 
@@ -149,7 +149,7 @@ class StudentRepository {
             'Server encountered an error. Please try again or contact administrator.');
       }
 
-      throw e;
+      rethrow;
     } on Exception catch (e, stackTrace) {
       AppLogger.error(scope, 'Exception occurred',
           error: e.toString(), stack: stackTrace);
@@ -282,7 +282,7 @@ class StudentRepository {
     } catch (e, stk) {
       AppLogger.error(scope, 'Error occurred', error: e.toString(), stack: stk);
       if (kDebugMode) {
-        print(stk.toString());
+        debugPrint(stk.toString());
       }
       throw ApiException(e.toString());
     }
@@ -458,7 +458,7 @@ class StudentRepository {
           .toList();
     } catch (e, stk) {
       if (kDebugMode) {
-        print(stk.toString());
+        debugPrint(stk.toString());
       }
       throw ApiException(e.toString());
     }

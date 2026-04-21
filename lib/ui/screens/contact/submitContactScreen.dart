@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/contact/submitContactCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/contactRepository.dart';
 import 'package:eschool_saas_staff/models/contact.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:ui';
 
 class SubmitContactScreen extends StatefulWidget {
   const SubmitContactScreen({super.key});
@@ -85,7 +83,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
               listener: (context, state) {
                 if (state is SubmitContactSuccess) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Kontak berhasil dikirim!'),
                       backgroundColor: Colors.green,
                     ),
@@ -129,7 +127,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -144,7 +142,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: _primaryColor.withOpacity(0.1),
+                  color: _primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -287,7 +285,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.1) : Colors.grey[50],
+          color: isSelected ? color.withValues(alpha: 0.1) : Colors.grey[50],
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? color : Colors.grey[300]!,
@@ -393,7 +391,7 @@ class _SubmitContactScreenState extends State<SubmitContactScreen>
             ),
             boxShadow: [
               BoxShadow(
-                color: _primaryColor.withOpacity(0.3),
+                color: _primaryColor.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),

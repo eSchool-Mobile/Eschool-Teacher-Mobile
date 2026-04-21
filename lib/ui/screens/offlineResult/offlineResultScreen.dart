@@ -4,7 +4,6 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/offlineExam.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/studentOfflineResultContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
@@ -14,7 +13,6 @@ import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/route_manager.dart';
@@ -164,7 +162,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 4,
                         offset: const Offset(0, 2),
@@ -177,7 +175,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                       Icon(
                         Icons.info_outline,
                         size: 64,
-                        color: maroonPrimary.withOpacity(0.7),
+                        color: maroonPrimary.withValues(alpha: 0.7),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -349,7 +347,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
         onTap: () {
           if (hasSessionYears) {
             final successState =
-                state as OfflineExamsWithClassesAndSessionYearsFetchSuccess;
+                state;
             Utils.showBottomSheet(
                 child: FilterSelectionBottomsheet<SessionYear>(
                   onSelection: (value) {
@@ -377,7 +375,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
         onTap: () {
           if (hasOfflineExams) {
             final successState =
-                state as OfflineExamsWithClassesAndSessionYearsFetchSuccess;
+                state;
             Utils.showBottomSheet(
                 child: FilterSelectionBottomsheet<OfflineExam>(
                     onSelection: (value) {
@@ -528,7 +526,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                     Container(
                       width: 24,
                       height: 24,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -552,7 +550,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(
+        padding: const EdgeInsets.only(
           top: 0,
         ),
         child: Container(
@@ -783,7 +781,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 1,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
@@ -796,7 +794,7 @@ class _OfflineResultScreenState extends State<OfflineResultScreen>
                         Icon(
                           Icons.assignment_outlined,
                           size: 64,
-                          color: maroonPrimary.withOpacity(0.7),
+                          color: maroonPrimary.withValues(alpha: 0.7),
                         ),
                         const SizedBox(height: 16),
                         Text(

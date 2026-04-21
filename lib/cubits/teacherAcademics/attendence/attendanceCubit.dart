@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/repositories/attendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class AttendanceState {}
 
@@ -43,7 +44,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
     required DateTime date,
     required int? type,
   }) async {
-    print(
+    debugPrint(
         "fetchAttendance dipanggil: classSectionId=$classSectionId, date=$date, type=$type");
     emit(AttendanceFetchInProgress());
     try {
@@ -53,7 +54,7 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         type: type,
       );
 
-      print("API Response1: ${result.attendance}");
+      debugPrint("API Response1: ${result.attendance}");
 
       emit(
         AttendanceFetchSuccess(
@@ -63,11 +64,11 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         ),
       );
     } catch (e, stackTrace) {
-      print("Error fetching attendance: $e");
-      print("Stack trace: $stackTrace");
+      debugPrint("Error fetching attendance: $e");
+      debugPrint("Stack trace: $stackTrace");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(AttendanceFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

@@ -52,13 +52,13 @@ class _AllowancesAndDeductionsContainerState
   @override
   Widget build(BuildContext context) {
     // Enhanced Color Palette - More refined and accessible
-    final primaryGreen =
-        const Color(0xFF059669); // Professional green for allowances
-    final primaryRed = const Color(0xFFDC2626); // Clear red for deductions
-    final softBackground = const Color(0xFFF8FAFC); // Clean background
+    const primaryGreen =
+        Color(0xFF059669); // Professional green for allowances
+    const primaryRed = Color(0xFFDC2626); // Clear red for deductions
+    const softBackground = Color(0xFFF8FAFC); // Clean background
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -86,7 +86,7 @@ class _AllowancesAndDeductionsContainerState
                   // Content wrapper for better organization
                   Container(
                     margin:
-                        EdgeInsets.symmetric(horizontal: 4), // Refined margins
+                        const EdgeInsets.symmetric(horizontal: 4), // Refined margins
                     child: Column(
                       children: [
                         // Allowances Section with improved layout
@@ -208,15 +208,15 @@ class _AllowancesAndDeductionsContainerState
     return GestureDetector(
       onTap: onToggle,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.15), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.08),
+              color: color.withValues(alpha: 0.08),
               blurRadius: 12,
               offset: const Offset(0, 4),
               spreadRadius: 0,
@@ -233,10 +233,10 @@ class _AllowancesAndDeductionsContainerState
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color.withOpacity(0.1), color.withOpacity(0.2)],
+                  colors: [color.withValues(alpha: 0.1), color.withValues(alpha: 0.2)],
                 ),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: color.withOpacity(0.3), width: 1),
+                border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
               ),
               child: Icon(
                 icon,
@@ -281,12 +281,12 @@ class _AllowancesAndDeductionsContainerState
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color, color.withOpacity(0.8)],
+                  colors: [color, color.withValues(alpha: 0.8)],
                 ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.3),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -312,7 +312,7 @@ class _AllowancesAndDeductionsContainerState
                 width: 32,
                 height: 32,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -330,17 +330,17 @@ class _AllowancesAndDeductionsContainerState
 
   // Enhanced empty state with improved design and messaging
   Widget _buildEmptyState(BuildContext context) {
-    final primaryColor = const Color(0xFF6B7280);
+    const primaryColor = Color(0xFF6B7280);
 
     return Container(
-      margin: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: primaryColor.withOpacity(0.1), width: 1),
+        border: Border.all(color: primaryColor.withValues(alpha: 0.1), width: 1),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.08),
+            color: primaryColor.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
@@ -359,7 +359,7 @@ class _AllowancesAndDeductionsContainerState
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -367,10 +367,10 @@ class _AllowancesAndDeductionsContainerState
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.15),
+                    color: primaryColor.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.account_balance_wallet_outlined,
                     size: 28,
                     color: primaryColor,
@@ -426,7 +426,7 @@ class _AllowancesAndDeductionsContainerState
                   width: 30,
                   height: 2,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -435,7 +435,7 @@ class _AllowancesAndDeductionsContainerState
                   width: 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.5),
+                    color: primaryColor.withValues(alpha: 0.5),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -444,7 +444,7 @@ class _AllowancesAndDeductionsContainerState
                   width: 30,
                   height: 2,
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -469,12 +469,12 @@ class _AllowancesAndDeductionsContainerState
     final totalDeductions = calculateTotalAmount(widget.deductions);
 
     return Container(
-      margin: EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1F2937).withOpacity(0.1),
+            color: const Color(0xFF1F2937).withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 0,
@@ -484,14 +484,14 @@ class _AllowancesAndDeductionsContainerState
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFF70122E), // Darker maroon
-                const Color(0xFF8B1E3F), // Deep maroon
-                const Color(0xFF9D2A4C), // Medium maroon
+                Color(0xFF70122E), // Darker maroon
+                Color(0xFF8B1E3F), // Deep maroon
+                Color(0xFF9D2A4C), // Medium maroon
               ],
               stops: [0.0, 0.6, 1.0],
             ),
@@ -501,7 +501,7 @@ class _AllowancesAndDeductionsContainerState
               // Subtle background pattern
               Positioned.fill(
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     image: DecorationImage(
                       image: NetworkImage(
                           'data:image/svg+xml,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>'),
@@ -522,14 +522,14 @@ class _AllowancesAndDeductionsContainerState
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.15),
+                            color: Colors.white.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.analytics_outlined,
                             color: Colors.white,
                             size: 20,
@@ -564,14 +564,14 @@ class _AllowancesAndDeductionsContainerState
                           child: Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -588,13 +588,13 @@ class _AllowancesAndDeductionsContainerState
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: allowanceColor.withOpacity(0.3),
+                                        color: allowanceColor.withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.add_circle_outline_rounded,
                                     color: Colors.white,
                                     size: 24,
@@ -606,7 +606,7 @@ class _AllowancesAndDeductionsContainerState
                                   "Tunjangan",
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -625,11 +625,11 @@ class _AllowancesAndDeductionsContainerState
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: allowanceColor.withOpacity(0.2),
+                                      color: allowanceColor.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                           color:
-                                              allowanceColor.withOpacity(0.3),
+                                              allowanceColor.withValues(alpha: 0.3),
                                           width: 1),
                                     ),
                                     child: Text(
@@ -658,14 +658,14 @@ class _AllowancesAndDeductionsContainerState
                           child: Container(
                             padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   width: 1),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -681,13 +681,13 @@ class _AllowancesAndDeductionsContainerState
                                     borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: deductionColor.withOpacity(0.3),
+                                        color: deductionColor.withValues(alpha: 0.3),
                                         blurRadius: 8,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.remove_circle_outline_rounded,
                                     color: Colors.white,
                                     size: 24,
@@ -699,7 +699,7 @@ class _AllowancesAndDeductionsContainerState
                                   "Potongan",
                                   style: GoogleFonts.poppins(
                                     fontSize: 12,
-                                    color: Colors.white.withOpacity(0.9),
+                                    color: Colors.white.withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -718,11 +718,11 @@ class _AllowancesAndDeductionsContainerState
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: deductionColor.withOpacity(0.2),
+                                      color: deductionColor.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                           color:
-                                              deductionColor.withOpacity(0.3),
+                                              deductionColor.withValues(alpha: 0.3),
                                           width: 1),
                                     ),
                                     child: Text(
@@ -775,20 +775,20 @@ class _AllowancesAndDeductionsContainerState
     }
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.12), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.12), width: 1),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.08),
+            color: color.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 6),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 8,
             offset: const Offset(0, 2),
             spreadRadius: 0,
@@ -812,12 +812,12 @@ class _AllowancesAndDeductionsContainerState
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        color.withOpacity(0.15),
-                        color.withOpacity(0.25),
+                        color.withValues(alpha: 0.15),
+                        color.withValues(alpha: 0.25),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: color.withOpacity(0.3), width: 1),
+                    border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
                   ),
                   child: Icon(
                     isAllowance
@@ -885,13 +885,13 @@ class _AllowancesAndDeductionsContainerState
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: isPercentage
-                        ? const Color(0xFF3B82F6).withOpacity(0.1)
-                        : const Color(0xFF10B981).withOpacity(0.1),
+                        ? const Color(0xFF3B82F6).withValues(alpha: 0.1)
+                        : const Color(0xFF10B981).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isPercentage
-                          ? const Color(0xFF3B82F6).withOpacity(0.3)
-                          : const Color(0xFF10B981).withOpacity(0.3),
+                          ? const Color(0xFF3B82F6).withValues(alpha: 0.3)
+                          : const Color(0xFF10B981).withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -933,12 +933,12 @@ class _AllowancesAndDeductionsContainerState
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        color.withOpacity(0.1),
-                        color.withOpacity(0.15),
+                        color.withValues(alpha: 0.1),
+                        color.withValues(alpha: 0.15),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: color.withOpacity(0.2), width: 1),
+                    border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -948,7 +948,7 @@ class _AllowancesAndDeductionsContainerState
                           "${staffSalary.percentage?.toStringAsFixed(1) ?? "0"}%",
                           style: GoogleFonts.poppins(
                             fontSize: 12,
-                            color: color.withOpacity(0.8),
+                            color: color.withValues(alpha: 0.8),
                             fontWeight: FontWeight.w500,
                           ),
                         ),

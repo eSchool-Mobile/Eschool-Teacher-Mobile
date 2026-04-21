@@ -6,10 +6,6 @@ import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAnd
 import 'package:eschool_saas_staff/data/models/notificationDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/widgets/announcementDescriptionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/widgets/deleteNotificationConfirmationDialog.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/readMoreTextButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
@@ -34,13 +30,12 @@ class _AdminNotificationDetailsContainerState
     extends State<AdminNotificationDetailsContainer>
     with TickerProviderStateMixin {
   late final AnimationController _animationController =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 400));
 
   late final AnimationController _deleteAnimationController =
-      AnimationController(vsync: this, duration: Duration(milliseconds: 200));
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 200));
 
   final Color _maroonPrimary = const Color(0xFF800020);
-  final Color _maroonLight = const Color(0xFFAA6976);
 
   bool _isHovering = false;
 
@@ -95,7 +90,7 @@ class _AdminNotificationDetailsContainerState
         onEnter: (_) => setState(() => _isHovering = true),
         onExit: (_) => setState(() => _isHovering = false),
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: _isHovering ? Colors.grey.shade50 : Colors.white,
             border: Border(
@@ -118,7 +113,7 @@ class _AdminNotificationDetailsContainerState
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: _maroonPrimary.withOpacity(0.1),
+                        color: _maroonPrimary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       alignment: Alignment.center,
@@ -139,7 +134,7 @@ class _AdminNotificationDetailsContainerState
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: _maroonPrimary.withOpacity(0.08),
+                        color: _maroonPrimary.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -190,7 +185,7 @@ class _AdminNotificationDetailsContainerState
                                   height: 28,
                                   decoration: BoxDecoration(
                                     color: _animationController.value > 0
-                                        ? _maroonPrimary.withOpacity(0.1)
+                                        ? _maroonPrimary.withValues(alpha: 0.1)
                                         : Colors.transparent,
                                     shape: BoxShape.circle,
                                   ),
@@ -335,7 +330,7 @@ class _AdminNotificationDetailsContainerState
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -379,7 +374,7 @@ class _AdminNotificationDetailsContainerState
                                                         (context, url, error) =>
                                                             Container(
                                                       color: Colors.grey[200],
-                                                      child: Icon(Icons.error,
+                                                      child: const Icon(Icons.error,
                                                           color: Colors.red),
                                                     ),
                                                   ),
@@ -391,7 +386,7 @@ class _AdminNotificationDetailsContainerState
                                                   icon: Container(
                                                     padding:
                                                         const EdgeInsets.all(8),
-                                                    decoration: BoxDecoration(
+                                                    decoration: const BoxDecoration(
                                                       color: Colors.white,
                                                       shape: BoxShape.circle,
                                                     ),
@@ -405,7 +400,7 @@ class _AdminNotificationDetailsContainerState
                                         );
                                       },
                                       splashColor:
-                                          _maroonPrimary.withOpacity(0.1),
+                                          _maroonPrimary.withValues(alpha: 0.1),
                                     ),
                                   ),
                                 ),
@@ -459,16 +454,16 @@ class _AdminNotificationDetailsContainerState
                                             horizontal: 16, vertical: 10),
                                         decoration: BoxDecoration(
                                           color: Color.lerp(
-                                            Colors.red.withOpacity(0.08),
-                                            Colors.red.withOpacity(0.15),
+                                            Colors.red.withValues(alpha: 0.08),
+                                            Colors.red.withValues(alpha: 0.15),
                                             _deleteAnimationController.value,
                                           ),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
                                             color: Color.lerp(
-                                              Colors.red.withOpacity(0.2),
-                                              Colors.red.withOpacity(0.3),
+                                              Colors.red.withValues(alpha: 0.2),
+                                              Colors.red.withValues(alpha: 0.3),
                                               _deleteAnimationController.value,
                                             )!,
                                           ),
@@ -483,7 +478,7 @@ class _AdminNotificationDetailsContainerState
                                             ),
                                             AnimatedContainer(
                                               duration:
-                                                  Duration(milliseconds: 200),
+                                                  const Duration(milliseconds: 200),
                                               width: _deleteAnimationController
                                                           .value >
                                                       0
@@ -529,8 +524,8 @@ class _AdminNotificationDetailsContainerState
         effects: hasImage
             ? [
                 ScaleEffect(
-                  begin: Offset(0.98, 0.98),
-                  end: Offset(1, 1),
+                  begin: const Offset(0.98, 0.98),
+                  end: const Offset(1, 1),
                   duration: 300.ms,
                   curve: Curves.easeOutQuad,
                 )

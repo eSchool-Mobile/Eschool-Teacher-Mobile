@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
-import 'package:get/get.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:intl/intl.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -13,8 +11,10 @@ import 'dart:math';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 
 class CreateOnlineExam extends StatefulWidget {
+  const CreateOnlineExam({super.key});
+
   @override
-  _CreateOnlineExamState createState() => _CreateOnlineExamState();
+  State<CreateOnlineExam> createState() => _CreateOnlineExamState();
 }
 
 class _CreateOnlineExamState extends State<CreateOnlineExam>
@@ -35,10 +35,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   TimeOfDay? startTime;
   // Animation controllers for the UI elements
   late AnimationController _animationController; // For the AppBar
-  late AnimationController _pulseController; // For pulsing effects
-  late Animation<double> _pulseAnimation;
   // Theme colors for elements within the screen
-  final Color _highlightColor = Color(0xFFB84D4D);
 
   // Text controllers
   final TextEditingController _titleController = TextEditingController();
@@ -62,18 +59,10 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
     // Initialize animation controllers
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation =
-        CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut);
   }
 
   @override
@@ -83,30 +72,30 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         title: 'Buat Ujian Online',
         icon: Icons.assignment,
         fabAnimationController: _animationController,
-        primaryColor: Color(0xFF7A1E23),
-        lightColor: Color(0xFFB84D4D),
+        primaryColor: const Color(0xFF7A1E23),
+        lightColor: const Color(0xFFB84D4D),
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 FadeInDown(
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   child: _buildBasicInfoSection(),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 FadeInDown(
-                  duration: Duration(milliseconds: 600),
-                  delay: Duration(milliseconds: 100),
+                  duration: const Duration(milliseconds: 600),
+                  delay: const Duration(milliseconds: 100),
                   child: _buildExamDetailsSection(),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildSubmitButton(),
               ],
             ),
@@ -119,12 +108,8 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   @override
   void dispose() {
     // Stop animations before disposing
-    _animationController.stop();
-    _pulseController.stop();
-
     // Dispose animation controllers
     _animationController.dispose();
-    _pulseController.dispose();
 
     // Dispose text controllers
     _titleController.dispose();
@@ -136,42 +121,6 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
   }
 
   // Header methods copied from onlineExamScreen
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -258,7 +207,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
-        ), 
+        ),
         filled: true,
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
@@ -272,16 +221,16 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
   Widget _buildBasicInfoSection() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -296,10 +245,10 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           // Subject dropdown moved above title input
           _buildSubjectDropdown(),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _titleController,
             label: 'Judul Ujian',
@@ -308,7 +257,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             minLines: 2,
             keyboardType: TextInputType.multiline,
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _examKeyController,
             label: 'Kunci Ujian',
@@ -316,14 +265,14 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             keyboardType: TextInputType.number,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             suffixIcon: IconButton(
-              icon: Icon(Icons.refresh_rounded),
+              icon: const Icon(Icons.refresh_rounded),
               onPressed: () {
                 setState(() {
                   _examKeyController.text = _generateExamKey();
                 });
               },
               tooltip: 'Generate Kunci Ujian',
-              color: Color(0xFF8B0000),
+              color: const Color(0xFF8B0000),
             ),
           ),
         ],
@@ -333,16 +282,16 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
   Widget _buildExamDetailsSection() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -357,7 +306,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           Row(
             children: [
               Expanded(
@@ -369,7 +318,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   readOnly: true,
                 ),
               ),
-              SizedBox(width: 15),
+              const SizedBox(width: 15),
               Expanded(
                 child: _buildAnimatedTextField(
                   controller: _startTimeController,
@@ -381,7 +330,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildAnimatedTextField(
             controller: _durationController,
             label: 'Durasi (menit) Max 999 menit',
@@ -407,7 +356,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             onChanged: (value) {
               if (value.length > 3) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Maksimal durasi adalah 999 menit'),
                     backgroundColor: Colors.red,
                     duration: Duration(seconds: 2),
@@ -428,9 +377,9 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: FadeInUp(
-        duration: Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 600),
         child: Container(
           height: 60,
           decoration: BoxDecoration(
@@ -445,10 +394,13 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             borderRadius: BorderRadius.circular(15),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.3),
                 spreadRadius: 1,
                 blurRadius: 8,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -457,14 +409,14 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             child: InkWell(
               onTap: _submitForm,
               borderRadius: BorderRadius.circular(15),
-              splashColor: Colors.white.withOpacity(0.2),
-              highlightColor: Colors.white.withOpacity(0.1),
+              splashColor: Colors.white.withValues(alpha: 0.2),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    const Text(
                       'Buat Ujian',
                       style: TextStyle(
                         color: Colors.white,
@@ -473,8 +425,8 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                         letterSpacing: 0.5,
                       ),
                     ),
-                    SizedBox(width: 8),
-                    Icon(
+                    const SizedBox(width: 8),
+                    const Icon(
                       Icons.arrow_forward_rounded,
                       color: Colors.white,
                       size: 22,
@@ -483,7 +435,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                     }).slideX(
                       begin: 0,
                       end: 0.3,
-                      duration: Duration(milliseconds: 1000),
+                      duration: const Duration(milliseconds: 1000),
                       curve: Curves.easeInOut,
                     ),
                   ],
@@ -544,9 +496,9 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
         return Column(
           children: [
             DropdownButtonFormField<String>(
-              value: selectedTingkatan,
+              initialValue: selectedTingkatan,
               decoration: InputDecoration(
-                prefixIcon: Icon(Icons.layers, color: Color(0xFF8B0000)),
+                prefixIcon: const Icon(Icons.layers, color: Color(0xFF8B0000)),
                 labelText: 'Pilih Tingkatan',
                 filled: true,
                 fillColor: Colors.grey.shade50,
@@ -565,14 +517,15 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                 });
               },
               isExpanded: true,
-              hint: Text('Pilih Tingkatan'),
+              hint: const Text('Pilih Tingkatan'),
             ),
             if (selectedTingkatan != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedKelas,
+                initialValue: selectedKelas,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.class_, color: Color(0xFF8B0000)),
+                  prefixIcon:
+                      const Icon(Icons.class_, color: Color(0xFF8B0000)),
                   labelText: 'Pilih Kelas',
                   filled: true,
                   fillColor: Colors.grey.shade50,
@@ -590,15 +543,16 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   });
                 },
                 isExpanded: true,
-                hint: Text('Pilih Kelas'),
+                hint: const Text('Pilih Kelas'),
               ),
             ],
             if (selectedKelas != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
-                value: selectedMapel,
+                initialValue: selectedMapel,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.menu_book, color: Color(0xFF8B0000)),
+                  prefixIcon:
+                      const Icon(Icons.menu_book, color: Color(0xFF8B0000)),
                   labelText: 'Pilih Mata Pelajaran',
                   filled: true,
                   fillColor: Colors.grey.shade50,
@@ -625,7 +579,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                   }
                 },
                 isExpanded: true,
-                hint: Text('Pilih Mata Pelajaran'),
+                hint: const Text('Pilih Mata Pelajaran'),
                 validator: (value) =>
                     value == null ? 'Pilih mata pelajaran' : null,
               ),
@@ -640,14 +594,14 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
     if (_formKey.currentState?.validate() ?? false) {
       if (selectedSubject == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Pilih mata pelajaran terlebih dahulu')),
+          const SnackBar(content: Text('Pilih mata pelajaran terlebih dahulu')),
         );
         return;
       }
 
       if (startDate == null || startTime == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Pilih tanggal dan waktu ujian')),
+          const SnackBar(content: Text('Pilih tanggal dan waktu ujian')),
         );
         return;
       }
@@ -662,19 +616,19 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             elevation: 0,
             child: Center(
               child: Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
@@ -707,7 +661,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
           .read<OnlineExamCubit>()
           .createOnlineExam(
             classSectionId: selectedSubject!.classSection.id,
-            classSubjectId: selectedSubject!.class_subject_id,
+            classSubjectId: selectedSubject!.classSubjectId,
             title: _titleController.text,
             examKey: _examKeyController.text,
             duration: int.parse(_durationController.text),
@@ -720,6 +674,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             ),
           )
           .then((_) {
+        if (!mounted) return;
         // Close loading dialog
         Navigator.pop(context);
 
@@ -733,7 +688,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                 borderRadius: BorderRadius.circular(24),
               ),
               child: Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -745,10 +700,11 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: Color(0xFF4CAF50).withOpacity(0.1),
+                            color:
+                                const Color(0xFF4CAF50).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.check_circle_outline,
                             color: Color(0xFF4CAF50),
                             size: 45,
@@ -758,16 +714,16 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                           top: -8,
                           right: -8,
                           child: Container(
-                            padding: EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: Color(0xFF4CAF50),
+                              color: const Color(0xFF4CAF50),
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: Colors.white,
                                 width: 2,
                               ),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.check,
                               color: Colors.white,
                               size: 16,
@@ -776,8 +732,8 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                         ),
                       ],
                     ),
-                    SizedBox(height: 24),
-                    Text(
+                    const SizedBox(height: 24),
+                    const Text(
                       'Berhasil!',
                       style: TextStyle(
                         fontSize: 24,
@@ -785,7 +741,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                         color: Color(0xFF2E7D32),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Ujian berhasil dibuat dan siap digunakan',
                       textAlign: TextAlign.center,
@@ -794,29 +750,27 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
                         color: Colors.grey[600],
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF2E7D32),
+                          backgroundColor: const Color(0xFF2E7D32),
                           foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         onPressed: () {
-                          // Hentikan animasi sebelum navigasi
                           _animationController.stop();
-                          _pulseController.stop();
 
                           // Pop dialog first
                           Navigator.pop(context);
                           // Pop create exam screen and refresh exam list
                           Navigator.pop(context, true);
                         },
-                        child: Text(
+                        child: const Text(
                           'Lihat Daftar Ujian',
                           style: TextStyle(
                             fontSize: 16,
@@ -833,21 +787,22 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
           },
         );
       }).catchError((error) {
+        if (!mounted) return;
         // Close loading dialog
         Navigator.pop(context);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Container(
-              padding: EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  Icon(Icons.error_outline, color: Colors.white),
-                  SizedBox(width: 12),
+                  const Icon(Icons.error_outline, color: Colors.white),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       'Gagal membuat ujian: ${error.toString()}',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
@@ -858,7 +813,7 @@ class _CreateOnlineExamState extends State<CreateOnlineExam>
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            duration: Duration(seconds: 4),
+            duration: const Duration(seconds: 4),
           ),
         );
       });

@@ -1,4 +1,5 @@
 import 'package:eschool_saas_staff/data/models/user.dart';
+import 'package:flutter/foundation.dart';
 
 class AttendanceStudent {
   final int? id;
@@ -22,7 +23,7 @@ class AttendanceStudent {
   });
 
   factory AttendanceStudent.fromJson(Map<String, dynamic> json) {
-    print(json["type"]);
+    debugPrint(json["type"].toString());
     return AttendanceStudent(
       id: json['id'] as int?,
       subjectAttendanceId: json['subject_attendance_id'] as int?,

@@ -1,7 +1,7 @@
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 abstract class AssignmentState {}
 
@@ -29,16 +29,16 @@ class AssignmentsFetchSuccess extends AssignmentState {
     final bool? newMoreAssignmentsFetchError,
     final bool? newFetchMoreAssignmentsInProgress,
   }) {
-    print("assignment:${newAssignment ?? assignment}");
+    debugPrint("assignment:${newAssignment ?? assignment}");
 
-    print("totalPage:${newTotalPage ?? totalPage}");
+    debugPrint("totalPage:${newTotalPage ?? totalPage}");
 
-    print("currentPage:${newCurrentPage ?? currentPage}");
+    debugPrint("currentPage:${newCurrentPage ?? currentPage}");
 
-    print(
+    debugPrint(
         "moreAssignmentsFetchError:${newMoreAssignmentsFetchError ?? moreAssignmentsFetchError}");
 
-    print(
+    debugPrint(
         "fetchMoreAssignmentsInProgress:${newFetchMoreAssignmentsInProgress ?? fetchMoreAssignmentsInProgress}");
 
     return AssignmentsFetchSuccess(

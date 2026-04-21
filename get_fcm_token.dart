@@ -1,5 +1,5 @@
-
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'lib/firebase_options.dart';
 
@@ -13,13 +13,12 @@ void main() async {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   String? token = await messaging.getToken();
 
-  print('=================================');
-  print('FCM Token untuk testing:');
-  print(token);
-  print('=================================');
-  print('Project ID: eschool-mobile-fe51a');
-  print('Sender ID: 919419641844');
-  print('Package Name: id.ac.eschool.GuruStaff.android');
-  print('=================================');
+  debugPrint('=================================');
+  debugPrint('FCM Token untuk testing:');
+  debugPrint(token);
+  debugPrint('=================================');
+  debugPrint('Project ID: eschool-mobile-fe51a');
+  debugPrint('Sender ID: 919419641844');
+  debugPrint('Package Name: id.ac.eschool.GuruStaff.android');
+  debugPrint('=================================');
 }
-

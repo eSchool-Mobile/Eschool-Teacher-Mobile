@@ -41,7 +41,7 @@ void main() {
       const customTitle = 'Custom Error Title';
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomErrorWidget(
               message: 'Test message',
@@ -57,7 +57,7 @@ void main() {
     testWidgets('CustomErrorWidget hides retry button when onRetry is null',
         (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomErrorWidget(
               message: 'Test message',

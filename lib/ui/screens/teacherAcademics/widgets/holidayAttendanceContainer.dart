@@ -12,9 +12,9 @@ class HolidayAttendanceContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final holidayStartDate = DateTime.parse(holiday.start_date ?? "");
-    final holidayEndDate = holiday.end_date != null
-        ? DateTime.parse(holiday.end_date!)
+    final holidayStartDate = DateTime.parse(holiday.startDate ?? "");
+    final holidayEndDate = holiday.endDate != null
+        ? DateTime.parse(holiday.endDate!)
         : holidayStartDate;
 
     final bool isMultiDayHoliday = holidayStartDate != holidayEndDate;

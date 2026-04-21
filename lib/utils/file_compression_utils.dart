@@ -9,10 +9,7 @@ import 'dart:math' as math;
 /// Handles image and document compression with quality preservation
 class FileCompressionUtils {
   /// Default quality settings for different file sizes
-  static const int _defaultQuality = 85;
-  static const int _highQuality = 90;
   static const int _mediumQuality = 80;
-  static const int _lowQuality = 70;
 
   /// Maximum file sizes in bytes
   static const int _smallFileThreshold = 1024 * 1024; // 1MB
@@ -78,14 +75,15 @@ class FileCompressionUtils {
 
       if (shouldSkipCompression) {
         if (kDebugMode) {
-          print(
+          debugPrint(
               'File skipped compression: ${_formatFileSize(fileSize)} (${fileSize < 100 * 1024 ? "very small" : "within limit"})');
         }
         return file;
       }
 
       if (kDebugMode) {
-        print('Compressing file: $fileName (${_formatFileSize(fileSize)})');
+        debugPrint(
+            'Compressing file: $fileName (${_formatFileSize(fileSize)})');
       }
 
       // Determine file type and compress accordingly
@@ -103,13 +101,13 @@ class FileCompressionUtils {
         );
       } else {
         if (kDebugMode) {
-          print('Unsupported file format: $fileExtension');
+          debugPrint('Unsupported file format: $fileExtension');
         }
         return file; // Return original file if format not supported
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error compressing file: $e');
+        debugPrint('Error compressing file: $e');
       }
       return file; // Return original file on error
     }
@@ -158,15 +156,15 @@ class FileCompressionUtils {
           final compressedSize = await compressedFile.length();
 
           if (kDebugMode) {
-            print(
-                'Compression attempt ${attempts + 1}: ${_formatFileSize(compressedSize)} (quality: $quality, maxRes: ${maxWidth}x${maxHeight})');
+            debugPrint(
+                'Compression attempt ${attempts + 1}: ${_formatFileSize(compressedSize)} (quality: $quality, maxRes: ${maxWidth}x$maxHeight)');
           }
 
           // Check if compressed size meets target or if we achieved good compression
           if (compressedSize <= maxSizeInBytes ||
               compressedSize < fileSize * 0.7) {
             if (kDebugMode) {
-              print(
+              debugPrint(
                   'Image compression successful: ${_formatFileSize(fileSize)} → ${_formatFileSize(compressedSize)}');
             }
             return compressedFile;
@@ -196,7 +194,7 @@ class FileCompressionUtils {
       return await _alternativeImageCompression(file, maxSizeInBytes);
     } catch (e) {
       if (kDebugMode) {
-        print('Error in image compression: $e');
+        debugPrint('Error in image compression: $e');
       }
       return file;
     }
@@ -245,14 +243,14 @@ class FileCompressionUtils {
       if (kDebugMode) {
         final originalSize = await file.length();
         final compressedSize = await compressedFile.length();
-        print(
+        debugPrint(
             'Alternative compression: ${_formatFileSize(originalSize)} → ${_formatFileSize(compressedSize)}');
       }
 
       return compressedFile;
     } catch (e) {
       if (kDebugMode) {
-        print('Error in alternative compression: $e');
+        debugPrint('Error in alternative compression: $e');
       }
       return file;
     }
@@ -267,13 +265,13 @@ class FileCompressionUtils {
       // For now, return original file as document compression requires specialized libraries
       // This can be extended with PDF compression libraries like pdf_compressor
       if (kDebugMode) {
-        print(
+        debugPrint(
             'Document compression not yet implemented for ${path.extension(file.path)}');
       }
       return file;
     } catch (e) {
       if (kDebugMode) {
-        print('Error in document compression: $e');
+        debugPrint('Error in document compression: $e');
       }
       return file;
     }
@@ -298,8 +296,9 @@ class FileCompressionUtils {
   static String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -334,7 +333,7 @@ class FileCompressionUtils {
         compressedFiles.add(compressedFile);
       } catch (e) {
         if (kDebugMode) {
-          print('Error compressing file ${file.path}: $e');
+          debugPrint('Error compressing file ${file.path}: $e');
         }
         compressedFiles.add(file); // Add original file if compression fails
       }

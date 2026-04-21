@@ -1,4 +1,5 @@
 import 'question.dart';
+import 'package:flutter/foundation.dart';
 
 class SubjectQuestion {
   final int? id;
@@ -40,8 +41,8 @@ class SubjectQuestion {
         subject: Subject.fromJson(subject),
       );
     } catch (e) {
-      print("Error parsing SubjectQuestion: ${json.toString()}");
-      print("Error details: $e");
+      debugPrint("Error parsing SubjectQuestion: ${json.toString()}");
+      debugPrint("Error details: $e");
       rethrow;
     }
   }
@@ -97,8 +98,8 @@ class Subject {
             "${json['name'] ?? ''} - ${json['type'] ?? 'Theory'}",
       );
     } catch (e) {
-      print("Error parsing Subject: $json");
-      print("Error details: $e");
+      debugPrint("Error parsing Subject: $json");
+      debugPrint("Error details: $e");
       rethrow;
     }
   }

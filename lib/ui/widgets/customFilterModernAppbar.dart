@@ -57,7 +57,7 @@ class CustomFilterModernAppBar extends StatefulWidget
   /// Whether search is currently active
   final bool isSearchActive;
   const CustomFilterModernAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.titleIcon = Icons.dashboard_rounded,
     required this.primaryColor,
@@ -74,7 +74,7 @@ class CustomFilterModernAppBar extends StatefulWidget
     this.showSearchButton = false,
     this.onSearchPressed,
     this.isSearchActive = false,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomFilterModernAppBar> createState() =>
@@ -146,10 +146,10 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
 
     // Start animations with delays for more natural feel
     _glowAnimationController.repeat(reverse: true);
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       _pulseAnimationController.repeat(reverse: true);
     });
-    Future.delayed(Duration(milliseconds: 1000), () {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       _rotationAnimationController.repeat();
     });
   }
@@ -196,7 +196,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: widget.preferredSize.height,
       child: Stack(
         children: [
@@ -251,7 +251,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                 return CustomPaint(
                   painter: AnimatedAppBarDecorationPainter(
                     color: Colors.white
-                        .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                        .withValues(alpha: 0.07 + (_glowAnimation.value * 0.05)),
                     glowValue: _glowAnimation.value,
                     pulseValue: _pulseAnimation.value,
                     rotationValue: _rotationAnimation.value,
@@ -288,13 +288,13 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.15 + (_glowAnimation.value * 0.05)),
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.08 + (_glowAnimation.value * 0.03)),
-                              Colors.white.withOpacity(0.0),
+                              Colors.white.withValues(alpha: 0.0),
                             ],
-                            stops: [0.0, 0.6, 1.0],
+                            stops: const [0.0, 0.6, 1.0],
                           ),
                         ),
                       ),
@@ -322,13 +322,13 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.12 + (_glowAnimation.value * 0.04)),
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.06 + (_glowAnimation.value * 0.02)),
-                              Colors.white.withOpacity(0.0),
+                              Colors.white.withValues(alpha: 0.0),
                             ],
-                            stops: [0.0, 0.7, 1.0],
+                            stops: const [0.0, 0.7, 1.0],
                           ),
                         ),
                       ),
@@ -355,13 +355,13 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
+                                Colors.white.withValues(alpha: 
                                     0.08 + (_glowAnimation.value * 0.03)),
-                                Colors.white.withOpacity(
+                                Colors.white.withValues(alpha: 
                                     0.04 + (_glowAnimation.value * 0.015)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.8, 1.0],
+                              stops: const [0.0, 0.8, 1.0],
                             ),
                           ),
                         ),
@@ -383,10 +383,10 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                 child: Container(
                   height: 56,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.12),
+                    color: Colors.white.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                   ),
@@ -401,8 +401,8 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor: Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: widget.onBackPressed,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
@@ -429,9 +429,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.4),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.4),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),
@@ -463,14 +463,14 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                                 begin: Alignment.topLeft,
                                                 end: Alignment.bottomRight,
                                                 colors: [
-                                                  Colors.white.withOpacity(0.9),
-                                                  Colors.white.withOpacity(0.4),
+                                                  Colors.white.withValues(alpha: 0.9),
+                                                  Colors.white.withValues(alpha: 0.4),
                                                 ],
                                               ),
                                               boxShadow: [
                                                 BoxShadow(
                                                   color: Colors.black
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   blurRadius: 4,
                                                   offset: const Offset(0, 2),
                                                 ),
@@ -494,14 +494,14 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            Colors.white.withOpacity(0.9),
-                                            Colors.white.withOpacity(0.4),
+                                            Colors.white.withValues(alpha: 0.9),
+                                            Colors.white.withValues(alpha: 0.4),
                                           ],
                                         ),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.2),
+                                                Colors.black.withValues(alpha: 0.2),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
@@ -524,7 +524,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                         end: Alignment.bottomCenter,
                                         colors: [
                                           Colors.white,
-                                          Colors.white.withOpacity(0.9),
+                                          Colors.white.withValues(alpha: 0.9),
                                         ],
                                       ).createShader(bounds);
                                     },
@@ -535,9 +535,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                         shadows: [
-                                          Shadow(
+                                          const Shadow(
                                             color: Colors.black26,
-                                            offset: const Offset(0, 1),
+                                            offset: Offset(0, 1),
                                             blurRadius: 3,
                                           ),
                                         ],
@@ -561,8 +561,8 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor: Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: widget.onSearchPressed,
                               child: Container(
                                 padding: const EdgeInsets.all(8),
@@ -570,7 +570,7 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                   borderRadius: BorderRadius.circular(12),
                                   border: widget.isSearchActive
                                       ? Border.all(
-                                          color: Colors.white.withOpacity(0.4),
+                                          color: Colors.white.withValues(alpha: 0.4),
                                           width: 1.5,
                                         )
                                       : null,
@@ -636,10 +636,10 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                         ? 120
                         : 70, // Increased height for better spacing
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -659,9 +659,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                             onTap:
                                                 widget.firstFilterItem!.onTap,
                                             highlightColor:
-                                                Colors.white.withOpacity(0.1),
+                                                Colors.white.withValues(alpha: 0.1),
                                             splashColor:
-                                                Colors.white.withOpacity(0.2),
+                                                Colors.white.withValues(alpha: 0.2),
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -710,9 +710,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              Colors.white.withOpacity(0.0),
-                                              Colors.white.withOpacity(0.4),
-                                              Colors.white.withOpacity(0.0),
+                                              Colors.white.withValues(alpha: 0.0),
+                                              Colors.white.withValues(alpha: 0.4),
+                                              Colors.white.withValues(alpha: 0.0),
                                             ],
                                           ),
                                         ),
@@ -727,9 +727,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                             onTap:
                                                 widget.secondFilterItem!.onTap,
                                             highlightColor:
-                                                Colors.white.withOpacity(0.1),
+                                                Colors.white.withValues(alpha: 0.1),
                                             splashColor:
-                                                Colors.white.withOpacity(0.2),
+                                                Colors.white.withValues(alpha: 0.2),
                                             child: Container(
                                               padding:
                                                   const EdgeInsets.symmetric(
@@ -778,9 +778,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight,
                                     colors: [
-                                      Colors.white.withOpacity(0.0),
-                                      Colors.white.withOpacity(0.4),
-                                      Colors.white.withOpacity(0.0),
+                                      Colors.white.withValues(alpha: 0.0),
+                                      Colors.white.withValues(alpha: 0.4),
+                                      Colors.white.withValues(alpha: 0.0),
                                     ],
                                   ),
                                 ),
@@ -794,9 +794,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                     child: InkWell(
                                       onTap: widget.thirdFilterItem!.onTap,
                                       highlightColor:
-                                          Colors.white.withOpacity(0.1),
+                                          Colors.white.withValues(alpha: 0.1),
                                       splashColor:
-                                          Colors.white.withOpacity(0.2),
+                                          Colors.white.withValues(alpha: 0.2),
                                       child: Container(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12),
@@ -853,9 +853,9 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        Colors.white.withOpacity(0.0),
-                                        Colors.white.withOpacity(0.4),
-                                        Colors.white.withOpacity(0.0),
+                                        Colors.white.withValues(alpha: 0.0),
+                                        Colors.white.withValues(alpha: 0.4),
+                                        Colors.white.withValues(alpha: 0.0),
                                       ],
                                     ),
                                   ),
@@ -915,8 +915,8 @@ class _CustomFilterModernAppBarState extends State<CustomFilterModernAppBar>
           HapticFeedback.lightImpact();
           onTap();
         },
-        highlightColor: Colors.white.withOpacity(0.1),
-        splashColor: Colors.white.withOpacity(0.2),
+        highlightColor: Colors.white.withValues(alpha: 0.1),
+        splashColor: Colors.white.withValues(alpha: 0.2),
         child: Container(
           padding: const EdgeInsets.symmetric(
               horizontal: 18, vertical: 14), // Increased padding for more space
@@ -1026,7 +1026,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final glowPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.3 + glowValue * 0.3))
       ..style = PaintingStyle.fill
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
 
@@ -1096,7 +1096,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..strokeWidth = 1.5 + glowValue * 0.5;
 
     final glowArcPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3 + glowValue * 1
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
@@ -1145,7 +1145,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
 
       final particlePaint = Paint()
         ..color = color
-            .withOpacity(0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
+            .withValues(alpha: 0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(particleCenter, particleSize, particlePaint);

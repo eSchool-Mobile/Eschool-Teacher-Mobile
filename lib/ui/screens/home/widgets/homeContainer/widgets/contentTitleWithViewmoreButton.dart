@@ -46,7 +46,7 @@ class ContentTitleWithViewMoreButton extends StatelessWidget {
                                 color: Theme.of(context)
                                     .colorScheme
                                     .secondary
-                                    .withOpacity(0.76)),
+                                    .withValues(alpha: 0.76)),
                           ),
                           const SizedBox(
                             width: 2.5,
@@ -58,7 +58,7 @@ class ContentTitleWithViewMoreButton extends StatelessWidget {
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
-                                .withOpacity(0.76),
+                                .withValues(alpha: 0.76),
                           )
                         ],
                       )),

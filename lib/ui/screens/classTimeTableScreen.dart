@@ -1,7 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';
@@ -112,10 +111,10 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
@@ -123,8 +122,8 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
-                splashColor: Colors.white.withOpacity(0.1),
-                highlightColor: Colors.white.withOpacity(0.05),
+                splashColor: Colors.white.withValues(alpha: 0.1),
+                highlightColor: Colors.white.withValues(alpha: 0.05),
                 onTap: () {
                   final state = context.read<ClassesCubit>().state;
                   if (state is ClassesFetchSuccess &&
@@ -147,12 +146,12 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.class_outlined,
                         color: Colors.white,
                         size: 20,
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           _selectedClassSection == null
@@ -166,7 +165,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.arrow_drop_down_rounded,
                         color: Colors.white,
                         size: 24,
@@ -177,15 +176,15 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
               ),
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           // Horizontal day selector
           Container(
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
@@ -210,7 +209,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
@@ -229,17 +228,17 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
                       _selectedDayKey = day['key']!;
                     });
                   },
-                  highlightColor: Colors.white.withOpacity(0.1),
-                  splashColor: Colors.white.withOpacity(0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       color: isSelected ? Colors.white : Colors.transparent,
                       border: Border.all(
                         color: isSelected
-                            ? Colors.white.withOpacity(0.9)
-                            : Colors.white.withOpacity(0.3),
+                            ? Colors.white.withValues(alpha: 0.9)
+                            : Colors.white.withValues(alpha: 0.3),
                         width: isSelected ? 1 : 0.5,
                       ),
                     ),
@@ -260,10 +259,10 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
                   target: isSelected ? 1 : 0,
                 )
                 .scale(
-                  begin: Offset(1.0, 1.0),
-                  end: Offset(1.05, 1.05),
+                  begin: const Offset(1.0, 1.0),
+                  end: const Offset(1.05, 1.05),
                   curve: Curves.easeOutCubic,
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                 );
           }).toList(),
         ),
@@ -318,7 +317,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
               alignment: Alignment.topCenter,
               child: SingleChildScrollView(
                 controller: _scrollController,
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     top: 20), // Reduced padding since AppBar is now separate
                 child: Container(
                   width: MediaQuery.of(context).size.width,
@@ -365,7 +364,7 @@ class _ClassTimeTableScreenState extends State<ClassTimeTableScreen>
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.only(top: 20),
         child: Container(
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.all(constants.appContentHorizontalPadding),

@@ -31,7 +31,7 @@ class UltraModernPatternPainter extends CustomPainter {
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
-    final double spacing = 30;
+    const double spacing = 30;
     for (double i = -size.width; i < size.width * 2; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
@@ -63,9 +63,9 @@ class QuestionOnlineExamScreen extends StatefulWidget {
   final int examId;
 
   const QuestionOnlineExamScreen({
-    Key? key,
+    super.key,
     required this.examId,
-  }) : super(key: key);
+  });
 
   @override
   State<QuestionOnlineExamScreen> createState() =>
@@ -76,41 +76,26 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     with TickerProviderStateMixin {
   int? selectedBankId;
   bool _hasShownTooltip = false;
-  Set<int> _selectedQuestions = {};
+  final Set<int> _selectedQuestions = {};
   late AnimationController _animationController;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
 
   @override
   void initState() {
     super.initState();
     context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
-
-    // Add this new controller for pulse animation
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
   }
 
   @override
   void dispose() {
     _animationController.dispose();
-    _pulseController.dispose();
     super.dispose();
   }
 
@@ -180,113 +165,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     return htmlText.replaceAll(exp, '');
   }
 
-  String _getVersionText(QuestionOnlineExam question) {
-    // Cek apakah versi tersedia dan valid
-    if (question.version != null && question.version!.isNotEmpty) {
-      // Versi bisa dalam format apa saja, misalnya "1.0" atau "2"
-      return "Versi ${question.version}";
-    }
-
-    // Jika tidak ada data versi, periksa apakah ada informasi lain yang bisa digunakan
-    if (question.id > 0 && question.question_id > 0) {
-      // Jika ID berbeda dengan question_id, ini mungkin versi lain
-      int versionNumber =
-          (question.id % 10) + 1; // Hanya sebagai contoh formula
-      return "Versi $versionNumber";
-    }
-
-    // Default fallback
-    return "Versi 1";
-  }
-
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildAddButton() {
-    return AnimatedBuilder(
-      animation: _pulseAnimation,
-      builder: (context, child) {
-        return Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withOpacity(0.3),
-                Colors.white.withOpacity(0.2),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    Colors.white.withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                blurRadius: 12 * (1 + _pulseAnimation.value),
-                spreadRadius: 2 * _pulseAnimation.value,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            shape: CircleBorder(),
-            child: InkWell(
-              customBorder: CircleBorder(),
-              onTap: () {
-                HapticFeedback.mediumImpact();
-                _selectBankSoal();
-              },
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // Set system UI overlay style to ensure status bar has proper contrast
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent, // Make status bar transparent
       statusBarIconBrightness:
           Brightness.dark, // Dark icons for light background
@@ -313,7 +195,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
       body: Column(
         children: [
           // Add padding for content below custom appbar when using extendBodyBehindAppBar
-          SizedBox(height: 90),
+          const SizedBox(height: 90),
 
           // Main Content
           Expanded(
@@ -343,7 +225,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                   return _buildQuestionsList(state.questions);
                 }
 
-                return SizedBox();
+                return const SizedBox();
               },
             ),
           ),
@@ -352,20 +234,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
       // Keep the existing floating action button
       floatingActionButton: _selectedQuestions.isNotEmpty
           ? Container(
-              margin: EdgeInsets.only(bottom: 16.0, right: 16.0),
+              margin: const EdgeInsets.only(bottom: 16.0, right: 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   SlideInLeft(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
-                      margin: EdgeInsets.only(right: 12.0),
+                      margin: const EdgeInsets.only(right: 12.0),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
                           ),
                         ],
@@ -380,13 +262,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                           },
                           borderRadius: BorderRadius.circular(30),
                           child: Padding(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 12),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.close, color: Colors.grey[600]),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   'Batal (${_selectedQuestions.length})',
                                   style: TextStyle(
@@ -402,7 +284,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                     ),
                   ),
                   SlideInRight(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -416,7 +298,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red[400]!.withOpacity(0.3),
+                            color: Colors.red[400]!.withValues(alpha: 0.3),
                             blurRadius: 10,
                           ),
                         ],
@@ -433,7 +315,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             }
                           },
                           borderRadius: BorderRadius.circular(30),
-                          child: Padding(
+                          child: const Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 12),
                             child: Row(
@@ -463,7 +345,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   }
 
   Widget _buildLoadingState() {
-    return SkeletonQuestionSubjectScreen(
+    return const SkeletonQuestionSubjectScreen(
       itemCount: 6,
       showSearch: false,
     );
@@ -474,18 +356,18 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.assignment_outlined, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text(
+          const Icon(Icons.assignment_outlined, size: 64, color: Colors.grey),
+          const SizedBox(height: 16),
+          const Text(
             'Belum ada soal untuk ujian ini',
             style: TextStyle(fontSize: 16, color: Colors.grey),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           ElevatedButton.icon(
-            icon: Icon(Icons.add),
-            label: Text('Pilih Bank Soal'),
+            icon: const Icon(Icons.add),
+            label: const Text('Pilih Bank Soal'),
             style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               backgroundColor: Theme.of(context).colorScheme.secondary,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
@@ -509,7 +391,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 // Ubah dari GridView ke ListView
                 padding:
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                physics: BouncingScrollPhysics(),
+                physics: const BouncingScrollPhysics(),
                 itemCount: questions.length,
                 itemBuilder: (context, index) {
                   return FadeInUp(
@@ -526,28 +408,28 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                   left: 0,
                   right: 0,
                   child: FadeIn(
-                    duration: Duration(seconds: 1),
+                    duration: const Duration(seconds: 1),
                     child: Center(
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 32.0),
-                        padding: EdgeInsets.symmetric(
+                        margin: const EdgeInsets.symmetric(horizontal: 32.0),
+                        padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 12.0),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8.0,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.touch_app, color: _primaryColor),
-                            SizedBox(width: 12.0),
+                            const Icon(Icons.touch_app, color: _primaryColor),
+                            const SizedBox(width: 12.0),
                             Flexible(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -560,7 +442,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       color: Colors.grey[800],
                                     ),
                                   ),
-                                  SizedBox(height: 4.0),
+                                  const SizedBox(height: 4.0),
                                   Text(
                                     'Tekan lama untuk melihat detail soal',
                                     style: TextStyle(
@@ -571,7 +453,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.close, size: 16.0),
+                              icon: const Icon(Icons.close, size: 16.0),
                               onPressed: () {
                                 setState(() {
                                   _hasShownTooltip = true;
@@ -595,7 +477,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     bool isSelected = _selectedQuestions.contains(index);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
       child: Stack(
         children: [
           // Main Card with enhanced shadow and animation
@@ -618,15 +500,15 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _getTypeColor(question.type).withOpacity(0.12),
+                    color: _getTypeColor(question.type).withValues(alpha: 0.12),
                     blurRadius: 40,
-                    offset: Offset(0, 15),
+                    offset: const Offset(0, 15),
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
-                    offset: Offset(0, 8),
+                    offset: const Offset(0, 8),
                   ),
                 ],
               ),
@@ -646,9 +528,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             _getTypeColor(question.type),
                             Color.lerp(_getTypeColor(question.type),
                                 Colors.black, 0.2)!,
-                            _getTypeColor(question.type).withOpacity(0.85),
+                            _getTypeColor(question.type)
+                                .withValues(alpha: 0.85),
                           ],
-                          stops: [0.2, 0.6, 0.9],
+                          stops: const [0.2, 0.6, 0.9],
                         ),
                       ),
                       child: Stack(
@@ -657,8 +540,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                           // Advanced geometric pattern effect
                           CustomPaint(
                             painter: UltraModernPatternPainter(
-                              primaryColor: Colors.white.withOpacity(0.12),
-                              secondaryColor: Colors.white.withOpacity(0.06),
+                              primaryColor:
+                                  Colors.white.withValues(alpha: 0.12),
+                              secondaryColor:
+                                  Colors.white.withValues(alpha: 0.06),
                             ),
                           ),
 
@@ -673,10 +558,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    Colors.white.withOpacity(0.3),
-                                    Colors.white.withOpacity(0),
+                                    Colors.white.withValues(alpha: 0.3),
+                                    Colors.white.withValues(alpha: 0),
                                   ],
-                                  stops: [0.1, 1.0],
+                                  stops: const [0.1, 1.0],
                                 ),
                               ),
                             ),
@@ -687,18 +572,18 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             top: 20,
                             left: 20,
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   width: 1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
+                                    color: Colors.black.withValues(alpha: 0.15),
                                     blurRadius: 15,
                                     spreadRadius: -5,
                                   ),
@@ -707,8 +592,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.white.withOpacity(0.1),
+                                    Colors.white.withValues(alpha: 0.4),
+                                    Colors.white.withValues(alpha: 0.1),
                                   ],
                                 ),
                               ),
@@ -723,7 +608,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                         width: 26,
                                         height: 26,
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                         ),
                                       ),
                                       // Icon with glow effect
@@ -734,10 +620,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       ),
                                     ],
                                   ),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Text(
                                     _getTypeName(question.type),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 13.5,
                                       fontWeight: FontWeight.w600,
@@ -752,22 +638,22 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             top: 20,
                             right: 20,
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.18),
+                                    color: Colors.black.withValues(alpha: 0.18),
                                     blurRadius: 10,
-                                    offset: Offset(0, 4),
+                                    offset: const Offset(0, 4),
                                   ),
                                   BoxShadow(
                                     color: _getTypeColor(question.type)
-                                        .withOpacity(0.25),
+                                        .withValues(alpha: 0.25),
                                     blurRadius: 12,
-                                    offset: Offset(0, 2),
+                                    offset: const Offset(0, 2),
                                     spreadRadius: -2,
                                   ),
                                 ],
@@ -789,14 +675,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                         color: Colors.amber.shade300,
                                         size: 17,
                                       ),
-                                      Icon(
+                                      const Icon(
                                         Icons.star_rounded,
                                         color: Colors.amber,
                                         size: 14,
                                       ),
                                     ],
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     '${question.marks} poin',
                                     style: TextStyle(
@@ -815,28 +701,28 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             top: 70,
                             right: 20,
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(14),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   width: 1,
                                 ),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.history,
                                     color: Colors.white,
                                     size: 14,
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     "Versi ${question.version}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
@@ -860,18 +746,19 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                   width: 40,
                                   height: 4,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(2),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.3),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.3),
                                         blurRadius: 4,
                                         spreadRadius: 1,
                                       )
                                     ],
                                   ),
                                 ),
-                                SizedBox(height: 12),
+                                const SizedBox(height: 12),
                                 Text(
                                   'Soal ${index + 1}',
                                   style: TextStyle(
@@ -882,14 +769,15 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     letterSpacing: 0.3,
                                     shadows: [
                                       Shadow(
-                                        color: Colors.black.withOpacity(0.4),
-                                        offset: Offset(0, 2),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.4),
+                                        offset: const Offset(0, 2),
                                         blurRadius: 5,
                                       ),
                                       Shadow(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.6),
-                                        offset: Offset(0, 1),
+                                            .withValues(alpha: 0.6),
+                                        offset: const Offset(0, 1),
                                         blurRadius: 8,
                                       ),
                                     ],
@@ -906,7 +794,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
 
                     // Question Content with premium styling
                     Container(
-                      padding: EdgeInsets.fromLTRB(24, 26, 24, 20),
+                      padding: const EdgeInsets.fromLTRB(24, 26, 24, 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -925,20 +813,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     colors: [
                                       _getTypeColor(question.type),
                                       _getTypeColor(question.type)
-                                          .withOpacity(0.6),
+                                          .withValues(alpha: 0.6),
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: _getTypeColor(question.type)
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                       blurRadius: 8,
-                                      offset: Offset(0, 2),
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
                                 "Konten Pertanyaan",
                                 style: TextStyle(
@@ -951,20 +839,20 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             ],
                           ),
 
-                          SizedBox(height: 18),
+                          const SizedBox(height: 18),
 
                           // Question content with enhanced styling
                           Container(
-                            padding: EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(color: Colors.grey.shade100),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
+                                  color: Colors.black.withValues(alpha: 0.02),
                                   blurRadius: 8,
-                                  offset: Offset(0, 4),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                             ),
@@ -982,11 +870,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             ),
                           ),
 
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
                           // Options Information with stunning styling
                           Container(
-                            padding: EdgeInsets.all(18),
+                            padding: const EdgeInsets.all(18),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
@@ -999,15 +887,15 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 12,
                                   spreadRadius: 0,
-                                  offset: Offset(0, 4),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                               border: Border.all(
                                 color: _getTypeColor(question.type)
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 width: 1.5,
                               ),
                             ),
@@ -1022,7 +910,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       height: 48,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.08),
+                                            .withValues(alpha: 0.08),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -1031,7 +919,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       height: 42,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.12),
+                                            .withValues(alpha: 0.12),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -1040,11 +928,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       height: 36,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.15),
+                                            .withValues(alpha: 0.15),
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           color: _getTypeColor(question.type)
-                                              .withOpacity(0.6),
+                                              .withValues(alpha: 0.6),
                                           width: 1.5,
                                         ),
                                       ),
@@ -1056,7 +944,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     ),
                                   ],
                                 ),
-                                SizedBox(width: 18),
+                                const SizedBox(width: 18),
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -1069,7 +957,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                         letterSpacing: 0.3,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
+                                    const SizedBox(height: 6),
                                     Text(
                                       '${question.options.length} opsi tersedia',
                                       style: TextStyle(
@@ -1081,7 +969,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     ),
                                   ],
                                 ),
-                                Spacer(),
+                                const Spacer(),
                                 // Selection indicator instead of arrow
                                 Container(
                                   width: 32,
@@ -1091,9 +979,9 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                         ? Theme.of(context)
                                             .colorScheme
                                             .secondary
-                                            .withOpacity(0.15)
+                                            .withValues(alpha: 0.15)
                                         : _getTypeColor(question.type)
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Icon(
@@ -1125,14 +1013,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
               top: 8,
               right: 8,
               child: TweenAnimationBuilder<double>(
-                duration: Duration(milliseconds: 350),
+                duration: const Duration(milliseconds: 350),
                 curve: Curves.elasticOut,
                 tween: Tween<double>(begin: 0.0, end: 1.0),
                 builder: (context, value, child) {
                   return Transform.scale(
                     scale: value,
                     child: Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.secondary,
                         shape: BoxShape.circle,
@@ -1141,13 +1029,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             color: Theme.of(context)
                                 .colorScheme
                                 .secondary
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             blurRadius: 10,
                             spreadRadius: 0,
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.check,
                         color: Colors.white,
                         size: 16,
@@ -1169,6 +1057,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     );
 
     if (result != null && result is BankSoalQuestion) {
+      if (!mounted) return;
       setState(() {
         selectedBankId = result.id;
       });
@@ -1178,120 +1067,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             result.id,
           );
     }
-  }
-
-  void _editQuestion(QuestionOnlineExam question) {
-    Get.toNamed(
-      '/edit-question',
-      arguments: question,
-      parameters: {'examId': widget.examId.toString()},
-    )?.then((edited) {
-      if (edited == true) {
-        // Refresh questions list
-        context.read<QuestionOnlineExamCubit>().getQuestions(widget.examId);
-
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                Icon(Icons.check_circle, color: Colors.white),
-                SizedBox(width: 8),
-                Text('Soal berhasil diperbarui'),
-              ],
-            ),
-            backgroundColor: Colors.green[600],
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            margin: EdgeInsets.all(16),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      }
-    });
-  }
-
-  void _deleteQuestion(QuestionOnlineExam question) {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B0000)),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Menghapus soal...',
-                style: TextStyle(color: Colors.grey[800]),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    // Process deletion
-    Future.delayed(Duration(milliseconds: 800), () {});
-  }
-
-  void _showDeleteConfirmation(
-      BuildContext context, QuestionOnlineExam question) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: Row(
-            children: [
-              Icon(Icons.warning_rounded, color: Colors.orange),
-              SizedBox(width: 8),
-              Text('Konfirmasi Hapus'),
-            ],
-          ),
-          content: Text('Apakah Anda yakin ingin menghapus soal ini?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Batal',
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _deleteQuestion(question);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[400],
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text('Hapus'),
-            ),
-          ],
-        ).animate().scale(
-              duration: 200.ms,
-              curve: Curves.easeOut,
-            );
-      },
-    );
   }
 
   void _showDeleteSelectedConfirmation(
@@ -1304,7 +1079,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: Row(
+          title: const Row(
             children: [
               Icon(Icons.warning_rounded, color: Colors.orange),
               SizedBox(width: 8),
@@ -1337,6 +1112,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         questions,
                       );
 
+                  if (!context.mounted) return;
+
                   // Pop loading dialog
                   Navigator.pop(context);
 
@@ -1347,12 +1124,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
 
                   // Show success message
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Soal berhasil dihapus'),
                       backgroundColor: Colors.green,
                     ),
                   );
                 } catch (e) {
+                  if (!context.mounted) return;
+
                   // Pop loading dialog if showing
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
@@ -1371,7 +1150,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 backgroundColor: Colors.red[400],
                 foregroundColor: Colors.white,
               ),
-              child: Text('Hapus'),
+              child: const Text('Hapus'),
             ),
           ],
         ).animate().scale(
@@ -1380,92 +1159,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             );
       },
     );
-  }
-
-  Future<void> _deleteSelectedQuestions() async {
-    // Show loading indicator
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Center(
-        child: Container(
-          padding: EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8B0000)),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'Menghapus soal...',
-                style: TextStyle(color: Colors.grey[800]),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    try {
-      // Implement your deletion logic here
-      // ...
-
-      // Clear selection after successful deletion
-      setState(() {
-        _selectedQuestions.clear();
-      });
-
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle, color: Colors.white),
-              SizedBox(width: 8),
-              Text('Soal berhasil dihapus'),
-            ],
-          ),
-          backgroundColor: Colors.green[600],
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: EdgeInsets.all(16),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } catch (e) {
-      // Close loading dialog
-      Navigator.pop(context);
-
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.white),
-              SizedBox(width: 8),
-              Text('Gagal menghapus soal'),
-            ],
-          ),
-          backgroundColor: Colors.red[600],
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          margin: EdgeInsets.all(16),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
   }
 
   void _showDeleteLoadingDialog(BuildContext context) {
@@ -1487,16 +1180,16 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withOpacity(0.2),
-                Colors.white.withOpacity(0.1),
+                Colors.white.withValues(alpha: 0.2),
+                Colors.white.withValues(alpha: 0.1),
               ],
             ),
             borderGradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Colors.white.withOpacity(0.2),
-                Colors.white.withOpacity(0.1),
+                Colors.white.withValues(alpha: 0.2),
+                Colors.white.withValues(alpha: 0.1),
               ],
             ),
             child: Column(
@@ -1507,7 +1200,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Stack(
@@ -1518,7 +1211,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             AlwaysStoppedAnimation<Color>(Colors.red[400]!),
                         strokeWidth: 3,
                       ),
-                      Icon(
+                      const Icon(
                         Icons.delete_outline,
                         color: Colors.white,
                         size: 30,
@@ -1533,8 +1226,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                     ],
                   ),
                 ),
-                SizedBox(height: 24),
-                Text(
+                const SizedBox(height: 24),
+                const Text(
                   'Menghapus Soal',
                   style: TextStyle(
                     color: Colors.white,
@@ -1542,11 +1235,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Mohon tunggu sebentar...',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontSize: 14,
                   ),
                 ),
@@ -1566,7 +1259,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
     Get.dialog(
       Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.all(12),
+        insetPadding: const EdgeInsets.all(12),
         child: Container(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.9,
@@ -1577,15 +1270,15 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: _getTypeColor(question.type).withOpacity(0.3),
+                color: _getTypeColor(question.type).withValues(alpha: 0.3),
                 blurRadius: 30,
-                offset: Offset(0, 15),
+                offset: const Offset(0, 15),
                 spreadRadius: 0,
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
@@ -1595,7 +1288,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Ultra Modern Header with Advanced Gradient & Effects
-                Container(
+                SizedBox(
                   height: 200,
                   child: Stack(
                     children: [
@@ -1607,12 +1300,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             end: Alignment.bottomRight,
                             colors: [
                               _getTypeColor(question.type),
-                              _getTypeColor(question.type).withOpacity(0.9),
+                              _getTypeColor(question.type)
+                                  .withValues(alpha: 0.9),
                               Color.lerp(_getTypeColor(question.type),
                                   Colors.black, 0.15)!,
-                              _getTypeColor(question.type).withOpacity(0.85),
+                              _getTypeColor(question.type)
+                                  .withValues(alpha: 0.85),
                             ],
-                            stops: [0.0, 0.4, 0.7, 1.0],
+                            stops: const [0.0, 0.4, 0.7, 1.0],
                           ),
                         ),
                       ),
@@ -1621,8 +1316,9 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                       Positioned.fill(
                         child: CustomPaint(
                           painter: UltraModernPatternPainter(
-                            primaryColor: Colors.white.withOpacity(0.08),
-                            secondaryColor: Colors.white.withOpacity(0.04),
+                            primaryColor: Colors.white.withValues(alpha: 0.08),
+                            secondaryColor:
+                                Colors.white.withValues(alpha: 0.04),
                           ),
                         ),
                       ),
@@ -1638,11 +1334,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(0.25),
-                                Colors.white.withOpacity(0.08),
-                                Colors.white.withOpacity(0),
+                                Colors.white.withValues(alpha: 0.25),
+                                Colors.white.withValues(alpha: 0.08),
+                                Colors.white.withValues(alpha: 0),
                               ],
-                              stops: [0.0, 0.6, 1.0],
+                              stops: const [0.0, 0.6, 1.0],
                             ),
                           ),
                         ),
@@ -1658,11 +1354,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(0.15),
-                                Colors.white.withOpacity(0.05),
-                                Colors.white.withOpacity(0),
+                                Colors.white.withValues(alpha: 0.15),
+                                Colors.white.withValues(alpha: 0.05),
+                                Colors.white.withValues(alpha: 0),
                               ],
-                              stops: [0.0, 0.7, 1.0],
+                              stops: const [0.0, 0.7, 1.0],
                             ),
                           ),
                         ),
@@ -1670,7 +1366,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
 
                       // Main content
                       Padding(
-                        padding: EdgeInsets.fromLTRB(28, 20, 20, 28),
+                        padding: const EdgeInsets.fromLTRB(28, 20, 20, 28),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1680,27 +1376,29 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               children: [
                                 // Question type badge with enhanced design
                                 Container(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 10),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Colors.white.withOpacity(0.25),
-                                        Colors.white.withOpacity(0.15),
+                                        Colors.white.withValues(alpha: 0.25),
+                                        Colors.white.withValues(alpha: 0.15),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(25),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.3),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.3),
                                       width: 1.5,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
                                         blurRadius: 10,
-                                        offset: Offset(0, 4),
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
@@ -1708,9 +1406,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Container(
-                                        padding: EdgeInsets.all(6),
+                                        padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
@@ -1719,10 +1418,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                           size: 18,
                                         ),
                                       ),
-                                      SizedBox(width: 10),
+                                      const SizedBox(width: 10),
                                       Text(
                                         _getTypeName(question.type),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 14,
                                           fontWeight: FontWeight.w700,
@@ -1740,20 +1439,22 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        Colors.white.withOpacity(0.2),
-                                        Colors.white.withOpacity(0.1),
+                                        Colors.white.withValues(alpha: 0.2),
+                                        Colors.white.withValues(alpha: 0.1),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: Colors.white.withOpacity(0.25),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.25),
                                       width: 1,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.1),
                                         blurRadius: 8,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -1762,7 +1463,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(16),
                                       onTap: () => Get.back(),
-                                      child: Padding(
+                                      child: const Padding(
                                         padding: EdgeInsets.all(12),
                                         child: Icon(
                                           Icons.close_rounded,
@@ -1776,7 +1477,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               ],
                             ),
 
-                            Spacer(),
+                            const Spacer(),
 
                             // Main title section
                             Row(
@@ -1798,38 +1499,38 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                           height: 1.1,
                                           shadows: [
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.3),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.3),
                                               blurRadius: 8,
-                                              offset: Offset(0, 3),
+                                              offset: const Offset(0, 3),
                                             ),
                                             Shadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 15,
-                                              offset: Offset(0, 6),
+                                              offset: const Offset(0, 6),
                                             ),
                                           ],
                                         ),
                                       ),
 
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
 
                                       // Enhanced subtitle with badges
                                       Row(
                                         children: [
                                           // Points Badge
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 5),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.2),
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                               border: Border.all(
                                                 color: Colors.white
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 width: 1,
                                               ),
                                             ),
@@ -1841,12 +1542,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                                   color: Colors.amber[200],
                                                   size: 12,
                                                 ),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text(
                                                   '${question.marks} Poin',
                                                   style: TextStyle(
                                                     color: Colors.white
-                                                        .withOpacity(0.95),
+                                                        .withValues(
+                                                            alpha: 0.95),
                                                     fontSize: 11,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -1854,36 +1556,37 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                                               ],
                                             ),
                                           ),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           // Version Badge
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 12, vertical: 6),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.white.withOpacity(0.2),
+                                              color: Colors.white
+                                                  .withValues(alpha: 0.2),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                               border: Border.all(
                                                 color: Colors.white
-                                                    .withOpacity(0.3),
+                                                    .withValues(alpha: 0.3),
                                                 width: 1,
                                               ),
                                             ),
                                             child: Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Icon(
+                                                const Icon(
                                                   Icons.history,
                                                   color: Colors.white,
                                                   size: 14,
                                                 ),
-                                                SizedBox(width: 4),
+                                                const SizedBox(width: 4),
                                                 Text(
                                                   'Versi ${question.version}',
                                                   style: TextStyle(
                                                     color: Colors.white
-                                                        .withOpacity(0.95),
+                                                        .withValues(
+                                                            alpha: 0.95),
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w600,
                                                   ),
@@ -1899,7 +1602,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                               ],
                             ),
 
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                           ],
                         ),
                       ),
@@ -1909,13 +1612,13 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 // Content with enhanced design
                 Flexible(
                   child: SingleChildScrollView(
-                    physics: BouncingScrollPhysics(),
+                    physics: const BouncingScrollPhysics(),
                     child: _buildDetailQuestionContent(question),
                   ),
                 ),
                 // Modern Footer
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
                     border: Border(
@@ -1934,16 +1637,17 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             gradient: LinearGradient(
                               colors: [
                                 _getTypeColor(question.type),
-                                _getTypeColor(question.type).withOpacity(0.8),
+                                _getTypeColor(question.type)
+                                    .withValues(alpha: 0.8),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
                                 color: _getTypeColor(question.type)
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 8,
-                                offset: Offset(0, 4),
+                                offset: const Offset(0, 4),
                               ),
                             ],
                           ),
@@ -1952,7 +1656,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             child: InkWell(
                               borderRadius: BorderRadius.circular(14),
                               onTap: () => Get.back(),
-                              child: Center(
+                              child: const Center(
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -1991,32 +1695,32 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   // Build detailed question content
   Widget _buildDetailQuestionContent(QuestionOnlineExam question) {
     return Padding(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Question Stats Card
           Container(
-            padding: EdgeInsets.all(20),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  _getTypeColor(question.type).withOpacity(0.08),
-                  _getTypeColor(question.type).withOpacity(0.04),
+                  _getTypeColor(question.type).withValues(alpha: 0.08),
+                  _getTypeColor(question.type).withValues(alpha: 0.04),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _getTypeColor(question.type).withOpacity(0.2),
+                color: _getTypeColor(question.type).withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _getTypeColor(question.type).withOpacity(0.1),
+                  color: _getTypeColor(question.type).withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -2026,9 +1730,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getTypeColor(question.type).withOpacity(0.15),
+                        color: _getTypeColor(question.type)
+                            .withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -2037,7 +1742,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'Informasi Soal',
                       style: TextStyle(
@@ -2048,7 +1753,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                     ),
                   ],
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
                 Row(
                   children: [
                     Expanded(
@@ -2059,7 +1764,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         _getTypeColor(question.type),
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: _buildInfoCard(
                         'Opsi',
@@ -2074,7 +1779,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Question Text Section
           _buildSection(
@@ -2083,7 +1788,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             _getTypeColor(question.type),
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -2093,9 +1798,9 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -2103,9 +1808,11 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: _getTypeColor(question.type).withOpacity(0.1),
+                      color:
+                          _getTypeColor(question.type).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -2117,7 +1824,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                       ),
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     removeHtmlTags(question.question),
                     style: TextStyle(
@@ -2132,7 +1839,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             ),
           ),
 
-          SizedBox(height: 24), // Options Section
+          const SizedBox(height: 24), // Options Section
           if (question.options.isNotEmpty) ...[
             _buildSection(
               'Pilihan Jawaban',
@@ -2150,8 +1857,8 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                       : false;
 
                   return Container(
-                    margin: EdgeInsets.only(bottom: 12),
-                    padding: EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: isCorrect ? Colors.green[50] : Colors.white,
                       borderRadius: BorderRadius.circular(18),
@@ -2164,10 +1871,10 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                       boxShadow: [
                         BoxShadow(
                           color: isCorrect
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1),
+                              ? Colors.green.withValues(alpha: 0.1)
+                              : Colors.grey.withValues(alpha: 0.1),
                           blurRadius: 8,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -2183,17 +1890,17 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: isCorrect
-                                    ? Colors.green.withOpacity(0.3)
-                                    : Colors.blue.withOpacity(0.3),
+                                    ? Colors.green.withValues(alpha: 0.3)
+                                    : Colors.blue.withValues(alpha: 0.3),
                                 blurRadius: 4,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
                           child: Center(
                             child: Text(
                               optionLetter,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
@@ -2201,7 +1908,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: 16), // Option text
+                        const SizedBox(width: 16), // Option text
                         Expanded(
                           child: Text(
                             removeHtmlTags((option is Map)
@@ -2223,14 +1930,14 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                         ),
                         // Correct answer indicator
                         if (isCorrect) ...[
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Container(
-                            padding: EdgeInsets.all(6),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.all(6),
+                            decoration: const BoxDecoration(
                               color: Colors.green,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.check,
                               color: Colors.white,
                               size: 16,
@@ -2243,7 +1950,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
                 }).toList(),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
           ],
 
           // Additional Information
@@ -2259,33 +1966,33 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withOpacity(0.1),
-                color.withOpacity(0.05),
+                color.withValues(alpha: 0.1),
+                color.withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               width: 1.5,
             ),
           ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(icon, color: color, size: 20),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Text(
                 title,
                 style: TextStyle(
@@ -2297,7 +2004,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
             ],
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         content,
       ],
     );
@@ -2307,33 +2014,33 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
   Widget _buildInfoCard(
       String label, String value, IconData icon, Color color) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             label,
             style: TextStyle(
@@ -2342,7 +2049,7 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: 4),
+          const SizedBox(height: 4),
           Text(
             value,
             style: TextStyle(
@@ -2350,48 +2057,6 @@ class _QuestionOnlineExamScreenState extends State<QuestionOnlineExamScreen>
               fontWeight: FontWeight.bold,
               color: Colors.grey[800],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper method to build info rows
-  Widget _buildInfoRow(String label, String value, IconData icon) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.grey[200] ?? Colors.grey.shade200,
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.grey[600], size: 18),
-          SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[800],
-                ),
-              ),
-            ],
           ),
         ],
       ),

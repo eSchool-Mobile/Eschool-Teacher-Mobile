@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/question.dart';
@@ -8,6 +7,7 @@ import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 // Tambahkan import File
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class ApiException implements Exception {
   final String message;
@@ -54,7 +54,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
   Future<void> fetchTeacherSubjects({bool isStaffView = false}) async {
     try {
       emit(QuestionBankLoading());
-      print("Fetching subjects for ${isStaffView ? 'staff' : 'teacher'}...");
+      debugPrint("Fetching subjects for ${isStaffView ? 'staff' : 'teacher'}...");
 
       final subjects =
           await _repository.getTeacherSubjects(isStaffView: isStaffView);
@@ -64,13 +64,13 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         return;
       }
 
-      print("Successfully fetched ${subjects.length} subjects");
+      debugPrint("Successfully fetched ${subjects.length} subjects");
       emit(SubjectsFetchSuccess(subjects));
     } catch (e) {
-      print("Error in QuestionBankCubit: $e");
+      debugPrint("Error in QuestionBankCubit: $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -93,7 +93,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -106,7 +106,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -129,7 +129,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      throw e; // Re-throw to handle in UI
+      rethrow; // Re-throw to handle in UI
     }
   }
 
@@ -152,7 +152,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      throw e;
+      rethrow;
     }
   }
 
@@ -172,22 +172,22 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     try {
       emit(QuestionBankLoading());
 
-      print('\n=== QUESTION BANK CUBIT: CREATE QUESTION ===');
-      print('Starting question creation in cubit...');
+      debugPrint('\n=== QUESTION BANK CUBIT: CREATE QUESTION ===');
+      debugPrint('Starting question creation in cubit...');
 
       // Validate image if exists
       if (image != null) {
-        print('\n=== IMAGE VALIDATION ===');
+        debugPrint('\n=== IMAGE VALIDATION ===');
         final imageSize = await image.length();
         final imageSizeInMB = imageSize / (1024 * 1024);
-        print('Image Size: ${imageSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint('Image Size: ${imageSizeInMB.toStringAsFixed(2)} MB');
 
         if (imageSizeInMB > 2) {
           throw ApiException('Ukuran gambar harus kurang dari 2MB');
         }
 
         final extension = image.path.split('.').last.toLowerCase();
-        print('Image Extension: $extension');
+        debugPrint('Image Extension: $extension');
 
         if (!['jpg', 'jpeg', 'png'].contains(extension)) {
           throw ApiException(
@@ -212,14 +212,14 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
           subjectId: subjectId, bankId: banksoalId);
       emit(BankQuestionsFetchSuccess(questions));
     } catch (e) {
-      print('\n=== ERROR IN CUBIT ===');
-      print('Error Type: ${e.runtimeType}');
-      print('Error Message: $e');
+      debugPrint('\n=== ERROR IN CUBIT ===');
+      debugPrint('Error Type: ${e.runtimeType}');
+      debugPrint('Error Message: $e');
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
-      throw e;
+      rethrow;
     }
   }
 
@@ -234,17 +234,17 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required String question,
     required String note,
     required List<QuestionOption> options,
-    dynamic? image, // Tambahkan parameter image
+    dynamic image, // Tambahkan parameter image
     String? orderType,
   }) async {
-    print("OKKK 10");
+    debugPrint("OKKK 10");
     try {
       emit(QuestionBankLoading());
 
-      print("OK 11");
+      debugPrint("OK 11");
 
-      print(banksoalSoalId);
-      print(subjectId);
+      debugPrint(banksoalSoalId.toString());
+      debugPrint(subjectId.toString());
 
       await _repository.updateQuestion(
         banksoalSoalId: banksoalSoalId,
@@ -260,14 +260,14 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
         orderType: type == "multiple_choice" ? orderType : null,
       );
 
-      print("OK 12");
+      debugPrint("OK 12");
 
       // Fetch updated questions after successful update
       final questions = await _repository.getBankQuestions(
           subjectId: subjectId, bankId: bankSoalId);
-      print("OK 13");
+      debugPrint("OK 13");
       emit(BankQuestionsFetchSuccess(questions));
-      print("OK 14");
+      debugPrint("OK 14");
     } catch (e) {
       // Check if error message indicates success
       if (e.toString().contains('Soal Updated Successfully')) {
@@ -280,9 +280,9 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
 
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
-      throw e;
+      rethrow;
     }
   }
 
@@ -291,29 +291,29 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required int banksoalId,
   }) async {
     try {
-      print('📝 QuestionBankCubit: Starting delete process');
+      debugPrint('📝 QuestionBankCubit: Starting delete process');
       emit(QuestionBankLoading());
 
-      print('📊 Delete Parameters:');
-      print('Subject ID: $subjectId');
-      print('Bank Soal ID: $banksoalId');
+      debugPrint('📊 Delete Parameters:');
+      debugPrint('Subject ID: $subjectId');
+      debugPrint('Bank Soal ID: $banksoalId');
 
       await _repository.deleteBankSoal(
         subjectId: subjectId,
         banksoalId: banksoalId,
       );
 
-      print('🔄 Refreshing bank soal list');
+      debugPrint('🔄 Refreshing bank soal list');
       final bankSoal = await _repository.getBankSoal(subjectId);
       emit(BankSoalFetchSuccess(bankSoal));
-      print('✅ Delete process completed successfully');
+      debugPrint('✅ Delete process completed successfully');
     } catch (e) {
-      print('❌ Delete Error in Cubit: $e');
+      debugPrint('❌ Delete Error in Cubit: $e');
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionBankError(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
-      throw e;
+      rethrow;
     }
   }
 
@@ -324,7 +324,7 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
     required int banksoalSoalId,
   }) async {
     try {
-      print('📝 QuestionBankCubit: Starting delete question process');
+      debugPrint('📝 QuestionBankCubit: Starting delete question process');
       emit(QuestionBankLoading());
 
       await _repository.deleteQuestion(
@@ -340,19 +340,19 @@ class QuestionBankCubit extends Cubit<QuestionBankState> {
       );
 
       emit(BankQuestionsFetchSuccess(updatedQuestions));
-      print('✅ Delete question process completed successfully');
+      debugPrint('✅ Delete question process completed successfully');
     } catch (e) {
-      print('❌ Delete Error in Cubit: $e');
+      debugPrint('❌ Delete Error in Cubit: $e');
       if (e.toString().contains('validation.exists')) {
         emit(QuestionBankError('Soal tidak ditemukan atau sudah dihapus'));
       } else {
         final userFriendlyMessage =
             ErrorMessageUtils.getReadableErrorMessage(e);
         emit(QuestionBankError(userFriendlyMessage));
-        print(
+        debugPrint(
             'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       }
-      throw e;
+      rethrow;
     }
   }
 }

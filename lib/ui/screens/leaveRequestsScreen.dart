@@ -23,7 +23,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
 
 /// Safely parse date string with multiple format support
 DateTime? _safeParseDate(String? dateString) {
@@ -55,7 +54,7 @@ DateTime? _safeParseDate(String? dateString) {
         }
       }
     } catch (parseError) {
-      print('Error parsing date: $dateString - $parseError');
+      debugPrint('Error parsing date: $dateString - $parseError');
     }
     return null;
   }
@@ -113,7 +112,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
           }
         }
       } catch (parseError) {
-        print('Error parsing date: $dateString - $parseError');
+        debugPrint('Error parsing date: $dateString - $parseError');
       }
       return null;
     }
@@ -245,7 +244,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
               borderRadius: BorderRadius.circular(25),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withOpacity(0.15),
+                  color: _maroonPrimary.withValues(alpha: 0.15),
                   blurRadius: 25,
                   offset: const Offset(0, 10),
                   spreadRadius: 0,
@@ -334,7 +333,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
     final titleTextStyle = TextStyle(
         fontSize: Utils.getScaledValue(context, 13),
         fontFamily: GoogleFonts.poppins().fontFamily,
-        color: Theme.of(context).colorScheme.secondary.withOpacity(0.75));
+        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.75));
 
     final dateTextStyle = TextStyle(
         fontSize: Utils.getScaledValue(context, 14),
@@ -348,7 +347,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: _maroonPrimary.withOpacity(0.1),
+            color: _maroonPrimary.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -387,7 +386,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                 height: 60,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: _maroonPrimary.withOpacity(0.05),
+                  color: _maroonPrimary.withValues(alpha: 0.05),
                 ),
               ),
             ),
@@ -412,11 +411,11 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               shape: BoxShape.circle,
                               gradient: SweepGradient(
                                 colors: [
-                                  _maroonPrimary.withOpacity(0.2),
-                                  _maroonPrimary.withOpacity(0.6),
+                                  _maroonPrimary.withValues(alpha: 0.2),
+                                  _maroonPrimary.withValues(alpha: 0.6),
                                   _maroonPrimary,
                                   _maroonLight,
-                                  _maroonPrimary.withOpacity(0.2),
+                                  _maroonPrimary.withValues(alpha: 0.2),
                                 ],
                               ),
                             ),
@@ -479,7 +478,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0, vertical: 8.0),
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: CustomTextContainer(
@@ -502,7 +501,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               color: Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .withOpacity(0.76),
+                                  .withValues(alpha: 0.76),
                             ),
                           ),
                         ],
@@ -527,9 +526,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                       gradient: LinearGradient(
                         colors: [
                           Colors.transparent,
-                          _maroonLight.withOpacity(0.3),
-                          _maroonPrimary.withOpacity(0.5),
-                          _maroonLight.withOpacity(0.3),
+                          _maroonLight.withValues(alpha: 0.3),
+                          _maroonPrimary.withValues(alpha: 0.5),
+                          _maroonLight.withValues(alpha: 0.3),
                           Colors.transparent,
                         ],
                       ),
@@ -545,10 +544,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: _maroonPrimary.withOpacity(0.03),
+                            color: _maroonPrimary.withValues(alpha: 0.03),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -558,7 +557,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               CustomTextContainer(
                                 textKey: fromDateKey,
                                 style: titleTextStyle.copyWith(
-                                  color: _maroonPrimary.withOpacity(0.7),
+                                  color: _maroonPrimary.withValues(alpha: 0.7),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -580,10 +579,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: _maroonPrimary.withOpacity(0.03),
+                            color: _maroonPrimary.withValues(alpha: 0.03),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -593,7 +592,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               CustomTextContainer(
                                 textKey: toDateKey,
                                 style: titleTextStyle.copyWith(
-                                  color: _maroonPrimary.withOpacity(0.7),
+                                  color: _maroonPrimary.withValues(alpha: 0.7),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -624,10 +623,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: _maroonPrimary.withOpacity(0.03),
+                      color: _maroonPrimary.withValues(alpha: 0.03),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: _maroonPrimary.withOpacity(0.1),
+                        color: _maroonPrimary.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -637,7 +636,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         CustomTextContainer(
                           textKey: leaveReasonKey,
                           style: titleTextStyle.copyWith(
-                            color: _maroonPrimary.withOpacity(0.7),
+                            color: _maroonPrimary.withValues(alpha: 0.7),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -666,10 +665,10 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                         width: double.infinity,
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.red.withOpacity(0.03),
+                          color: Colors.red.withValues(alpha: 0.03),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Colors.red.withOpacity(0.2),
+                            color: Colors.red.withValues(alpha: 0.2),
                             width: 1,
                           ),
                         ),
@@ -907,7 +906,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -931,7 +930,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     ...state.leaveRequests
                         .map((leaveRequest) => _buildLeaveRequestDetails(
                             leaveRequest: leaveRequest, isStaffLeave: true))
-                        .toList(),
+                        ,
                   ],
                 ),
               ),
@@ -960,9 +959,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -980,7 +979,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               Container(
                                 width: 50,
                                 height: 50,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                 ),
@@ -1040,7 +1039,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                     Container(
                                       width: 16,
                                       height: 16,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
@@ -1064,7 +1063,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                     Container(
                                       width: 16,
                                       height: 16,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
@@ -1184,7 +1183,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -1208,7 +1207,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     ...state.leaveRequests
                         .map((leaveRequest) => _buildLeaveRequestDetails(
                             leaveRequest: leaveRequest, isStaffLeave: false))
-                        .toList(),
+                        ,
                   ],
                 ),
               ),
@@ -1239,9 +1238,9 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
-                        offset: Offset(0, 5),
+                        offset: const Offset(0, 5),
                       ),
                     ],
                   ),
@@ -1259,7 +1258,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                               Container(
                                 width: 45,
                                 height: 45,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                 ),
@@ -1319,7 +1318,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                     Container(
                                       width: 14,
                                       height: 14,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
@@ -1343,7 +1342,7 @@ class _LeaveRequestsScreenState extends State<LeaveRequestsScreen>
                                     Container(
                                       width: 14,
                                       height: 14,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
@@ -1457,7 +1456,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasAttachments = leaveRequest.attachments?.isNotEmpty ?? false;
-    final Color maroonPrimary = const Color(0xFF8B4A5B);
+    const Color maroonPrimary = Color(0xFF8B4A5B);
 
     return CustomBottomsheet(
         titleLabelKey: leaveDetailsKey,
@@ -1468,10 +1467,10 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                     ?.map((leaveDetail) => Container(
                           margin: const EdgeInsets.only(bottom: 8),
                           decoration: BoxDecoration(
-                            color: maroonPrimary.withOpacity(0.03),
+                            color: maroonPrimary.withValues(alpha: 0.03),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: maroonPrimary.withOpacity(0.1),
+                              color: maroonPrimary.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -1484,7 +1483,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
                               height: 40,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: maroonPrimary.withOpacity(0.1),
+                                color: maroonPrimary.withValues(alpha: 0.1),
                               ),
                               child: Center(
                                 child: Text(
@@ -1639,7 +1638,7 @@ class LeaveRequestDetailsBottomsheet extends StatelessWidget {
       bool isStaffLeave,
       BoxConstraints boxConstraints,
       bool hasAttachments) {
-    final Color maroonPrimary = const Color(0xFF8B4A5B);
+    const Color maroonPrimary = Color(0xFF8B4A5B);
     final bool isInProgress =
         (isStaffLeave && state is ApproveOrRejectLeaveRequestInProgress) ||
             (!isStaffLeave &&
@@ -1701,7 +1700,7 @@ class LeaveAttachmentsBottomsheet extends StatelessWidget {
                         studyMaterial: file, showEditAndDeleteButton: false),
                   ).animate().fadeIn(
                       duration: const Duration(milliseconds: 200),
-                      delay: Duration(milliseconds: 100)))
+                      delay: const Duration(milliseconds: 100)))
               .toList(),
         ));
   }

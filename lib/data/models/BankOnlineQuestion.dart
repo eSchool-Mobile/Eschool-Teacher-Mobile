@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 class BankSoalQuestion {
   final int id;
   final String name;
@@ -19,7 +20,7 @@ class BankSoalQuestion {
   });
 
   factory BankSoalQuestion.fromJson(Map<String, dynamic> json) {
-    print('Raw JSON for BankSoalQuestion: $json');
+    debugPrint('Raw JSON for BankSoalQuestion: $json');
 
     try {
       // Parse soal list safely
@@ -49,7 +50,7 @@ class BankSoalQuestion {
         subjectName: json['subject_name'],
       );
     } catch (e) {
-      print('Error parsing BankSoalQuestion: $e');
+      debugPrint('Error parsing BankSoalQuestion: $e');
       // Return a default object in case of error
       return BankSoalQuestion(
         id: 0,
@@ -100,7 +101,7 @@ class SoalQuestion {
         selected: json['selected'] ?? false, // Parse selected field
       );
     } catch (e) {
-      print('Error parsing SoalQuestion: $e');
+      debugPrint('Error parsing SoalQuestion: $e');
       return SoalQuestion(
         id: 0,
         question: 'Error',

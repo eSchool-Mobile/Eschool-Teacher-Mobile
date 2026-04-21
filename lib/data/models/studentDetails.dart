@@ -1,9 +1,9 @@
-import 'dart:convert';
 
 import 'package:eschool_saas_staff/data/models/offlineExamSubjectResult.dart';
 import 'package:eschool_saas_staff/data/models/paidFeeDetails.dart';
 import 'package:eschool_saas_staff/data/models/payment.dart';
 import 'package:eschool_saas_staff/data/models/student.dart';
+import 'package:flutter/foundation.dart';
 
 class StudentDetails {
   final int? id;
@@ -144,7 +144,7 @@ class StudentDetails {
     } else {
       parsedStatus = int.tryParse(json['status']?.toString() ?? '');
     }
-    print("Parsed status: $parsedStatus");
+    debugPrint("Parsed status: $parsedStatus");
 
     // Handle new API format with class_section and payment_status
     ClassSection? classSection;
@@ -184,7 +184,7 @@ class StudentDetails {
           }
         } catch (e) {
           // If any error occurs during conversion, just leave paymentHistory empty
-          print("Error parsing payment_history in StudentDetails: $e");
+          debugPrint("Error parsing payment_history in StudentDetails: $e");
         }
       }
     }
@@ -305,22 +305,22 @@ class StudentDetails {
   }
 
   bool isActive() {
-    print("Student status check:");
-    print("Status value: $status");
-    print("Status type: ${status.runtimeType}");
+    debugPrint("Student status check:");
+    debugPrint("Status value: $status");
+    debugPrint("Status type: ${status.runtimeType}");
     
     // Jika status null, kemungkinan ada masalah dengan API atau parsing
     if (status == null) {
-      print("WARNING: Student status is null - check API response");
+      debugPrint("WARNING: Student status is null - check API response");
       return false; // Default ke non-aktif jika tidak ada data status
     }
 
-    // print(">///<");
-    // print(status);
+    // debugPrint(">///<");
+    // debugPrint(status.toString());
     
     // Status 1 = aktif, 0 = non-aktif
     bool isActiveStatus = (status == 1);
-    print("Is student active: $isActiveStatus");
+    debugPrint("Is student active: $isActiveStatus");
     return isActiveStatus;
   }
 }

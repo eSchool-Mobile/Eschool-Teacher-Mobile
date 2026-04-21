@@ -27,7 +27,7 @@ class CustomTitleDescriptionContainer extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
             fontSize: Utils.getScaledValue(context, 16),
-            color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
+            color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.76),
           ),
         ),
         const SizedBox(

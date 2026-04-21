@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -100,8 +99,8 @@ class _ContactListScreenState extends State<ContactListScreen>
             end: Alignment.bottomRight,
             colors: [
               _surfaceColor,
-              _surfaceColor.withOpacity(0.8),
-              Colors.white.withOpacity(0.9),
+              _surfaceColor.withValues(alpha: 0.8),
+              Colors.white.withValues(alpha: 0.9),
             ],
           ),
         ),
@@ -171,15 +170,15 @@ class _ContactListScreenState extends State<ContactListScreen>
                   child: _buildSkeletonStatsSection(),
                 ),
                 // Contact List Skeleton
-                SliverToBoxAdapter(
-                  child: const SizedBox(height: 20),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 20),
                 ),
                 SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: const SkeletonContactListItem(),
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: SkeletonContactListItem(),
                       );
                     },
                     childCount: 6, // Show 6 skeleton items
@@ -226,8 +225,8 @@ class _ContactListScreenState extends State<ContactListScreen>
                   child: _buildEnhancedStatsSection(),
                 ),
                 // Contact List
-                SliverToBoxAdapter(
-                  child: const SizedBox(height: 20),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: 20),
                 ),
                 state.contacts.isEmpty
                     ? SliverFillRemaining(
@@ -306,20 +305,20 @@ class _ContactListScreenState extends State<ContactListScreen>
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withOpacity(0.95)],
+          colors: [Colors.white, Colors.white.withValues(alpha: 0.95)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withOpacity(0.08),
+            color: _primaryColor.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
             spreadRadius: 2,
           ),
           BoxShadow(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             blurRadius: 10,
             offset: const Offset(-4, -4),
           ),
@@ -345,7 +344,7 @@ class _ContactListScreenState extends State<ContactListScreen>
               ? Container(
                   margin: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: _primaryColor.withOpacity(0.1),
+                    color: _primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: IconButton(
@@ -375,7 +374,7 @@ class _ContactListScreenState extends State<ContactListScreen>
       ),
     )
         .animate()
-        .shimmer(duration: 2000.ms, color: _accentColor.withOpacity(0.3))
+        .shimmer(duration: 2000.ms, color: _accentColor.withValues(alpha: 0.3))
         .scale(begin: const Offset(0.95, 0.95), duration: 200.ms);
   }
 
@@ -384,14 +383,14 @@ class _ContactListScreenState extends State<ContactListScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, Colors.white.withOpacity(0.9)],
+          colors: [Colors.white, Colors.white.withValues(alpha: 0.9)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withOpacity(0.08),
+            color: _primaryColor.withValues(alpha: 0.08),
             blurRadius: 25,
             offset: const Offset(0, 10),
             spreadRadius: 2,
@@ -401,7 +400,7 @@ class _ContactListScreenState extends State<ContactListScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [],
           ),
@@ -486,10 +485,10 @@ class _ContactListScreenState extends State<ContactListScreen>
             decoration: BoxDecoration(
               color: _surfaceColor,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: _accentColor.withOpacity(0.2)),
+              border: Border.all(color: _accentColor.withValues(alpha: 0.2)),
             ),
             child: DropdownButtonFormField<String>(
-              value: _selectedSort,
+              initialValue: _selectedSort,
               decoration: InputDecoration(
                 prefixIcon: Container(
                   padding: const EdgeInsets.all(12),
@@ -571,13 +570,13 @@ class _ContactListScreenState extends State<ContactListScreen>
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
+                    color: Colors.grey.withValues(alpha: 0.2),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                     spreadRadius: 2,
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     blurRadius: 10,
                     offset: const Offset(-4, -4),
                   ),
@@ -713,13 +712,13 @@ class _ContactListScreenState extends State<ContactListScreen>
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                   spreadRadius: 2,
                 ),
                 BoxShadow(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(-4, -4),
                 ),
@@ -731,10 +730,10 @@ class _ContactListScreenState extends State<ContactListScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
@@ -753,7 +752,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                     color: Colors.white,
                     shadows: [
                       Shadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         offset: const Offset(1, 1),
                         blurRadius: 3,
                       ),
@@ -766,7 +765,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -789,18 +788,18 @@ class _ContactListScreenState extends State<ContactListScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: _accentColor.withOpacity(0.1),
+          color: _accentColor.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: _primaryColor.withOpacity(0.08),
+            color: _primaryColor.withValues(alpha: 0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
             spreadRadius: -2,
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -811,8 +810,8 @@ class _ContactListScreenState extends State<ContactListScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => _navigateToContactDetail(contact),
-          splashColor: _primaryColor.withOpacity(0.08),
-          highlightColor: _accentColor.withOpacity(0.04),
+          splashColor: _primaryColor.withValues(alpha: 0.08),
+          highlightColor: _accentColor.withValues(alpha: 0.04),
           child: Container(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -830,12 +829,16 @@ class _ContactListScreenState extends State<ContactListScreen>
                         gradient: LinearGradient(
                           colors: contact.isInquiry
                               ? [
-                                  const Color(0xFF8B6B8F).withOpacity(0.15),
-                                  const Color(0xFFA67C96).withOpacity(0.1),
+                                  const Color(0xFF8B6B8F)
+                                      .withValues(alpha: 0.15),
+                                  const Color(0xFFA67C96)
+                                      .withValues(alpha: 0.1),
                                 ]
                               : [
-                                  const Color(0xFFD4A574).withOpacity(0.15),
-                                  const Color(0xFFE8B893).withOpacity(0.1),
+                                  const Color(0xFFD4A574)
+                                      .withValues(alpha: 0.15),
+                                  const Color(0xFFE8B893)
+                                      .withValues(alpha: 0.1),
                                 ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -843,8 +846,8 @@ class _ContactListScreenState extends State<ContactListScreen>
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: contact.isInquiry
-                              ? const Color(0xFF8B6B8F).withOpacity(0.2)
-                              : const Color(0xFFD4A574).withOpacity(0.2),
+                              ? const Color(0xFF8B6B8F).withValues(alpha: 0.2)
+                              : const Color(0xFFD4A574).withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -897,12 +900,12 @@ class _ContactListScreenState extends State<ContactListScreen>
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _accentColor.withOpacity(0.15),
+                      color: _accentColor.withValues(alpha: 0.15),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withOpacity(0.06),
+                        color: _primaryColor.withValues(alpha: 0.06),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                         spreadRadius: -1,
@@ -918,7 +921,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: _primaryColor.withOpacity(0.1),
+                              color: _primaryColor.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Icon(
@@ -943,7 +946,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _surfaceColor.withOpacity(0.8),
+                              color: _surfaceColor.withValues(alpha: 0.8),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -1000,15 +1003,15 @@ class _ContactListScreenState extends State<ContactListScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          const Color(0xFF059669).withOpacity(0.05),
-                          const Color(0xFF10B981).withOpacity(0.03),
+                          const Color(0xFF059669).withValues(alpha: 0.05),
+                          const Color(0xFF10B981).withValues(alpha: 0.03),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: const Color(0xFF059669).withOpacity(0.15),
+                        color: const Color(0xFF059669).withValues(alpha: 0.15),
                         width: 1,
                       ),
                     ),
@@ -1020,13 +1023,14 @@ class _ContactListScreenState extends State<ContactListScreen>
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF059669).withOpacity(0.1),
+                                color: const Color(0xFF059669)
+                                    .withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(
+                              child: const Icon(
                                 Icons.reply_rounded,
                                 size: 14,
-                                color: const Color(0xFF059669),
+                                color: Color(0xFF059669),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -1044,7 +1048,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withValues(alpha: 0.6),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
@@ -1080,15 +1084,16 @@ class _ContactListScreenState extends State<ContactListScreen>
                               Icon(
                                 Icons.person_outline_rounded,
                                 size: 12,
-                                color: const Color(0xFF059669).withOpacity(0.7),
+                                color: const Color(0xFF059669)
+                                    .withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 contact.replies!.last.adminName!,
                                 style: GoogleFonts.inter(
                                   fontSize: 10,
-                                  color:
-                                      const Color(0xFF059669).withOpacity(0.8),
+                                  color: const Color(0xFF059669)
+                                      .withValues(alpha: 0.8),
                                   fontWeight: FontWeight.w500,
                                   fontStyle: FontStyle.italic,
                                 ),
@@ -1104,7 +1109,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                       .slideY(begin: 0.1, end: 0)
                 else
                   // Debug: Show if no replies
-                  SizedBox.shrink(),
+                  const SizedBox.shrink(),
 
                 const SizedBox(height: 16),
 
@@ -1117,13 +1122,13 @@ class _ContactListScreenState extends State<ContactListScreen>
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: contact.isInquiry
-                            ? const Color(0xFF8B6B8F).withOpacity(0.1)
-                            : const Color(0xFFD4A574).withOpacity(0.1),
+                            ? const Color(0xFF8B6B8F).withValues(alpha: 0.1)
+                            : const Color(0xFFD4A574).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: contact.isInquiry
-                              ? const Color(0xFF8B6B8F).withOpacity(0.2)
-                              : const Color(0xFFD4A574).withOpacity(0.2),
+                              ? const Color(0xFF8B6B8F).withValues(alpha: 0.2)
+                              : const Color(0xFFD4A574).withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -1164,7 +1169,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: _primaryColor.withOpacity(0.2),
+                            color: _primaryColor.withValues(alpha: 0.2),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -1191,7 +1196,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                                   ),
                                 ),
                                 const SizedBox(width: 6),
-                                Icon(
+                                const Icon(
                                   Icons.arrow_forward_ios_rounded,
                                   size: 12,
                                   color: Colors.white,
@@ -1225,25 +1230,25 @@ class _ContactListScreenState extends State<ContactListScreen>
     switch (status) {
       case 'new':
         primaryColor = const Color(0xFF1E40AF); // Biru pekat yang jelas
-        backgroundColor = const Color(0xFF1E40AF).withOpacity(0.15);
+        backgroundColor = const Color(0xFF1E40AF).withValues(alpha: 0.15);
         text = 'Baru';
         icon = Icons.check_circle_rounded;
         break;
       case 'replied':
         primaryColor = const Color(0xFF059669); // Hijau pekat yang jelas
-        backgroundColor = const Color(0xFF059669).withOpacity(0.15);
+        backgroundColor = const Color(0xFF059669).withValues(alpha: 0.15);
         text = 'Dibalas';
         icon = Icons.done_all_rounded;
         break;
       case 'closed':
         primaryColor = const Color(0xFF9B8A8A);
-        backgroundColor = const Color(0xFF9B8A8A).withOpacity(0.12);
+        backgroundColor = const Color(0xFF9B8A8A).withValues(alpha: 0.12);
         text = 'Ditutup';
         icon = Icons.lock_rounded;
         break;
       default:
         primaryColor = const Color(0xFF9B8A8A);
-        backgroundColor = const Color(0xFF9B8A8A).withOpacity(0.12);
+        backgroundColor = const Color(0xFF9B8A8A).withValues(alpha: 0.12);
         text = status;
         icon = Icons.help_outline_rounded;
     }
@@ -1254,7 +1259,7 @@ class _ContactListScreenState extends State<ContactListScreen>
         color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: primaryColor.withOpacity(0.2),
+          color: primaryColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -1293,8 +1298,8 @@ class _ContactListScreenState extends State<ContactListScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    _primaryColor.withOpacity(0.1),
-                    _accentColor.withOpacity(0.05)
+                    _primaryColor.withValues(alpha: 0.1),
+                    _accentColor.withValues(alpha: 0.05)
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -1302,7 +1307,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: _primaryColor.withOpacity(0.1),
+                    color: _primaryColor.withValues(alpha: 0.1),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),
@@ -1349,7 +1354,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: _primaryColor.withOpacity(0.3),
+                      color: _primaryColor.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 6),
                     ),
@@ -1358,7 +1363,8 @@ class _ContactListScreenState extends State<ContactListScreen>
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.add_rounded, color: Colors.white, size: 18),
+                    const Icon(Icons.add_rounded,
+                        color: Colors.white, size: 18),
                     const SizedBox(width: 8),
                     Text(
                       'Tambah Kontak Baru',
@@ -1394,8 +1400,8 @@ class _ContactListScreenState extends State<ContactListScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Colors.red.withOpacity(0.1),
-                    Colors.red.withOpacity(0.05),
+                    Colors.red.withValues(alpha: 0.1),
+                    Colors.red.withValues(alpha: 0.05),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -1403,7 +1409,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.red.withOpacity(0.1),
+                    color: Colors.red.withValues(alpha: 0.1),
                     blurRadius: 30,
                     offset: const Offset(0, 10),
                   ),
@@ -1446,7 +1452,7 @@ class _ContactListScreenState extends State<ContactListScreen>
                 borderRadius: BorderRadius.circular(25),
                 boxShadow: [
                   BoxShadow(
-                    color: _primaryColor.withOpacity(0.3),
+                    color: _primaryColor.withValues(alpha: 0.3),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
@@ -1509,13 +1515,15 @@ class _ContactListScreenState extends State<ContactListScreen>
           color: isSelected ? null : _surfaceColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? _primaryColor : _accentColor.withOpacity(0.3),
+            color: isSelected
+                ? _primaryColor
+                : _accentColor.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: _primaryColor.withOpacity(0.3),
+                    color: _primaryColor.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1545,13 +1553,14 @@ class _ContactListScreenState extends State<ContactListScreen>
     )
         .animate(target: isSelected ? 1 : 0)
         .scale(begin: const Offset(0.95, 0.95))
-        .shimmer(duration: 1000.ms, color: Colors.white.withOpacity(0.5));
+        .shimmer(duration: 1000.ms, color: Colors.white.withValues(alpha: 0.5));
   }
 
   void _showSubmitContactDialog() async {
     final result =
         await Navigator.pushNamed(context, Routes.submitContactScreen);
     if (result == true) {
+      if (!mounted) return;
       context.read<ContactListCubit>().refresh();
     }
   }
@@ -1576,6 +1585,7 @@ class _ContactListScreenState extends State<ContactListScreen>
     // Refresh contact list when returning from detail screen
     // Only refresh if user has sent a reply (result == true)
     if (result == true) {
+      if (!mounted) return;
       // Refresh contact list to show updated replies
       context.read<ContactListCubit>().getContacts(
             type: _selectedType,

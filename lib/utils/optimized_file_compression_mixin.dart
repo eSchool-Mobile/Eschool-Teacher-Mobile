@@ -18,11 +18,11 @@ mixin OptimizedFileCompressionMixin {
   }) async {
     try {
       if (kDebugMode) {
-        print(
+        debugPrint(
             '\n🚀 [OPTIMIZED FILE PICKER] Starting file selection and compression...');
-        print('   📋 File type: $fileType');
-        print('   📊 Max size: ${maxSizeInMB.toStringAsFixed(2)} MB');
-        print('   💪 Force compress: $forceCompress');
+        debugPrint('   📋 File type: $fileType');
+        debugPrint('   📊 Max size: ${maxSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint('   💪 Force compress: $forceCompress');
       }
 
       // Pick files
@@ -34,7 +34,7 @@ mixin OptimizedFileCompressionMixin {
 
       if (result == null) {
         if (kDebugMode) {
-          print('   ❌ User cancelled file picker');
+          debugPrint('   ❌ User cancelled file picker');
         }
         return null;
       }
@@ -46,22 +46,23 @@ mixin OptimizedFileCompressionMixin {
 
       if (selectedFiles.isEmpty) {
         if (kDebugMode) {
-          print('   ❌ No files selected');
+          debugPrint('   ❌ No files selected');
         }
         return null;
       }
 
       if (kDebugMode) {
-        print('   ✅ Selected ${selectedFiles.length} file(s)');
+        debugPrint('   ✅ Selected ${selectedFiles.length} file(s)');
         for (int i = 0; i < selectedFiles.length; i++) {
           final file = selectedFiles[i];
           final size = await file.length();
-          print(
+          debugPrint(
               '     📄 File ${i + 1}: ${file.path.split('/').last} (${OptimizedFileCompressionUtils.formatFileSize(size)})');
         }
       }
 
       // Show loading dialog and compress files
+      if (!context.mounted) return null;
       return await _showCompressionDialog(
         context: context,
         files: selectedFiles,
@@ -71,7 +72,7 @@ mixin OptimizedFileCompressionMixin {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [CRITICAL ERROR] File picker and compression failed: $e');
+        debugPrint('❌ [CRITICAL ERROR] File picker and compression failed: $e');
       }
       return null;
     }
@@ -143,6 +144,7 @@ mixin OptimizedFileCompressionMixin {
       context: context,
     );
 
+    if (!context.mounted) return null;
     return files?.isNotEmpty == true ? files!.first : null;
   }
 
@@ -158,29 +160,29 @@ mixin OptimizedFileCompressionMixin {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Container(
-          padding: EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
               Container(
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.check_circle,
                   color: Colors.white,
                   size: 24,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Compression Successful!',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -188,11 +190,11 @@ mixin OptimizedFileCompressionMixin {
                         fontSize: 16,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       '${OptimizedFileCompressionUtils.formatFileSize(originalSize)} → ${OptimizedFileCompressionUtils.formatFileSize(compressedSize)}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
                       ),
                       maxLines: 1,
@@ -201,7 +203,7 @@ mixin OptimizedFileCompressionMixin {
                     Text(
                       '${reduction.toStringAsFixed(1)}% size reduction',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
@@ -218,7 +220,7 @@ mixin OptimizedFileCompressionMixin {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        margin: EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
         elevation: 8,
       ),
     );
@@ -266,7 +268,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
         progress = 0.0;
       });
 
-      await Future.delayed(Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       for (int i = 0; i < widget.files.length; i++) {
         final file = widget.files[i];
@@ -278,7 +280,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
           progress = (i + 0.1) / widget.files.length;
         });
 
-        await Future.delayed(Duration(milliseconds: 200));
+        await Future.delayed(const Duration(milliseconds: 200));
 
         setState(() {
           currentStatus = 'Compressing $fileName...';
@@ -306,7 +308,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
           progress = (i + 1) / widget.files.length;
         });
 
-        await Future.delayed(Duration(milliseconds: 300));
+        await Future.delayed(const Duration(milliseconds: 300));
       }
 
       setState(() {
@@ -315,14 +317,14 @@ class _CompressionDialogState extends State<_CompressionDialog> {
       });
 
       // Show completion for a moment
-      await Future.delayed(Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 800));
 
       widget.onComplete(compressedFiles);
     } catch (e) {
       setState(() {
         currentStatus = 'Compression failed: ${e.toString()}';
       });
-      await Future.delayed(Duration(milliseconds: 1500));
+      await Future.delayed(const Duration(milliseconds: 1500));
       widget.onError(e.toString());
     }
   }
@@ -338,7 +340,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               spreadRadius: 5,
             ),
@@ -354,7 +356,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [Color(0xFFAA6976), Color(0xFF800020)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -362,19 +364,19 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Color(0xFF800020).withOpacity(0.3),
+                      color: const Color(0xFF800020).withValues(alpha: 0.3),
                       blurRadius: 15,
                       spreadRadius: 2,
                     ),
                   ],
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.compress,
                   color: Colors.white,
                   size: 28,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Title
               Text(
@@ -385,7 +387,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Progress Bar
               Container(
@@ -400,7 +402,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   widthFactor: progress,
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         colors: [Color(0xFFAA6976), Color(0xFF800020)],
                       ),
                       borderRadius: BorderRadius.circular(4),
@@ -408,7 +410,7 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Progress Text
               Text(
@@ -419,10 +421,10 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   color: Colors.grey[700],
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Status Text
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: Text(
                   currentStatus,
@@ -435,12 +437,12 @@ class _CompressionDialogState extends State<_CompressionDialog> {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Percentage
               Text(
                 '${(progress * 100).toInt()}%',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF800020),

@@ -39,15 +39,15 @@ class OptimizedFileCompressionUtils {
       final fileExtension = path.extension(fileName).toLowerCase();
 
       if (kDebugMode) {
-        print('🔧 [OPTIMIZED COMPRESSION] Processing: $fileName');
-        print('   📊 Original size: ${formatFileSize(fileSize)}');
-        print('   🎯 Target: ${maxSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint('🔧 [OPTIMIZED COMPRESSION] Processing: $fileName');
+        debugPrint('   📊 Original size: ${formatFileSize(fileSize)}');
+        debugPrint('   🎯 Target: ${maxSizeInMB.toStringAsFixed(2)} MB');
       }
 
       // Check if it's an image
       if (!_supportedImageFormats.contains(fileExtension)) {
         if (kDebugMode) {
-          print('   ⚠️  Not an image file, skipping compression');
+          debugPrint('   ⚠️  Not an image file, skipping compression');
         }
         return file;
       }
@@ -58,7 +58,7 @@ class OptimizedFileCompressionUtils {
       // Skip only if very small and not forced
       if (!forceCompress && fileSize < 100 * 1024) {
         if (kDebugMode) {
-          print('   ⏭️  File very small, skipping compression');
+          debugPrint('   ⏭️  File very small, skipping compression');
         }
         return file;
       }
@@ -75,7 +75,7 @@ class OptimizedFileCompressionUtils {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [COMPRESSION ERROR] $e');
+        debugPrint('❌ [COMPRESSION ERROR] $e');
       }
       onProgress?.call('Compression failed, using original file');
       return file; // Return original file on error
@@ -111,7 +111,7 @@ class OptimizedFileCompressionUtils {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Isolate compression failed: $e');
+        debugPrint('❌ Isolate compression failed: $e');
       }
       onProgress?.call('Fallback to main thread...');
       return await _compressImageOptimized(
@@ -161,13 +161,13 @@ class OptimizedFileCompressionUtils {
 
       if (image == null) {
         if (kDebugMode) {
-          print('   ❌ Failed to decode image');
+          debugPrint('   ❌ Failed to decode image');
         }
         return file;
       }
 
       if (kDebugMode) {
-        print('   🖼️  Original dimensions: ${image.width}x${image.height}');
+        debugPrint('   🖼️  Original dimensions: ${image.width}x${image.height}');
       }
 
       onProgress?.call('Calculating optimal settings...');
@@ -234,7 +234,7 @@ class OptimizedFileCompressionUtils {
         attempts++;
 
         if (kDebugMode) {
-          print('   🧪 Attempt $attempts: Testing quality $currentQuality%');
+          debugPrint('   🧪 Attempt $attempts: Testing quality $currentQuality%');
         }
 
         // Compress with current settings
@@ -246,7 +246,7 @@ class OptimizedFileCompressionUtils {
         final compressedSize = compressedBytes.length;
 
         if (kDebugMode) {
-          print('   📊 Result: ${formatFileSize(compressedSize)}');
+          debugPrint('   📊 Result: ${formatFileSize(compressedSize)}');
         }
 
         // Check if we hit the target
@@ -257,13 +257,13 @@ class OptimizedFileCompressionUtils {
               ((fileSize - compressedSize) / fileSize * 100);
 
           if (kDebugMode) {
-            print('   ✅ Compression successful!');
-            print('   📊 Final size: ${formatFileSize(compressedSize)}');
-            print('   📉 Reduction: ${compressionRatio.toStringAsFixed(1)}%');
-            print('   🖼️  Final dimensions: ${targetWidth}x${targetHeight}');
-            print('   🎨 Quality: $currentQuality%');
+            debugPrint('   ✅ Compression successful!');
+            debugPrint('   📊 Final size: ${formatFileSize(compressedSize)}');
+            debugPrint('   📉 Reduction: ${compressionRatio.toStringAsFixed(1)}%');
+            debugPrint('   🖼️  Final dimensions: ${targetWidth}x$targetHeight');
+            debugPrint('   🎨 Quality: $currentQuality%');
             if (compressedSize <= maxSizeInBytes) {
-              print('   🎯 Target achieved!');
+              debugPrint('   🎯 Target achieved!');
             }
           }
           break;
@@ -272,7 +272,7 @@ class OptimizedFileCompressionUtils {
         // Reduce quality for next attempt
         currentQuality = (currentQuality * 0.85).round().clamp(40, 95);
         if (kDebugMode) {
-          print('   🔄 Too large, reducing quality to $currentQuality%');
+          debugPrint('   🔄 Too large, reducing quality to $currentQuality%');
         }
       }
 
@@ -283,7 +283,7 @@ class OptimizedFileCompressionUtils {
       return compressedFile ?? file;
     } catch (e) {
       if (kDebugMode) {
-        print('   ❌ Compression failed: $e');
+        debugPrint('   ❌ Compression failed: $e');
       }
       onProgress?.call('Compression failed');
       return file;
@@ -294,8 +294,9 @@ class OptimizedFileCompressionUtils {
   static String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -338,7 +339,7 @@ class OptimizedFileCompressionUtils {
         compressedFiles.add(compressedFile);
       } catch (e) {
         if (kDebugMode) {
-          print('Error compressing file ${file.path}: $e');
+          debugPrint('Error compressing file ${file.path}: $e');
         }
         compressedFiles.add(file); // Add original file if compression fails
       }

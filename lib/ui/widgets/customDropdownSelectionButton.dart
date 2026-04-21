@@ -43,7 +43,7 @@ class CustomSelectionDropdownSelectionButton extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .secondary
-                        .withOpacity(0.76)),
+                        .withValues(alpha: 0.76)),
               ),
             ),
             if (!isDisabled) const Icon(Icons.arrow_drop_down)

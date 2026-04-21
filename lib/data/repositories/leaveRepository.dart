@@ -7,37 +7,38 @@ import 'package:eschool_saas_staff/data/models/leaveSettings.dart';
 import 'package:eschool_saas_staff/data/models/user.dart' as user_model;
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:flutter/foundation.dart';
 
 class LeaveRepository {
   Future<List<LeaveDetails>> getLeaves(
       {required LeaveDayType leaveDayType}) async {
     try {
-      print('\n=== DEBUG: LeaveRepository.getLeaves() ===');
-      print('LeaveDayType: $leaveDayType');
-      print('API URL: ${Api.getLeaves}');
-      print(
+      debugPrint('\n=== DEBUG: LeaveRepository.getLeaves() ===');
+      debugPrint('LeaveDayType: $leaveDayType');
+      debugPrint('API URL: ${Api.getLeaves}');
+      debugPrint(
           'Query params: {"type": ${getLeaveDayTypeStatus(leaveDayType: leaveDayType)}}');
 
       final result = await Api.get(url: Api.getLeaves, queryParameters: {
         "type": getLeaveDayTypeStatus(leaveDayType: leaveDayType)
       });
 
-      print('Raw API response:');
-      final prettyJson = JsonEncoder.withIndent('  ').convert(result);
-      print(prettyJson);
+      debugPrint('Raw API response:');
+      final prettyJson = const JsonEncoder.withIndent('  ').convert(result);
+      debugPrint(prettyJson.toString());
 
       final leaves = ((result['data'] ?? []) as List)
           .map((leaveDetails) =>
               LeaveDetails.fromJson(Map.from(leaveDetails ?? {})))
           .toList();
 
-      print('Number of leaves parsed: ${leaves.length}');
+      debugPrint('Number of leaves parsed: ${leaves.length}');
       if (leaves.isEmpty) {
-        print('WARNING: No leaves parsed from response');
+        debugPrint('WARNING: No leaves parsed from response');
       } else {
-        print('First leave details: ${leaves.first.toJson()}');
+        debugPrint('First leave details: ${leaves.first.toJson()}');
       }
-      print('=== DEBUG: End LeaveRepository.getLeaves() ===\n');
+      debugPrint('=== DEBUG: End LeaveRepository.getLeaves() ===\n');
 
       return leaves;
     } catch (e) {
@@ -105,17 +106,17 @@ class LeaveRepository {
             rejectReason.trim(); // Backup dengan rejection_reason
       }
 
-      print("DEBUG: Staff Leave Approve Request Body: $body");
-      print(
+      debugPrint("DEBUG: Staff Leave Approve Request Body: $body");
+      debugPrint(
           "DEBUG: Staff Leave Approve URL: ${Api.approveOrRejectLeaveRequest}");
-      print("DEBUG: Staff Leave Approve Request Method: POST JSON");
+      debugPrint("DEBUG: Staff Leave Approve Request Method: POST JSON");
 
       await Api.postJson(url: Api.approveOrRejectLeaveRequest, body: body);
     } catch (e) {
-      print("DEBUG: Staff Leave Approve Error: $e");
-      print("DEBUG: Staff Leave Approve Error Type: ${e.runtimeType}");
+      debugPrint("DEBUG: Staff Leave Approve Error: $e");
+      debugPrint("DEBUG: Staff Leave Approve Error Type: ${e.runtimeType}");
       if (e is ApiException) {
-        print(
+        debugPrint(
             "DEBUG: Staff Leave Approve ApiException Message: ${e.errorMessage}");
       }
       throw ApiException(e.toString());
@@ -146,17 +147,17 @@ class LeaveRepository {
             rejectReason.trim(); // Backup dengan rejection_reason
       }
 
-      print("DEBUG: Student Leave Approve Request Body: $body");
-      print(
+      debugPrint("DEBUG: Student Leave Approve Request Body: $body");
+      debugPrint(
           "DEBUG: Student Leave Approve URL: ${Api.submitLeaveStudentRequests}");
-      print("DEBUG: Student Leave Approve Request Method: POST JSON");
+      debugPrint("DEBUG: Student Leave Approve Request Method: POST JSON");
 
       await Api.postJson(url: Api.submitLeaveStudentRequests, body: body);
     } catch (e) {
-      print("DEBUG: Student Leave Approve Error: $e");
-      print("DEBUG: Student Leave Approve Error Type: ${e.runtimeType}");
+      debugPrint("DEBUG: Student Leave Approve Error: $e");
+      debugPrint("DEBUG: Student Leave Approve Error Type: ${e.runtimeType}");
       if (e is ApiException) {
-        print(
+        debugPrint(
             "DEBUG: Student Leave Approve ApiException Message: ${e.errorMessage}");
       }
       throw ApiException(e.toString());
@@ -201,14 +202,14 @@ class LeaveRepository {
         "month": monthNumber
       });
 
-      final prettyJson = JsonEncoder.withIndent('  ').convert(result);
+      final prettyJson = const JsonEncoder.withIndent('  ').convert(result);
 
       // Memecah JSON menjadi baris-baris
       final lines = prettyJson.split('\n');
 
       // Mencetak setiap baris
       for (final line in lines) {
-        print(line);
+        debugPrint(line.toString());
       }
 
       return (

@@ -106,7 +106,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
 
     try {
       // Debug the incoming date string format
-      print("Original date string: $dateString");
+      debugPrint("Original date string: $dateString");
 
       // Special handling for "23 - May" format (day - english month)
       if (dateString.contains(' - ')) {
@@ -178,16 +178,16 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           }
         }
       } catch (e) {
-        print("Error parsing with split: $e");
+        debugPrint("Error parsing with split: $e");
       }
 
       // If manual parsing failed, try standard datetime parsing
       if (date == null) {
         try {
           date = DateTime.parse(dateString);
-          print("Parsed with DateTime.parse: $date");
+          debugPrint("Parsed with DateTime.parse: $date");
         } catch (e) {
-          print("Error parsing with DateTime.parse: $e");
+          debugPrint("Error parsing with DateTime.parse: $e");
 
           // Try to handle localized date format that might already be in Indonesian
           List<String> indonesianMonths = [
@@ -210,7 +210,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               indonesianMonths.any((month) => dateString.contains(month));
 
           if (alreadyIndonesian) {
-            print("Already in Indonesian format: $dateString");
+            debugPrint("Already in Indonesian format: $dateString");
             return dateString; // Already in the correct format
           }
 
@@ -241,11 +241,11 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
       final String year = date.year.toString();
 
       String result = '$day $month $year';
-      print("Converted to Indonesian: $result");
+      debugPrint("Converted to Indonesian: $result");
       return result;
     } catch (e) {
       // If any error occurs, return the original string
-      print("Error in formatDateToIndonesian: $e");
+      debugPrint("Error in formatDateToIndonesian: $e");
       return dateString;
     }
   }
@@ -261,13 +261,13 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
     if (type.toLowerCase() == 'sick') {
       backgroundColor = Colors.red.shade50;
       textColor = Colors.red.shade700;
-      shadowColor = Colors.red.shade200.withOpacity(0.3);
+      shadowColor = Colors.red.shade200.withValues(alpha: 0.3);
       iconData = Icons.healing;
     } else {
       // Default to Leave or any other type
       backgroundColor = Colors.blue.shade50;
       textColor = Colors.blue.shade700;
-      shadowColor = Colors.blue.shade200.withOpacity(0.3);
+      shadowColor = Colors.blue.shade200.withValues(alpha: 0.3);
       iconData = Icons.event_busy;
     }
 
@@ -286,7 +286,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           ),
         ],
         border: Border.all(
-          color: textColor.withOpacity(0.15),
+          color: textColor.withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -317,19 +317,19 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
     switch (statusText) {
       case 'Ditolak':
         statusIcon = Icons.cancel_rounded;
-        backgroundColor = statusColor.withOpacity(0.15);
+        backgroundColor = statusColor.withValues(alpha: 0.15);
         break;
       case 'Disetujui':
         statusIcon = Icons.check_circle_rounded;
-        backgroundColor = statusColor.withOpacity(0.15);
+        backgroundColor = statusColor.withValues(alpha: 0.15);
         break;
       case 'Menunggu':
         statusIcon = Icons.schedule_rounded;
-        backgroundColor = statusColor.withOpacity(0.15);
+        backgroundColor = statusColor.withValues(alpha: 0.15);
         break;
       default:
         statusIcon = Icons.info_rounded;
-        backgroundColor = statusColor.withOpacity(0.15);
+        backgroundColor = statusColor.withValues(alpha: 0.15);
     }
 
     return AnimatedContainer(
@@ -339,12 +339,12 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: statusColor.withOpacity(0.4),
+          color: statusColor.withValues(alpha: 0.4),
           width: 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: statusColor.withOpacity(0.3),
+            color: statusColor.withValues(alpha: 0.3),
             blurRadius: 8,
             spreadRadius: 1,
             offset: const Offset(0, 3),
@@ -420,8 +420,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           boxShadow: [
             BoxShadow(
               color: _isHovering
-                  ? _maroonPrimary.withOpacity(0.25)
-                  : Colors.black.withOpacity(0.06),
+                  ? _maroonPrimary.withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.06),
               blurRadius: _isHovering ? 18 : 8,
               offset: Offset(0, _isHovering ? 6 : 4),
               spreadRadius: _isHovering ? 2 : 0,
@@ -429,8 +429,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           ],
           border: Border.all(
             color: _isHovering
-                ? _maroonPrimary.withOpacity(0.3)
-                : _maroonLight.withOpacity(0.15),
+                ? _maroonPrimary.withValues(alpha: 0.3)
+                : _maroonLight.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -449,7 +449,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        _maroonAccent.withOpacity(0.2),
+                        _maroonAccent.withValues(alpha: 0.2),
                         Colors.transparent,
                       ],
                       radius: 0.7,
@@ -467,7 +467,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        _goldAccent.withOpacity(0.15),
+                        _goldAccent.withValues(alpha: 0.15),
                         Colors.transparent,
                       ],
                       radius: 0.7,
@@ -498,13 +498,13 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.8),
+                                _maroonPrimary.withValues(alpha: 0.8),
                                 _maroonDark,
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 5),
                               ),
@@ -588,8 +588,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              _maroonLight.withOpacity(0.6),
-                              _maroonLight.withOpacity(0.6),
+                              _maroonLight.withValues(alpha: 0.6),
+                              _maroonLight.withValues(alpha: 0.6),
                               Colors.transparent,
                             ],
                             stops: const [0.0, 0.2, 0.8, 1.0],
@@ -617,10 +617,10 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: _maroonAccent.withOpacity(0.1),
+                              color: _maroonAccent.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: _maroonLight.withOpacity(0.3),
+                                color: _maroonLight.withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
@@ -682,7 +682,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.red.shade100.withOpacity(0.3),
+                                    color: Colors.red.shade100.withValues(alpha: 0.3),
                                     blurRadius: 8,
                                     offset: const Offset(0, 2),
                                   ),
@@ -738,20 +738,20 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    _maroonLight.withOpacity(0.2),
-                                    _goldAccent.withOpacity(0.15),
+                                    _maroonLight.withValues(alpha: 0.2),
+                                    _goldAccent.withValues(alpha: 0.15),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.03),
+                                    color: Colors.black.withValues(alpha: 0.03),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
                                 ],
                                 border: Border.all(
-                                  color: _maroonLight.withOpacity(0.2),
+                                  color: _maroonLight.withValues(alpha: 0.2),
                                 ),
                               ),
                               child: Row(
@@ -842,17 +842,17 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  _maroonPrimary.withOpacity(0.15),
-                  _maroonLight.withOpacity(0.1),
+                  _maroonPrimary.withValues(alpha: 0.15),
+                  _maroonLight.withValues(alpha: 0.1),
                 ],
               ),
               border: Border.all(
-                color: _maroonPrimary.withOpacity(0.25),
+                color: _maroonPrimary.withValues(alpha: 0.25),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withOpacity(0.15),
+                  color: _maroonPrimary.withValues(alpha: 0.15),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                   spreadRadius: 0,
@@ -865,8 +865,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => _showAttachmentsModal(files),
-                splashColor: _maroonPrimary.withOpacity(0.2),
-                highlightColor: _maroonPrimary.withOpacity(0.1),
+                splashColor: _maroonPrimary.withValues(alpha: 0.2),
+                highlightColor: _maroonPrimary.withValues(alpha: 0.1),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -881,7 +881,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             width: 28,
                             height: 28,
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
@@ -906,7 +906,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
+                                      color: Colors.black.withValues(alpha: 0.2),
                                       blurRadius: 4,
                                       offset: const Offset(0, 1),
                                     ),
@@ -947,7 +947,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             '${files.length} file${files.length > 1 ? 's' : ''}',
                             style: TextStyle(
                               fontSize: 10,
-                              color: _maroonPrimary.withOpacity(0.8),
+                              color: _maroonPrimary.withValues(alpha: 0.8),
                               height: 1.0,
                             ),
                           ),
@@ -982,7 +982,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 20,
                 offset: const Offset(0, -5),
               ),
@@ -1010,8 +1010,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      _maroonPrimary.withOpacity(0.05),
-                      _maroonLight.withOpacity(0.03),
+                      _maroonPrimary.withValues(alpha: 0.05),
+                      _maroonLight.withValues(alpha: 0.03),
                     ],
                   ),
                 ),
@@ -1020,10 +1020,10 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: _maroonPrimary.withOpacity(0.1),
+                        color: _maroonPrimary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: _maroonPrimary.withOpacity(0.2),
+                          color: _maroonPrimary.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -1051,7 +1051,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                             '${files.length} file${files.length > 1 ? 's' : ''} tersedia',
                             style: TextStyle(
                               fontSize: 14,
-                              color: _maroonPrimary.withOpacity(0.8),
+                              color: _maroonPrimary.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -1063,7 +1063,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -1120,12 +1120,12 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: _maroonLight.withOpacity(0.2),
+                  color: _maroonLight.withValues(alpha: 0.2),
                   width: 1.5,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                     spreadRadius: 0,
@@ -1141,8 +1141,8 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     Navigator.of(context).pop();
                     _openFile(file);
                   },
-                  splashColor: _maroonPrimary.withOpacity(0.1),
-                  highlightColor: _maroonPrimary.withOpacity(0.05),
+                  splashColor: _maroonPrimary.withValues(alpha: 0.1),
+                  highlightColor: _maroonPrimary.withValues(alpha: 0.05),
                   child: Padding(
                     padding: const EdgeInsets.all(20),
                     child: Row(
@@ -1173,10 +1173,10 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                                       vertical: 3,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: _maroonPrimary.withOpacity(0.1),
+                                      color: _maroonPrimary.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: _maroonPrimary.withOpacity(0.2),
+                                        color: _maroonPrimary.withValues(alpha: 0.2),
                                         width: 1,
                                       ),
                                     ),
@@ -1235,7 +1235,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: _maroonPrimary.withOpacity(0.08),
+                            color: _maroonPrimary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(
@@ -1298,7 +1298,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         default:
           iconData = Icons.insert_drive_file_rounded;
           iconColor = _maroonPrimary;
-          backgroundColor = _maroonPrimary.withOpacity(0.1);
+          backgroundColor = _maroonPrimary.withValues(alpha: 0.1);
       }
     }
 
@@ -1309,12 +1309,12 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: iconColor.withOpacity(0.2),
+          color: iconColor.withValues(alpha: 0.2),
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: iconColor.withOpacity(0.15),
+            color: iconColor.withValues(alpha: 0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1336,7 +1336,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
               width: 8,
               height: 8,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -1358,10 +1358,10 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
           if (await canLaunchUrl(url)) {
             await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
-            print('Could not launch ${file.fileUrl}');
+            debugPrint('Could not launch ${file.fileUrl}');
           }
         } catch (e) {
-          print('Error opening file: $e');
+          debugPrint('Error opening file: $e');
         }
       }
     }
@@ -1389,7 +1389,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                         child: Container(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                         ),
                       ),
                     ),
@@ -1470,7 +1470,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                     right: 20,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.6),
+                        color: Colors.black.withValues(alpha: 0.6),
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
@@ -1496,7 +1496,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -1549,7 +1549,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                   border: Border.all(color: Colors.red.shade300),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.red.shade100.withOpacity(0.5),
+                      color: Colors.red.shade100.withValues(alpha: 0.5),
                       blurRadius: 12,
                       offset: const Offset(0, 5),
                     ),
@@ -1565,7 +1565,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.shade300.withOpacity(0.3),
+                            color: Colors.red.shade300.withValues(alpha: 0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 3),
                           ),
@@ -1635,7 +1635,7 @@ class _LeaveDetailsContainerState extends State<LeaveDetailsContainer>
                           height: 60 * value,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _maroonPrimary.withOpacity(0.1 * value),
+                            color: _maroonPrimary.withValues(alpha: 0.1 * value),
                           ),
                         ),
                       ),

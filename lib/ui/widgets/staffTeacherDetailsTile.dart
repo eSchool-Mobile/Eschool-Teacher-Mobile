@@ -43,7 +43,7 @@ class StaffTeacherDetailsTile extends StatelessWidget {
               CircleAvatar(
                 radius: 15,
                 backgroundColor:
-                    Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                 child: Icon(
                   Utils.isRTLEnabled(context)
                       ? CupertinoIcons.arrow_left

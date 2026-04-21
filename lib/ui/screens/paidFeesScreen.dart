@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/fee/downloadStudentFeeReceiptCubit.dart';
 import 'package:eschool_saas_staff/cubits/fee/sessionYearAndFeesCubit.dart';
 import 'package:eschool_saas_staff/cubits/fee/studentsFeeStatusCubit.dart';
@@ -63,7 +62,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
 
   // Search functionality
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
   // Animation controller for scroll-based animations
@@ -86,13 +85,13 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
     _fabAnimationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 300));
 
-    print('=================== SCREEN INITIALIZED ===================');
-    print('Initial Session Year: ${_selectedSessionYear?.name ?? "Not set"}');
-    print('Initial Fee Status: $_selectedFeeStatus');
-    print('Initial Fee: ${_selectedFee?.name ?? "Not set"}');
-    print('Initial Search Query: "$_searchQuery"');
-    print('Initial Search Active: $_isSearchActive');
-    print('=========================================================');
+    debugPrint('=================== SCREEN INITIALIZED ===================');
+    debugPrint('Initial Session Year: ${_selectedSessionYear?.name ?? "Not set"}');
+    debugPrint('Initial Fee Status: $_selectedFeeStatus');
+    debugPrint('Initial Fee: ${_selectedFee?.name ?? "Not set"}');
+    debugPrint('Initial Search Query: "$_searchQuery"');
+    debugPrint('Initial Search Active: $_isSearchActive');
+    debugPrint('=========================================================');
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
@@ -129,15 +128,15 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
 
   void getStudentFees() {
     // Print parameter values for debugging
-    print('===================== PARAMETER VALUES =====================');
-    print('Session Year ID: ${_selectedSessionYear?.id ?? 0}');
-    print('Session Year Name: ${_selectedSessionYear?.name ?? "Not selected"}');
-    print(
+    debugPrint('===================== PARAMETER VALUES =====================');
+    debugPrint('Session Year ID: ${_selectedSessionYear?.id ?? 0}');
+    debugPrint('Session Year Name: ${_selectedSessionYear?.name ?? "Not selected"}');
+    debugPrint(
         'Fee Status: $_selectedFeeStatus (${_selectedFeeStatus == paidKey ? 1 : 0})');
-    print('Fee ID: ${_selectedFee?.id ?? 0}');
-    print('Fee Name: ${_selectedFee?.name ?? "Not selected"}');
-    print('Search Query: $_searchQuery');
-    print('==========================================================');
+    debugPrint('Fee ID: ${_selectedFee?.id ?? 0}');
+    debugPrint('Fee Name: ${_selectedFee?.name ?? "Not selected"}');
+    debugPrint('Search Query: $_searchQuery');
+    debugPrint('==========================================================');
 
     context.read<StudentsFeeStatusCubit>().getStudentFeePaymentStatus(
         sessionYearId: _selectedSessionYear?.id ?? 0,
@@ -148,15 +147,15 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
 
   void getMoreStudentFees() {
     // Print parameter values for pagination
-    print('================ PAGINATION PARAMETER VALUES ================');
-    print('Session Year ID: ${_selectedSessionYear?.id ?? 0}');
-    print('Session Year Name: ${_selectedSessionYear?.name ?? "Not selected"}');
-    print(
+    debugPrint('================ PAGINATION PARAMETER VALUES ================');
+    debugPrint('Session Year ID: ${_selectedSessionYear?.id ?? 0}');
+    debugPrint('Session Year Name: ${_selectedSessionYear?.name ?? "Not selected"}');
+    debugPrint(
         'Fee Status: $_selectedFeeStatus (${_selectedFeeStatus == paidKey ? 1 : 0})');
-    print('Fee ID: ${_selectedFee?.id ?? 0}');
-    print('Fee Name: ${_selectedFee?.name ?? "Not selected"}');
-    print('Search Query: $_searchQuery');
-    print('============================================================');
+    debugPrint('Fee ID: ${_selectedFee?.id ?? 0}');
+    debugPrint('Fee Name: ${_selectedFee?.name ?? "Not selected"}');
+    debugPrint('Search Query: $_searchQuery');
+    debugPrint('============================================================');
 
     context.read<StudentsFeeStatusCubit>().fetchMore(
         sessionYearId: _selectedSessionYear?.id ?? 0,
@@ -168,21 +167,21 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
     setState(() {
       _selectedSessionYear = value;
     });
-    print('Session Year changed to: ${value.name} (ID: ${value.id})');
+    debugPrint('Session Year changed to: ${value.name} (ID: ${value.id})');
   }
 
   void changeSelectedFeeStatus(String value) {
     setState(() {
       _selectedFeeStatus = value;
     });
-    print('Fee Status changed to: $value (${value == paidKey ? 1 : 0})');
+    debugPrint('Fee Status changed to: $value (${value == paidKey ? 1 : 0})');
   }
 
   void changeSelectedFee(Fee value) {
     setState(() {
       _selectedFee = value;
     });
-    print('Fee Type changed to: ${value.name} (ID: ${value.id})');
+    debugPrint('Fee Type changed to: ${value.name} (ID: ${value.id})');
   }
 
   Widget _buildSearchBar() {
@@ -198,7 +197,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -219,7 +218,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                       });
                       // Trigger search with empty query when clearing
                       getStudentFees();
-                      print('Search cleared and deactivated');
+                      debugPrint('Search cleared and deactivated');
                     },
                   ),
                   border: InputBorder.none,
@@ -230,16 +229,16 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                     _searchQuery = value;
                   });
                   // Use debounce technique for search
-                  Future.delayed(Duration(milliseconds: 500), () {
+                  Future.delayed(const Duration(milliseconds: 500), () {
                     if (_searchQuery == value) {
                       getStudentFees();
                     }
                   });
-                  print('Search Query changed to: "$value"');
+                  debugPrint('Search Query changed to: "$value"');
                 },
               ),
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
     );
   }
 
@@ -281,7 +280,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                   getStudentFees(); // Reload data when search is cleared
                 }
               });
-              print(
+              debugPrint(
                   'Search toggled: ${_isSearchActive ? "activated" : "deactivated"}');
             },
 
@@ -377,7 +376,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                 _searchQuery = "";
               }
             });
-            print(
+            debugPrint(
                 'Search toggled: ${_isSearchActive ? "activated" : "deactivated"}');
           },
         );
@@ -545,7 +544,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                 Container(
                                   margin:
                                       const EdgeInsets.symmetric(horizontal: 4),
-                                  child: Text(
+                                  child: const Text(
                                     ":",
                                     style: TextStyle(color: Colors.white),
                                   ),
@@ -795,15 +794,15 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
 
               // Students list container skeleton
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
-                      offset: Offset(0, 5),
+                      offset: const Offset(0, 5),
                     ),
                   ],
                 ),
@@ -816,10 +815,10 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(16)),
+                            const BorderRadius.vertical(top: Radius.circular(16)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -963,41 +962,41 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
       builder: (context, state) {
         if (state is StudentsFeeStatusFetchSuccess) {
           // Debug output
-          print('=================== STUDENT DATA DEBUG ===================');
-          print('Total students in state: ${state.students.length}');
+          debugPrint('=================== STUDENT DATA DEBUG ===================');
+          debugPrint('Total students in state: ${state.students.length}');
 
           if (state.students.isNotEmpty) {
             final firstStudent = state.students.first;
-            print(
+            debugPrint(
                 'First student: ${firstStudent.fullName ?? "No name"} (ID: ${firstStudent.id})');
-            print(
+            debugPrint(
                 'First student roll number: ${firstStudent.rollNumber ?? "No roll number"}');
-            print('Has payment_status: ${firstStudent.paymentStatus != null}');
+            debugPrint('Has payment_status: ${firstStudent.paymentStatus != null}');
             if (firstStudent.paymentStatus != null) {
-              print('Payment status details:');
-              print(
+              debugPrint('Payment status details:');
+              debugPrint(
                   '  isFullyPaid: ${firstStudent.paymentStatus!.isFullyPaid}');
-              print(
+              debugPrint(
                   '  totalAmount: ${firstStudent.paymentStatus!.totalAmount}');
-              print('  paidAmount: ${firstStudent.paymentStatus!.paidAmount}');
+              debugPrint('  paidAmount: ${firstStudent.paymentStatus!.paidAmount}');
             }
 
-            print(
+            debugPrint(
                 'Has payment_history: ${firstStudent.paymentHistory?.length ?? 0} items');
             if (firstStudent.paymentHistory != null &&
                 firstStudent.paymentHistory!.isNotEmpty) {
-              print('First payment history item:');
-              print('  ID: ${firstStudent.paymentHistory!.first.id}');
-              print('  Amount: ${firstStudent.paymentHistory!.first.amount}');
-              print(
+              debugPrint('First payment history item:');
+              debugPrint('  ID: ${firstStudent.paymentHistory!.first.id}');
+              debugPrint('  Amount: ${firstStudent.paymentHistory!.first.amount}');
+              debugPrint(
                   '  Date: ${firstStudent.paymentHistory!.first.paymentDate}');
-              print(
+              debugPrint(
                   '  Method: ${firstStudent.paymentHistory!.first.paymentMethod}');
             }
           } else {
-            print('No students in state!');
+            debugPrint('No students in state!');
           }
-          print('=========================================================');
+          debugPrint('=========================================================');
 
           // Filter students by search query when search is active
           final studentsList = _searchQuery.isEmpty
@@ -1120,15 +1119,15 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                     // Students list with container styling
                     Container(
                       margin:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
                         color: Colors.white,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
@@ -1143,18 +1142,18 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  _maroonPrimary.withOpacity(0.9),
+                                  _maroonPrimary.withValues(alpha: 0.9),
                                   _maroonPrimary,
                                   _maroonLight,
                                 ],
                               ),
-                              borderRadius: BorderRadius.vertical(
+                              borderRadius: const BorderRadius.vertical(
                                   top: Radius.circular(16)),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _maroonPrimary.withOpacity(0.3),
+                                  color: _maroonPrimary.withValues(alpha: 0.3),
                                   blurRadius: 10,
-                                  offset: Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ],
                             ),
@@ -1162,12 +1161,12 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                               children: [
                                 // Animated icon
                                 Container(
-                                  padding: EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     shape: BoxShape.circle,
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.receipt_long_rounded,
                                     color: Colors.white,
                                     size: 20,
@@ -1198,7 +1197,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                         '${studentsList.length} siswa',
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
-                                          color: Colors.white.withOpacity(0.8),
+                                          color: Colors.white.withValues(alpha: 0.8),
                                         ),
                                       ),
                                     ],
@@ -1210,7 +1209,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Center(
@@ -1224,8 +1223,8 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                                     ),
                                   ),
                                 ).animate().fadeIn(duration: 400.ms).scale(
-                                    begin: Offset(0.8, 0.8),
-                                    end: Offset(1.0, 1.0),
+                                    begin: const Offset(0.8, 0.8),
+                                    end: const Offset(1.0, 1.0),
                                     duration: 400.ms),
                               ],
                             ),
@@ -1283,7 +1282,7 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                               borderRadius: BorderRadius.circular(12),
                               child: ListView.builder(
                                 shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: studentsList.length,
                                 itemBuilder: (context, index) {
                                   final student = studentsList[index];
@@ -1391,8 +1390,8 @@ class _PaidFeesScreenState extends State<PaidFeesScreen>
                         ),
                       ],
                     ).animate().fadeIn().scale(
-                          begin: Offset(0.8, 0.8),
-                          end: Offset(1.0, 1.0),
+                          begin: const Offset(0.8, 0.8),
+                          end: const Offset(1.0, 1.0),
                           duration: 400.ms,
                         ),
                   );
@@ -1495,8 +1494,7 @@ class _StudentPaidFeeDetailsContainerState
 
     // Extract payment history IDs
     final List<int> paymentHistoryIds = paymentHistory
-        .where((payment) => payment.id != null)
-        .map((payment) => payment.id!)
+        .map((payment) => payment.id)
         .toList();
 
     if (paymentHistoryIds.isEmpty) {
@@ -1542,7 +1540,7 @@ class _StudentPaidFeeDetailsContainerState
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: widget.maroonPrimary.withOpacity(0.1),
+                    color: widget.maroonPrimary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -1551,8 +1549,8 @@ class _StudentPaidFeeDetailsContainerState
                     size: 32,
                   ),
                 ).animate().fadeIn().scale(
-                      begin: Offset(0.5, 0.5),
-                      end: Offset(1.0, 1.0),
+                      begin: const Offset(0.5, 0.5),
+                      end: const Offset(1.0, 1.0),
                     ),
                 const SizedBox(height: 16),
 
@@ -1603,7 +1601,7 @@ class _StudentPaidFeeDetailsContainerState
                 else if (state is DownloadStudentFeeReceiptFailure)
                   Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.error_outline,
                         color: Colors.red,
                         size: 50,
@@ -1633,7 +1631,7 @@ class _StudentPaidFeeDetailsContainerState
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 24, vertical: 12),
                         ),
                         child: Text(
@@ -1661,13 +1659,13 @@ class _StudentPaidFeeDetailsContainerState
                         borderRadius: BorderRadius.circular(10),
                       ),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.download_rounded, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.download_rounded, size: 20),
+                        const SizedBox(width: 8),
                         Text(
                           'Download Sekarang',
                           style:
@@ -1724,7 +1722,7 @@ class _StudentPaidFeeDetailsContainerState
                     padding: const EdgeInsets.all(6),
                     margin: const EdgeInsets.only(right: 6),
                     decoration: BoxDecoration(
-                      color: widget.maroonPrimary.withOpacity(0.08),
+                      color: widget.maroonPrimary.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -1804,7 +1802,7 @@ class _StudentPaidFeeDetailsContainerState
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: widget.maroonPrimary.withOpacity(0.08),
+                        color: widget.maroonPrimary.withValues(alpha: 0.08),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1813,7 +1811,7 @@ class _StudentPaidFeeDetailsContainerState
                         color: widget.maroonPrimary,
                       ),
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Flexible(
                       child: Text(
                         payment.paymentDate,
@@ -1831,9 +1829,9 @@ class _StudentPaidFeeDetailsContainerState
 
               // Method with colored badge
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: widget.maroonPrimary.withOpacity(0.1),
+                  color: widget.maroonPrimary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -1849,7 +1847,7 @@ class _StudentPaidFeeDetailsContainerState
             ],
           ),
 
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
 
           // Amount
           Row(
@@ -1890,29 +1888,29 @@ class _StudentPaidFeeDetailsContainerState
                         children: [
                           // Header with gradient
                           Container(
-                            padding: EdgeInsets.symmetric(vertical: 12),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
                                   widget.maroonPrimary,
-                                  Color(0xFF9A1E3C),
+                                  const Color(0xFF9A1E3C),
                                 ],
                               ),
-                              borderRadius: BorderRadius.vertical(
+                              borderRadius: const BorderRadius.vertical(
                                 top: Radius.circular(16),
                               ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.receipt_rounded,
                                   color: Colors.white,
                                   size: 20,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   "Bukti Pembayaran",
                                   style: GoogleFonts.poppins(
@@ -1941,7 +1939,7 @@ class _StudentPaidFeeDetailsContainerState
                                 // ClipRRect kept for rounded corners while
                                 // InteractiveViewer enables pinch-zoom & pan
                                 child: ClipRRect(
-                                  borderRadius: BorderRadius.vertical(
+                                  borderRadius: const BorderRadius.vertical(
                                     bottom: Radius.circular(16),
                                   ),
                                   child: InteractiveViewer(
@@ -1954,9 +1952,10 @@ class _StudentPaidFeeDetailsContainerState
                                       fit: BoxFit.contain,
                                       loadingBuilder:
                                           (context, child, loadingProgress) {
-                                        if (loadingProgress == null)
+                                        if (loadingProgress == null) {
                                           return child;
-                                        return Container(
+                                        }
+                                        return SizedBox(
                                           height: 300,
                                           child: Center(
                                             child: CircularProgressIndicator(
@@ -1975,15 +1974,15 @@ class _StudentPaidFeeDetailsContainerState
                                       },
                                       errorBuilder:
                                           (context, error, stackTrace) =>
-                                              Container(
+                                              SizedBox(
                                         height: 300,
                                         child: Center(
                                           child: Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(Icons.error_outline,
+                                              const Icon(Icons.error_outline,
                                                   color: Colors.red, size: 48),
-                                              SizedBox(height: 16),
+                                              const SizedBox(height: 16),
                                               Text(
                                                 "Gagal memuat gambar",
                                                 style: GoogleFonts.poppins(
@@ -2007,12 +2006,12 @@ class _StudentPaidFeeDetailsContainerState
                                 child: GestureDetector(
                                   onTap: () => Get.back(),
                                   child: Container(
-                                    padding: EdgeInsets.all(8),
+                                    padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color: Colors.black.withValues(alpha: 0.5),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.close,
                                       color: Colors.white,
                                       size: 20,
@@ -2029,12 +2028,12 @@ class _StudentPaidFeeDetailsContainerState
                 },
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.1),
+                    color: Colors.blue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blue.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -2045,7 +2044,7 @@ class _StudentPaidFeeDetailsContainerState
                         size: 16,
                         color: Colors.blue[700],
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         "Lihat Bukti Pembayaran",
                         style: GoogleFonts.poppins(
@@ -2077,22 +2076,22 @@ class _StudentPaidFeeDetailsContainerState
             [];
 
     // Debug info
-    print('=================== PAYMENT DETAILS DEBUG ===================');
-    print('Student ID: ${widget.studentDetails.id}');
-    print('Student Name: ${widget.studentDetails.fullName}');
-    print('Has paymentStatus: $hasPaymentStatus');
-    print(
+    debugPrint('=================== PAYMENT DETAILS DEBUG ===================');
+    debugPrint('Student ID: ${widget.studentDetails.id}');
+    debugPrint('Student Name: ${widget.studentDetails.fullName}');
+    debugPrint('Has paymentStatus: $hasPaymentStatus');
+    debugPrint(
         'Has direct payment_history: ${widget.studentDetails.paymentHistory != null}');
-    print(
+    debugPrint(
         'Has paidFeeDetails: ${widget.studentDetails.paidFeeDetails != null}');
-    print(
+    debugPrint(
         'Has paidFeeDetails.paymentHistory: ${widget.studentDetails.paidFeeDetails?.paymentHistory != null}');
-    print('Total payment history items: ${paymentHistory.length}');
+    debugPrint('Total payment history items: ${paymentHistory.length}');
     if (paymentHistory.isNotEmpty) {
-      print(
+      debugPrint(
           'First payment: ${paymentHistory.first.amount} on ${paymentHistory.first.paymentDate}');
     }
-    print('=========================================================');
+    debugPrint('=========================================================');
 
     return AnimatedBuilder(
       animation: _animationController,
@@ -2151,7 +2150,7 @@ class _StudentPaidFeeDetailsContainerState
                               height: 36,
                               margin: const EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
-                                color: widget.maroonPrimary.withOpacity(0.1),
+                                color: widget.maroonPrimary.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -2381,7 +2380,7 @@ class _StudentPaidFeeDetailsContainerState
                                         padding: const EdgeInsets.all(6),
                                         decoration: BoxDecoration(
                                           color: widget.maroonPrimary
-                                              .withOpacity(0.1),
+                                              .withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(8),
                                         ),
@@ -2403,11 +2402,11 @@ class _StudentPaidFeeDetailsContainerState
                                       const Spacer(),
                                       // Payment count badge
                                       Container(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 2),
                                         decoration: BoxDecoration(
                                           color: widget.maroonPrimary
-                                              .withOpacity(0.1),
+                                              .withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
@@ -2428,7 +2427,7 @@ class _StudentPaidFeeDetailsContainerState
                                 ...paymentHistory
                                     .map((payment) =>
                                         _buildPaymentHistoryItem(payment))
-                                    .toList(),
+                                    ,
                               ],
 
                               // Payment receipt section with improved design
@@ -2449,7 +2448,7 @@ class _StudentPaidFeeDetailsContainerState
                                           gradient: LinearGradient(
                                             colors: [
                                               widget.maroonPrimary,
-                                              Color(0xFF9A1E3C),
+                                              const Color(0xFF9A1E3C),
                                             ],
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
@@ -2459,7 +2458,7 @@ class _StudentPaidFeeDetailsContainerState
                                           boxShadow: [
                                             BoxShadow(
                                               color: widget.maroonPrimary
-                                                  .withOpacity(0.3),
+                                                  .withValues(alpha: 0.3),
                                               offset: const Offset(0, 3),
                                               blurRadius: 6,
                                               spreadRadius: 0,
@@ -2472,13 +2471,13 @@ class _StudentPaidFeeDetailsContainerState
                                           children: [
                                             // Animated icon
                                             Container(
-                                              padding: EdgeInsets.all(8),
+                                              padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 color: Colors.white
-                                                    .withOpacity(0.2),
+                                                    .withValues(alpha: 0.2),
                                                 shape: BoxShape.circle,
                                               ),
-                                              child: Icon(
+                                              child: const Icon(
                                                 Icons.download_rounded,
                                                 color: Colors.white,
                                                 size: 18,

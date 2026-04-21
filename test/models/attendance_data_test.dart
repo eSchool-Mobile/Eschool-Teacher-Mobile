@@ -48,18 +48,18 @@ void main() {
     });
 
     test('isValid should validate AttendanceData', () {
-      final validData = AttendanceData(studentId: 123, type: 1);
+      const validData = AttendanceData(studentId: 123, type: 1);
       expect(validData.isValid(), isTrue);
 
-      final invalidStudentId = AttendanceData(studentId: 0, type: 1);
+      const invalidStudentId = AttendanceData(studentId: 0, type: 1);
       expect(invalidStudentId.isValid(), isFalse);
 
-      final invalidType = AttendanceData(studentId: 123, type: -1);
+      const invalidType = AttendanceData(studentId: 123, type: -1);
       expect(invalidType.isValid(), isFalse);
     });
 
     test('toJson should create correct JSON structure', () {
-      final data = AttendanceData(studentId: 123, type: 1);
+      const data = AttendanceData(studentId: 123, type: 1);
       final json = data.toJson();
 
       expect(json['student_id'], equals(123));
@@ -68,7 +68,7 @@ void main() {
     });
 
     test('toString should include status label', () {
-      final data = AttendanceData(studentId: 123, type: 1);
+      const data = AttendanceData(studentId: 123, type: 1);
       final string = data.toString();
 
       expect(string, contains('studentId: 123'));
@@ -77,17 +77,17 @@ void main() {
     });
 
     test('equality should work correctly', () {
-      final data1 = AttendanceData(studentId: 123, type: 1);
-      final data2 = AttendanceData(studentId: 123, type: 1);
-      final data3 = AttendanceData(studentId: 456, type: 1);
+      const data1 = AttendanceData(studentId: 123, type: 1);
+      const data2 = AttendanceData(studentId: 123, type: 1);
+      const data3 = AttendanceData(studentId: 456, type: 1);
 
       expect(data1, equals(data2));
       expect(data1, isNot(equals(data3)));
     });
 
     test('hashCode should be consistent', () {
-      final data1 = AttendanceData(studentId: 123, type: 1);
-      final data2 = AttendanceData(studentId: 123, type: 1);
+      const data1 = AttendanceData(studentId: 123, type: 1);
+      const data2 = AttendanceData(studentId: 123, type: 1);
 
       expect(data1.hashCode, equals(data2.hashCode));
     });

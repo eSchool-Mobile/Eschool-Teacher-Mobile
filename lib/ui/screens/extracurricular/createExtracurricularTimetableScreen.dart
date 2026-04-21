@@ -13,14 +13,14 @@ class CreateExtracurricularTimetableScreen extends StatefulWidget {
   final String? selectedExtracurricularId;
 
   const CreateExtracurricularTimetableScreen({
-    Key? key,
+    super.key,
     this.existingEntry,
     this.extracurriculars,
     this.selectedExtracurricularId,
-  }) : super(key: key);
+  });
 
   @override
-  _CreateExtracurricularTimetableScreenState createState() =>
+  State<CreateExtracurricularTimetableScreen> createState() =>
       _CreateExtracurricularTimetableScreenState();
 }
 
@@ -116,20 +116,20 @@ class _CreateExtracurricularTimetableScreenState
           }
         },
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildHeaderSection(),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 _buildExtracurricularSection(),
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
                 _buildDaySection(),
-                SizedBox(height: 25),
+                const SizedBox(height: 25),
                 _buildTimeSection(),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 _buildSubmitButton(),
               ],
             ),
@@ -141,25 +141,25 @@ class _CreateExtracurricularTimetableScreenState
 
   Widget _buildHeaderSection() {
     return FadeInDown(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              _primaryColor.withOpacity(0.1),
-              _softColor.withOpacity(0.3)
+              _primaryColor.withValues(alpha: 0.1),
+              _softColor.withValues(alpha: 0.3)
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: _primaryColor.withOpacity(0.2)),
+          border: Border.all(color: _primaryColor.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: _primaryColor,
                 borderRadius: BorderRadius.circular(12),
@@ -170,7 +170,7 @@ class _CreateExtracurricularTimetableScreenState
                 size: 24,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +185,7 @@ class _CreateExtracurricularTimetableScreenState
                       color: _primaryColor,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     isEditMode
                         ? 'Perbarui informasi jadwal ekstrakurikuler'
@@ -206,17 +206,17 @@ class _CreateExtracurricularTimetableScreenState
 
   Widget _buildExtracurricularSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 600),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -231,11 +231,11 @@ class _CreateExtracurricularTimetableScreenState
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             if (widget.extracurriculars != null &&
                 widget.extracurriculars!.isNotEmpty)
               DropdownButtonFormField<String>(
-                value: selectedExtracurricularId,
+                initialValue: selectedExtracurricularId,
                 decoration: InputDecoration(
                   labelText: 'Pilih Ekstrakurikuler',
                   prefixIcon: Icon(Icons.school, color: _primaryColor),
@@ -253,7 +253,7 @@ class _CreateExtracurricularTimetableScreenState
                 items: widget.extracurriculars!.map((extracurricular) {
                   return DropdownMenuItem<String>(
                     value: extracurricular.id.toString(),
-                    child: Text(extracurricular.name ?? 'Unnamed'),
+                    child: Text(extracurricular.name),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -270,7 +270,7 @@ class _CreateExtracurricularTimetableScreenState
               )
             else
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(12),
@@ -279,7 +279,7 @@ class _CreateExtracurricularTimetableScreenState
                 child: Row(
                   children: [
                     Icon(Icons.info_outline, color: Colors.orange.shade600),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         'Data ekstrakurikuler tidak tersedia',
@@ -297,17 +297,17 @@ class _CreateExtracurricularTimetableScreenState
 
   Widget _buildDaySection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -322,7 +322,7 @@ class _CreateExtracurricularTimetableScreenState
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -335,16 +335,17 @@ class _CreateExtracurricularTimetableScreenState
                     });
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? _primaryColor
-                          : _accentColor.withOpacity(0.1),
+                          : _accentColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
                         color: isSelected
                             ? _primaryColor
-                            : _accentColor.withOpacity(0.5),
+                            : _accentColor.withValues(alpha: 0.5),
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -362,7 +363,7 @@ class _CreateExtracurricularTimetableScreenState
             ),
             if (selectedDay == null)
               Padding(
-                padding: EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   'Pilih hari pelaksanaan',
                   style: TextStyle(
@@ -379,17 +380,17 @@ class _CreateExtracurricularTimetableScreenState
 
   Widget _buildTimeSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _primaryColor.withOpacity(0.1),
+              color: _primaryColor.withValues(alpha: 0.1),
               blurRadius: 10,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
@@ -404,7 +405,7 @@ class _CreateExtracurricularTimetableScreenState
                 color: _primaryColor,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
@@ -415,7 +416,7 @@ class _CreateExtracurricularTimetableScreenState
                     hint: 'HH:MM',
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: _buildTimeField(
                     controller: _endTimeController,
@@ -502,7 +503,7 @@ class _CreateExtracurricularTimetableScreenState
         final isLoading = state is ExtracurricularTimetableLoading;
 
         return FadeInUp(
-          duration: Duration(milliseconds: 900),
+          duration: const Duration(milliseconds: 900),
           child: Container(
             width: double.infinity,
             height: 55,
@@ -513,9 +514,9 @@ class _CreateExtracurricularTimetableScreenState
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: _primaryColor.withOpacity(0.3),
+                  color: _primaryColor.withValues(alpha: 0.3),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -526,13 +527,13 @@ class _CreateExtracurricularTimetableScreenState
                 borderRadius: BorderRadius.circular(15),
                 child: Center(
                   child: isLoading
-                      ? CircularProgressIndicator(
+                      ? const CircularProgressIndicator(
                           color: Colors.white,
                           strokeWidth: 2,
                         )
                       : Text(
                           isEditMode ? 'Perbarui Jadwal' : 'Simpan Jadwal',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -551,7 +552,7 @@ class _CreateExtracurricularTimetableScreenState
     if (_formKey.currentState!.validate()) {
       if (selectedDay == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Pilih hari pelaksanaan'),
             backgroundColor: Colors.red,
           ),
@@ -561,7 +562,7 @@ class _CreateExtracurricularTimetableScreenState
 
       if (selectedExtracurricularId == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Pilih ekstrakurikuler'),
             backgroundColor: Colors.red,
           ),
@@ -579,7 +580,7 @@ class _CreateExtracurricularTimetableScreenState
 
       if (!entry.isValidTimeRange) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Waktu selesai harus lebih besar dari waktu mulai'),
             backgroundColor: Colors.red,
           ),

@@ -1,5 +1,6 @@
 import 'package:eschool_saas_staff/data/repositories/userDetailsRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class StaffAllowedPermissionsAndModulesState {}
 
@@ -40,8 +41,8 @@ class StaffAllowedPermissionsAndModulesCubit
 
       // Log warning if permissions are empty (likely backend issue)
       if (result.enabledModules.isEmpty && result.permissions.isEmpty) {
-        print('⚠️ WARNING: Received empty permissions from backend');
-        print('⚠️ User access will be restricted until backend is fixed');
+        debugPrint('⚠️ WARNING: Received empty permissions from backend');
+        debugPrint('⚠️ User access will be restricted until backend is fixed');
       }
 
       emit(StaffAllowedPermissionsAndModulesFetchSuccess(

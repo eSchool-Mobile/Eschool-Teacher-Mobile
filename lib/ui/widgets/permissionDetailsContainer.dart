@@ -86,23 +86,23 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   void didUpdateWidget(PermissionDetailsContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    print("DEBUG didUpdateWidget called");
-    print("  - Old widget data: ${oldWidget.permissionDetails.hashCode}");
-    print("  - New widget data: ${widget.permissionDetails.hashCode}");
+    debugPrint("DEBUG didUpdateWidget called");
+    debugPrint("  - Old widget data: ${oldWidget.permissionDetails.hashCode}");
+    debugPrint("  - New widget data: ${widget.permissionDetails.hashCode}");
 
     // If the permission data has been updated (e.g., after refresh),
     // update the optimistic status to match the new server data
     if (oldWidget.permissionDetails != widget.permissionDetails) {
-      print("  - Permission data changed, checking status sync");
+      debugPrint("  - Permission data changed, checking status sync");
       final currentServerStatus = safeLastLeave?.status;
-      print("  - Current server status: $currentServerStatus");
-      print("  - Current optimistic status: $_optimisticStatus");
+      debugPrint("  - Current server status: $currentServerStatus");
+      debugPrint("  - Current optimistic status: $_optimisticStatus");
 
       if (currentServerStatus != null && _optimisticStatus != null) {
         // Only update if server status is different and not pending
         if (currentServerStatus != 0 &&
             currentServerStatus == _optimisticStatus) {
-          print(
+          debugPrint(
               "  - Server status matches optimistic, clearing optimistic state");
           // Server status now matches our optimistic status, clear optimistic state
           setState(() {
@@ -145,7 +145,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         return '-';
       }
     } catch (e) {
-      print('Error in getClassSectionName: $e');
+      debugPrint('Error in getClassSectionName: $e');
       return '-';
     }
   }
@@ -169,14 +169,14 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
       translatedType = 'Sakit';
       backgroundColor = Colors.red.shade50;
       textColor = Colors.red.shade700;
-      shadowColor = Colors.red.shade200.withOpacity(0.3);
+      shadowColor = Colors.red.shade200.withValues(alpha: 0.3);
       iconData = Icons.healing;
     } else {
       // Default to Leave or any other type
       translatedType = 'Izin';
       backgroundColor = Colors.blue.shade50;
       textColor = Colors.blue.shade700;
-      shadowColor = Colors.blue.shade200.withOpacity(0.3);
+      shadowColor = Colors.blue.shade200.withValues(alpha: 0.3);
       iconData = Icons.event_busy;
     }
 
@@ -195,7 +195,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           ),
         ],
         border: Border.all(
-          color: textColor.withOpacity(0.15),
+          color: textColor.withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
@@ -252,15 +252,15 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   //     duration: const Duration(milliseconds: 300),
   //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
   //     decoration: BoxDecoration(
-  //       color: statusColor.withOpacity(0.15),
+  //       color: statusColor.withValues(alpha: 0.15),
   //       borderRadius: BorderRadius.circular(20),
   //       border: Border.all(
-  //         color: statusColor.withOpacity(0.4),
+  //         color: statusColor.withValues(alpha: 0.4),
   //         width: 2,
   //       ),
   //       boxShadow: [
   //         BoxShadow(
-  //           color: statusColor.withOpacity(0.3),
+  //           color: statusColor.withValues(alpha: 0.3),
   //           blurRadius: 8,
   //           spreadRadius: 1,
   //           offset: const Offset(0, 3),
@@ -335,13 +335,13 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: _maroonDark.withOpacity(0.2),
+                        color: _maroonDark.withValues(alpha: 0.2),
                         blurRadius: 20,
                         spreadRadius: 5,
                         offset: const Offset(0, 10),
                       ),
                     ],
-                    border: Border.all(color: _maroonPrimary.withOpacity(0.2)),
+                    border: Border.all(color: _maroonPrimary.withValues(alpha: 0.2)),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -377,7 +377,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: _maroonLight.withOpacity(0.1),
+                                  color: _maroonLight.withValues(alpha: 0.1),
                                 ),
                                 child: Icon(
                                   Icons.close_rounded,
@@ -392,7 +392,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       const SizedBox(height: 8),
                       Divider(
                         thickness: 1,
-                        color: _maroonAccent.withOpacity(0.5),
+                        color: _maroonAccent.withValues(alpha: 0.5),
                         height: 24,
                       ),
                       const SizedBox(height: 8),
@@ -411,11 +411,11 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               margin: const EdgeInsets.only(bottom: 20.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
+                                boxShadow: const [
                                   BoxShadow(
                                     color: Colors.black12,
                                     blurRadius: 15,
-                                    offset: const Offset(0, 5),
+                                    offset: Offset(0, 5),
                                   ),
                                 ],
                               ),
@@ -440,8 +440,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                           files[index].fileUrl ?? '',
                                           loadingBuilder: (context, child,
                                               loadingProgress) {
-                                            if (loadingProgress == null)
+                                            if (loadingProgress == null) {
                                               return child;
+                                            }
                                             return Container(
                                               height: 240,
                                               decoration: BoxDecoration(
@@ -499,7 +500,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                                     BorderRadius.circular(16),
                                                 border: Border.all(
                                                   color: _maroonLight
-                                                      .withOpacity(0.2),
+                                                      .withValues(alpha: 0.2),
                                                   width: 1,
                                                 ),
                                               ),
@@ -547,11 +548,11 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color:
-                                                  Colors.black.withOpacity(0.5),
+                                                  Colors.black.withValues(alpha: 0.5),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
-                                            child: Icon(
+                                            child: const Icon(
                                               Icons.zoom_out_map_rounded,
                                               color: Colors.white,
                                               size: 18,
@@ -590,7 +591,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             child: Container(
               width: double.infinity,
               height: double.infinity,
-              color: Colors.black.withOpacity(0.85),
+              color: Colors.black.withValues(alpha: 0.85),
               child: Stack(
                 children: [
                   // Fullscreen image with pinch-to-zoom
@@ -622,7 +623,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           );
                         },
                         errorBuilder: (context, error, stackTrace) {
-                          return Column(
+                          return const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Icon(
@@ -630,7 +631,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                 color: Colors.white,
                                 size: 70,
                               ),
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16),
                               Text(
                                 "Tidak dapat memuat gambar",
                                 style: TextStyle(
@@ -659,9 +660,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               width: 1,
                             ),
                           ),
@@ -704,9 +705,9 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                   ),
                 );
               } catch (e, stackTrace) {
-                print('Error in AnimatedBuilder: $e');
-                print('Stack trace: $stackTrace');
-                print(
+                debugPrint('Error in AnimatedBuilder: $e');
+                debugPrint('Stack trace: $stackTrace');
+                debugPrint(
                     'Permission details: ${widget.permissionDetails.toJson()}');
                 // Fallback to simple UI without animation
                 return _buildSimpleUI();
@@ -742,8 +743,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           boxShadow: [
             BoxShadow(
               color: _isHovering
-                  ? _maroonPrimary.withOpacity(0.25)
-                  : Colors.black.withOpacity(0.06),
+                  ? _maroonPrimary.withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.06),
               blurRadius: _isHovering ? 18 : 8,
               offset: Offset(0, _isHovering ? 6 : 4),
               spreadRadius: _isHovering ? 2 : 0,
@@ -751,8 +752,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           ],
           border: Border.all(
             color: _isHovering
-                ? _maroonPrimary.withOpacity(0.3)
-                : _maroonLight.withOpacity(0.15),
+                ? _maroonPrimary.withValues(alpha: 0.3)
+                : _maroonLight.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -771,7 +772,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        _maroonAccent.withOpacity(0.2),
+                        _maroonAccent.withValues(alpha: 0.2),
                         Colors.transparent,
                       ],
                       radius: 0.7,
@@ -789,7 +790,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        _goldAccent.withOpacity(0.15),
+                        _goldAccent.withValues(alpha: 0.15),
                         Colors.transparent,
                       ],
                       radius: 0.7,
@@ -822,21 +823,21 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           child: InkWell(
                             onTap: () => _showAttachments(context),
                             borderRadius: BorderRadius.circular(50),
-                            splashColor: _maroonPrimary.withOpacity(0.1),
-                            highlightColor: _maroonPrimary.withOpacity(0.05),
+                            splashColor: _maroonPrimary.withValues(alpha: 0.1),
+                            highlightColor: _maroonPrimary.withValues(alpha: 0.05),
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
                                 color: _isHovering
-                                    ? _maroonPrimary.withOpacity(0.15)
-                                    : _maroonPrimary.withOpacity(0.1),
+                                    ? _maroonPrimary.withValues(alpha: 0.15)
+                                    : _maroonPrimary.withValues(alpha: 0.1),
                                 shape: BoxShape.circle,
                                 boxShadow: _isHovering
                                     ? [
                                         BoxShadow(
                                           color:
-                                              _maroonPrimary.withOpacity(0.2),
+                                              _maroonPrimary.withValues(alpha: 0.2),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         )
@@ -870,13 +871,13 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.8),
+                                _maroonPrimary.withValues(alpha: 0.8),
                                 _maroonDark,
                               ],
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 12,
                                 offset: const Offset(0, 5),
                               ),
@@ -922,13 +923,13 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Icon(
                                       Icons.class_outlined,
                                       size: 16,
-                                      color: _maroonPrimary.withOpacity(0.7),
+                                      color: _maroonPrimary.withValues(alpha: 0.7),
                                     ),
                                     const SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
                                         'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                           fontSize: 14,
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w500,
@@ -956,12 +957,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     Icon(
                                       Icons.format_list_numbered,
                                       size: 16,
-                                      color: _maroonPrimary.withOpacity(0.7),
+                                      color: _maroonPrimary.withValues(alpha: 0.7),
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
                                       'Absen: ${widget.permissionDetails.rollNumber}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.black87,
@@ -984,8 +985,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           gradient: LinearGradient(
                             colors: [
                               Colors.transparent,
-                              _maroonLight.withOpacity(0.6),
-                              _maroonLight.withOpacity(0.6),
+                              _maroonLight.withValues(alpha: 0.6),
+                              _maroonLight.withValues(alpha: 0.6),
                               Colors.transparent,
                             ],
                             stops: const [0.0, 0.2, 0.8, 1.0],
@@ -1000,14 +1001,14 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(16),
-                        color: _maroonLight.withOpacity(0.05),
+                        color: _maroonLight.withValues(alpha: 0.05),
                         border: Border.all(
-                          color: _maroonPrimary.withOpacity(0.15),
+                          color: _maroonPrimary.withValues(alpha: 0.15),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: _maroonPrimary.withOpacity(0.05),
+                            color: _maroonPrimary.withValues(alpha: 0.05),
                             blurRadius: 10,
                             offset: const Offset(0, 3),
                           ),
@@ -1020,7 +1021,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 8),
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -1090,20 +1091,20 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [
-                                      _maroonLight.withOpacity(0.2),
-                                      _goldAccent.withOpacity(0.15),
+                                      _maroonLight.withValues(alpha: 0.2),
+                                      _goldAccent.withValues(alpha: 0.15),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.03),
+                                      color: Colors.black.withValues(alpha: 0.03),
                                       blurRadius: 8,
                                       offset: const Offset(0, 3),
                                     ),
                                   ],
                                   border: Border.all(
-                                    color: _maroonLight.withOpacity(0.2),
+                                    color: _maroonLight.withValues(alpha: 0.2),
                                   ),
                                 ),
                                 child: Row(
@@ -1175,7 +1176,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     border: Border.all(color: Colors.red.shade300),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.shade100.withOpacity(0.5),
+                        color: Colors.red.shade100.withValues(alpha: 0.5),
                         blurRadius: 12,
                         offset: const Offset(0, 5),
                       ),
@@ -1191,7 +1192,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.red.shade300.withOpacity(0.3),
+                              color: Colors.red.shade300.withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -1260,7 +1261,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                           height: 60 * value,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _maroonPrimary.withOpacity(0.1 * value),
+                            color: _maroonPrimary.withValues(alpha: 0.1 * value),
                           ),
                         ),
                       ),
@@ -1346,63 +1347,63 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: _maroonLight.withOpacity(0.15),
+          color: _maroonLight.withValues(alpha: 0.15),
           width: 1.5,
         ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
         child: Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Leave type chip
               _buildLeaveTypeChip(getSafeLeaveType()),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Student name
               Text(
                 widget.permissionDetails.user?.fullName ?? "",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 18.5,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
 
               // Class and roll number
               Text(
                 'Kelas: ${getClassSectionName(widget.permissionDetails.classSectionId)}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
               Text(
                 'Absen: ${widget.permissionDetails.rollNumber}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-              Divider(thickness: 1),
-              SizedBox(height: 8),
+              const Divider(thickness: 1),
+              const SizedBox(height: 8),
 
               // Reason
-              Text(
+              const Text(
                 "Keterangan:",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
                 translateRole(safeLastLeave?.reason ?? ''),
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ],
           ),
@@ -1420,10 +1421,10 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     final int status = _optimisticStatus ?? lastLeave.status ?? 0;
 
     // Debug logging
-    print("DEBUG _buildActionButtons:");
-    print("  - Server status: ${lastLeave.status}");
-    print("  - Optimistic status: $_optimisticStatus");
-    print("  - Final status: $status");
+    debugPrint("DEBUG _buildActionButtons:");
+    debugPrint("  - Server status: ${lastLeave.status}");
+    debugPrint("  - Optimistic status: $_optimisticStatus");
+    debugPrint("  - Final status: $status");
 
     if (status == 1 || status == 2) {
       return _buildStatusSection(status);
@@ -1539,7 +1540,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.red.shade100.withOpacity(0.3),
+                                color: Colors.red.shade100.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 2),
                               ),
@@ -1667,8 +1668,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
-        splashColor: primaryColor.withOpacity(0.1),
-        highlightColor: primaryColor.withOpacity(0.05),
+        splashColor: primaryColor.withValues(alpha: 0.1),
+        highlightColor: primaryColor.withValues(alpha: 0.05),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: 48,
@@ -1677,12 +1678,12 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
             color: backgroundColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: primaryColor.withOpacity(0.3),
+              color: primaryColor.withValues(alpha: 0.3),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: primaryColor.withOpacity(0.15),
+                color: primaryColor.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 3),
                 spreadRadius: 0,
@@ -1716,7 +1717,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                   duration: const Duration(milliseconds: 200),
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -1757,21 +1758,21 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            primaryColor.withOpacity(0.8),
+            primaryColor.withValues(alpha: 0.8),
             primaryColor,
-            primaryColor.withOpacity(0.9),
+            primaryColor.withValues(alpha: 0.9),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: primaryColor.withOpacity(0.4),
+            color: primaryColor.withValues(alpha: 0.4),
             blurRadius: 15,
             offset: const Offset(0, 5),
             spreadRadius: -5,
           ),
           BoxShadow(
-            color: primaryColor.withOpacity(0.3),
+            color: primaryColor.withValues(alpha: 0.3),
             blurRadius: 3,
             offset: const Offset(0, 1),
           ),
@@ -1782,7 +1783,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.white.withOpacity(0.2),
+          splashColor: Colors.white.withValues(alpha: 0.2),
           highlightColor: Colors.transparent,
           child: Stack(
             children: [
@@ -1807,17 +1808,17 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (isLoading) ...[
-                      SizedBox(
+                      const SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor:
-                              const AlwaysStoppedAnimation<Color>(Colors.white),
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Text(
+                      const Text(
                         "Memproses...",
                         style: TextStyle(
                           color: Colors.white,
@@ -1829,7 +1830,7 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                     ] else ...[
                       Text(
                         label,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
                           fontSize: 16,
@@ -1857,8 +1858,8 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.white.withOpacity(0.2),
-                        Colors.white.withOpacity(0.0),
+                        Colors.white.withValues(alpha: 0.2),
+                        Colors.white.withValues(alpha: 0.0),
                       ],
                     ),
                   ),
@@ -2000,15 +2001,15 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
   dynamic get safeLastLeave {
     try {
       if (widget.permissionDetails.leaves.isEmpty) {
-        print('Debug: leaves list is empty');
+        debugPrint('Debug: leaves list is empty');
         return null;
       }
       final lastLeave = widget.permissionDetails.leaves.last;
-      print(
+      debugPrint(
           'Debug: found last leave with ${lastLeave.leaveDetail?.length ?? 0} leave details');
       return lastLeave;
     } catch (e) {
-      print('Error in safeLastLeave: $e');
+      debugPrint('Error in safeLastLeave: $e');
       return null;
     }
   }
@@ -2018,26 +2019,26 @@ class _PermissionDetailsContainerState extends State<PermissionDetailsContainer>
     try {
       final lastLeave = safeLastLeave;
       if (lastLeave == null) {
-        print('Debug: lastLeave is null');
+        debugPrint('Debug: lastLeave is null');
         return '';
       }
 
       final leaveDetail = lastLeave.leaveDetail;
       if (leaveDetail == null) {
-        print('Debug: leaveDetail is null');
+        debugPrint('Debug: leaveDetail is null');
         return '';
       }
 
       if (leaveDetail.isEmpty) {
-        print('Debug: leaveDetail is empty');
+        debugPrint('Debug: leaveDetail is empty');
         return '';
       }
 
       final type = leaveDetail.last?.type;
-      print('Debug: leave type is $type');
+      debugPrint('Debug: leave type is $type');
       return type ?? '';
     } catch (e) {
-      print('Error in getSafeLeaveType: $e');
+      debugPrint('Error in getSafeLeaveType: $e');
       return '';
     }
   }

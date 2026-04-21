@@ -18,7 +18,6 @@ import 'package:get/route_manager.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
 
 class ManageAnnouncementScreen extends StatefulWidget {
   const ManageAnnouncementScreen({super.key});
@@ -62,7 +61,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
   @override
@@ -145,7 +144,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       padding: EdgeInsets.all(appContentHorizontalPadding),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -172,7 +171,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
-                              color: _maroonPrimary.withOpacity(0.3),
+                              color: _maroonPrimary.withValues(alpha: 0.3),
                               offset: const Offset(0, 4),
                               blurRadius: 12,
                               spreadRadius: -2,
@@ -183,8 +182,8 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(15),
-                            highlightColor: Colors.white.withOpacity(0.1),
-                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withValues(alpha: 0.1),
+                            splashColor: Colors.white.withValues(alpha: 0.2),
                             onTap: () {
                               Get.toNamed(Routes.addAnnouncementScreen);
                             },
@@ -194,7 +193,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.add_circle_outline,
                                     color: Colors.white,
                                     size: 24,
@@ -239,7 +238,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -270,13 +269,13 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                 },
               ),
             )
-          : SizedBox.shrink(),
+          : const SizedBox.shrink(),
     );
   }
 
   Widget _buildHeader() {
     return Container(
-      margin: EdgeInsets.only(top: 16),
+      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -303,27 +302,6 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
         .animate()
         .fadeIn(duration: 400.ms)
         .slideY(begin: -0.1, end: 0, curve: Curves.easeOutQuad);
-  }
-
-  Widget _buildAppBar() {
-    return CustomModernAppBar(
-      title: 'Pengumuman',
-      icon: Icons.campaign,
-      fabAnimationController: _fabAnimationController,
-      primaryColor: _maroonPrimary,
-      lightColor: _maroonLight,
-      onBackPressed: () => Navigator.of(context).pop(),
-      showSearchButton: true,
-      onSearchPressed: () {
-        setState(() {
-          _isSearchActive = !_isSearchActive;
-          if (!_isSearchActive) {
-            _searchController.clear();
-            _searchQuery = "";
-          }
-        });
-      },
-    );
   }
 
   Widget _buildAnnouncementItemSkeleton() {
@@ -493,11 +471,11 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                             horizontal: 20, vertical: 16),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(16)),
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 5),
                             ),
@@ -561,11 +539,11 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.vertical(
+                          borderRadius: const BorderRadius.vertical(
                               bottom: Radius.circular(16)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 5),
                             ),
@@ -687,7 +665,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                       ).animate().fadeIn(delay: 300.ms)
                                     : ListView(
                                         controller: _scrollController,
-                                        padding: EdgeInsets.only(
+                                        padding: const EdgeInsets.only(
                                           bottom: 100,
                                           top: 0,
                                         ),
@@ -716,22 +694,26 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                           Alignment.bottomRight,
                                                       colors: [
                                                         _maroonPrimary
-                                                            .withOpacity(0.9),
+                                                            .withValues(
+                                                                alpha: 0.9),
                                                         _maroonPrimary,
                                                         _maroonLight,
                                                       ],
                                                     ),
                                                     borderRadius:
-                                                        BorderRadius.vertical(
+                                                        const BorderRadius
+                                                            .vertical(
                                                             top:
                                                                 Radius.circular(
                                                                     16)),
                                                     boxShadow: [
                                                       BoxShadow(
                                                         color: _maroonPrimary
-                                                            .withOpacity(0.3),
+                                                            .withValues(
+                                                                alpha: 0.3),
                                                         blurRadius: 10,
-                                                        offset: Offset(0, 3),
+                                                        offset:
+                                                            const Offset(0, 3),
                                                       ),
                                                     ],
                                                   ),
@@ -740,15 +722,17 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                       // Animated icon
                                                       Container(
                                                         padding:
-                                                            EdgeInsets.all(8),
+                                                            const EdgeInsets
+                                                                .all(8),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: Colors.white
-                                                              .withOpacity(0.2),
+                                                              .withValues(
+                                                                  alpha: 0.2),
                                                           shape:
                                                               BoxShape.circle,
                                                         ),
-                                                        child: Icon(
+                                                        child: const Icon(
                                                           Icons
                                                               .campaign_rounded,
                                                           color: Colors.white,
@@ -793,8 +777,9 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                                 fontSize: 12,
                                                                 color: Colors
                                                                     .white
-                                                                    .withOpacity(
-                                                                        0.8),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.8),
                                                               ),
                                                             ),
                                                           ],
@@ -808,7 +793,8 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                         decoration:
                                                             BoxDecoration(
                                                           color: Colors.white
-                                                              .withOpacity(0.2),
+                                                              .withValues(
+                                                                  alpha: 0.2),
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(12),
@@ -833,9 +819,10 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                           .fadeIn(
                                                               duration: 400.ms)
                                                           .scale(
-                                                              begin: Offset(
-                                                                  0.8, 0.8),
-                                                              end: Offset(
+                                                              begin:
+                                                                  const Offset(
+                                                                      0.8, 0.8),
+                                                              end: const Offset(
                                                                   1.0, 1.0),
                                                               duration: 400.ms),
                                                     ],
@@ -847,24 +834,28 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
                                                     borderRadius:
-                                                        BorderRadius.vertical(
+                                                        const BorderRadius
+                                                            .vertical(
                                                             bottom:
                                                                 Radius.circular(
                                                                     16)),
                                                     boxShadow: [
                                                       BoxShadow(
                                                         color: Colors.black
-                                                            .withOpacity(0.05),
+                                                            .withValues(
+                                                                alpha: 0.05),
                                                         blurRadius: 10,
-                                                        offset: Offset(0, 5),
+                                                        offset:
+                                                            const Offset(0, 5),
                                                         spreadRadius: 0,
                                                       ),
                                                     ],
                                                   ),
                                                   child: announcements.isEmpty
                                                       ? Container(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
                                                                   vertical: 40),
                                                           child: Column(
                                                             children: [
@@ -875,7 +866,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                                 color: Colors
                                                                     .grey[300],
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                   height: 16),
                                                               Text(
                                                                 'Belum ada pengumuman',
@@ -891,7 +882,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                                           .w500,
                                                                 ),
                                                               ),
-                                                              SizedBox(
+                                                              const SizedBox(
                                                                   height: 8),
                                                               Text(
                                                                 'Pengumuman yang dibuat akan ditampilkan di sini',
@@ -913,14 +904,15 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                           duration: 400.ms)
                                                       : ClipRRect(
                                                           borderRadius:
-                                                              BorderRadius.vertical(
+                                                              const BorderRadius
+                                                                  .vertical(
                                                                   bottom: Radius
                                                                       .circular(
                                                                           16)),
                                                           child: ListView
                                                               .separated(
                                                             physics:
-                                                                NeverScrollableScrollPhysics(),
+                                                                const NeverScrollableScrollPhysics(),
                                                             shrinkWrap: true,
                                                             padding:
                                                                 EdgeInsets.zero,
@@ -982,7 +974,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                       return _buildManageAnnouncementSkeleton();
                     }
 
-                    return SizedBox();
+                    return const SizedBox();
                   },
                 );
               }
@@ -999,7 +991,8 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                 );
               }
 
-                return _buildManageAnnouncementSkeleton();},
+              return _buildManageAnnouncementSkeleton();
+            },
           ),
           _buildAddAnnouncementButton(),
         ],
@@ -1035,7 +1028,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                       maxChildSize: 0.95,
                       builder: (context, scrollController) {
                         return Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.vertical(
                               top: Radius.circular(20),
@@ -1045,7 +1038,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                             children: [
                               // Handle bar
                               Container(
-                                margin: EdgeInsets.only(top: 12),
+                                margin: const EdgeInsets.only(top: 12),
                                 width: 40,
                                 height: 4,
                                 decoration: BoxDecoration(
@@ -1056,7 +1049,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
 
                               // Header with edit and close buttons
                               Padding(
-                                padding: EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(16),
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -1080,6 +1073,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                             "announcement": announcement,
                                           },
                                         ).then((result) {
+                                          if (!context.mounted) return;
                                           if (result != null &&
                                               result == true) {
                                             context
@@ -1092,14 +1086,14 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                           }
                                         });
                                       },
-                                      icon: Icon(Icons.edit_outlined),
+                                      icon: const Icon(Icons.edit_outlined),
                                       color: _maroonPrimary,
                                       tooltip: 'Edit Pengumuman',
                                     ),
                                     // Close button
                                     IconButton(
                                       onPressed: () => Navigator.pop(context),
-                                      icon: Icon(Icons.close),
+                                      icon: const Icon(Icons.close),
                                       color: Colors.grey[600],
                                       tooltip: 'Tutup',
                                     ),
@@ -1111,22 +1105,22 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                               Expanded(
                                 child: SingleChildScrollView(
                                   controller: scrollController,
-                                  padding: EdgeInsets.all(16),
+                                  padding: const EdgeInsets.all(16),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       // Title section
                                       Container(
-                                        padding: EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(16),
                                         decoration: BoxDecoration(
-                                          color:
-                                              _maroonPrimary.withOpacity(0.1),
+                                          color: _maroonPrimary.withValues(
+                                              alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                            color:
-                                                _maroonPrimary.withOpacity(0.3),
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.3),
                                           ),
                                         ),
                                         child: Column(
@@ -1136,18 +1130,19 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                             Row(
                                               children: [
                                                 Container(
-                                                  padding: EdgeInsets.all(6),
+                                                  padding:
+                                                      const EdgeInsets.all(6),
                                                   decoration: BoxDecoration(
                                                     color: _maroonPrimary,
                                                     shape: BoxShape.circle,
                                                   ),
-                                                  child: Icon(
+                                                  child: const Icon(
                                                     Icons.title,
                                                     size: 16,
                                                     color: Colors.white,
                                                   ),
                                                 ),
-                                                SizedBox(width: 8),
+                                                const SizedBox(width: 8),
                                                 Text(
                                                   'Judul Pengumuman',
                                                   style: GoogleFonts.poppins(
@@ -1158,7 +1153,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 12),
+                                            const SizedBox(height: 12),
                                             Text(
                                               announcement.title ??
                                                   'Tanpa judul',
@@ -1173,25 +1168,25 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                         ),
                                       ),
 
-                                      SizedBox(height: 20),
+                                      const SizedBox(height: 20),
 
                                       // Description section
                                       Container(
-                                        padding: EdgeInsets.all(16),
+                                        padding: const EdgeInsets.all(16),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
                                               BorderRadius.circular(12),
                                           border: Border.all(
-                                            color:
-                                                _maroonPrimary.withOpacity(0.3),
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.3),
                                           ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black
-                                                  .withOpacity(0.05),
+                                                  .withValues(alpha: 0.05),
                                               blurRadius: 8,
-                                              offset: Offset(0, 2),
+                                              offset: const Offset(0, 2),
                                             ),
                                           ],
                                         ),
@@ -1202,18 +1197,19 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                             Row(
                                               children: [
                                                 Container(
-                                                  padding: EdgeInsets.all(6),
+                                                  padding:
+                                                      const EdgeInsets.all(6),
                                                   decoration: BoxDecoration(
                                                     color: _maroonPrimary,
                                                     shape: BoxShape.circle,
                                                   ),
-                                                  child: Icon(
+                                                  child: const Icon(
                                                     Icons.description_outlined,
                                                     size: 16,
                                                     color: Colors.white,
                                                   ),
                                                 ),
-                                                SizedBox(width: 8),
+                                                const SizedBox(width: 8),
                                                 Text(
                                                   'Deskripsi',
                                                   style: GoogleFonts.poppins(
@@ -1224,7 +1220,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 12),
+                                            const SizedBox(height: 12),
                                             Text(
                                               announcement.description ??
                                                   'Tidak ada deskripsi',
@@ -1241,12 +1237,12 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                       // Files section if available
                                       if ((announcement.files ?? [])
                                           .isNotEmpty) ...[
-                                        SizedBox(height: 20),
+                                        const SizedBox(height: 20),
                                         Container(
-                                          padding: EdgeInsets.all(16),
+                                          padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
-                                            color:
-                                                _maroonLight.withOpacity(0.1),
+                                            color: _maroonLight.withValues(
+                                                alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
@@ -1260,18 +1256,19 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                               Row(
                                                 children: [
                                                   Container(
-                                                    padding: EdgeInsets.all(6),
+                                                    padding:
+                                                        const EdgeInsets.all(6),
                                                     decoration: BoxDecoration(
                                                       color: _maroonLight,
                                                       shape: BoxShape.circle,
                                                     ),
-                                                    child: Icon(
+                                                    child: const Icon(
                                                       Icons.attach_file_rounded,
                                                       size: 16,
                                                       color: Colors.white,
                                                     ),
                                                   ),
-                                                  SizedBox(width: 8),
+                                                  const SizedBox(width: 8),
                                                   Text(
                                                     'File Terlampir',
                                                     style: GoogleFonts.poppins(
@@ -1283,7 +1280,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                   ),
                                                 ],
                                               ),
-                                              SizedBox(height: 12),
+                                              const SizedBox(height: 12),
                                               Text(
                                                 '${announcement.files?.length ?? 0} file tersedia',
                                                 style: GoogleFonts.poppins(
@@ -1291,7 +1288,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                                   color: Colors.black87,
                                                 ),
                                               ),
-                                              SizedBox(height: 8),
+                                              const SizedBox(height: 8),
                                               ElevatedButton(
                                                 onPressed: () {
                                                   // Show files in separate bottom sheet
@@ -1326,7 +1323,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                         ),
                                       ],
 
-                                      SizedBox(
+                                      const SizedBox(
                                           height: 40), // Extra space at bottom
                                     ],
                                   ),
@@ -1340,7 +1337,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                   },
                 );
               },
-              splashColor: _maroonPrimary.withOpacity(0.1),
+              splashColor: _maroonPrimary.withValues(alpha: 0.1),
               highlightColor: Colors.grey[100],
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -1361,16 +1358,16 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.8),
-                                _maroonLight.withOpacity(0.9),
+                                _maroonPrimary.withValues(alpha: 0.8),
+                                _maroonLight.withValues(alpha: 0.9),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.2),
+                                color: _maroonPrimary.withValues(alpha: 0.2),
                                 blurRadius: 4,
-                                offset: Offset(0, 2),
+                                offset: const Offset(0, 2),
                               ),
                             ],
                           ),
@@ -1413,7 +1410,8 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                                   Icon(
                                     Icons.label_outline,
                                     size: 14,
-                                    color: _maroonPrimary.withOpacity(0.6),
+                                    color:
+                                        _maroonPrimary.withValues(alpha: 0.6),
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -1503,7 +1501,7 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: _maroonPrimary.withOpacity(0.1),
+                              color: _maroonPrimary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -1588,8 +1586,8 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        _maroonPrimary.withOpacity(0.8),
-                        _maroonLight.withOpacity(0.9),
+                        _maroonPrimary.withValues(alpha: 0.8),
+                        _maroonLight.withValues(alpha: 0.9),
                       ],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
@@ -1597,13 +1595,13 @@ class ManageAnnouncementScreenState extends State<ManageAnnouncementScreen>
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: _maroonPrimary.withOpacity(0.2),
+                        color: _maroonPrimary.withValues(alpha: 0.2),
                         blurRadius: 8,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: CircularProgressIndicator(
+                  child: const CircularProgressIndicator(
                     strokeWidth: 2,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                   ),
@@ -1628,8 +1626,8 @@ class ErrorContainer extends StatelessWidget {
   const ErrorContainer({
     required this.errorMessage,
     required this.onTapRetry,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1641,7 +1639,7 @@ class ErrorContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),

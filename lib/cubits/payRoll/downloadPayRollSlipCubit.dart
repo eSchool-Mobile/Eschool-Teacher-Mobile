@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:eschool_saas_staff/data/repositories/payRollRepository.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class DownloadPayRollSlipState {}
 
@@ -34,23 +34,23 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
     try {
       emit(DownloadPayRollSlipInProgress());
 
-      print("=== DOWNLOAD PAYROLL PROCESS STARTED ===");
-      print("Payroll ID: $payRollId");
-      print("Payroll Title: $payRollSlipTitle");
+      debugPrint("=== DOWNLOAD PAYROLL PROCESS STARTED ===");
+      debugPrint("Payroll ID: $payRollId");
+      debugPrint("Payroll Title: $payRollSlipTitle");
 
       String filePath = "";
       final path = (await getApplicationDocumentsDirectory()).path;
       filePath = "$path/Salary-Slips/$payRollSlipTitle-$payRollId.pdf";
 
-      print("Target file path: $filePath");
+      debugPrint("Target file path: $filePath");
 
       final File file = File(filePath);
 
-      print("Requesting slip content from repository...");
+      debugPrint("Requesting slip content from repository...");
       final slipContent =
           await _payRollRepository.downloadPayRollSlip(payRollId: payRollId);
 
-      print("Slip content received. Base64 data length: ${slipContent.length}");
+      debugPrint("Slip content received. Base64 data length: ${slipContent.length}");
 
       // Validate the content is not empty
       if (slipContent.isEmpty) {
@@ -60,17 +60,17 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
       try {
         // Try standard approach first
         await _downloadWithStandardApproach(file, slipContent);
-        print("Standard approach successful!");
+        debugPrint("Standard approach successful!");
       } catch (standardError) {
-        print("Standard approach failed: $standardError");
-        print("Trying alternative strategies...");
+        debugPrint("Standard approach failed: $standardError");
+        debugPrint("Trying alternative strategies...");
 
         try {
           await _downloadWithAlternativeStrategies(
               payRollId, payRollSlipTitle, filePath);
-          print("Alternative strategy successful!");
+          debugPrint("Alternative strategy successful!");
         } catch (alternativeError) {
-          print("All strategies failed. Error: $alternativeError");
+          debugPrint("All strategies failed. Error: $alternativeError");
           throw Exception("Gagal memproses file PDF. Format data tidak valid.");
         }
       }
@@ -80,11 +80,11 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
         throw Exception("File PDF gagal disimpan dengan benar");
       }
 
-      print("File successfully written to: $filePath");
+      debugPrint("File successfully written to: $filePath");
       emit(DownloadPayRollSlipSuccess(downloadedFilePath: filePath));
     } catch (e) {
-      print("=== DOWNLOAD PAYROLL ERROR ===");
-      print("Error: ${e.toString()}");
+      debugPrint("=== DOWNLOAD PAYROLL ERROR ===");
+      debugPrint("Error: ${e.toString()}");
 
       String errorMessage = "Gagal mengunduh slip gaji";
       if (e.toString().contains("format") || e.toString().contains("decode")) {
@@ -123,7 +123,7 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
     // Remove any remaining whitespace or newlines
     cleanedBase64 = cleanedBase64.replaceAll(RegExp(r'\s+'), '');
 
-    print("Cleaned base64 data length: ${cleanedBase64.length}");
+    debugPrint("Cleaned base64 data length: ${cleanedBase64.length}");
 
     // Validate base64 format
     if (!_isValidBase64(cleanedBase64)) {
@@ -132,7 +132,7 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
 
     await file.create(recursive: true);
     final bytes = base64Decode(cleanedBase64);
-    print("Successfully decoded base64 data. Size: ${bytes.length} bytes");
+    debugPrint("Successfully decoded base64 data. Size: ${bytes.length} bytes");
 
     // Validate PDF header
     if (bytes.length < 5 || !_isPdfFile(bytes)) {
@@ -149,25 +149,25 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
     final slipContent =
         await _payRollRepository.downloadPayRollSlip(payRollId: payRollId);
 
-    print("Trying alternative decoding strategies for PDF...");
+    debugPrint("Trying alternative decoding strategies for PDF...");
 
     // Strategy 1: Direct base64 decode (current approach)
     try {
-      print("Strategy 1: Direct base64 decode");
+      debugPrint("Strategy 1: Direct base64 decode");
       final bytes = base64Decode(slipContent.trim());
       if (_isPdfFile(bytes)) {
         await file.create(recursive: true);
         await file.writeAsBytes(bytes);
-        print("Strategy 1 successful!");
+        debugPrint("Strategy 1 successful!");
         return;
       }
     } catch (e) {
-      print("Strategy 1 failed: $e");
+      debugPrint("Strategy 1 failed: $e");
     }
 
     // Strategy 2: Decode with padding fix
     try {
-      print("Strategy 2: Base64 decode with padding fix");
+      debugPrint("Strategy 2: Base64 decode with padding fix");
       String paddedContent = slipContent.trim();
       while (paddedContent.length % 4 != 0) {
         paddedContent += '=';
@@ -176,40 +176,40 @@ class DownloadPayRollSlipCubit extends Cubit<DownloadPayRollSlipState> {
       if (_isPdfFile(bytes)) {
         await file.create(recursive: true);
         await file.writeAsBytes(bytes);
-        print("Strategy 2 successful!");
+        debugPrint("Strategy 2 successful!");
         return;
       }
     } catch (e) {
-      print("Strategy 2 failed: $e");
+      debugPrint("Strategy 2 failed: $e");
     }
 
     // Strategy 3: URL decode then base64 decode
     try {
-      print("Strategy 3: URL decode then base64 decode");
+      debugPrint("Strategy 3: URL decode then base64 decode");
       final urlDecoded = Uri.decodeComponent(slipContent);
       final bytes = base64Decode(urlDecoded.trim());
       if (_isPdfFile(bytes)) {
         await file.create(recursive: true);
         await file.writeAsBytes(bytes);
-        print("Strategy 3 successful!");
+        debugPrint("Strategy 3 successful!");
         return;
       }
     } catch (e) {
-      print("Strategy 3 failed: $e");
+      debugPrint("Strategy 3 failed: $e");
     }
 
     // Strategy 4: Assume raw bytes (not base64 encoded)
     try {
-      print("Strategy 4: Treat as raw bytes");
+      debugPrint("Strategy 4: Treat as raw bytes");
       final bytes = slipContent.codeUnits;
       if (_isPdfFile(bytes)) {
         await file.create(recursive: true);
         await file.writeAsBytes(bytes);
-        print("Strategy 4 successful!");
+        debugPrint("Strategy 4 successful!");
         return;
       }
     } catch (e) {
-      print("Strategy 4 failed: $e");
+      debugPrint("Strategy 4 failed: $e");
     }
 
     throw Exception(

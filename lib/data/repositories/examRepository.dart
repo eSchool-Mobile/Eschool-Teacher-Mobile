@@ -14,7 +14,7 @@ class ExamRepository {
         "medium_id": mediumId
       });
 
-      print("///");
+      debugPrint("///");
 
       return ((result['data'] ?? []) as List)
           .map((offlineExam) =>
@@ -65,7 +65,7 @@ class ExamRepository {
       return result['pdf'] ?? "";
     } catch (e) {
       if (kDebugMode) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
       throw ApiException(e.toString());
     }

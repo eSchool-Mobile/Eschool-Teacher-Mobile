@@ -7,15 +7,15 @@ class ExtracurricularMemberListCard extends StatelessWidget {
   final VoidCallback onTap;
 
   // Define theme colors
-  final Color maroonPrimary = Color(0xFF8B1F41);
-  final Color maroonLight = Color(0xFFAC3B5C);
-  final Color accentColor = Color(0xFFF5EBE0);
+  static const Color maroonPrimary = Color(0xFF8B1F41);
+  static const Color maroonLight = Color(0xFFAC3B5C);
+  static const Color accentColor = Color(0xFFF5EBE0);
   final Color cardColor = Colors.white;
-  final Color textDarkColor = Color(0xFF2D2D2D);
-  final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
+  static const Color textDarkColor = Color(0xFF2D2D2D);
+  static const Color textMediumColor = Color(0xFF717171);
+  static const Color borderColor = Color(0xFFE8E8E8);
 
-  ExtracurricularMemberListCard({
+  const ExtracurricularMemberListCard({super.key, 
     required this.member,
     required this.onTap,
   });
@@ -35,7 +35,7 @@ class ExtracurricularMemberListCard extends StatelessWidget {
             height: 32,
             width: 32,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -44,10 +44,10 @@ class ExtracurricularMemberListCard extends StatelessWidget {
               size: 16,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               fontFamily: 'Poppins',
@@ -57,10 +57,10 @@ class ExtracurricularMemberListCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontFamily: 'Poppins',
               color: textMediumColor,
@@ -118,9 +118,9 @@ class ExtracurricularMemberListCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
               spreadRadius: 0,
             ),
           ],
@@ -136,7 +136,7 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                 width: 8,
                 decoration: BoxDecoration(
                   color: statusColor,
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(16),
                     bottomLeft: Radius.circular(16),
                   ),
@@ -146,13 +146,13 @@ class ExtracurricularMemberListCard extends StatelessWidget {
 
             // Main content
             Padding(
-              padding: EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.only(left: 8),
               child: Column(
                 children: [
                   // Header section with profile image and name
                   Container(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+                    decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
                           color: borderColor,
@@ -170,12 +170,12 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                             height: 65,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
+                              gradient: const LinearGradient(
                                 colors: [maroonLight, maroonPrimary],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: maroonPrimary.withOpacity(0.2),
+                                  color: maroonPrimary.withValues(alpha: 0.2),
                                   blurRadius: 8,
                                   spreadRadius: 1,
                                 ),
@@ -186,7 +186,7 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                                 (member.studentName?.isNotEmpty == true)
                                     ? member.studentName![0].toUpperCase()
                                     : '?',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 24,
@@ -206,13 +206,13 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
-                                        color: statusColor.withOpacity(0.1),
+                                        color: statusColor.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
-                                          color: statusColor.withOpacity(0.6),
+                                          color: statusColor.withValues(alpha: 0.6),
                                           width: 1,
                                         ),
                                       ),
@@ -224,7 +224,7 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                                             color: statusColor,
                                             size: 12,
                                           ),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Flexible(
                                             child: Text(
                                               member.statusText,
@@ -243,34 +243,34 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                                   ),
                                   if (member.extracurricularName != null &&
                                       member.extracurricularName != '-') ...[
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Flexible(
                                       child: Container(
-                                        padding: EdgeInsets.symmetric(
+                                        padding: const EdgeInsets.symmetric(
                                             horizontal: 8, vertical: 3),
                                         decoration: BoxDecoration(
-                                          color: maroonPrimary.withOpacity(0.1),
+                                          color: maroonPrimary.withValues(alpha: 0.1),
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
                                             color:
-                                                maroonPrimary.withOpacity(0.6),
+                                                maroonPrimary.withValues(alpha: 0.6),
                                             width: 1,
                                           ),
                                         ),
                                         child: Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(
+                                            const Icon(
                                               Icons.sports_soccer,
                                               color: maroonPrimary,
                                               size: 12,
                                             ),
-                                            SizedBox(width: 4),
+                                            const SizedBox(width: 4),
                                             Flexible(
                                               child: Text(
                                                 member.extracurricularName!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: maroonPrimary,
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w600,
@@ -286,28 +286,28 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                                   ],
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Text(
                                 member.studentName ?? "Nama tidak tersedia",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Poppins',
                                   color: textDarkColor,
                                 ),
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.badge_outlined,
                                     size: 14,
                                     color: textMediumColor,
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     "NISN: ${member.studentNisn ?? '-'}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: textMediumColor,
                                       fontFamily: 'Poppins',
                                       fontSize: 13,
@@ -325,7 +325,7 @@ class ExtracurricularMemberListCard extends StatelessWidget {
 
                   // Information section
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -366,10 +366,10 @@ class ExtracurricularMemberListCard extends StatelessWidget {
 
                   // Action row
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.3),
-                      borderRadius: BorderRadius.only(
+                      color: accentColor.withValues(alpha: 0.3),
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(8),
                         bottomRight: Radius.circular(16),
                       ),
@@ -381,21 +381,21 @@ class ExtracurricularMemberListCard extends StatelessWidget {
                               ? Icons.pending_actions
                               : Icons.info_outline,
                           size: 16,
-                          color: maroonPrimary.withOpacity(0.7),
+                          color: maroonPrimary.withValues(alpha: 0.7),
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           member.isPending
                               ? "Tap untuk approve/reject"
                               : "Lihat detail anggota",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Poppins',
                             fontSize: 12,
                             color: maroonPrimary,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           width: 28,
                           height: 28,

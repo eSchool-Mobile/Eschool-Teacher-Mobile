@@ -61,7 +61,7 @@ Future<void> initializeApp() async {
     );
   } catch (e) {
     if (kDebugMode) {
-      print('Firebase already initialized: $e');
+      debugPrint('Firebase already initialized: $e');
     }
   }
 

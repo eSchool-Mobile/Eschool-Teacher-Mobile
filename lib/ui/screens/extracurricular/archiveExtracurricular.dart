@@ -6,11 +6,12 @@ import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ArchiveExtracurricular extends StatefulWidget {
+  const ArchiveExtracurricular({super.key});
+
   @override
   State<ArchiveExtracurricular> createState() => _ArchiveExtracurricularState();
 }
@@ -26,8 +27,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
   late Animation<double> _pulseAnimation;
 
   // Theme colors - matching onlineExamScreen
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     _loadArchivedExtracurriculars();
 
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
@@ -46,7 +47,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
     // Add pulse animation controller
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _pulseAnimation = CurvedAnimation(
@@ -64,7 +65,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
   }
 
   Future<void> _loadArchivedExtracurriculars() async {
-    await Future.delayed(Duration(milliseconds: 500));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (mounted) {
       context.read<ExtracurricularCubit>().getArchivedExtracurriculars();
     }
@@ -73,7 +74,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
   void _showFilterBottomSheet(BuildContext parentContext) {
     showModalBottomSheet(
       context: parentContext,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       backgroundColor: Colors.white,
@@ -81,7 +82,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,7 +92,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     child: Container(
                       width: 40,
                       height: 4,
-                      margin: EdgeInsets.only(top: 8),
+                      margin: const EdgeInsets.only(top: 8),
                       decoration: BoxDecoration(
                         color: Colors.grey[400],
                         borderRadius: BorderRadius.circular(2),
@@ -99,7 +100,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     ),
                   ),
                   // Judul
-                  Text(
+                  const Text(
                     'Filter Ekstrakurikuler Arsip',
                     style: TextStyle(
                       fontSize: 18,
@@ -107,7 +108,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       color: Color(0xFF8B0000),
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Tidak ada filter tambahan tersedia saat ini.',
                     style: TextStyle(
@@ -117,7 +118,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                 ],
               ),
             );
@@ -165,7 +166,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
 
   Widget _buildSearchBar() {
     return FadeInDown(
-      delay: Duration(milliseconds: 200),
+      delay: const Duration(milliseconds: 200),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
         child: Container(
@@ -175,7 +176,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
             borderRadius: BorderRadius.circular(25),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -228,9 +229,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           // No need to filter by isArchived as the API already returns only archived items
           final trulyArchivedExtracurriculars = archivedExtracurriculars;
 
-          print(
+          debugPrint(
               '🔍 [ARCHIVE SCREEN] Total from API: ${archivedExtracurriculars.length}');
-          print(
+          debugPrint(
               '🔍 [ARCHIVE SCREEN] Truly archived: ${trulyArchivedExtracurriculars.length}');
 
           // Filter berdasarkan pencarian
@@ -252,7 +253,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                     size: 80,
                     color: Colors.grey[400],
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     _isSearching
                         ? 'Tidak ada ekstrakurikuler arsip yang cocok dengan pencarian'
@@ -272,7 +273,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           }
 
           return ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: filteredExtracurriculars.length,
             itemBuilder: (context, index) {
               final extracurricular = filteredExtracurriculars[index];
@@ -280,7 +281,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
             },
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }
@@ -296,7 +297,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -307,7 +308,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -317,7 +318,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       Flexible(
                         child: Text(
                           extracurricular.name,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF8B0000),
@@ -328,10 +329,10 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       Row(
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -343,7 +344,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                               ),
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           // Menu popup
                           PopupMenuButton<String>(
                             icon:
@@ -360,7 +361,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                               }
                             },
                             itemBuilder: (context) => [
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'restore',
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -372,7 +373,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                   ],
                                 ),
                               ),
-                              PopupMenuItem<String>(
+                              const PopupMenuItem<String>(
                                 value: 'delete',
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -390,7 +391,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Center(
                     child: Text(
                       extracurricular.coachName,
@@ -401,7 +402,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Row(
                     children: [
                       Expanded(
@@ -413,7 +414,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       ),
                     ],
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   // Tambahkan informasi tanggal arsip
                   if (extracurricular.deletedAt != null)
                     Row(
@@ -444,7 +445,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           size: 16,
           color: Colors.grey[600],
         ),
-        SizedBox(width: 4),
+        const SizedBox(width: 4),
         Expanded(
           child: Text(
             text,
@@ -468,7 +469,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -478,7 +479,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
         baseColor: Colors.grey.shade300,
         highlightColor: Colors.grey.shade100,
         child: Padding(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -575,7 +576,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
 
   Widget _buildArchiveExtracurricularSkeleton() {
     return ListView.builder(
-      padding: EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       itemCount: 6,
       itemBuilder: (context, index) {
         return _buildExtracurricularCardSkeleton();
@@ -590,7 +591,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           borderRadius: BorderRadius.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.white,
@@ -599,7 +600,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.blue[50],
                   shape: BoxShape.circle,
@@ -610,7 +611,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   size: 32,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Pulihkan Ekstrakurikuler',
                 style: TextStyle(
@@ -619,7 +620,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Apakah Anda yakin ingin memulihkan ekstrakurikuler ini?',
                 textAlign: TextAlign.center,
@@ -628,12 +629,19 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
                     child: TextButton(
                       onPressed: () => Get.back(),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: BorderSide(color: Colors.grey[300]!),
+                        ),
+                      ),
                       child: Text(
                         'Batal',
                         style: TextStyle(
@@ -641,16 +649,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: BorderSide(color: Colors.grey[300]!),
-                        ),
-                      ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -659,12 +660,12 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                           // Show modern loading dialog
                           Get.dialog(
                             Material(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               child: Center(
                                 child: Container(
                                   width: 320,
-                                  padding: EdgeInsets.all(40),
-                                  margin: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(40),
+                                  margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
@@ -677,16 +678,18 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.blue.withOpacity(0.3),
+                                        color:
+                                            Colors.blue.withValues(alpha: 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 0,
-                                        offset: Offset(0, 15),
+                                        offset: const Offset(0, 15),
                                       ),
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.8),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.8),
                                         blurRadius: 10,
                                         spreadRadius: -5,
-                                        offset: Offset(0, -5),
+                                        offset: const Offset(0, -5),
                                       ),
                                     ],
                                   ),
@@ -709,11 +712,11 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.blue.withOpacity(0.4),
+                                              color: Colors.blue
+                                                  .withValues(alpha: 0.4),
                                               blurRadius: 20,
                                               spreadRadius: 0,
-                                              offset: Offset(0, 8),
+                                              offset: const Offset(0, 8),
                                             ),
                                           ],
                                         ),
@@ -729,12 +732,13 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
                                                         Color>(
-                                                  Colors.white.withOpacity(0.8),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.8),
                                                 ),
                                               ),
                                             ),
                                             // Static icon
-                                            Icon(
+                                            const Icon(
                                               Icons.restore_rounded,
                                               color: Colors.white,
                                               size: 36,
@@ -742,7 +746,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 32),
+                                      const SizedBox(height: 32),
 
                                       // Title with gradient text effect
                                       ShaderMask(
@@ -753,7 +757,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                             Colors.blue[500]!
                                           ],
                                         ).createShader(bounds),
-                                        child: Text(
+                                        child: const Text(
                                           'Memulihkan Ekstrakurikuler',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -762,7 +766,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // Subtitle with better styling
                                       Text(
@@ -774,7 +778,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
@@ -783,7 +787,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
                                       // Progress dots animation
                                       Row(
@@ -792,7 +796,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         children: List.generate(
                                           3,
                                           (index) => Container(
-                                            margin: EdgeInsets.symmetric(
+                                            margin: const EdgeInsets.symmetric(
                                                 horizontal: 4),
                                             child: AnimatedBuilder(
                                               animation: _pulseAnimation,
@@ -801,8 +805,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                                   width: 8,
                                                   height: 8,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.blue[400]!
-                                                        .withOpacity(0.3 +
+                                                    color: Colors.blue[400]!.withValues(
+                                                        alpha: 0.3 +
                                                             0.7 *
                                                                 (((_pulseAnimation
                                                                             .value +
@@ -831,12 +835,15 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
 
                           Get.back(); // Close loading
 
+                          if (!mounted) return;
+
                           // Show auto-dismissing success snackbar
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.check_circle,
@@ -854,9 +861,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                 ),
                               ),
                               backgroundColor: Colors.green.shade400,
-                              duration: Duration(seconds: 2),
+                              duration: const Duration(seconds: 2),
                               behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
@@ -865,7 +872,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                             ),
                           );
 
-                          await Future.delayed(Duration(milliseconds: 500));
+                          await Future.delayed(
+                              const Duration(milliseconds: 500));
 
                           // Navigate back to ExtracurricularScreen with restored info
                           Get.back(result: {
@@ -881,22 +889,22 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                             backgroundColor: Colors.red,
                             colorText: Colors.white,
                             snackPosition: SnackPosition.TOP,
-                            duration: Duration(seconds: 3),
+                            duration: const Duration(seconds: 3),
                           );
                         }
                       },
-                      child: Text(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
                         'Pulihkan',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
                     ),
@@ -918,7 +926,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
           borderRadius: BorderRadius.circular(20),
         ),
         child: Container(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             color: Colors.white,
@@ -927,7 +935,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.red[50],
                   shape: BoxShape.circle,
@@ -938,7 +946,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   size: 32,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Text(
                 'Hapus Permanen',
                 style: TextStyle(
@@ -947,7 +955,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   color: Colors.grey[800],
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 'Apakah Anda yakin ingin menghapus ekstrakurikuler ini secara permanen?\nTindakan ini tidak dapat dibatalkan.',
                 textAlign: TextAlign.center,
@@ -956,7 +964,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                   height: 1.5,
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               Row(
                 children: [
                   Expanded(
@@ -971,7 +979,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       ),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
@@ -980,12 +988,12 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                           // Show modern delete loading dialog
                           Get.dialog(
                             Material(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.black.withValues(alpha: 0.5),
                               child: Center(
                                 child: Container(
                                   width: 320,
-                                  padding: EdgeInsets.all(40),
-                                  margin: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(40),
+                                  margin: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
                                       colors: [
@@ -998,16 +1006,18 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                     borderRadius: BorderRadius.circular(32),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.red.withOpacity(0.3),
+                                        color:
+                                            Colors.red.withValues(alpha: 0.3),
                                         blurRadius: 30,
                                         spreadRadius: 0,
-                                        offset: Offset(0, 15),
+                                        offset: const Offset(0, 15),
                                       ),
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.8),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.8),
                                         blurRadius: 10,
                                         spreadRadius: -5,
-                                        offset: Offset(0, -5),
+                                        offset: const Offset(0, -5),
                                       ),
                                     ],
                                   ),
@@ -1030,11 +1040,11 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.red.withOpacity(0.4),
+                                              color: Colors.red
+                                                  .withValues(alpha: 0.4),
                                               blurRadius: 20,
                                               spreadRadius: 0,
-                                              offset: Offset(0, 8),
+                                              offset: const Offset(0, 8),
                                             ),
                                           ],
                                         ),
@@ -1050,12 +1060,13 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
                                                         Color>(
-                                                  Colors.white.withOpacity(0.8),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.8),
                                                 ),
                                               ),
                                             ),
                                             // Static icon
-                                            Icon(
+                                            const Icon(
                                               Icons.delete_forever_rounded,
                                               color: Colors.white,
                                               size: 36,
@@ -1063,7 +1074,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           ],
                                         ),
                                       ),
-                                      SizedBox(height: 32),
+                                      const SizedBox(height: 32),
 
                                       // Title with gradient text effect
                                       ShaderMask(
@@ -1074,7 +1085,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                             Colors.red[500]!
                                           ],
                                         ).createShader(bounds),
-                                        child: Text(
+                                        child: const Text(
                                           'Menghapus Ekstrakurikuler',
                                           style: TextStyle(
                                             fontSize: 24,
@@ -1083,7 +1094,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                           ),
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
 
                                       // Subtitle with better styling
                                       Text(
@@ -1095,7 +1106,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'Mohon tunggu sebentar...',
                                         style: TextStyle(
@@ -1104,7 +1115,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
-                                      SizedBox(height: 24),
+                                      const SizedBox(height: 24),
 
                                       // Progress dots animation
                                       Row(
@@ -1113,7 +1124,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                         children: List.generate(
                                           3,
                                           (index) => Container(
-                                            margin: EdgeInsets.symmetric(
+                                            margin: const EdgeInsets.symmetric(
                                                 horizontal: 4),
                                             child: AnimatedBuilder(
                                               animation: _pulseAnimation,
@@ -1122,8 +1133,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                                   width: 8,
                                                   height: 8,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.red[400]!
-                                                        .withOpacity(0.3 +
+                                                    color: Colors.red[400]!.withValues(
+                                                        alpha: 0.3 +
                                                             0.7 *
                                                                 (((_pulseAnimation
                                                                             .value +
@@ -1150,6 +1161,8 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                               .read<ExtracurricularCubit>()
                               .forceDeleteExtracurricular(extracurricular.id);
 
+                          if (!mounted) return;
+
                           // Tutup loading
                           Get.back();
 
@@ -1160,8 +1173,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Container(
-                                padding: EdgeInsets.symmetric(vertical: 8),
-                                child: Row(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
+                                child: const Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.check_circle,
@@ -1179,9 +1193,9 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                                 ),
                               ),
                               backgroundColor: Colors.green.shade400,
-                              duration: Duration(seconds: 2),
+                              duration: const Duration(seconds: 2),
                               behavior: SnackBarBehavior.floating,
-                              margin: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 10),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(30),
@@ -1207,7 +1221,7 @@ class _ArchiveExtracurricularState extends State<ArchiveExtracurricular>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      child: Text(
+                      child: const Text(
                         'Hapus',
                         style: TextStyle(
                           color: Colors.white,

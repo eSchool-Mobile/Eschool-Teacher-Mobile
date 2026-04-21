@@ -37,7 +37,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
 
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     )..forward();
 
     Future.delayed(Duration.zero, () {
@@ -66,7 +66,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         builder: (context, state) {
           if (state is LocalNotificationsFetchSuccess) {
             return SingleChildScrollView(
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 top: 25,
               ),
               child: Column(

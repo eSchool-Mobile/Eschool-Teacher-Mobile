@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacher/teachersCubit.dart';
@@ -13,7 +12,6 @@ import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -112,30 +110,30 @@ class _TeachersScreenState extends State<TeachersScreen>
     // Inisialisasi animation controllers
     _fadeController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
 
     _slideController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
     );
 
     // Pulse animation untuk efek interaktif
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     // Rotation animation untuk elemen dekoratif
     _rotationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 10000),
+      duration: const Duration(milliseconds: 10000),
     )..repeat();
 
     // Initialize fabAnimationController for CustomModernAppBar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     )..forward();
 
     // Start animations
@@ -270,9 +268,9 @@ class _TeachersScreenState extends State<TeachersScreen>
               Icon(
                 Icons.people_outline,
                 size: 80,
-                color: maroonPrimary.withOpacity(0.6),
+                color: maroonPrimary.withValues(alpha: 0.6),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "Tidak ada data guru ditemukan",
                 style: GoogleFonts.poppins(
@@ -289,9 +287,9 @@ class _TeachersScreenState extends State<TeachersScreen>
 
     return AnimationLimiter(
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         controller: _scrollController,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: filteredTeachers.length,
         itemBuilder: (context, index) {
           final teacherDetails = filteredTeachers[index];
@@ -299,7 +297,7 @@ class _TeachersScreenState extends State<TeachersScreen>
 
           return AnimationConfiguration.staggeredList(
             position: index,
-            duration: Duration(milliseconds: 450),
+            duration: const Duration(milliseconds: 450),
             child: SlideAnimation(
               horizontalOffset: 40,
               child: FadeInAnimation(
@@ -335,7 +333,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                     });
                   },
                   onTapUp: (_) {
-                    Future.delayed(Duration(milliseconds: 300), () {
+                    Future.delayed(const Duration(milliseconds: 300), () {
                       if (mounted) {
                         setState(() {
                           _hoveredTeacherIndex = -1;
@@ -344,34 +342,34 @@ class _TeachersScreenState extends State<TeachersScreen>
                     });
                   },
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
-                    margin: EdgeInsets.only(bottom: 16),
-                    padding: EdgeInsets.all(16),
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: isHovered
                             ? [
-                                maroonPrimary.withOpacity(0.02),
-                                maroonSecondary.withOpacity(0.05),
+                                maroonPrimary.withValues(alpha: 0.02),
+                                maroonSecondary.withValues(alpha: 0.05),
                               ]
                             : [Colors.white, Colors.white],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isHovered
-                            ? maroonPrimary.withOpacity(0.2)
-                            : Colors.grey.withOpacity(0.1),
+                            ? maroonPrimary.withValues(alpha: 0.2)
+                            : Colors.grey.withValues(alpha: 0.1),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: isHovered
-                              ? maroonPrimary.withOpacity(0.1)
-                              : Colors.black.withOpacity(0.03),
+                              ? maroonPrimary.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.03),
                           blurRadius: isHovered ? 12 : 6,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                           spreadRadius: isHovered ? 1 : 0,
                         ),
                       ],
@@ -384,14 +382,14 @@ class _TeachersScreenState extends State<TeachersScreen>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isHovered
-                                  ? maroonPrimary.withOpacity(0.4)
+                                  ? maroonPrimary.withValues(alpha: 0.4)
                                   : Colors.grey.shade200,
                               width: 2,
                             ),
                             boxShadow: isHovered
                                 ? [
                                     BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.15),
+                                      color: maroonPrimary.withValues(alpha: 0.15),
                                       blurRadius: 10,
                                       spreadRadius: 2,
                                     )
@@ -402,7 +400,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                             imageUrl: teacherDetails.image ?? "",
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
 
                         // Teacher info
                         Expanded(
@@ -428,12 +426,12 @@ class _TeachersScreenState extends State<TeachersScreen>
 
                                   // Status indicator
                                   Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: teacherDetails.isActive()
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Colors.grey.withOpacity(0.1),
+                                          ? Colors.green.withValues(alpha: 0.1)
+                                          : Colors.grey.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -452,7 +450,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                                 ],
                               ),
 
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
 
                               // Role tags
                               if (teacherDetails.getRoles().isNotEmpty) ...[
@@ -465,11 +463,11 @@ class _TeachersScreenState extends State<TeachersScreen>
                                       .map((role) => role.trim())
                                       .where((role) => role.isNotEmpty)
                                       .map((role) => Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: maroonPrimary
-                                                  .withOpacity(0.08),
+                                                  .withValues(alpha: 0.08),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -491,14 +489,14 @@ class _TeachersScreenState extends State<TeachersScreen>
 
                         // Icon animasi
                         AnimatedContainer(
-                          duration: Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 200),
                           transform: Matrix4.translationValues(
                               isHovered ? 8.0 : 0.0, 0.0, 0.0),
                           child: Icon(
                             Icons.arrow_forward_ios,
                             color: isHovered
                                 ? maroonPrimary
-                                : maroonPrimary.withOpacity(0.5),
+                                : maroonPrimary.withValues(alpha: 0.5),
                             size: 16,
                           ),
                         ),
@@ -526,9 +524,9 @@ class _TeachersScreenState extends State<TeachersScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -546,7 +544,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                         Container(
                           width: 50,
                           height: 50,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             shape: BoxShape.circle,
                           ),
@@ -676,7 +674,7 @@ class _TeachersScreenState extends State<TeachersScreen>
     // Need to add a fabAnimationController for the CustomModernAppBar
     late final AnimationController fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     )..forward();
 
     String titleKey = "Daftar Guru";
@@ -709,16 +707,16 @@ class _TeachersScreenState extends State<TeachersScreen>
         children: [
           // Search Bar
           Padding(
-            padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -726,11 +724,11 @@ class _TeachersScreenState extends State<TeachersScreen>
                 controller: _textEditingController,
                 decoration: InputDecoration(
                   hintText: "Cari guru...",
-                  hintStyle: TextStyle(color: Colors.grey),
+                  hintStyle: const TextStyle(color: Colors.grey),
                   prefixIcon: Icon(Icons.search, color: maroonPrimary),
                   suffixIcon: _textEditingController.text.isNotEmpty
                       ? IconButton(
-                          icon: Icon(Icons.clear, color: Colors.grey),
+                          icon: const Icon(Icons.clear, color: Colors.grey),
                           onPressed: () {
                             _textEditingController.clear();
                             getTeachers();
@@ -741,7 +739,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  contentPadding: EdgeInsets.symmetric(vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),
@@ -750,7 +748,7 @@ class _TeachersScreenState extends State<TeachersScreen>
           // Filter Indicator
           if (_currentStatusFilter != TeacherStatusFilter.all)
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Row(
                 children: [
                   Icon(
@@ -760,7 +758,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                     color: maroonPrimary,
                     size: 16,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
                     _currentStatusFilter == TeacherStatusFilter.active
                         ? "Menampilkan Guru Aktif"
@@ -770,7 +768,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                       color: Colors.grey.shade700,
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   InkWell(
                     onTap: () {
                       setState(() {
@@ -793,14 +791,14 @@ class _TeachersScreenState extends State<TeachersScreen>
           // Filter Status Indicator
           if (_currentStatusFilter != TeacherStatusFilter.all)
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 0, 24, 16),
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: maroonPrimary.withOpacity(0.08),
+                  color: maroonPrimary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: maroonPrimary.withOpacity(0.2),
+                    color: maroonPrimary.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -813,7 +811,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                       color: maroonPrimary,
                       size: 18,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       _currentStatusFilter == TeacherStatusFilter.active
                           ? "Filter: Guru Aktif"
@@ -824,7 +822,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                         fontSize: 14,
                       ),
                     ),
-                    Spacer(),
+                    const Spacer(),
                     InkWell(
                       onTap: () {
                         setState(() {
@@ -833,7 +831,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                       },
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
-                        padding: EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(4),
                         child: Icon(
                           Icons.close,
                           color: maroonPrimary,
@@ -882,7 +880,7 @@ class _TeachersScreenState extends State<TeachersScreen>
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
@@ -893,7 +891,7 @@ class _TeachersScreenState extends State<TeachersScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                margin: EdgeInsets.only(top: 12),
+                margin: const EdgeInsets.only(top: 12),
                 height: 4,
                 width: 40,
                 decoration: BoxDecoration(
@@ -902,7 +900,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                 ),
               ),
               Padding(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -913,7 +911,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     ListTile(
                       onTap: () {
                         setState(() {
@@ -943,13 +941,13 @@ class _TeachersScreenState extends State<TeachersScreen>
                           ? Icon(Icons.check_circle, color: maroonPrimary)
                           : null,
                       tileColor: _currentStatusFilter == TeacherStatusFilter.all
-                          ? maroonPrimary.withOpacity(0.05)
+                          ? maroonPrimary.withValues(alpha: 0.05)
                           : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     ListTile(
                       onTap: () {
                         setState(() {
@@ -983,13 +981,13 @@ class _TeachersScreenState extends State<TeachersScreen>
                               : null,
                       tileColor:
                           _currentStatusFilter == TeacherStatusFilter.active
-                              ? maroonPrimary.withOpacity(0.05)
+                              ? maroonPrimary.withValues(alpha: 0.05)
                               : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     ListTile(
                       onTap: () {
                         setState(() {
@@ -1023,7 +1021,7 @@ class _TeachersScreenState extends State<TeachersScreen>
                               : null,
                       tileColor:
                           _currentStatusFilter == TeacherStatusFilter.inactive
-                              ? maroonPrimary.withOpacity(0.05)
+                              ? maroonPrimary.withValues(alpha: 0.05)
                               : Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

@@ -2,7 +2,7 @@ import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 abstract class TeacherMyTimetableState {}
 
@@ -42,18 +42,18 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
         date: date,
       );
 
-      print(
+      debugPrint(
           "Fetched timetable slots for class section $classSectionId: ${slots.length}");
-      slots.forEach((slot) {
-        print("Slot ID: ${slot.id}, Subject: ${slot.subject?.name}");
-      });
+      for (var slot in slots) {
+        debugPrint("Slot ID: ${slot.id}, Subject: ${slot.subject?.name}");
+      }
 
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
-      print("Error fetching timetable slots: $e");
+      debugPrint("Error fetching timetable slots: $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherMyTimetableFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -65,26 +65,26 @@ class TeacherMyTimetableCubit extends Cubit<TeacherMyTimetableState> {
     try {
       emit(TeacherMyTimetableFetchInProgress());
 
-      print("Requesting timetable data for day: ${dayKey ?? 'all days'}");
+      debugPrint("Requesting timetable data for day: ${dayKey ?? 'all days'}");
 
       // Pass the dayKey to the repository method
       final slots = await _teacherAcademicsRepository.getTeacherMyTimetable(
           dayKey: dayKey);
 
-      print(
+      debugPrint(
           "Fetched ${slots.length} timetable slots for day: ${dayKey ?? 'all days'}");
       // Log each slot for debugging
-      slots.forEach((slot) {
-        print(
+      for (var slot in slots) {
+        debugPrint(
             "Slot - Day: ${slot.day}, Subject: ${slot.subject?.name}, Time: ${slot.startTime}-${slot.endTime}");
-      });
+      }
 
       emit(TeacherMyTimetableFetchSuccess(timeTableSlots: slots));
     } catch (e) {
-      print("Error fetching timetable: $e");
+      debugPrint("Error fetching timetable: $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherMyTimetableFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

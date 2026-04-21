@@ -28,14 +28,14 @@ class ClassListItemContainer extends StatelessWidget {
       text,
       style: TextStyle(
         fontSize: Utils.getScaledValue(context, 14),
-        color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
+        color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.76),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print(
+    debugPrint(
         "Class Section: ${classSectionDetails.name}, Teacher ID: ${context.read<AuthCubit>().getUserDetails().id}");
     return Container(
       margin: EdgeInsets.symmetric(vertical: appContentHorizontalPadding),

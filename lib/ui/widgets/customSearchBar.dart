@@ -8,12 +8,12 @@ class CustomSearchBar extends StatefulWidget {
   final bool showClose;
 
   const CustomSearchBar({
-    Key? key,
+    super.key,
     required this.controller,
     required this.onChanged,
     required this.hintText,
     this.showClose = true,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomSearchBar> createState() => _CustomSearchBarState();
@@ -30,7 +30,7 @@ class _CustomSearchBarState extends State<CustomSearchBar>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
     _scaleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
@@ -50,11 +50,11 @@ class _CustomSearchBarState extends State<CustomSearchBar>
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: FadeInDown(
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           width: _isExpanded
               ? MediaQuery.of(context).size.width - 40
               : MediaQuery.of(context).size.width - 100,
@@ -63,9 +63,9 @@ class _CustomSearchBarState extends State<CustomSearchBar>
             borderRadius: BorderRadius.circular(_isExpanded ? 15 : 25),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).primaryColor.withOpacity(0.15),
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.15),
                 blurRadius: 15,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
                 spreadRadius: 2,
               ),
             ],
@@ -80,16 +80,16 @@ class _CustomSearchBarState extends State<CustomSearchBar>
                 });
               },
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
                 child: Row(
                   children: [
                     AnimatedContainer(
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                       width: 35,
                       height: 35,
                       decoration: BoxDecoration(
                         color: _isExpanded || widget.controller.text.isNotEmpty
-                            ? Theme.of(context).primaryColor.withOpacity(0.1)
+                            ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -99,7 +99,7 @@ class _CustomSearchBarState extends State<CustomSearchBar>
                         size: 22,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: TextField(
                         controller: widget.controller,
@@ -107,7 +107,7 @@ class _CustomSearchBarState extends State<CustomSearchBar>
                           widget.onChanged(value);
                           setState(() {});
                         },
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black87,
                         ),

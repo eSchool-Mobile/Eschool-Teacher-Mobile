@@ -8,7 +8,6 @@ import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:ui';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
@@ -71,8 +70,8 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
 
   void getLeaves() {
     LeaveDayType leaveDayType = LeaveDayType.today;
-    print("Fetching leaves for date: $_selectedDateTime");
-    print(
+    debugPrint("Fetching leaves for date: $_selectedDateTime");
+    debugPrint(
         "Formatted date: ${_selectedDateTime.toIso8601String().split('T')[0]}");
 
     context
@@ -100,14 +99,14 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
         if (selectedDate != null) {
           _selectedDateTime = selectedDate;
           setState(() {});
-          print("Tanggal Terpilih: $_selectedDateTime");
-          print(
+          debugPrint("Tanggal Terpilih: $_selectedDateTime");
+          debugPrint(
               "Tanggal ISO: ${_selectedDateTime.toIso8601String().split('T')[0]}");
           getLeaves();
         }
       },
 
-      tabBuilder: (context) => Container(
+      tabBuilder: (context) => SizedBox(
         height: 48,
         child: Material(
           color: Colors.transparent,
@@ -122,26 +121,26 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
               if (selectedDate != null) {
                 _selectedDateTime = selectedDate;
                 setState(() {});
-                print("Tanggal Terpilih dari tab: $_selectedDateTime");
-                print(
+                debugPrint("Tanggal Terpilih dari tab: $_selectedDateTime");
+                debugPrint(
                     "Tanggal ISO dari tab: ${_selectedDateTime.toIso8601String().split('T')[0]}");
                 getLeaves();
               }
             },
             borderRadius: BorderRadius.circular(12),
-            highlightColor: Colors.white.withOpacity(0.1),
-            splashColor: Colors.white.withOpacity(0.2),
+            highlightColor: Colors.white.withValues(alpha: 0.1),
+            splashColor: Colors.white.withValues(alpha: 0.2),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.calendar_today_rounded,
                     color: Colors.white,
                     size: 18,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     Utils.formatDate(_selectedDateTime),
                     style: GoogleFonts.poppins(
@@ -150,7 +149,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Icon(
+                  const Icon(
                     Icons.arrow_drop_down,
                     color: Colors.white,
                     size: 24,
@@ -176,38 +175,38 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                     BlocBuilder<GeneralPermissionCubit, GeneralPermissionState>(
                   builder: (context, state) {
                     if (state is GeneralPermissionFetchSuccess) {
-                      print("Total leaves data: ${state.leaves.length}");
-                      print("Selected date: $_selectedDateTime");
+                      debugPrint("Total leaves data: ${state.leaves.length}");
+                      debugPrint("Selected date: $_selectedDateTime");
 
                       // Debug: Print all leaves data structure
                       for (int i = 0; i < state.leaves.length; i++) {
                         final permissionDetails = state.leaves[i];
-                        print(
+                        debugPrint(
                             "Permission $i: User - ${permissionDetails.user?.fullName ?? 'Unknown'}");
-                        print(
+                        debugPrint(
                             "Permission $i: Leaves count - ${permissionDetails.leaves.length}");
 
                         // Print raw object structure
-                        print(
+                        debugPrint(
                             "Permission $i raw: ${permissionDetails.toString()}");
 
                         // Try to access properties directly (in case of wrong model mapping)
                         try {
                           // Check if permissionDetails has direct student info
                           if (permissionDetails is Map) {
-                            print("Permission $i is Map: ${permissionDetails}");
+                            debugPrint("Permission $i is Map: $permissionDetails");
                           }
                         } catch (e) {
-                          print("Error checking raw object: $e");
+                          debugPrint("Error checking raw object: $e");
                         }
 
                         for (int j = 0;
                             j < permissionDetails.leaves.length;
                             j++) {
                           final leave = permissionDetails.leaves[j];
-                          print("  Leave $j: fromDate - ${leave.fromDate}");
-                          print("  Leave $j: toDate - ${leave.toDate}");
-                          print("  Leave $j: reason - ${leave.reason}");
+                          debugPrint("  Leave $j: fromDate - ${leave.fromDate}");
+                          debugPrint("  Leave $j: toDate - ${leave.toDate}");
+                          debugPrint("  Leave $j: reason - ${leave.reason}");
                         }
                       }
 
@@ -218,7 +217,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                           try {
                             if (leave.fromDate == null ||
                                 leave.fromDate!.isEmpty) {
-                              print("Skipping leave with null/empty fromDate");
+                              debugPrint("Skipping leave with null/empty fromDate");
                               return false;
                             }
 
@@ -229,7 +228,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                               leaveDate = DateFormat('dd-MM-yyyy')
                                   .parse(leave.fromDate!);
                             } catch (e) {
-                              print("Error parsing date ${leave.fromDate}: $e");
+                              debugPrint("Error parsing date ${leave.fromDate}: $e");
                               return false;
                             }
 
@@ -243,13 +242,13 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                 leaveDay.isAtSameMomentAs(selectedDay);
 
                             if (isSameDate) {
-                              print(
+                              debugPrint(
                                   "MATCH FOUND: Siswa izin: ${permissionDetails.user?.fullName ?? 'Unknown'} pada tanggal ${leave.fromDate}");
                             }
 
                             return isSameDate;
                           } catch (e) {
-                            print("Error processing leave: $e");
+                            debugPrint("Error processing leave: $e");
                             return false;
                           }
                         });
@@ -257,7 +256,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                         return hasMatchingLeave;
                       }).toList();
 
-                      print("Filtered leaves count: ${filteredLeaves.length}");
+                      debugPrint("Filtered leaves count: ${filteredLeaves.length}");
 
                       if (filteredLeaves.isEmpty) {
                         return Center(
@@ -269,12 +268,12 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                 size: 80,
                                 color: Colors.grey[400],
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               CustomTextContainer(
                                 textKey: Utils.getTranslatedLabel(
                                     noStudentPermissionKey),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 'Tanggal: ${Utils.formatDate(_selectedDateTime)}',
                                 style: TextStyle(
@@ -282,11 +281,11 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                   fontSize: 14,
                                 ),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               ElevatedButton.icon(
                                 onPressed: getLeaves,
-                                icon: Icon(Icons.refresh),
-                                label: Text('Refresh Data'),
+                                icon: const Icon(Icons.refresh),
+                                label: const Text('Refresh Data'),
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _maroonPrimary,
                                   foregroundColor: Colors.white,
@@ -417,9 +416,9 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
+                                        color: Colors.black.withValues(alpha: 0.05),
                                         blurRadius: 10,
-                                        offset: Offset(0, 5),
+                                        offset: const Offset(0, 5),
                                       ),
                                     ],
                                   ),
@@ -439,7 +438,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                               Container(
                                                 width: 50,
                                                 height: 50,
-                                                decoration: BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
                                                 ),
@@ -508,7 +507,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                     Container(
                                                       width: 16,
                                                       height: 16,
-                                                      decoration: BoxDecoration(
+                                                      decoration: const BoxDecoration(
                                                         color: Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),
@@ -533,7 +532,7 @@ class _GeneralPermissionScreenState extends State<GeneralPermissionScreen>
                                                     Container(
                                                       width: 16,
                                                       height: 16,
-                                                      decoration: BoxDecoration(
+                                                      decoration: const BoxDecoration(
                                                         color: Colors.white,
                                                         shape: BoxShape.circle,
                                                       ),

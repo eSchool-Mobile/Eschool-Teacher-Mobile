@@ -75,7 +75,7 @@ class StudyMaterialContainer extends StatelessWidget {
                     color: Theme.of(context)
                         .extension<CustomColors>()!
                         .totalStaffOverviewBackgroundColor!
-                        .withOpacity(0.15),
+                        .withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(5),
                   ),
                   child: Row(

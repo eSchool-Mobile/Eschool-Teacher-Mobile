@@ -56,7 +56,7 @@ class NotificationService {
       final token = await FirebaseMessaging.instance.getToken();
       AppLogger.info('NotificationService', 'FCM Token: $token');
       // Uncomment to print for easy copy-paste in dev
-      // print('[FCM-TOKEN] $token');
+      // debugPrint('[FCM-TOKEN] $token');
     } catch (e) {
       AppLogger.error('NotificationService', 'Error getting token', error: e);
     }

@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 import 'dart:math' as math;
 
 class HomeContainerAppbar extends StatefulWidget {
@@ -135,19 +134,18 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
   @override
   Widget build(BuildContext context) {
     // Set system UI overlay style to ensure status bar is properly handled
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
 
     // Maroon color palette from TeacherAddAttendanceSubjectScreen
-    final Color maroonPrimary = const Color(0xFF800020); // Deep maroon
-    final Color maroonLight = const Color(0xFFAA6976); // Light maroon
-    final Color maroonDark =
-        const Color.fromARGB(255, 124, 9, 31); // Darker variant
+    const Color maroonPrimary = Color(0xFF800020); // Deep maroon
+    const Color maroonLight = Color(0xFFAA6976); // Light maroon
+    const Color maroonDark = Color.fromARGB(255, 124, 9, 31); // Darker variant
 
     return BlocBuilder<AuthCubit, AuthState>(builder: (context, state) {
-      return Container(
+      return SizedBox(
         height: 140 + MediaQuery.of(context).padding.top,
         width: MediaQuery.of(context).size.width,
         // Remove top padding here to allow full extension to status bar
@@ -166,7 +164,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                   colors: [
                     maroonDark,
                     maroonPrimary,
-                    Color(0xFF9A1E3C),
+                    const Color(0xFF9A1E3C),
                     maroonLight,
                   ],
                   stops: [0.0, 0.3, 0.6, 1.0],
@@ -185,8 +183,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                 builder: (context, _) {
                   return CustomPaint(
                     painter: AnimatedAppBarDecorationPainter(
-                      color: Colors.white
-                          .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                      color: Colors.white.withValues(
+                          alpha: 0.07 + (_glowAnimation.value * 0.05)),
                       glowValue: _glowAnimation.value,
                       pulseValue: _pulseAnimation.value,
                       rotationValue: _rotationAnimation.value,
@@ -221,13 +219,15 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
-                                    0.15 + (_glowAnimation.value * 0.05)),
-                                Colors.white.withOpacity(
-                                    0.08 + (_glowAnimation.value * 0.03)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.15 + (_glowAnimation.value * 0.05)),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.08 + (_glowAnimation.value * 0.03)),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.6, 1.0],
+                              stops: const [0.0, 0.6, 1.0],
                             ),
                           ),
                         ),
@@ -253,13 +253,15 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
-                                    0.12 + (_glowAnimation.value * 0.04)),
-                                Colors.white.withOpacity(
-                                    0.06 + (_glowAnimation.value * 0.02)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.12 + (_glowAnimation.value * 0.04)),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.06 + (_glowAnimation.value * 0.02)),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.7, 1.0],
+                              stops: const [0.0, 0.7, 1.0],
                             ),
                           ),
                         ),
@@ -288,13 +290,15 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  Colors.white.withOpacity(
-                                      0.08 + (_glowAnimation.value * 0.03)),
-                                  Colors.white.withOpacity(
-                                      0.04 + (_glowAnimation.value * 0.015)),
-                                  Colors.white.withOpacity(0.0),
+                                  Colors.white.withValues(
+                                      alpha:
+                                          0.08 + (_glowAnimation.value * 0.03)),
+                                  Colors.white.withValues(
+                                      alpha: 0.04 +
+                                          (_glowAnimation.value * 0.015)),
+                                  Colors.white.withValues(alpha: 0.0),
                                 ],
-                                stops: [0.0, 0.8, 1.0],
+                                stops: const [0.0, 0.8, 1.0],
                               ),
                             ),
                           ),
@@ -313,8 +317,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
               right: 0,
               child: CustomPaint(
                 painter: EnhancedWavePatternPainter(
-                  color1: Colors.white.withOpacity(0.1),
-                  color2: Colors.white.withOpacity(0.07),
+                  color1: Colors.white.withValues(alpha: 0.1),
+                  color2: Colors.white.withValues(alpha: 0.07),
                 ),
                 child: SizedBox(
                   height: 80,
@@ -336,13 +340,13 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withOpacity(0.3),
+                      color: maroonPrimary.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                       spreadRadius: 0,
                     ),
                     BoxShadow(
-                      color: maroonLight.withOpacity(0.15),
+                      color: maroonLight.withValues(alpha: 0.15),
                       blurRadius: 25,
                       offset: const Offset(0, 10),
                       spreadRadius: 0,
@@ -359,7 +363,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                           builder: (BuildContext context) {
                             return Dialog(
                               backgroundColor: Colors.transparent,
-                              child: Container(
+                              child: SizedBox(
                                 width: MediaQuery.of(context).size.width * 0.9,
                                 height:
                                     MediaQuery.of(context).size.height * 0.7,
@@ -373,7 +377,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                               imageUrl: widget.profileImage,
                                               fit: BoxFit.contain,
                                               placeholder: (context, url) =>
-                                                  Center(
+                                                  const Center(
                                                 child:
                                                     CircularProgressIndicator(
                                                   valueColor:
@@ -383,7 +387,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                               ),
                                               errorWidget:
                                                   (context, url, error) =>
-                                                      Center(
+                                                      const Center(
                                                 child: Icon(
                                                   Icons.error,
                                                   color: maroonPrimary,
@@ -391,7 +395,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                                 ),
                                               ),
                                             )
-                                          : Center(
+                                          : const Center(
                                               child: Icon(
                                                 Icons.person,
                                                 color: maroonPrimary,
@@ -403,7 +407,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                       top: 10,
                                       right: 10,
                                       child: Material(
-                                        color: Colors.black.withOpacity(0.5),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.5),
                                         borderRadius: BorderRadius.circular(20),
                                         child: InkWell(
                                           borderRadius:
@@ -437,14 +442,14 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [maroonPrimary, maroonDark],
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: maroonPrimary.withOpacity(0.3),
+                              color: maroonPrimary.withValues(alpha: 0.3),
                               blurRadius: 8,
                               spreadRadius: 1,
                             ),
@@ -460,7 +465,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                 )
                               : null,
                           child: widget.profileImage.isEmpty
-                              ? Icon(
+                              ? const Icon(
                                   Icons.person,
                                   color: maroonPrimary,
                                   size: 30,
@@ -520,7 +525,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [maroonPrimary, maroonDark],
@@ -528,7 +533,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                   borderRadius: BorderRadius.circular(15),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.25),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.25),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -559,7 +565,7 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  gradient: LinearGradient(
+                                  gradient: const LinearGradient(
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
                                     colors: [maroonPrimary, maroonDark],
@@ -567,7 +573,8 @@ class _HomeContainerAppbarState extends State<HomeContainerAppbar>
                                   borderRadius: BorderRadius.circular(15),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.25),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.25),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
@@ -647,7 +654,7 @@ class DramaticCurvedGradientPainter extends CustomPainter {
 
     // Add more dramatic highlights for enhanced depth
     final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
+      ..color = Colors.white.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -761,7 +768,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final glowPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.3 + glowValue * 0.3))
       ..style = PaintingStyle.fill
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
 
@@ -831,7 +838,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..strokeWidth = 1.5 + glowValue * 0.5;
 
     final glowArcPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3 + glowValue * 1
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
@@ -879,8 +886,8 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       );
 
       final particlePaint = Paint()
-        ..color = color
-            .withOpacity(0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
+        ..color = color.withValues(
+            alpha: 0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(particleCenter, particleSize, particlePaint);

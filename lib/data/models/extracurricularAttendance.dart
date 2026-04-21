@@ -1,4 +1,5 @@
 import '../../utils/dateFormatter.dart';
+import 'package:flutter/foundation.dart';
 
 // Enum untuk status kehadiran dengan validasi yang ketat
 enum AttendanceStatus {
@@ -17,23 +18,23 @@ enum AttendanceStatus {
   static AttendanceStatus fromInt(int value) {
     switch (value) {
       case 0:
-        print(
+        debugPrint(
             ' [ATTENDANCE_STATUS] Parsed status: $value -> ${AttendanceStatus.absent.label}');
         return AttendanceStatus.absent;
       case 1:
-        print(
+        debugPrint(
             ' [ATTENDANCE_STATUS] Parsed status: $value -> ${AttendanceStatus.present.label}');
         return AttendanceStatus.present;
       case 2:
-        print(
+        debugPrint(
             ' [ATTENDANCE_STATUS] Parsed status: $value -> ${AttendanceStatus.sick.label}');
         return AttendanceStatus.sick;
       case 3:
-        print(
+        debugPrint(
             ' [ATTENDANCE_STATUS] Parsed status: $value -> ${AttendanceStatus.permission.label}');
         return AttendanceStatus.permission;
       default:
-        print(
+        debugPrint(
             ' [ATTENDANCE_STATUS] Unknown status value: $value, defaulting to present');
         return AttendanceStatus.present;
     }
@@ -42,7 +43,7 @@ enum AttendanceStatus {
   /// Parse integer nullable dengan safe handling
   static AttendanceStatus? fromIntNullable(int? value) {
     if (value == null) {
-      print(' [ATTENDANCE_STATUS] Status value is null');
+      debugPrint(' [ATTENDANCE_STATUS] Status value is null');
       return null;
     }
     return fromInt(value);
@@ -66,7 +67,7 @@ enum AttendanceStatus {
       }
     }
 
-    print(
+    debugPrint(
         ' [ATTENDANCE_STATUS] Invalid status value: $statusValue, defaulting to present');
     return AttendanceStatus.present;
   }
@@ -103,7 +104,7 @@ class ExtracurricularAttendance {
 
   // Factory constructor from JSON with proper error handling
   factory ExtracurricularAttendance.fromJson(Map<String, dynamic> json) {
-    print(
+    debugPrint(
         '🔍 [MODEL] Parsing ExtracurricularAttendance from JSON: ${json.toString()}');
 
     // Parse date using DateFormatter with robust error handling
@@ -114,15 +115,15 @@ class ExtracurricularAttendance {
       final parsedFromApi = DateFormatter.fromApiFormat(dateString);
       if (parsedFromApi != null) {
         parsedDate = parsedFromApi;
-        print(
+        debugPrint(
             '🔍 [MODEL] Successfully parsed date: $dateString -> ${DateFormatter.toApiFormat(parsedDate)}');
       } else {
-        print(
+        debugPrint(
             '⚠️ [MODEL] Failed to parse date: $dateString, using current date');
         parsedDate = DateTime.now();
       }
     } else {
-      print(
+      debugPrint(
           '⚠️ [MODEL] Date is null/empty for attendance ID: ${json['attendance_id'] ?? json['id']}, using current date');
       parsedDate = DateTime.now();
     }
@@ -134,7 +135,7 @@ class ExtracurricularAttendance {
           json['status'] ?? json['attendance_type'] ?? json['type'] ?? 1;
       parsedStatus = AttendanceStatus.fromInt(statusValue);
     } catch (e) {
-      print(
+      debugPrint(
           ' [MODEL] Failed to parse status: ${json['status']}, using Present as default');
       parsedStatus = AttendanceStatus.present;
     }
@@ -145,14 +146,14 @@ class ExtracurricularAttendance {
         json['studentName'] ??
         'Unknown Student';
     if (studentName == 'Unknown Student') {
-      print(
+      debugPrint(
           ' [MODEL] Student name not found, available fields: ${json.keys.toList()}');
     }
 
     // Validasi student_id - CRITICAL untuk mencegah id: 0
     // Debug: Print semua field yang tersedia untuk analisis
-    print(' [MODEL] Available JSON fields: ${json.keys.toList()}');
-    print(' [MODEL] Full JSON data: ${json.toString()}');
+    debugPrint(' [MODEL] Available JSON fields: ${json.keys.toList()}');
+    debugPrint(' [MODEL] Full JSON data: ${json.toString()}');
 
     // Coba berbagai kemungkinan field name untuk student_id
     int studentId = 0;
@@ -172,14 +173,14 @@ class ExtracurricularAttendance {
       if (value != null) {
         if (value is int && value > 0) {
           studentId = value;
-          print(
+          debugPrint(
               ' [MODEL] Found valid student_id in field "$field": $studentId');
           break;
         } else if (value is String) {
           final parsedValue = int.tryParse(value);
           if (parsedValue != null && parsedValue > 0) {
             studentId = parsedValue;
-            print(
+            debugPrint(
                 ' [MODEL] Found valid student_id in field "$field" (parsed from string): $studentId');
             break;
           }
@@ -188,17 +189,17 @@ class ExtracurricularAttendance {
     }
 
     if (studentId <= 0) {
-      print(' [MODEL] CRITICAL: No valid student_id found!');
-      print(' [MODEL] Available fields: ${json.keys.toList()}');
-      print(' [MODEL] Field values:');
+      debugPrint(' [MODEL] CRITICAL: No valid student_id found!');
+      debugPrint(' [MODEL] Available fields: ${json.keys.toList()}');
+      debugPrint(' [MODEL] Field values:');
       for (final field in possibleStudentIdFields) {
-        print('   - $field: ${json[field]} (${json[field].runtimeType})');
+        debugPrint('   - $field: ${json[field]} (${json[field].runtimeType})');
       }
 
       // Untuk debugging, gunakan attendance_id sebagai temporary student_id
       // HANYA untuk testing - ini bukan solusi final
       final tempId = json['attendance_id'] ?? json['id'] ?? 1;
-      print(
+      debugPrint(
           ' [MODEL] TEMPORARY: Using attendance_id as student_id for debugging: $tempId');
       studentId =
           tempId is int ? tempId : (int.tryParse(tempId.toString()) ?? 1);
@@ -219,7 +220,7 @@ class ExtracurricularAttendance {
           json['ekstrakurikuler_name'],
     );
 
-    print('🔍 [MODEL] Created ExtracurricularAttendance: ${result.toString()}');
+    debugPrint('🔍 [MODEL] Created ExtracurricularAttendance: ${result.toString()}');
     return result;
   }
 
@@ -238,7 +239,7 @@ class ExtracurricularAttendance {
       'extracurricular_name': extracurricularName,
     };
 
-    print('🔍 [MODEL] Converting to JSON: $json');
+    debugPrint('🔍 [MODEL] Converting to JSON: $json');
     return json;
   }
 
@@ -250,7 +251,7 @@ class ExtracurricularAttendance {
         AttendanceStatus.isValidStatusValue(status.value);
 
     if (!isValid) {
-      print(
+      debugPrint(
           '❌ [MODEL] Invalid ExtracurricularAttendance: studentId=$studentId, name=$studentName, status=${status.value}');
     }
 
@@ -332,7 +333,7 @@ class ExtracurricularAttendanceResponse {
 
   factory ExtracurricularAttendanceResponse.fromJson(
       Map<String, dynamic> json) {
-    print('🔍 [ATTENDANCE_RESPONSE] Full API response: ${json.toString()}');
+    debugPrint('🔍 [ATTENDANCE_RESPONSE] Full API response: ${json.toString()}');
 
     // Handle both possible response structures
     List<dynamic> membersList = [];
@@ -340,18 +341,18 @@ class ExtracurricularAttendanceResponse {
     // Try 'rows' first (actual API response), then 'data.members' (fallback)
     if (json['rows'] != null) {
       membersList = json['rows'] as List<dynamic>;
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE_RESPONSE] Using rows structure, found ${membersList.length} members');
     } else {
       final data = json['data'] ?? {};
       membersList = data['members'] as List<dynamic>? ?? [];
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE_RESPONSE] Using data.members structure, found ${membersList.length} members');
     }
 
     // Debug: Print first member structure if available
     if (membersList.isNotEmpty) {
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE_RESPONSE] First member structure: ${membersList.first.toString()}');
     }
 
@@ -397,7 +398,7 @@ class ExtracurricularAttendanceRequest {
       'attendance_data': attendanceDataMap,
     };
 
-    print(' [REQUEST] Final request body: ${json.toString()}');
+    debugPrint(' [REQUEST] Final request body: ${json.toString()}');
     return json;
   }
 }
@@ -414,7 +415,7 @@ class AttendanceData {
   // Factory from ExtracurricularAttendance with validation
   factory AttendanceData.fromAttendance(ExtracurricularAttendance attendance) {
     if (!attendance.isValid()) {
-      print(
+      debugPrint(
           '❌ [ATTENDANCE_DATA] Creating from invalid ExtracurricularAttendance: ${attendance.toString()}');
     }
 
@@ -423,7 +424,7 @@ class AttendanceData {
       type: attendance.status.value,
     );
 
-    print('🔍 [ATTENDANCE_DATA] Created from attendance: ${data.toString()}');
+    debugPrint('🔍 [ATTENDANCE_DATA] Created from attendance: ${data.toString()}');
     return data;
   }
 
@@ -449,7 +450,7 @@ class AttendanceData {
       'type': type,
     };
 
-    print('🔍 [ATTENDANCE_DATA] Converting to JSON: $json');
+    debugPrint('🔍 [ATTENDANCE_DATA] Converting to JSON: $json');
     return json;
   }
 
@@ -457,7 +458,7 @@ class AttendanceData {
   bool isValid() {
     final valid = studentId > 0 && AttendanceStatus.isValidStatusValue(type);
     if (!valid) {
-      print(
+      debugPrint(
           '❌ [ATTENDANCE_DATA] Invalid data: studentId=$studentId, type=$type');
     }
     return valid;

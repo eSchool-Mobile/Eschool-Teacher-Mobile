@@ -15,14 +15,14 @@ class SimpleAssignmentCard extends StatelessWidget {
   final Color textMediumColor;
 
   const SimpleAssignmentCard({
-    Key? key,
+    super.key,
     required this.assignment,
     required this.maroonPrimary,
     required this.maroonDark,
     required this.maroonLight,
     required this.textDarkColor,
     required this.textMediumColor,
-  }) : super(key: key);
+  });
   @override
   Widget build(BuildContext context) {
     // Initialize date formatting for Indonesian locale
@@ -43,19 +43,19 @@ class SimpleAssignmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.06),
+            color: maroonPrimary.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: Colors.grey.withOpacity(0.06),
+            color: Colors.grey.withValues(alpha: 0.06),
             blurRadius: 2,
             offset: const Offset(0, 1),
           ),
         ],
         border: Border.all(
-          color: maroonLight.withOpacity(0.1),
+          color: maroonLight.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -69,8 +69,8 @@ class SimpleAssignmentCard extends StatelessWidget {
             HapticFeedback.mediumImpact();
             _showAssignmentDetailPopup(context);
           },
-          highlightColor: maroonPrimary.withOpacity(0.03),
-          splashColor: maroonPrimary.withOpacity(0.05),
+          highlightColor: maroonPrimary.withValues(alpha: 0.03),
+          splashColor: maroonPrimary.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -97,7 +97,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
 
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
 
                           // Subject text - simplified but elegant
                           Text(
@@ -114,9 +114,9 @@ class SimpleAssignmentCard extends StatelessWidget {
 
                     // Right side - Class badge with improved design
                     Container(
-                      margin: EdgeInsets.only(left: 8, top: 0),
+                      margin: const EdgeInsets.only(left: 8, top: 0),
                       padding:
-                          EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -129,9 +129,9 @@ class SimpleAssignmentCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: maroonPrimary.withOpacity(0.15),
+                            color: maroonPrimary.withValues(alpha: 0.15),
                             blurRadius: 4,
-                            offset: Offset(0, 2),
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
@@ -149,16 +149,16 @@ class SimpleAssignmentCard extends StatelessWidget {
 
                 // Elegant divider
                 Container(
-                  margin: EdgeInsets.symmetric(vertical: 12),
+                  margin: const EdgeInsets.symmetric(vertical: 12),
                   height: 1,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Colors.grey.withOpacity(0.05),
-                        Colors.grey.withOpacity(0.2),
-                        Colors.grey.withOpacity(0.05),
+                        Colors.grey.withValues(alpha: 0.05),
+                        Colors.grey.withValues(alpha: 0.2),
+                        Colors.grey.withValues(alpha: 0.05),
                       ],
-                      stops: [0.0, 0.5, 1.0],
+                      stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
                 ),
@@ -170,13 +170,13 @@ class SimpleAssignmentCard extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                   decoration: BoxDecoration(
                     color: isPastDue
-                        ? Colors.red.withOpacity(0.05)
-                        : maroonPrimary.withOpacity(0.04),
+                        ? Colors.red.withValues(alpha: 0.05)
+                        : maroonPrimary.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
                       color: isPastDue
-                          ? Colors.red.withOpacity(0.15)
-                          : maroonPrimary.withOpacity(0.1),
+                          ? Colors.red.withValues(alpha: 0.15)
+                          : maroonPrimary.withValues(alpha: 0.1),
                       width: 1,
                     ),
                   ),
@@ -189,14 +189,14 @@ class SimpleAssignmentCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: isPastDue
-                              ? Colors.red.withOpacity(0.1)
-                              : maroonPrimary.withOpacity(0.1),
+                              ? Colors.red.withValues(alpha: 0.1)
+                              : maroonPrimary.withValues(alpha: 0.1),
                           boxShadow: [
                             BoxShadow(
                               color: (isPastDue ? Colors.red : maroonPrimary)
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               blurRadius: 4,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -248,7 +248,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                       //     color: Colors.white,
                       //     borderRadius: BorderRadius.circular(10),
                       //     border: Border.all(
-                      //       color: maroonLight.withOpacity(0.2),
+                      //       color: maroonLight.withValues(alpha: 0.2),
                       //     ),
                       //   ),
                       //   child: Text(
@@ -304,7 +304,7 @@ class SimpleAssignmentCard extends StatelessWidget {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Stack(
             clipBehavior: Clip.none,
             alignment: Alignment.center,
@@ -317,9 +317,9 @@ class SimpleAssignmentCard extends StatelessWidget {
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withOpacity(0.2),
+                      color: maroonPrimary.withValues(alpha: 0.2),
                       blurRadius: 20,
-                      offset: Offset(0, 10),
+                      offset: const Offset(0, 10),
                       spreadRadius: 0,
                     ),
                   ],
@@ -334,9 +334,9 @@ class SimpleAssignmentCard extends StatelessWidget {
                     // Header with gradient
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(24, 60, 24, 20),
+                      padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(24),
                           topRight: Radius.circular(24),
                         ),
@@ -361,19 +361,19 @@ class SimpleAssignmentCard extends StatelessWidget {
                               color: Colors.white,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
 
                           // Subject and class in a row
                           Row(
                             children: [
                               // Subject chip
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: Text(
@@ -385,16 +385,16 @@ class SimpleAssignmentCard extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
 
                               // Class chip
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
                                   vertical: 6,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.25),
+                                  color: Colors.white.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: Text(
@@ -413,8 +413,8 @@ class SimpleAssignmentCard extends StatelessWidget {
                     ),                    // Content
                     Expanded(
                       child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        padding: EdgeInsets.all(24),
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.all(24),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
@@ -424,13 +424,13 @@ class SimpleAssignmentCard extends StatelessWidget {
                             children: [
                               // Status Indicator
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: statusColor.withOpacity(0.1),
+                                  color: statusColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(30),
                                   border: Border.all(
-                                    color: statusColor.withOpacity(0.5),
+                                    color: statusColor.withValues(alpha: 0.5),
                                     width: 1,
                                   ),
                                 ),
@@ -445,7 +445,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       statusText,
                                       style: GoogleFonts.poppins(
@@ -458,14 +458,14 @@ class SimpleAssignmentCard extends StatelessWidget {
                                 ),
                               ),
 
-                              Spacer(),
+                              const Spacer(),
 
                               // Submission count
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: maroonPrimary.withOpacity(0.08),
+                                  color: maroonPrimary.withValues(alpha: 0.08),
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                                 child: Row(
@@ -476,7 +476,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                       size: 16,
                                       color: maroonPrimary,
                                     ),
-                                    SizedBox(width: 6),
+                                    const SizedBox(width: 6),
                                     Text(
                                       "$submissionRate Pengajuan",
                                       style: GoogleFonts.poppins(
@@ -491,7 +491,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                             ],
                           ),
 
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                           // Instructions
                           Text(
@@ -502,10 +502,10 @@ class SimpleAssignmentCard extends StatelessWidget {
                               color: textDarkColor,
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: Colors.grey.shade50,
                               borderRadius: BorderRadius.circular(12),
@@ -525,8 +525,8 @@ class SimpleAssignmentCard extends StatelessWidget {
                             ),
                           ),
 
-                          SizedBox(height: 20),                          // Information Grid with more flexible layout
-                          Container(
+                          const SizedBox(height: 20),                          // Information Grid with more flexible layout
+                          SizedBox(
                             width: double.infinity,
                             child: Column(
                               children: [
@@ -542,7 +542,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                         iconColor: Colors.amber,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     // Min Points
                                     Expanded(
                                       child: _buildInfoCard(
@@ -555,7 +555,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                   ],
                                 ),
                                 
-                                SizedBox(height: 12),
+                                const SizedBox(height: 12),
                                 
                                 // Second row - created date and due date
                                 Row(
@@ -569,7 +569,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                         iconColor: Colors.blue,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     // Due Date
                                     Expanded(
                                       child: _buildInfoCard(
@@ -583,7 +583,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                   ],
                                 ),
                                 
-                                SizedBox(height: 12),
+                                const SizedBox(height: 12),
                                 
                                 // Third row - start date and end date
                                 Row(
@@ -597,7 +597,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                                         iconColor: Colors.green,
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    const SizedBox(width: 10),
                                     // End Date
                                     Expanded(
                                       child: _buildInfoCard(
@@ -639,13 +639,13 @@ class SimpleAssignmentCard extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: maroonPrimary.withOpacity(0.3),
+                        color: maroonPrimary.withValues(alpha: 0.3),
                         blurRadius: 15,
-                        offset: Offset(0, 8),
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Icon(
                       Icons.assignment_outlined,
                       size: 40,
@@ -657,8 +657,8 @@ class SimpleAssignmentCard extends StatelessWidget {
             ],
           ),
         ).animate().fadeIn(duration: 300.ms).scale(
-              begin: Offset(0.8, 0.8),
-              end: Offset(1.0, 1.0),
+              begin: const Offset(0.8, 0.8),
+              end: const Offset(1.0, 1.0),
               duration: 300.ms,
               curve: Curves.easeOutBack,
             );
@@ -673,7 +673,7 @@ class SimpleAssignmentCard extends StatelessWidget {
     required Color iconColor,
   }) {
     return Container(
-      padding: EdgeInsets.all(10),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12),
@@ -686,7 +686,7 @@ class SimpleAssignmentCard extends StatelessWidget {
             width: 32, // Slightly reduced width
             height: 32, // Slightly reduced height
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -697,7 +697,7 @@ class SimpleAssignmentCard extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: 6), // Slightly reduced spacing
+          const SizedBox(width: 6), // Slightly reduced spacing
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -712,7 +712,7 @@ class SimpleAssignmentCard extends StatelessWidget {
                     color: textMediumColor,
                   ),
                 ),
-                SizedBox(height: 2), // Control spacing between text
+                const SizedBox(height: 2), // Control spacing between text
                 Text(
                   value,
                   style: GoogleFonts.poppins(

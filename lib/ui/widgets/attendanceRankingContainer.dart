@@ -1,12 +1,6 @@
 import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
 import 'package:eschool_saas_staff/ui/widgets/attendenceRankingItemContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
-import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherClassSectionScreen.dart';
 
 class AttendanceRankingContainer extends StatefulWidget {
@@ -61,7 +55,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
@@ -80,16 +74,16 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
   @override
   Widget build(BuildContext context) {
     // Debug: Print received data
-    print("AttendanceRankingContainer DEBUG:");
-    print("  - showAllStudents: ${widget.showAllStudents}");
-    print(
+    debugPrint("AttendanceRankingContainer DEBUG:");
+    debugPrint("  - showAllStudents: ${widget.showAllStudents}");
+    debugPrint(
         "  - allStudents count: ${widget.attendanceRankings.allStudents?.length ?? 0}");
-    print(
+    debugPrint(
         "  - groupedByClassLevel count: ${widget.attendanceRankings.groupedByClassLevel?.length ?? 0}");
-    print("  - searchQuery: '${widget.searchQuery}'");
+    debugPrint("  - searchQuery: '${widget.searchQuery}'");
 
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
       ),
       child: FadeTransition(
@@ -116,14 +110,14 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                 return true;
               },
               child: Container(
-                margin: EdgeInsets.all(16.0),
+                margin: const EdgeInsets.all(16.0),
                 child: SingleChildScrollView(
                   controller: _scrollController,
-                  physics: BouncingScrollPhysics(),
+                  physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
                       _buildHeaderSection(),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       _buildLeaderboard(),
                     ],
                   ),
@@ -138,9 +132,9 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
 
   Widget _buildHeaderSection() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             AppColorPalette.primaryMaroon,
             AppColorPalette.secondaryMaroon,
@@ -148,12 +142,12 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -166,14 +160,14 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
             child: Icon(
               Icons.school,
               size: 100,
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
           ),
 
           // Content
           Column(
             children: [
-              Row(
+              const Row(
                 children: [
                   Expanded(
                     child: Row(
@@ -212,13 +206,13 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     _buildTopThreeItem(
                         widget.showAllStudents
                             ? ((widget.attendanceRankings.allStudents?.length ??
@@ -246,7 +240,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                                 : null)
                             : _getTopStudent(3),
                         3),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                   ],
                 ),
               ),
@@ -257,13 +251,13 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                         children: [
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: Colors.black54,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
+                            child: const Text(
                               "⚠️ Peringkat 1-3 adalah siswa dengan pelanggaran tertinggi!",
                               style: TextStyle(
                                 color: Colors.white,
@@ -276,10 +270,10 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                             right: 0,
                             top: 0,
                             child: IconButton(
-                              icon: Icon(Icons.close,
+                              icon: const Icon(Icons.close,
                                   color: Colors.white, size: 18),
-                              padding: EdgeInsets.all(0),
-                              constraints: BoxConstraints(),
+                              padding: const EdgeInsets.all(0),
+                              constraints: const BoxConstraints(),
                               onPressed: () {
                                 setState(() {
                                   _showWarning = false;
@@ -289,7 +283,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                           ),
                         ],
                       )
-                    : SizedBox.shrink(),
+                    : const SizedBox.shrink(),
               ),
             ],
           ),
@@ -303,25 +297,6 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
         ?.expand((e) => e.topStudents ?? [])
         .where((student) => student.rank == position)
         .firstOrNull;
-  }
-
-  Widget _buildTopThreeSection() {
-    final topThree = widget.showAllStudents
-        ? widget.attendanceRankings.allStudents?.take(3).toList() ?? []
-        : widget.attendanceRankings.groupedByClassLevel
-                ?.expand((e) => e.topStudents ?? [])
-                .take(3)
-                .toList() ??
-            [];
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        _buildTopThreeItem(topThree.length > 1 ? topThree[1] : null, 2),
-        _buildTopThreeItem(topThree.isNotEmpty ? topThree[0] : null, 1),
-        _buildTopThreeItem(topThree.length > 2 ? topThree[2] : null, 3),
-      ],
-    );
   }
 
   Widget _buildTopThreeItem(dynamic student, int position) {
@@ -348,7 +323,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                   width: 2,
                 ),
               ),
@@ -363,14 +338,14 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                 ),
               ),
             ),
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
 
             // Rank number
 
             // Student name - improved layout
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 2),
-              constraints: BoxConstraints(minHeight: 36),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              constraints: const BoxConstraints(minHeight: 36),
               child: SingleChildScrollView(
                 child: Text(
                   student?.studentName ?? '-',
@@ -385,15 +360,15 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
                 ),
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
 
             // Alpha count - improved layout
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 2),
               child: Text(
-                'Alpha: ${student?.alpha_count ?? 0}',
-                style: TextStyle(
-                  color: const Color.fromARGB(255, 228, 227, 227),
+                'Alpha: ${student?.alphaCount ?? 0}',
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 228, 227, 227),
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                 ),
@@ -427,22 +402,9 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
         ];
       default:
         return [
-          Color(0xFFE2E8F0),
-          Color(0xFFCBD5E1),
+          const Color(0xFFE2E8F0),
+          const Color(0xFFCBD5E1),
         ];
-    }
-  }
-
-  IconData _getPositionIcon(int position) {
-    switch (position) {
-      case 1:
-        return Icons.warning_rounded; // Ikon peringatan
-      case 2:
-        return Icons.priority_high_rounded; // Ikon tanda seru
-      case 3:
-        return Icons.error_outline_rounded; // Ikon error outline
-      default:
-        return Icons.star;
     }
   }
 
@@ -450,12 +412,12 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(15)),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -481,7 +443,7 @@ class _AttendanceRankingContainerState extends State<AttendanceRankingContainer>
           studentId: student.studentId,
           jumlahJpSum: student.jumlahJpSum,
           point: student.point,
-          alpha_count: student.alpha_count,
+          alphaCount: student.alphaCount,
         ),
         index: widget.attendanceRankings.allStudents!.indexOf(student),
       );

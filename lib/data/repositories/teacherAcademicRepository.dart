@@ -2,7 +2,7 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:intl/intl.dart';
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class TeacherAcademicsRepository {
   Future<List<TimeTableSlot>> getTeacherMyTimetable({String? dayKey}) async {
@@ -23,7 +23,7 @@ class TeacherAcademicsRepository {
         fullDayName = dayMapping[dayKey.toLowerCase()] ?? dayKey;
       }
 
-      print("Requesting with day parameter: ${fullDayName ?? 'none'}");
+      debugPrint("Requesting with day parameter: ${fullDayName ?? 'none'}");
 
       final response = await Api.get(
         url: fullDayName != null
@@ -32,7 +32,7 @@ class TeacherAcademicsRepository {
         useAuthToken: true,
       );
 
-      print("API Response for day $fullDayName: ${response['data']}");
+      debugPrint("API Response for day $fullDayName: ${response['data']}");
 
       // Handle both Map and List responses
       if (response['data'] is Map<String, dynamic>) {
@@ -55,7 +55,7 @@ class TeacherAcademicsRepository {
 
       throw Exception("Invalid response format");
     } catch (e) {
-      print("Error in getTeacherMyTimetable: $e");
+      debugPrint("Error in getTeacherMyTimetable: $e");
       throw Exception(e.toString());
     }
   }
@@ -71,7 +71,7 @@ class TeacherAcademicsRepository {
         useAuthToken: true,
       );
 
-      print("INI RESPONNYAA ${response}");
+      debugPrint("INI RESPONNYAA $response");
 
       if (response['data'] is List) {
         final List<dynamic> data = response['data'];
@@ -82,7 +82,7 @@ class TeacherAcademicsRepository {
 
       throw Exception("Invalid response format");
     } catch (e) {
-      print("Error in getTeacherTimetableByClassSection: $e");
+      debugPrint("Error in getTeacherTimetableByClassSection: $e");
       throw Exception(e.toString());
     }
   }

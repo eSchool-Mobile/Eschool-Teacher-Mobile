@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import '../../../data/models/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
-import 'package:flutter/services.dart' show Uint8List;
 
 import '../../../ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
@@ -36,7 +34,7 @@ class LightRaysPainter extends CustomPainter {
 
     // Draw multiple rays from center
     final center = Offset(size.width / 2, size.height / 2);
-    final rays = 12; // Number of rays
+    const rays = 12; // Number of rays
     final maxLength = size.width > size.height ? size.width : size.height;
 
     for (int i = 0; i < rays; i++) {
@@ -65,11 +63,11 @@ class BankQuestionScreen extends StatefulWidget {
   final SubjectQuestion subject;
 
   const BankQuestionScreen({
-    Key? key,
+    super.key,
     required this.bankSoal,
     required this.subjectId,
     required this.subject,
-  }) : super(key: key);
+  });
 
   @override
   State<BankQuestionScreen> createState() => _BankQuestionScreenState();
@@ -83,7 +81,7 @@ class PatternPainter extends CustomPainter {
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
-    final double spacing = 15;
+    const double spacing = 15;
 
     // Draw diagonal lines for premium pattern effect
     for (double i = -size.width; i < size.width * 2; i += spacing) {
@@ -121,7 +119,7 @@ class UltraModernPatternPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     // Draw diagonal lines
-    final double spacing = 25;
+    const double spacing = 25;
     for (double i = -size.width; i < size.width * 2; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
@@ -162,11 +160,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   bool _showSearch = false;
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _energyColor = Color(0xFFCE6D6D); // Softer light maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
 
   // Animation controllers
   late AnimationController _backgroundAnimationController;
@@ -175,19 +170,17 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   late AnimationController _cardHoverController;
   late AnimationController _breathingController;
   late AnimationController _rotationController;
-  late AnimationController _pulseController;
   late AnimationController _loadingController;
   late AnimationController _tabTransitionController;
   late AnimationController _searchExpandController;
 
   // Animations
-  late Animation<double> _pulseAnimation;
 
   // Tambahkan variabel untuk menyimpan data gambar
-  Map<int, dynamic> _questionImages = {};
+  final Map<int, dynamic> _questionImages = {};
 
   // Add this map to track active version for each question
-  Map<int, int> _activeVersionIndices = {};
+  final Map<int, int> _activeVersionIndices = {};
 
   // Track drag distance for hybrid gesture detection
   double _dragDistance = 0.0;
@@ -215,61 +208,52 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     // Setup animation controllers
     _backgroundAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 30000),
+      duration: const Duration(milliseconds: 30000),
     )..repeat();
 
     _waveAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 7000),
+      duration: const Duration(milliseconds: 7000),
     )..repeat();
 
     _floatingIconsController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
     _cardHoverController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
 
     _breathingController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 3000),
     )..repeat(reverse: true);
 
     _rotationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 10000),
+      duration: const Duration(milliseconds: 10000),
     )..repeat();
-
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
 
     _loadingController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
 
     _tabTransitionController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
     );
     _searchExpandController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
 
     // Setup animations
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
 
     // Set system UI style for immersive experience
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: _primaryColor,
@@ -286,7 +270,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     _cardHoverController.dispose();
     _breathingController.dispose();
     _rotationController.dispose();
-    _pulseController.dispose();
     _loadingController.dispose();
     _tabTransitionController.dispose();
     _searchExpandController.dispose();
@@ -370,42 +353,6 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     }
   }
 
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -442,7 +389,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             children: [
               // Background gradient covering the whole screen
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -493,7 +440,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             );
                           }
                           // Default case - return an empty container
-                          return SizedBox();
+                          return const SizedBox();
                         },
                       ),
                     ),
@@ -508,12 +455,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
   }
 
   void _filterQuestions(String query, List<q.Question> questions) {
-    print(
+    debugPrint(
         '_filterQuestions called with query: "$query", total questions: ${questions.length}');
     setState(() {
       if (query.isEmpty) {
         _filteredQuestions = List.from(questions);
-        print(
+        debugPrint(
             'Query empty, showing all ${_filteredQuestions.length} questions');
       } else {
         _filteredQuestions = questions.where((question) {
@@ -530,7 +477,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
         }).toList();
 
         // Debug: Print hasil filter
-        print(
+        debugPrint(
             'Search query: "$query", Found: ${_filteredQuestions.length} results from ${questions.length} total questions');
       }
     });
@@ -538,23 +485,23 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   // Modifikasi _buildContent untuk menampilkan panduan swipe saat pertama kali
   Widget _buildContent(List<q.Question> questions) {
-    print(
+    debugPrint(
         '_buildContent called with ${questions.length} questions, current searchText: "${_searchController.text}", current filteredQuestions: ${_filteredQuestions.length}');
 
     if (questions.isEmpty) {
       return _buildEmptyState();
     }
 
-    _showSearch = questions.length >=
-        1; // Always show search if there are questions (for testing)
+    _showSearch = questions
+        .isNotEmpty; // Always show search if there are questions (for testing)
 
     // Update filtered questions only if search is not active
     // Hanya update jika tidak ada teks pencarian
     if (_searchController.text.isEmpty) {
-      print('Search is empty, showing all ${questions.length} questions');
+      debugPrint('Search is empty, showing all ${questions.length} questions');
       _filteredQuestions = List.from(questions);
     } else {
-      print(
+      debugPrint(
           'Search active: "${_searchController.text}", keeping current filtered results: ${_filteredQuestions.length}');
     }
     // Jangan panggil _filterQuestions lagi di sini karena sudah dipanggil di onChanged
@@ -570,7 +517,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             animation: _searchExpandController,
             builder: (context, child) {
               return Padding(
-                padding: EdgeInsets.symmetric(
+                padding: const EdgeInsets.symmetric(
                   horizontal: 8.0, // Reduced horizontal padding
                   vertical: 8.0,
                 ),
@@ -583,14 +530,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     borderRadius: BorderRadius.circular(24.0),
                     border: _searchController.text.isNotEmpty
                         ? Border.all(
-                            color: _primaryColor.withOpacity(0.3), width: 1.5)
+                            color: _primaryColor.withValues(alpha: 0.3),
+                            width: 1.5)
                         : null,
                     boxShadow: [
                       BoxShadow(
-                        color: _primaryColor.withOpacity(
-                            _searchController.text.isNotEmpty ? 0.15 : 0.1),
+                        color: _primaryColor.withValues(
+                            alpha:
+                                _searchController.text.isNotEmpty ? 0.15 : 0.1),
                         blurRadius: 8.0,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -607,13 +556,13 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     },
                     decoration: InputDecoration(
                       hintText: 'Cari soal...',
-                      prefixIcon: Icon(
+                      prefixIcon: const Icon(
                         Icons.search,
                         color: _primaryColor,
                       ),
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: Icon(Icons.clear, color: Colors.grey),
+                              icon: const Icon(Icons.clear, color: Colors.grey),
                               onPressed: () {
                                 _searchController.clear();
                                 // Get current state questions untuk reset filter
@@ -626,7 +575,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             )
                           : null,
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         vertical: 14.0,
                         horizontal: 16.0,
                       ),
@@ -646,21 +595,21 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   final hasNoResults = _filteredQuestions.isEmpty;
 
                   // Debug output
-                  print(
+                  debugPrint(
                       'Debug - hasSearchText: $hasSearchText, hasNoResults: $hasNoResults, filteredCount: ${_filteredQuestions.length}');
 
                   // Tampilkan pesan "no search results" jika sedang search tapi tidak ada hasil
                   if (hasSearchText && hasNoResults) {
-                    print('Showing no search results screen');
+                    debugPrint('Showing no search results screen');
                     return _buildNoSearchResults();
                   }
 
                   // Tampilkan daftar soal jika ada hasil
-                  print(
+                  debugPrint(
                       'Showing question list with ${_filteredQuestions.length} items');
                   return ListView.builder(
-                    physics: BouncingScrollPhysics(),
-                    padding: EdgeInsets.only(top: 8.0, bottom: 100.0),
+                    physics: const BouncingScrollPhysics(),
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 100.0),
                     itemCount: _filteredQuestions.length,
                     itemBuilder: (context, index) {
                       final question = _filteredQuestions[index];
@@ -681,29 +630,29 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   left: 0,
                   right: 0,
                   child: FadeIn(
-                    duration: Duration(seconds: 1),
+                    duration: const Duration(seconds: 1),
                     child: Center(
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 32.0),
-                        padding: EdgeInsets.symmetric(
+                        margin: const EdgeInsets.symmetric(horizontal: 32.0),
+                        padding: const EdgeInsets.symmetric(
                             horizontal: 16.0, vertical: 12.0),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16.0),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 8.0,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.swipe, color: _primaryColor),
-                            SizedBox(width: 12.0),
-                            Flexible(
+                            const Icon(Icons.swipe, color: _primaryColor),
+                            const SizedBox(width: 12.0),
+                            const Flexible(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
@@ -724,7 +673,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               ),
                             ),
                             IconButton(
-                              icon: Icon(Icons.close, size: 16.0),
+                              icon: const Icon(Icons.close, size: 16.0),
                               onPressed: () {
                                 setState(() {
                                   _hasShownSwipeGuide = true;
@@ -746,7 +695,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
   Widget _buildShimmerLoading() {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -756,7 +705,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           ],
         ),
       ),
-      child: SkeletonPreviewQuestionBankSoal(
+      child: const SkeletonPreviewQuestionBankSoal(
         itemCount: 6,
       ),
     );
@@ -768,7 +717,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(25),
+            padding: const EdgeInsets.all(25),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
@@ -776,7 +725,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             child: Icon(Icons.question_mark_rounded,
                 size: 70, color: Colors.grey.shade400),
           ),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           Text(
             'Belum ada soal',
             style: TextStyle(
@@ -785,7 +734,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
             'Tambahkan soal baru untuk memulai',
             style: TextStyle(
@@ -836,7 +785,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     final version = question.versions[displayIndex];
 
     return FadeInUp(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onHorizontalDragStart: (_) {
@@ -855,7 +804,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           // 1. Fast Swipe (Velocity < -300)
           // 2. Slow Drag (Distance < -100) - moved significantly left
           if (velocity < -300 || distance < -100) {
-            print("GESTURE DEBUG: Left Action (Next Version)");
+            debugPrint("GESTURE DEBUG: Left Action (Next Version)");
             if (safeIndex < questionVersionsCount - 1) {
               HapticFeedback.lightImpact();
               _setActiveVersionIndex(question.id, safeIndex + 1);
@@ -871,26 +820,27 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           }
         },
         child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: _getTypeColor(latestVersion.type).withOpacity(0.12),
+                color:
+                    _getTypeColor(latestVersion.type).withValues(alpha: 0.12),
                 blurRadius: 12,
-                offset: Offset(0, 5),
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(28),
             child: AnimatedSwitcher(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               transitionBuilder: (Widget child, Animation<double> animation) {
                 return FadeTransition(opacity: animation, child: child);
               },
-              child: Container(
+              child: SizedBox(
                 // Use a composite key to GUARANTEE uniqueness even if version.id is null/duplicate
                 key: ValueKey<String>("${question.id}_ver_$safeIndex"),
                 width: double.infinity,
@@ -916,7 +866,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
         // Content section
         Padding(
-          padding: EdgeInsets.fromLTRB(22, 20, 22, 10),
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -933,19 +883,20 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         end: Alignment.bottomCenter,
                         colors: [
                           _getTypeColor(version.type),
-                          _getTypeColor(version.type).withOpacity(0.6),
+                          _getTypeColor(version.type).withValues(alpha: 0.6),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _getTypeColor(version.type).withOpacity(0.4),
+                          color: _getTypeColor(version.type)
+                              .withValues(alpha: 0.4),
                           blurRadius: 8,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Text(
                     "Konten Pertanyaan",
                     style: TextStyle(
@@ -958,19 +909,19 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 ],
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.all(14),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(color: Colors.grey.shade100),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.02),
+                      color: Colors.black.withValues(alpha: 0.02),
                       blurRadius: 8,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -987,11 +938,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 ),
               ),
 
-              SizedBox(height: 18),
+              const SizedBox(height: 18),
 
               // Pilihan Jawaban section
               Container(
-                padding: EdgeInsets.all(15),
+                padding: const EdgeInsets.all(15),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -1004,14 +955,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   borderRadius: BorderRadius.circular(22),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
                       spreadRadius: 0,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                   border: Border.all(
-                    color: _getTypeColor(version.type).withOpacity(0.2),
+                    color: _getTypeColor(version.type).withValues(alpha: 0.2),
                     width: 1.5,
                   ),
                 ),
@@ -1025,8 +976,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.08),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -1034,8 +985,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           width: 38,
                           height: 38,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.12),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.12),
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -1043,8 +994,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color:
-                                _getTypeColor(version.type).withOpacity(0.15),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.15),
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: _getTypeColor(version.type),
@@ -1059,7 +1010,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         ),
                       ],
                     ),
-                    SizedBox(width: 18),
+                    const SizedBox(width: 18),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -1070,7 +1021,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             fontSize: 13.5,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        const SizedBox(height: 4),
                         Text(
                           '${version.options.length} Opsi',
                           style: TextStyle(
@@ -1081,7 +1032,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         ),
                       ],
                     ),
-                    Spacer(),
+                    const Spacer(),
                     // Arrow indicator with click functionality
                     Material(
                       color: Colors.transparent,
@@ -1094,7 +1045,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: _getTypeColor(version.type).withOpacity(0.1),
+                            color: _getTypeColor(version.type)
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Icon(
@@ -1109,7 +1061,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
             ],
           ),
         ),
@@ -1132,7 +1084,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               ),
             ),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           child: Column(
             children: [
               Row(
@@ -1152,7 +1104,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             onTap: () =>
                                 _navigateToEditQuestion(question, version),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
@@ -1168,14 +1120,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 boxShadow: [
                                   BoxShadow(
                                     color: _getTypeColor(version.type)
-                                        .withOpacity(0.4),
+                                        .withValues(alpha: 0.4),
                                     blurRadius: 12,
-                                    offset: Offset(0, 5),
+                                    offset: const Offset(0, 5),
                                     spreadRadius: -2,
                                   ),
                                 ],
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.edit_rounded,
@@ -1194,7 +1146,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ),
                           ),
                         ),
-                        SizedBox(width: 10), // Space between buttons
+                        const SizedBox(width: 10), // Space between buttons
 
                         // Delete button
                         Material(
@@ -1205,7 +1157,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             onTap: () =>
                                 _showDeleteQuestionConfirmation(question),
                             child: Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
@@ -1219,14 +1171,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.red.withOpacity(0.3),
+                                    color: Colors.red.withValues(alpha: 0.3),
                                     blurRadius: 12,
-                                    offset: Offset(0, 5),
+                                    offset: const Offset(0, 5),
                                     spreadRadius: -2,
                                   ),
                                 ],
                               ),
-                              child: Row(
+                              child: const Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(Icons.delete_outline_rounded,
@@ -1256,16 +1208,17 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         onTap: () =>
                             _showDetailQuestionSheet(question, version),
                         child: Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(16),
                             gradient: LinearGradient(
                               colors: [
-                                _getTypeColor(version.type).withOpacity(0.8),
+                                _getTypeColor(version.type)
+                                    .withValues(alpha: 0.8),
                                 Color.lerp(_getTypeColor(version.type),
                                         Colors.black, 0.2)!
-                                    .withOpacity(0.8),
+                                    .withValues(alpha: 0.8),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
@@ -1273,14 +1226,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: _getTypeColor(version.type)
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 12,
-                                offset: Offset(0, 5),
+                                offset: const Offset(0, 5),
                                 spreadRadius: -2,
                               ),
                             ],
                           ),
-                          child: Row(
+                          child: const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.visibility_outlined,
@@ -1312,7 +1265,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       return Container(
                         width: isActive ? 24 : 8,
                         height: 8,
-                        margin: EdgeInsets.symmetric(horizontal: 3),
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
                         decoration: BoxDecoration(
                           color: isActive
                               ? _getTypeColor(version.type)
@@ -1335,7 +1288,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     return AspectRatio(
       aspectRatio: 2,
       child: ClipRRect(
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
@@ -1347,9 +1300,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               colors: [
                 _getTypeColor(version.type),
                 Color.lerp(_getTypeColor(version.type), Colors.black, 0.2)!,
-                _getTypeColor(version.type).withOpacity(0.85),
+                _getTypeColor(version.type).withValues(alpha: 0.85),
               ],
-              stops: [0.2, 0.6, 0.9],
+              stops: const [0.2, 0.6, 0.9],
             ),
           ),
           child: Stack(
@@ -1358,8 +1311,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
               // Pattern background
               CustomPaint(
                 painter: UltraModernPatternPainter(
-                  primaryColor: Colors.white.withOpacity(0.12),
-                  secondaryColor: Colors.white.withOpacity(0.06),
+                  primaryColor: Colors.white.withValues(alpha: 0.12),
+                  secondaryColor: Colors.white.withValues(alpha: 0.06),
                 ),
                 size: Size.infinite,
               ),
@@ -1375,10 +1328,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        Colors.white.withOpacity(0.3),
-                        Colors.white.withOpacity(0)
+                        Colors.white.withValues(alpha: 0.3),
+                        Colors.white.withValues(alpha: 0)
                       ],
-                      stops: [0.1, 1.0],
+                      stops: const [0.1, 1.0],
                     ),
                   ),
                 ),
@@ -1389,15 +1342,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 top: 20,
                 left: 20,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(18),
                     border: Border.all(
-                        color: Colors.white.withOpacity(0.5), width: 1),
+                        color: Colors.white.withValues(alpha: 0.5), width: 1),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
+                        color: Colors.black.withValues(alpha: 0.15),
                         blurRadius: 15,
                         spreadRadius: -5,
                       ),
@@ -1406,8 +1360,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Colors.white.withOpacity(0.4),
-                        Colors.white.withOpacity(0.1)
+                        Colors.white.withValues(alpha: 0.4),
+                        Colors.white.withValues(alpha: 0.1)
                       ],
                     ),
                   ),
@@ -1419,10 +1373,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         color: Colors.white,
                         size: 18,
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
                         _getTypeName(version.type),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
@@ -1439,27 +1393,28 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 top: 20,
                 right: 20,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 10,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.star_rounded,
                         color: Colors.amber,
                         size: 18,
                       ),
-                      SizedBox(width: 6),
+                      const SizedBox(width: 6),
                       Text(
                         '${version.defaultPoint} poin',
                         style: TextStyle(
@@ -1477,7 +1432,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 right: 20,
                 child: TweenAnimationBuilder(
                   tween: Tween<double>(begin: 0.0, end: 1.0),
-                  duration: Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 400),
                   curve: Curves.easeOutCubic,
                   builder: (context, double value, child) {
                     return Opacity(
@@ -1489,27 +1444,28 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.5),
+                        color: Colors.white.withValues(alpha: 0.5),
                         width: 1,
                       ),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.history,
                           color: Colors.white,
                           size: 14,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text(
-                          "Versi ${totalVersions - versionIndex}/${totalVersions}",
-                          style: TextStyle(
+                          "Versi ${totalVersions - versionIndex}/$totalVersions",
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
@@ -1533,18 +1489,18 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
                         borderRadius: BorderRadius.circular(2),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.white.withOpacity(0.4),
+                            color: Colors.white.withValues(alpha: 0.4),
                             blurRadius: 3,
                             spreadRadius: 1,
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(height: 12),
+                    const SizedBox(height: 12),
                     Text(
                       version.name,
                       style: TextStyle(
@@ -1555,11 +1511,11 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         letterSpacing: 0.3,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 5,
                           ),
                           Shadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 8,
                           ),
                         ],
@@ -1620,14 +1576,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Row(
+          title: const Row(
             children: [
               Icon(Icons.delete_outline, color: Colors.red),
               SizedBox(width: 16),
               Text('Hapus Soal'),
             ],
           ),
-          content: Text(
+          content: const Text(
             'Apakah Anda yakin ingin menghapus soal ini? Tindakan ini tidak dapat dibatalkan.',
           ),
           actions: [
@@ -1650,6 +1606,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         banksoalSoalId: question.id,
                       );
 
+                  if (!mounted) return;
                   // Remove question from local state
                   setState(() {
                     _filteredQuestions.removeWhere((q) => q.id == question.id);
@@ -1659,8 +1616,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Container(
-                        padding: EdgeInsets.symmetric(vertical: 8),
-                        child: Row(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.check_circle, color: Colors.white),
@@ -1677,10 +1634,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                         ),
                       ),
                       backgroundColor: Colors.green.shade400,
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                       behavior: SnackBarBehavior.floating,
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      margin: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
@@ -1688,8 +1645,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     ),
                   );
                 } catch (e) {
+                  if (!mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                           "Tidak dapat menghapus soal, mohon periksa koneksi internet anda dan coba lagi"),
                       backgroundColor: Colors.red,
@@ -1697,7 +1655,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   );
                 }
               },
-              child: Text('Hapus'),
+              child: const Text('Hapus'),
             ),
           ],
         );
@@ -1718,7 +1676,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
       builder: (context) => FractionallySizedBox(
         heightFactor: 0.92,
         child: ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(30),
             topRight: Radius.circular(30),
           ),
@@ -1760,7 +1718,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             );
           },
           errorBuilder: (context, error, stackTrace) {
-            return Center(
+            return const Center(
               child: Text(
                 "Gagal memuat gambar",
                 style: TextStyle(color: Colors.grey),
@@ -1777,7 +1735,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
             fit: BoxFit.contain,
           );
         } catch (e) {
-          return Center(
+          return const Center(
             child: Text(
               "Format gambar tidak valid",
               style: TextStyle(color: Colors.grey),
@@ -1786,7 +1744,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
         }
       }
     } else {
-      return Center(
+      return const Center(
         child: Text(
           "Format gambar tidak didukung",
           style: TextStyle(color: Colors.grey),
@@ -1807,7 +1765,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
           right: 0,
           bottom: 0,
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
             ),
@@ -1829,7 +1787,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   _getTypeColor(version.type),
                   Color.lerp(_getTypeColor(version.type), Colors.black, 0.3)!,
                 ],
-                stops: [0.4, 1.0],
+                stops: const [0.4, 1.0],
               ),
             ),
             child: Stack(
@@ -1837,8 +1795,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                 // Pattern and decorative elements remain the same
                 CustomPaint(
                   painter: UltraModernPatternPainter(
-                    primaryColor: Colors.white.withOpacity(0.12),
-                    secondaryColor: Colors.white.withOpacity(0.06),
+                    primaryColor: Colors.white.withValues(alpha: 0.12),
+                    secondaryColor: Colors.white.withValues(alpha: 0.06),
                   ),
                   size: Size.infinite,
                 ),
@@ -1853,10 +1811,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.3),
-                          Colors.white.withOpacity(0),
+                          Colors.white.withValues(alpha: 0.3),
+                          Colors.white.withValues(alpha: 0),
                         ],
-                        stops: [0.1, 1.0],
+                        stops: const [0.1, 1.0],
                       ),
                     ),
                   ),
@@ -1872,9 +1830,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          Colors.white.withOpacity(0),
-                          Colors.white.withOpacity(0.5),
-                          Colors.white.withOpacity(0),
+                          Colors.white.withValues(alpha: 0),
+                          Colors.white.withValues(alpha: 0.5),
+                          Colors.white.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -1887,25 +1845,25 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
         // Main content
         SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header container with improved title display - Complete title without scrolling
               Container(
-                padding: EdgeInsets.fromLTRB(24, 60, 24, 30),
+                padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Question type badge
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(18),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           width: 1,
                         ),
                       ),
@@ -1917,10 +1875,10 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             color: Colors.white,
                             size: 18,
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Text(
                             _getTypeName(version.type),
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 13.5,
                               fontWeight: FontWeight.w600,
@@ -1931,12 +1889,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       ),
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // IMPROVED TITLE CONTAINER - Showing full text without scrolling
                     Text(
                       version.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
@@ -1945,32 +1903,32 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                       ),
                     ),
 
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
                     // Points badge
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 10,
-                            offset: Offset(0, 3),
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.star_rounded,
                             color: Colors.amber,
                             size: 18,
                           ),
-                          SizedBox(width: 6),
+                          const SizedBox(width: 6),
                           Text(
                             '${version.defaultPoint} poin',
                             style: TextStyle(
@@ -1988,7 +1946,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
               // Main content area - Ubah dengan container tunggal dengan padding internal
               Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 ),
@@ -1996,14 +1954,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                   children: [
                     // Question title bar
                     Container(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                           colors: [Colors.white, Colors.grey.shade50],
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
@@ -2017,8 +1975,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             width: 38,
                             height: 38,
                             decoration: BoxDecoration(
-                              color:
-                                  _getTypeColor(version.type).withOpacity(0.1),
+                              color: _getTypeColor(version.type)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
@@ -2027,7 +1985,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               size: 20,
                             ),
                           ),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Text(
                             "Pertanyaan",
                             style: TextStyle(
@@ -2043,12 +2001,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     // Question content
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.fromLTRB(24, 20, 24, 24),
+                      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade50,
                       ),
                       child: Container(
-                        padding: EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
@@ -2056,16 +2014,17 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               Border.all(color: Colors.grey.shade200, width: 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.03),
+                              color: Colors.black.withValues(alpha: 0.03),
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: version.question.trim().isEmpty
                             ? Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.symmetric(vertical: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 child: Column(
                                   children: [
                                     Icon(
@@ -2073,7 +2032,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                       size: 40,
                                       color: Colors.grey.shade400,
                                     ),
-                                    SizedBox(height: 12),
+                                    const SizedBox(height: 12),
                                     Text(
                                       "Pertanyaan belum diisi",
                                       style: TextStyle(
@@ -2082,7 +2041,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
-                                    SizedBox(height: 8),
+                                    const SizedBox(height: 8),
                                     Text(
                                       "Isi pertanyaan untuk memberikan soal yang jelas kepada siswa",
                                       textAlign: TextAlign.center,
@@ -2108,7 +2067,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
                     // Options section
                     Container(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       color: Colors.white, // Pastikan background tetap putih
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2121,7 +2080,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 height: 38,
                                 decoration: BoxDecoration(
                                   color: _getTypeColor(version.type)
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -2130,7 +2089,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   size: 20,
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Text(
                                 "Opsi Jawaban",
                                 style: TextStyle(
@@ -2142,13 +2101,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ],
                           ),
 
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
 
                           // Options list
                           version.options.isEmpty
                               ? Container(
                                   width: double.infinity,
-                                  padding: EdgeInsets.symmetric(vertical: 30),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 30),
                                   decoration: BoxDecoration(
                                     color: Colors.grey.shade50,
                                     borderRadius: BorderRadius.circular(16),
@@ -2164,7 +2124,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                         size: 40,
                                         color: Colors.grey.shade400,
                                       ),
-                                      SizedBox(height: 12),
+                                      const SizedBox(height: 12),
                                       Text(
                                         "Belum ada opsi jawaban",
                                         style: TextStyle(
@@ -2173,7 +2133,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         "Tambahkan minimal 2 opsi jawaban untuk soal pilihan ganda",
                                         textAlign: TextAlign.center,
@@ -2188,14 +2148,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 )
                               : ListView.builder(
                                   shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: version.options.length,
                                   itemBuilder: (context, index) {
                                     final option = version.options[index];
                                     final isCorrect = option.percentage == 100;
 
                                     return Container(
-                                      margin: EdgeInsets.only(bottom: 16),
+                                      margin: const EdgeInsets.only(bottom: 16),
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
@@ -2210,11 +2170,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                         boxShadow: [
                                           BoxShadow(
                                             color: isCorrect
-                                                ? Colors.green.withOpacity(0.1)
+                                                ? Colors.green
+                                                    .withValues(alpha: 0.1)
                                                 : Colors.black
-                                                    .withOpacity(0.03),
+                                                    .withValues(alpha: 0.03),
                                             blurRadius: 10,
-                                            offset: Offset(0, 4),
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                       ),
@@ -2222,7 +2183,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                         children: [
                                           // Option content
                                           Padding(
-                                            padding: EdgeInsets.all(16),
+                                            padding: const EdgeInsets.all(16),
                                             child: Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -2231,16 +2192,18 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                 Container(
                                                   width: 36,
                                                   height: 36,
-                                                  margin: EdgeInsets.only(
+                                                  margin: const EdgeInsets.only(
                                                       top: 2, right: 16),
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
                                                     color: isCorrect
                                                         ? Colors.green
-                                                            .withOpacity(0.2)
+                                                            .withValues(
+                                                                alpha: 0.2)
                                                         : _getTypeColor(
                                                                 version.type)
-                                                            .withOpacity(0.1),
+                                                            .withValues(
+                                                                alpha: 0.1),
                                                     border: Border.all(
                                                       color: isCorrect
                                                           ? Colors.green
@@ -2291,7 +2254,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                                         .italic,
                                                               ),
                                                             ),
-                                                            SizedBox(height: 4),
+                                                            const SizedBox(
+                                                                height: 4),
                                                             Text(
                                                               "Isi teks untuk opsi jawaban ini",
                                                               style: TextStyle(
@@ -2318,20 +2282,21 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                 // Correct indicator
                                                 if (isCorrect)
                                                   Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                       horizontal: 10,
                                                       vertical: 6,
                                                     ),
-                                                    margin: EdgeInsets.only(
-                                                        left: 10),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            left: 10),
                                                     decoration: BoxDecoration(
                                                       color: Colors.green,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               20),
                                                     ),
-                                                    child: Text(
+                                                    child: const Text(
                                                       "BENAR",
                                                       style: TextStyle(
                                                         color: Colors.white,
@@ -2346,13 +2311,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                 if (!isCorrect &&
                                                     option.percentage > 0)
                                                   Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
                                                       horizontal: 10,
                                                       vertical: 6,
                                                     ),
-                                                    margin: EdgeInsets.only(
-                                                        left: 10),
+                                                    margin:
+                                                        const EdgeInsets.only(
+                                                            left: 10),
                                                     decoration: BoxDecoration(
                                                       color: Colors.orange,
                                                       borderRadius:
@@ -2361,7 +2327,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                     ),
                                                     child: Text(
                                                       "${option.percentage}%",
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                         color: Colors.white,
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -2376,13 +2342,14 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                           // Feedback section (always show, with placeholder if empty)
                                           Container(
                                             width: double.infinity,
-                                            padding: EdgeInsets.all(16),
+                                            padding: const EdgeInsets.all(16),
                                             decoration: BoxDecoration(
                                               color:
                                                   option.feedback.trim().isEmpty
                                                       ? Colors.grey.shade50
                                                       : Colors.grey.shade50,
-                                              borderRadius: BorderRadius.only(
+                                              borderRadius:
+                                                  const BorderRadius.only(
                                                 bottomLeft: Radius.circular(15),
                                                 bottomRight:
                                                     Radius.circular(15),
@@ -2405,7 +2372,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                                     color: Colors.grey.shade600,
                                                   ),
                                                 ),
-                                                SizedBox(height: 8),
+                                                const SizedBox(height: 8),
                                                 option.feedback.trim().isEmpty
                                                     ? Text(
                                                         "Belum ada feedback untuk opsi ini. Tambahkan penjelasan mengapa jawaban ini benar/salah.",
@@ -2441,7 +2408,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
                     // Note section (always show, with placeholder if empty)
                     Container(
-                      padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                       color: Colors.white, // Pastikan background tetap putih
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2453,16 +2420,16 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 width: 38,
                                 height: 38,
                                 decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
+                                  color: Colors.blue.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.notes,
                                   color: Colors.blue,
                                   size: 20,
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Text(
                                 "Catatan Soal",
                                 style: TextStyle(
@@ -2474,28 +2441,25 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                             ],
                           ),
 
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
 
                           // Note content
                           Container(
                             width: double.infinity,
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: (version.note == null ||
-                                      version.note!.trim().isEmpty)
+                              color: (version.note.trim().isEmpty)
                                   ? Colors.grey.shade50
                                   : Colors.blue.shade50,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: (version.note == null ||
-                                        version.note!.trim().isEmpty)
+                                color: (version.note.trim().isEmpty)
                                     ? Colors.grey.shade200
                                     : Colors.blue.shade100,
                                 width: 1,
                               ),
                             ),
-                            child: (version.note == null ||
-                                    version.note!.trim().isEmpty)
+                            child: (version.note.trim().isEmpty)
                                 ? Column(
                                     children: [
                                       Icon(
@@ -2503,7 +2467,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                         size: 30,
                                         color: Colors.grey.shade400,
                                       ),
-                                      SizedBox(height: 12),
+                                      const SizedBox(height: 12),
                                       Text(
                                         "Belum ada catatan",
                                         style: TextStyle(
@@ -2512,7 +2476,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                           color: Colors.grey.shade600,
                                         ),
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         "Tambahkan catatan untuk memberikan informasi tambahan tentang soal ini",
                                         textAlign: TextAlign.center,
@@ -2525,7 +2489,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     ],
                                   )
                                 : Text(
-                                    version.note!,
+                                    version.note,
                                     style: TextStyle(
                                       fontSize: 15,
                                       height: 1.5,
@@ -2541,7 +2505,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                     if (version.image != null &&
                         version.image?.isNotEmpty == true)
                       Container(
-                        padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
                         color: Colors.white, // Pastikan background tetap putih
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2554,7 +2518,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                   height: 38,
                                   decoration: BoxDecoration(
                                     color: _getTypeColor(version.type)
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
@@ -2563,7 +2527,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     size: 20,
                                   ),
                                 ),
-                                SizedBox(width: 16),
+                                const SizedBox(width: 16),
                                 Text(
                                   "Gambar Soal",
                                   style: TextStyle(
@@ -2575,7 +2539,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                               ],
                             ),
 
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
                             // Image content with improved display
                             Container(
@@ -2589,9 +2553,9 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 10,
-                                    offset: Offset(0, 5),
+                                    offset: const Offset(0, 5),
                                     spreadRadius: 0,
                                   ),
                                 ],
@@ -2602,7 +2566,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                     ? _buildImagePreview(
                                         _questionImages[question.id])
                                     : version.image != null
-                                        ? Container(
+                                        ? SizedBox(
                                             height: 200,
                                             child: Center(
                                               child: CircularProgressIndicator(
@@ -2614,7 +2578,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                               ),
                                             ),
                                           )
-                                        : Container(
+                                        : const SizedBox(
                                             height: 100,
                                             child: Center(
                                               child: Text(
@@ -2632,18 +2596,18 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
                     // Action buttons
                     Container(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 10,
-                            offset: Offset(0, -5),
+                            offset: const Offset(0, -5),
                             spreadRadius: 0,
                           ),
                         ],
@@ -2655,7 +2619,8 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                           Expanded(
                             child: TextButton(
                               style: TextButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 16),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                   side: BorderSide(color: Colors.grey.shade300),
@@ -2675,11 +2640,12 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
 
                           // Edit button - hanya tampilkan jika versi terbaru
                           if (isLatestVersion) ...[
-                            SizedBox(width: 16),
+                            const SizedBox(width: 16),
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 16),
                                   backgroundColor: _getTypeColor(version.type),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
@@ -2687,7 +2653,7 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
                                 ),
                                 onPressed: () =>
                                     _navigateToEditQuestion(question, version),
-                                child: Text(
+                                child: const Text(
                                   "Edit",
                                   style: TextStyle(
                                     fontSize: 16,
@@ -2711,4 +2677,3 @@ class _BankQuestionScreenState extends State<BankQuestionScreen>
     );
   }
 }
-  

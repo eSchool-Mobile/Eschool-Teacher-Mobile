@@ -37,7 +37,7 @@ class NotificationUtility {
     final type = (additionalData['type'] ?? "").toString();
 
     if (kDebugMode) {
-      print(remoteMessage.toMap());
+      debugPrint(remoteMessage.data.toString());
     }
 
     if (type == notificationType) {
@@ -91,7 +91,7 @@ class NotificationUtility {
 
   static Future<void> setUpNotificationService() async {
     if (kDebugMode) {
-      print("Setting up notification service...");
+      debugPrint("Setting up notification service...");
     }
     NotificationSettings notificationSettings =
         await FirebaseMessaging.instance.getNotificationSettings();
@@ -124,12 +124,12 @@ class NotificationUtility {
 
   static void _initNotificationListener() {
     if (kDebugMode) {
-      print("Notification setup done");
+      debugPrint("Notification setup done");
     }
     // Log FCM Token for debugging
     FirebaseMessaging.instance.getToken().then((token) {
       if (kDebugMode) {
-        print('FCM Token: $token');
+        debugPrint('FCM Token: $token');
       }
     });
     FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -147,8 +147,8 @@ class NotificationUtility {
         logRemoteMessageAndroid(value, tag: 'FCM-UTILITY-INITIAL');
       }
       if (kDebugMode) {
-        print("Initial notification");
-        print(value?.toMap());
+        debugPrint("Initial notification");
+        debugPrint(value?.data.toString());
       }
       _onTapNotificationScreenNavigateCallback(
         notificationData: value?.data ?? {},

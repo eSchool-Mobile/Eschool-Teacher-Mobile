@@ -14,15 +14,15 @@ class StudentListCard extends StatelessWidget {
   final SessionYear? sessionYear;
 
   // Define theme colors
-  final Color maroonPrimary = Color(0xFF8B1F41);
-  final Color maroonLight = Color(0xFFAC3B5C);
-  final Color accentColor = Color(0xFFF5EBE0);
+  static const Color maroonPrimary = Color(0xFF8B1F41);
+  static const Color maroonLight = Color(0xFFAC3B5C);
+  static const Color accentColor = Color(0xFFF5EBE0);
   final Color cardColor = Colors.white;
-  final Color textDarkColor = Color(0xFF2D2D2D);
-  final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
+  static const Color textDarkColor = Color(0xFF2D2D2D);
+  static const Color textMediumColor = Color(0xFF717171);
+  static const Color borderColor = Color(0xFFE8E8E8);
 
-  StudentListCard({
+  const StudentListCard({super.key, 
     required this.studentDetails,
     required this.onTap,
     this.classSection,
@@ -44,7 +44,7 @@ class StudentListCard extends StatelessWidget {
             height: 32,
             width: 32,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -53,10 +53,10 @@ class StudentListCard extends StatelessWidget {
               size: 16,
             ),
           ),
-          SizedBox(height: 6),
+          const SizedBox(height: 6),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               fontFamily: 'Poppins',
@@ -66,10 +66,10 @@ class StudentListCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             label,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 11,
               fontFamily: 'Poppins',
               color: textMediumColor,
@@ -98,9 +98,9 @@ class StudentListCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
               spreadRadius: 0,
             ),
           ],
@@ -115,7 +115,7 @@ class StudentListCard extends StatelessWidget {
                 bottom: 0,
                 child: Container(
                   width: 8,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: maroonPrimary,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -131,7 +131,7 @@ class StudentListCard extends StatelessWidget {
                 bottom: 0,
                 child: Container(
                   width: 8,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.grey,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(16),
@@ -143,13 +143,13 @@ class StudentListCard extends StatelessWidget {
 
             // Main content
             Padding(
-              padding: EdgeInsets.only(left: 8),
+              padding: const EdgeInsets.only(left: 8),
               child: Column(
                 children: [
                   // Header section with profile image and name
                   Container(
-                    padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
-                    decoration: BoxDecoration(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+                    decoration: const BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
                           color: borderColor,
@@ -169,7 +169,7 @@ class StudentListCard extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: maroonPrimary.withOpacity(0.2),
+                                  color: maroonPrimary.withValues(alpha: 0.2),
                                   blurRadius: 8,
                                   spreadRadius: 1,
                                 ),
@@ -194,17 +194,17 @@ class StudentListCard extends StatelessWidget {
                                 children: [
                                   Flexible(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: studentDetails.isActive()
-                                            ? Colors.green.withOpacity(0.1)
-                                            : Colors.grey.withOpacity(0.1),
+                                            ? Colors.green.withValues(alpha: 0.1)
+                                            : Colors.grey.withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                           color: studentDetails.isActive()
-                                              ? Colors.green.withOpacity(0.6)
-                                              : Colors.grey.withOpacity(0.6),
+                                              ? Colors.green.withValues(alpha: 0.6)
+                                              : Colors.grey.withValues(alpha: 0.6),
                                           width: 1,
                                         ),
                                       ),
@@ -220,7 +220,7 @@ class StudentListCard extends StatelessWidget {
                                                 : Colors.grey,
                                             size: 12,
                                           ),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Flexible(
                                             child: Text(
                                               studentDetails.isActive()
@@ -240,27 +240,27 @@ class StudentListCard extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Flexible(
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 3),
                                       decoration: BoxDecoration(
                                         color: studentDetails.gender
                                                     ?.toLowerCase() ==
                                                 "male"
-                                            ? Color(
+                                            ? const Color(
                                                 0xFFDCEAFF) // Light blue background
-                                            : Color(
+                                            : const Color(
                                                 0xFFFFE0F0), // Light pink background
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                           color: studentDetails.gender
                                                       ?.toLowerCase() ==
                                                   "male"
-                                              ? Color(
+                                              ? const Color(
                                                   0xFF0D47A1) // Darker blue border
-                                              : Color(
+                                              : const Color(
                                                   0xFFD81B60), // Darker pink border
                                           width: 1,
                                         ),
@@ -277,13 +277,13 @@ class StudentListCard extends StatelessWidget {
                                             color: studentDetails.gender
                                                         ?.toLowerCase() ==
                                                     "male"
-                                                ? Color(
+                                                ? const Color(
                                                     0xFF1976D2) // Strong blue for icon
-                                                : Color(
+                                                : const Color(
                                                     0xFFE91E63), // Strong pink for icon
                                             size: 12,
                                           ),
-                                          SizedBox(width: 4),
+                                          const SizedBox(width: 4),
                                           Flexible(
                                             child: Text(
                                               studentDetails.getGender().tr,
@@ -291,9 +291,9 @@ class StudentListCard extends StatelessWidget {
                                                 color: studentDetails.gender
                                                             ?.toLowerCase() ==
                                                         "male"
-                                                    ? Color(
+                                                    ? const Color(
                                                         0xFF1976D2) // Strong blue for text
-                                                    : Color(
+                                                    : const Color(
                                                         0xFFE91E63), // Strong pink for text
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
@@ -307,10 +307,10 @@ class StudentListCard extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Text(
                                 studentDetails.firstName ?? "-",
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.w600,
                                   fontFamily: 'Poppins',
@@ -318,18 +318,18 @@ class StudentListCard extends StatelessWidget {
                                 ),
                                 // No maxLines limit or ellipsis to allow full name display
                               ),
-                              SizedBox(height: 5),
+                              const SizedBox(height: 5),
                               Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.badge_outlined,
                                     size: 14,
                                     color: textMediumColor,
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     "GR No : ${studentDetails.student?.admissionNo ?? '-'}",
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: textMediumColor,
                                       fontFamily: 'Poppins',
                                       fontSize: 13,
@@ -347,7 +347,7 @@ class StudentListCard extends StatelessWidget {
 
                   // Information section
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -387,10 +387,10 @@ class StudentListCard extends StatelessWidget {
 
                   // Action row
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.3),
-                      borderRadius: BorderRadius.only(
+                      color: accentColor.withValues(alpha: 0.3),
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(8),
                         bottomRight: Radius.circular(16),
                       ),
@@ -400,10 +400,10 @@ class StudentListCard extends StatelessWidget {
                         Icon(
                           Icons.info_outline,
                           size: 16,
-                          color: maroonPrimary.withOpacity(0.7),
+                          color: maroonPrimary.withValues(alpha: 0.7),
                         ),
-                        SizedBox(width: 8),
-                        Text(
+                        const SizedBox(width: 8),
+                        const Text(
                           "Lihat profil lengkap",
                           style: TextStyle(
                             fontFamily: 'Poppins',
@@ -412,11 +412,11 @@ class StudentListCard extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
                           width: 28,
                           height: 28,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: maroonPrimary,
                             shape: BoxShape.circle,
                           ),

@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class ClassesState {}
 
@@ -31,17 +32,17 @@ class ClassesCubit extends Cubit<ClassesState> {
     try {
       emit(ClassesFetchInProgress());
       final result = await _academicRepository.getClasses();
-      print(
+      debugPrint(
           "Primary classes: ${result.primaryClasses.map((e) => "${e.name} (${e.id})").toList()}");
-      print(
+      debugPrint(
           "Other classes: ${result.classes.map((e) => "${e.name} (${e.id})").toList()}");
       emit(ClassesFetchSuccess(
           classes: result.classes, primaryClasses: result.primaryClasses));
     } catch (e) {
-      print("Error fetching classes: $e"); // Debug log
+      debugPrint("Error fetching classes: $e"); // Debug log
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(ClassesFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -57,11 +58,11 @@ class ClassesCubit extends Cubit<ClassesState> {
       ];
 
       // Debug logs
-      print(
+      debugPrint(
           "getAllClasses - Primary Classes: ${currentState.primaryClasses.map((e) => "${e.name} (${e.id})").toList()}");
-      print(
+      debugPrint(
           "getAllClasses - Other Classes: ${currentState.classes.map((e) => "${e.name} (${e.id})").toList()}");
-      print(
+      debugPrint(
           "getAllClasses - Combined Classes: ${allClasses.map((e) => "${e.name} (${e.id})").toList()}");
 
       return allClasses;

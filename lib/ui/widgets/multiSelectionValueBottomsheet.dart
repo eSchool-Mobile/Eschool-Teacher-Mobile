@@ -95,7 +95,7 @@ class _MultiSelectionValueBottomsheetState<T> extends State<MultiSelectionValueB
                           color: Theme.of(context)
                               .colorScheme
                               .onSurface
-                              .withOpacity(0.6),
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -109,7 +109,7 @@ class _MultiSelectionValueBottomsheetState<T> extends State<MultiSelectionValueB
           ),
           // Separator
           Divider(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.1),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
             thickness: 1,
           ),
           const SizedBox(

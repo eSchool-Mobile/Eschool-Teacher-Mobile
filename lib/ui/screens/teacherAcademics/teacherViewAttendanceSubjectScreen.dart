@@ -7,7 +7,6 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentSubjectAttendanceContainer.dart';
@@ -22,7 +21,6 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -157,7 +155,7 @@ class _TeacherViewAttendanceSubjectScreenState
   }
 
   void changeTimetableSlotSelection(int? newSelectedTimetableId) {
-    print('Changing timetable selection to ID: $newSelectedTimetableId');
+    debugPrint('Changing timetable selection to ID: $newSelectedTimetableId');
 
     setState(() {
       _selectedTimetableId = newSelectedTimetableId ?? 0;
@@ -166,7 +164,8 @@ class _TeacherViewAttendanceSubjectScreenState
     // Add delay to ensure state is updated
     Future.microtask(() {
       if (_selectedTimetableId != 0) {
-        print('Fetching attendance for timetable ID: $_selectedTimetableId');
+        debugPrint(
+            'Fetching attendance for timetable ID: $_selectedTimetableId');
         getAttendance();
       }
     });
@@ -196,20 +195,20 @@ class _TeacherViewAttendanceSubjectScreenState
   }
 
   void getAttendance({StudentAttendanceStatus? selectedStatus}) {
-    print("Getting attendance for:");
-    print("Date: $_selectedDateTime");
-    print(
+    debugPrint("Getting attendance for:");
+    debugPrint("Date: $_selectedDateTime");
+    debugPrint(
         "Class: ${_selectedClassSection?.name} (${_selectedClassSection?.id})");
-    print("Timetable ID: $_selectedTimetableId");
+    debugPrint("Timetable ID: $_selectedTimetableId");
 
     if (_selectedClassSection == null) {
       final classState = context.read<ClassesCubit>().state;
       if (classState is ClassesFetchSuccess &&
           classState.primaryClasses.isNotEmpty) {
         _selectedClassSection = classState.primaryClasses.first;
-        print("Using primary class: ${_selectedClassSection?.name}");
+        debugPrint("Using primary class: ${_selectedClassSection?.name}");
       } else {
-        print("No class section selected!");
+        debugPrint("No class section selected!");
         return;
       }
     }
@@ -223,24 +222,26 @@ class _TeacherViewAttendanceSubjectScreenState
               slot.classSectionId == _selectedClassSection?.id)
           .toList();
 
-      print("Available slots for selected class and date: ${slots.length}");
-      slots.forEach((slot) {
-        print(
+      debugPrint(
+          "Available slots for selected class and date: ${slots.length}");
+      for (var slot in slots) {
+        debugPrint(
             "Slot: ${slot.id} - ${slot.subject?.name} - ${slot.startTime}-${slot.endTime}");
-      });
+      }
 
       // Update selected timetable id if needed
       if (_selectedTimetableId == 0 && slots.isNotEmpty) {
         _selectedTimetableId = slots.first.id!;
-        print("Updated timetable ID to: $_selectedTimetableId");
+        debugPrint("Updated timetable ID to: $_selectedTimetableId");
       }
     }
 
     if (_selectedClassSection != null) {
-      print("Fetching attendance with params:");
-      print("- Date: ${DateFormat('yyyy-MM-dd').format(_selectedDateTime)}");
-      print("- Class Section ID: ${_selectedClassSection!.id}");
-      print("- Timetable ID: $_selectedTimetableId");
+      debugPrint("Fetching attendance with params:");
+      debugPrint(
+          "- Date: ${DateFormat('yyyy-MM-dd').format(_selectedDateTime)}");
+      debugPrint("- Class Section ID: ${_selectedClassSection!.id}");
+      debugPrint("- Timetable ID: $_selectedTimetableId");
 
       context.read<SubjectAttendanceCubit>().fetchSubjectAttendance(
             date: _selectedDateTime,
@@ -264,34 +265,7 @@ class _TeacherViewAttendanceSubjectScreenState
         return 3;
       case StudentAttendanceStatus.alpa:
         return 4;
-      default:
-        return 0;
     }
-  }
-
-  Widget _buildTotalTitleContainer(
-      {required String value,
-      required String title,
-      required Color backgroundColor}) {
-    return Container(
-      height: Utils().getResponsiveHeight(context, 90),
-      padding: EdgeInsets.symmetric(
-          horizontal: appContentHorizontalPadding, vertical: 12.5),
-      decoration: BoxDecoration(
-          color: backgroundColor, borderRadius: BorderRadius.circular(5.0)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomTextContainer(
-            textKey: value,
-            style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600),
-          ),
-          CustomTextContainer(
-            textKey: title,
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildStatCard({
@@ -311,10 +285,10 @@ class _TeacherViewAttendanceSubjectScreenState
         horizontal: small ? 8 : 16,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -324,9 +298,9 @@ class _TeacherViewAttendanceSubjectScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -354,7 +328,7 @@ class _TeacherViewAttendanceSubjectScreenState
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             '$count/$total',
             style: GoogleFonts.poppins(
@@ -373,7 +347,7 @@ class _TeacherViewAttendanceSubjectScreenState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(top: 20, bottom: 90),
+        padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<SubjectAttendanceCubit, SubjectAttendanceState>(
           builder: (context, state) {
             if (state is SubjectAttendanceFetchSuccess) {
@@ -399,7 +373,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.grey[400],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak Ada Kehadiran Hari Ini',
                             style: GoogleFonts.poppins(
@@ -427,7 +401,7 @@ class _TeacherViewAttendanceSubjectScreenState
                           size: 48,
                           color: Colors.grey[400],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Belum Ada Data Kehadiran',
                           style: GoogleFonts.poppins(
@@ -485,7 +459,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.orange[300],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak ada siswa yang sakit',
                             style: GoogleFonts.poppins(
@@ -512,7 +486,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.blue[300],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak ada siswa yang izin',
                             style: GoogleFonts.poppins(
@@ -538,7 +512,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.deepPurple[300],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak ada siswa yang alpa',
                             style: GoogleFonts.poppins(
@@ -564,7 +538,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.red[300],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak ada siswa yang tidak hadir',
                             style: GoogleFonts.poppins(
@@ -590,7 +564,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             size: 48,
                             color: Colors.green[300],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             Utils.getTranslatedLabel(noAttendanceYetKey),
                             style: GoogleFonts.poppins(
@@ -635,16 +609,18 @@ class _TeacherViewAttendanceSubjectScreenState
 
                   // Statistics cards
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -654,9 +630,9 @@ class _TeacherViewAttendanceSubjectScreenState
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: _maroonPrimary.withOpacity(0.1),
+                                color: _maroonPrimary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
@@ -665,7 +641,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                 color: _maroonPrimary,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               'Ringkasan Kehadiran Mapel',
                               style: GoogleFonts.poppins(
@@ -676,7 +652,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Present and Absent stats
                         Row(
@@ -692,7 +668,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                 color: Colors.green,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.cancel_rounded,
@@ -706,7 +682,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                           ],
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Sick, Permission, and Alpa stats
                         Row(
@@ -723,7 +699,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                 small: true,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.sticky_note_2_rounded,
@@ -736,7 +712,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                 small: true,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.not_interested_rounded,
@@ -769,16 +745,16 @@ class _TeacherViewAttendanceSubjectScreenState
 
                         if (selectedSlot.subject != null) {
                           return Container(
-                            margin: EdgeInsets.symmetric(
+                            margin: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
                               color: Colors.white,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
+                                  color: Colors.black.withValues(alpha: 0.05),
                                   blurRadius: 10,
-                                  offset: Offset(0, 5),
+                                  offset: const Offset(0, 5),
                                 ),
                               ],
                             ),
@@ -794,18 +770,19 @@ class _TeacherViewAttendanceSubjectScreenState
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        _maroonPrimary.withOpacity(0.9),
+                                        _maroonPrimary.withValues(alpha: 0.9),
                                         _maroonPrimary,
                                         _maroonLight,
                                       ],
                                     ),
-                                    borderRadius: BorderRadius.vertical(
+                                    borderRadius: const BorderRadius.vertical(
                                         top: Radius.circular(16)),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: _maroonPrimary.withOpacity(0.3),
+                                        color: _maroonPrimary.withValues(
+                                            alpha: 0.3),
                                         blurRadius: 10,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -813,20 +790,21 @@ class _TeacherViewAttendanceSubjectScreenState
                                     children: [
                                       // Animated icon
                                       Container(
-                                        padding: EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.1),
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
                                               blurRadius: 4,
-                                              offset: Offset(0, 2),
+                                              offset: const Offset(0, 2),
                                             ),
                                           ],
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.menu_book_rounded,
                                           color: Colors.white,
                                           size: 22,
@@ -860,7 +838,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                               style: GoogleFonts.poppins(
                                                 fontSize: 14,
                                                 color: Colors.white
-                                                    .withOpacity(0.9),
+                                                    .withValues(alpha: 0.9),
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
@@ -873,15 +851,16 @@ class _TeacherViewAttendanceSubjectScreenState
 
                                 // Content area
                                 Padding(
-                                  padding: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(20),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       // Card for time and day
                                       Container(
-                                        margin: EdgeInsets.only(bottom: 16),
-                                        padding: EdgeInsets.all(16),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 16),
+                                        padding: const EdgeInsets.all(16),
                                         decoration: BoxDecoration(
                                           color: Colors.grey.shade50,
                                           borderRadius:
@@ -897,10 +876,11 @@ class _TeacherViewAttendanceSubjectScreenState
                                               children: [
                                                 // Time icon with container
                                                 Container(
-                                                  padding: EdgeInsets.all(10),
+                                                  padding:
+                                                      const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
                                                     color: _maroonPrimary
-                                                        .withOpacity(0.1),
+                                                        .withValues(alpha: 0.1),
                                                     shape: BoxShape.circle,
                                                   ),
                                                   child: Icon(
@@ -909,7 +889,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                     size: 20,
                                                   ),
                                                 ),
-                                                SizedBox(width: 12),
+                                                const SizedBox(width: 12),
 
                                                 // Time and day details
                                                 Expanded(
@@ -929,7 +909,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                               Colors.grey[800],
                                                         ),
                                                       ),
-                                                      SizedBox(height: 2),
+                                                      const SizedBox(height: 2),
                                                       Row(
                                                         children: [
                                                           Text(
@@ -990,9 +970,9 @@ class _TeacherViewAttendanceSubjectScreenState
                                           if (state
                                               is SubjectAttendanceFetchSuccess) {
                                             return Container(
-                                              margin:
-                                                  EdgeInsets.only(bottom: 16),
-                                              padding: EdgeInsets.all(16),
+                                              margin: const EdgeInsets.only(
+                                                  bottom: 16),
+                                              padding: const EdgeInsets.all(16),
                                               decoration: BoxDecoration(
                                                 color: Colors.grey.shade50,
                                                 borderRadius:
@@ -1010,22 +990,25 @@ class _TeacherViewAttendanceSubjectScreenState
                                                     children: [
                                                       Container(
                                                         padding:
-                                                            EdgeInsets.all(10),
+                                                            const EdgeInsets
+                                                                .all(10),
                                                         decoration:
                                                             BoxDecoration(
                                                           color: _maroonLight
-                                                              .withOpacity(
-                                                                  0.15),
+                                                              .withValues(
+                                                                  alpha: 0.15),
                                                           shape:
                                                               BoxShape.circle,
                                                           boxShadow: [
                                                             BoxShadow(
                                                               color: _maroonPrimary
-                                                                  .withOpacity(
-                                                                      0.1),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.1),
                                                               blurRadius: 4,
                                                               offset:
-                                                                  Offset(0, 2),
+                                                                  const Offset(
+                                                                      0, 2),
                                                             ),
                                                           ],
                                                         ),
@@ -1036,7 +1019,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                           size: 20,
                                                         ),
                                                       ),
-                                                      SizedBox(width: 12),
+                                                      const SizedBox(width: 12),
                                                       Expanded(
                                                         child: Text(
                                                           'Materi Pelajaran',
@@ -1054,7 +1037,9 @@ class _TeacherViewAttendanceSubjectScreenState
                                                   ),
                                                   const SizedBox(height: 12),
                                                   Container(
-                                                    padding: EdgeInsets.all(16),
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            16),
                                                     width: double.infinity,
                                                     decoration: BoxDecoration(
                                                       color: Colors.white,
@@ -1068,10 +1053,11 @@ class _TeacherViewAttendanceSubjectScreenState
                                                       boxShadow: [
                                                         BoxShadow(
                                                           color: Colors.black
-                                                              .withOpacity(
-                                                                  0.02),
+                                                              .withValues(
+                                                                  alpha: 0.02),
                                                           blurRadius: 5,
-                                                          offset: Offset(0, 2),
+                                                          offset: const Offset(
+                                                              0, 2),
                                                         ),
                                                       ],
                                                     ),
@@ -1101,14 +1087,15 @@ class _TeacherViewAttendanceSubjectScreenState
                                                           children: [
                                                             Container(
                                                               padding:
-                                                                  EdgeInsets
+                                                                  const EdgeInsets
                                                                       .all(8),
                                                               decoration:
                                                                   BoxDecoration(
                                                                 color: Colors
                                                                     .amber
-                                                                    .withOpacity(
-                                                                        0.1),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.1),
                                                                 shape: BoxShape
                                                                     .circle,
                                                               ),
@@ -1120,7 +1107,8 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                 size: 18,
                                                               ),
                                                             ),
-                                                            SizedBox(width: 8),
+                                                            const SizedBox(
+                                                                width: 8),
                                                             Text(
                                                               'Lampiran',
                                                               style: GoogleFonts
@@ -1191,7 +1179,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                                 color: Colors.grey[800],
                                                                               ),
                                                                             ),
-                                                                            SizedBox(height: 4),
+                                                                            const SizedBox(height: 4),
                                                                             Text(
                                                                               'Klik untuk melihat lampiran',
                                                                               style: GoogleFonts.poppins(
@@ -1211,7 +1199,8 @@ class _TeacherViewAttendanceSubjectScreenState
                                                                           8.0),
                                                                       child:
                                                                           Container(
-                                                                        padding: EdgeInsets.symmetric(
+                                                                        padding: const EdgeInsets
+                                                                            .symmetric(
                                                                             horizontal:
                                                                                 12,
                                                                             vertical:
@@ -1255,7 +1244,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                                     delay: 200.ms)
                                                 .slideY(begin: 0.1, end: 0);
                                           }
-                                          return SizedBox();
+                                          return const SizedBox();
                                         },
                                       ),
                                     ],
@@ -1267,21 +1256,22 @@ class _TeacherViewAttendanceSubjectScreenState
                         }
                       }
 
-                      return SizedBox();
+                      return const SizedBox();
                     },
                   ),
 
                   // Students attendance list
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -1296,18 +1286,18 @@ class _TeacherViewAttendanceSubjectScreenState
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary.withValues(alpha: 0.9),
                                 _maroonPrimary,
                                 _maroonLight,
                               ],
                             ),
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16)),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 10,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -1315,12 +1305,12 @@ class _TeacherViewAttendanceSubjectScreenState
                             children: [
                               // Animated icon
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.people_alt_rounded,
                                   color: Colors.white,
                                   size: 20,
@@ -1352,24 +1342,24 @@ class _TeacherViewAttendanceSubjectScreenState
 
                               // Filter badge
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withValues(alpha: 0.4),
                                     width: 1,
                                   ),
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.filter_list_rounded,
                                       color: Colors.white,
                                       size: 12,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
                                       selectedStatus == null
                                           ? isPresentStatusOnly == false
@@ -1431,52 +1421,16 @@ class _TeacherViewAttendanceSubjectScreenState
                 ),
               );
             } else {
-              return Center(
+              return const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: const SkeletonSubjectAttendanceScreen(itemCount: 4),
+                  child: SkeletonSubjectAttendanceScreen(itemCount: 4),
                 ),
               );
             }
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildInfoRow({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          icon,
-          size: 16,
-          color: _maroonPrimary.withOpacity(0.7),
-        ),
-        SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: GoogleFonts.poppins(
-            fontSize: 13,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey[600],
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: Colors.grey[800],
-            ),
-          ),
-        ),
-      ],
     );
   }
 
@@ -1498,7 +1452,7 @@ class _TeacherViewAttendanceSubjectScreenState
       mainAxisSize: MainAxisSize.min,
       children: [
         // Main Filters Row (Class and Date)
-        Container(
+        SizedBox(
           height: 50,
           child: Row(
             children: [
@@ -1537,25 +1491,25 @@ class _TeacherViewAttendanceSubjectScreenState
                           },
                           borderRadius: BorderRadius.circular(10),
                           child: Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.1),
+                              color: Colors.white.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.class_rounded,
                                   color: Colors.white,
                                   size: 16,
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Flexible(
                                   child: Text(
                                     _selectedClassSection?.fullName ??
@@ -1587,7 +1541,7 @@ class _TeacherViewAttendanceSubjectScreenState
                 ),
               ),
 
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
 
               // Date filter
               Expanded(
@@ -1610,25 +1564,25 @@ class _TeacherViewAttendanceSubjectScreenState
                     },
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.calendar_today_rounded,
                             color: Colors.white,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               Utils.formatDate(_selectedDateTime),
@@ -1650,10 +1604,10 @@ class _TeacherViewAttendanceSubjectScreenState
           ),
         ),
 
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
 
         // Status Filters Row
-        Container(
+        SizedBox(
           height: 50,
           child: ListView(
             scrollDirection: Axis.horizontal,
@@ -1763,11 +1717,11 @@ class _TeacherViewAttendanceSubjectScreenState
       body: BlocBuilder<ClassesCubit, ClassesState>(
         builder: (context, state) {
           if (state is ClassesFetchSuccess) {
-            print("ClassesFetchSuccess: ${state.primaryClasses}");
+            debugPrint("ClassesFetchSuccess: ${state.primaryClasses}");
             return _buildStudentsContainer();
           }
           if (state is ClassesFetchFailure) {
-            print("ClassesFetchFailure: ${state.errorMessage}");
+            debugPrint("ClassesFetchFailure: ${state.errorMessage}");
             // return Center(
             //     child: ErrorContainer(
             //   errorMessage: state.errorMessage,
@@ -1801,7 +1755,8 @@ class _TeacherViewAttendanceSubjectScreenState
         final allAvailableClasses =
             context.read<ClassesCubit>().getAllClasses();
 
-        print("All available classes: ${allAvailableClasses.length} classes");
+        debugPrint(
+            "All available classes: ${allAvailableClasses.length} classes");
 
         setState(() {
           // Use all available classes from ClassesCubit instead of just timetable slots
@@ -1809,7 +1764,7 @@ class _TeacherViewAttendanceSubjectScreenState
         });
       }
     } catch (e) {
-      print("Error fetching classes: $e");
+      debugPrint("Error fetching classes: $e");
     }
   }
 
@@ -1821,75 +1776,6 @@ class _TeacherViewAttendanceSubjectScreenState
       });
       getAttendance();
     }
-  }
-
-  Widget _buildAttachmentThumbnail(BuildContext context, String imageUrl) {
-    // Build full URL if it's a relative path
-    String fullUrl =
-        imageUrl.startsWith('http') ? imageUrl : '$storageUrl$imageUrl';
-
-    return GestureDetector(
-      onTap: () => _showAttachmentDialog(context, imageUrl),
-      child: Container(
-        width: 70,
-        height: 70,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade300),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(7),
-          child: CachedNetworkImage(
-            imageUrl: fullUrl,
-            fit: BoxFit.cover,
-            memCacheWidth: 200,
-            memCacheHeight: 200,
-            maxWidthDiskCache: 400,
-            maxHeightDiskCache: 400,
-            filterQuality: FilterQuality.medium,
-            fadeInDuration: Duration(milliseconds: 300),
-            fadeOutDuration: Duration(milliseconds: 100),
-            placeholder: (context, url) => Container(
-              color: Colors.grey.shade100,
-              child: const Center(child: SkeletonAvatar(size: 20)),
-            ),
-            errorWidget: (context, url, error) {
-              print('Error loading thumbnail image: $error');
-              return GestureDetector(
-                onTap: () => _openImageExternally(imageUrl),
-                child: Container(
-                  color: Colors.grey.shade100,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.open_in_new_rounded,
-                        color: _maroonPrimary,
-                        size: 24,
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        'Buka di\nApp Lain',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 8,
-                          color: _maroonPrimary,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            httpHeaders: {
-              'User-Agent': 'Mozilla/5.0 (compatible; eSchool App)',
-              'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-            },
-          ),
-        ),
-      ),
-    );
   }
 
   // Helper method to check if file is an image
@@ -1926,7 +1812,7 @@ class _TeacherViewAttendanceSubjectScreenState
       builder: (BuildContext dialogContext) {
         return Dialog(
           backgroundColor: Colors.black87,
-          insetPadding: EdgeInsets.all(20),
+          insetPadding: const EdgeInsets.all(20),
           child: Container(
             constraints: BoxConstraints(
               maxHeight: MediaQuery.of(context).size.height * 0.8,
@@ -1937,8 +1823,9 @@ class _TeacherViewAttendanceSubjectScreenState
               children: [
                 // Header with close button
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: const BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
@@ -1960,22 +1847,22 @@ class _TeacherViewAttendanceSubjectScreenState
                         children: [
                           // Download button (if needed)
                           IconButton(
-                            icon: Icon(Icons.download_rounded,
+                            icon: const Icon(Icons.download_rounded,
                                 color: Colors.white),
                             onPressed: () {
                               // Add download functionality if needed
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content:
-                                      Text('Fitur download belum tersedia'),
+                                  content: const Text(
+                                      'Fitur download belum tersedia'),
                                   backgroundColor: _maroonPrimary,
                                 ),
                               );
                             },
                           ),
                           IconButton(
-                            icon:
-                                Icon(Icons.close_rounded, color: Colors.white),
+                            icon: const Icon(Icons.close_rounded,
+                                color: Colors.white),
                             onPressed: () => Navigator.of(dialogContext).pop(),
                           ),
                         ],
@@ -1987,7 +1874,7 @@ class _TeacherViewAttendanceSubjectScreenState
                 // Image container with error handling
                 Flexible(
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.black,
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(12),
@@ -1995,13 +1882,13 @@ class _TeacherViewAttendanceSubjectScreenState
                       ),
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.only(
+                      borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(12),
                         bottomRight: Radius.circular(12),
                       ),
                       child: InteractiveViewer(
                         panEnabled: true,
-                        boundaryMargin: EdgeInsets.all(20),
+                        boundaryMargin: const EdgeInsets.all(20),
                         minScale: 0.5,
                         maxScale: 4.0,
                         child: Center(
@@ -2010,9 +1897,9 @@ class _TeacherViewAttendanceSubjectScreenState
                             fit: BoxFit.contain,
                             width: double.infinity,
                             filterQuality: FilterQuality.high,
-                            fadeInDuration: Duration(milliseconds: 300),
-                            fadeOutDuration: Duration(milliseconds: 100),
-                            placeholder: (context, url) => Container(
+                            fadeInDuration: const Duration(milliseconds: 300),
+                            fadeOutDuration: const Duration(milliseconds: 100),
+                            placeholder: (context, url) => SizedBox(
                               height: 300,
                               child: Center(
                                 child: Column(
@@ -2023,7 +1910,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                         _maroonPrimary,
                                       ),
                                     ),
-                                    SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                     Text(
                                       'Memuat gambar...',
                                       style: GoogleFonts.poppins(
@@ -2036,15 +1923,16 @@ class _TeacherViewAttendanceSubjectScreenState
                               ),
                             ),
                             errorWidget: (context, url, error) {
-                              print('Error loading full image: $error');
+                              debugPrint('Error loading full image: $error');
                               // Automatically try to open in external app without showing error dialog
                               Future.microtask(() {
+                                if (!dialogContext.mounted) return;
                                 Navigator.of(dialogContext).pop();
                                 _openImageExternally(fullUrl);
                               });
 
                               // Show a brief loading message while redirecting
-                              return Container(
+                              return SizedBox(
                                 height: 300,
                                 child: Center(
                                   child: Column(
@@ -2056,7 +1944,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                           _maroonPrimary,
                                         ),
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                       Text(
                                         'Membuka lampiran di aplikasi...',
                                         style: GoogleFonts.poppins(
@@ -2070,7 +1958,7 @@ class _TeacherViewAttendanceSubjectScreenState
                                 ),
                               );
                             },
-                            httpHeaders: {
+                            httpHeaders: const {
                               'User-Agent':
                                   'Mozilla/5.0 (compatible; eSchool App)',
                               'Accept':
@@ -2110,14 +1998,14 @@ class _TeacherViewAttendanceSubjectScreenState
           return Dialog(
             backgroundColor: Colors.white,
             child: Container(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(_maroonPrimary),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Memuat PDF...',
                     style: GoogleFonts.poppins(
@@ -2126,7 +2014,7 @@ class _TeacherViewAttendanceSubjectScreenState
                       color: Colors.grey[800],
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Mohon tunggu sebentar',
                     style: GoogleFonts.poppins(
@@ -2145,20 +2033,27 @@ class _TeacherViewAttendanceSubjectScreenState
         final Uri url = Uri.parse(googleDocsUrl);
         if (await canLaunchUrl(url)) {
           // Close loading dialog and launch URL
-          Navigator.of(context).pop();
-          await launchUrl(url, mode: LaunchMode.inAppWebView);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('PDF berhasil dibuka'),
-              backgroundColor: _maroonPrimary,
-            ),
-          );
+          // Close loading dialog and launch URL
+          if (mounted) {
+            Navigator.of(context).pop();
+            await launchUrl(url, mode: LaunchMode.inAppWebView);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text('PDF berhasil dibuka'),
+                  backgroundColor: _maroonPrimary,
+                ),
+              );
+            }
+          }
           return;
         }
       } catch (e) {
         // Close loading dialog
-        Navigator.of(context).pop();
-        print('Error opening PDF with Google Docs: $e');
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+        debugPrint('Error opening PDF with Google Docs: $e');
       }
     }
 
@@ -2167,45 +2062,53 @@ class _TeacherViewAttendanceSubjectScreenState
       final Uri url = Uri.parse(fullUrl);
       if (await canLaunchUrl(url)) {
         await launchUrl(url, mode: LaunchMode.inAppWebView);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Lampiran berhasil dibuka'),
-            backgroundColor: _maroonPrimary,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('Lampiran berhasil dibuka'),
+              backgroundColor: _maroonPrimary,
+            ),
+          );
+        }
       } else {
         // Fallback: copy URL to clipboard
         await Clipboard.setData(ClipboardData(text: fullUrl));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('URL lampiran disalin ke clipboard'),
-            backgroundColor: _maroonPrimary,
-            action: SnackBarAction(
-              label: 'OK',
-              textColor: Colors.white,
-              onPressed: () {},
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('URL lampiran disalin ke clipboard'),
+              backgroundColor: _maroonPrimary,
+              action: SnackBarAction(
+                label: 'OK',
+                textColor: Colors.white,
+                onPressed: () {},
+              ),
             ),
-          ),
-        );
+          );
+        }
       }
     } catch (e) {
-      print('Error opening image externally: $e');
+      debugPrint('Error opening image externally: $e');
       // Fallback: copy URL to clipboard
       try {
         await Clipboard.setData(ClipboardData(text: fullUrl));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('URL lampiran disalin ke clipboard'),
-            backgroundColor: _maroonPrimary,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('URL lampiran disalin ke clipboard'),
+              backgroundColor: _maroonPrimary,
+            ),
+          );
+        }
       } catch (e2) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Tidak dapat membuka lampiran'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tidak dapat membuka lampiran'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -2230,11 +2133,13 @@ class _TeacherViewAttendanceSubjectScreenState
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected
-                    ? color.withOpacity(0.7)
-                    : Colors.white.withOpacity(0.3),
+                    ? color.withValues(alpha: 0.7)
+                    : Colors.white.withValues(alpha: 0.3),
                 width: 1,
               ),
-              color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
+              color: isSelected
+                  ? color.withValues(alpha: 0.2)
+                  : Colors.transparent,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -2244,7 +2149,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   color: isSelected ? color : Colors.white,
                   size: 16,
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   label,
                   style: GoogleFonts.poppins(

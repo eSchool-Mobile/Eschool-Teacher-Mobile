@@ -33,7 +33,7 @@ class UploadImageOrFileButton extends StatelessWidget {
               color: Theme.of(context)
                   .extension<CustomColors>()!
                   .totalStaffOverviewBackgroundColor!
-                  .withOpacity(0.15),
+                  .withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(5.0),
             ),
             child: Row(

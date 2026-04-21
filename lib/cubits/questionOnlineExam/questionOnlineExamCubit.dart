@@ -2,9 +2,8 @@ import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:flutter/foundation.dart';
 // import 'package:eschool_saas_staff/data/models/BankSoal.dart';
 
 abstract class QuestionOnlineExamState {}
@@ -43,7 +42,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
 
       // Debug info lebih detail
       for (var q in questions) {
-        print(
+        debugPrint(
             'Question ID: ${q.id}, Version: ${q.version}, Type: ${q.version.runtimeType}');
       }
       emit(QuestionOnlineExamSuccess(questions));
@@ -53,7 +52,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -73,7 +72,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in loadQuestionsFromBank: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -86,7 +85,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamLoading());
       final questions =
           await _repository.getOnlineExamQuestionListCorrection(examId, search);
-      print("AMAN NIEH");
+      debugPrint("AMAN NIEH");
       emit(QuestionOnlineExamSuccess(questions));
     } catch (e) {
     
@@ -95,7 +94,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getOnlineExamResultQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -112,7 +111,7 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getBankSoal: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -120,35 +119,35 @@ class QuestionOnlineExamCubit extends Cubit<QuestionOnlineExamState> {
   Future<void> deleteQuestions(int examId, Set<int> questionIndexes,
       List<QuestionOnlineExam> questions) async {
     try {
-      print('=== CUBIT DELETE QUESTIONS ===');
-      print('Exam ID: $examId');
-      print('Selected Indexes: $questionIndexes');
+      debugPrint('=== CUBIT DELETE QUESTIONS ===');
+      debugPrint('Exam ID: $examId');
+      debugPrint('Selected Indexes: $questionIndexes');
 
       emit(QuestionOnlineExamLoading());
 
       // Convert indexes to question IDs
       List<int> questionIds =
           questionIndexes.map((index) => questions[index].id).toList();
-      print('Question IDs to delete: $questionIds');
+      debugPrint('Question IDs to delete: $questionIds');
 
       // Delete questions
       await _repository.deleteOnlineExamQuestions(examId, questionIds);
-      print('Delete request completed successfully');
+      debugPrint('Delete request completed successfully');
 
       // Refresh questions list
-      print('Refreshing questions list...');
+      debugPrint('Refreshing questions list...');
       await getQuestions(examId);
-      print('Questions list refreshed');
+      debugPrint('Questions list refreshed');
     } catch (e) {
-      print('=== CUBIT DELETE ERROR ===');
-      print('Error Type: ${e.runtimeType}');
-      print('Error Message: $e');
+      debugPrint('=== CUBIT DELETE ERROR ===');
+      debugPrint('Error Type: ${e.runtimeType}');
+      debugPrint('Error Message: $e');
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(QuestionOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in deleteQuestions: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       rethrow;
     }

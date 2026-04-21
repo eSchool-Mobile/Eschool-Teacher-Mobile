@@ -1,21 +1,22 @@
 import 'package:eschool_saas_staff/data/models/extracurricularMember.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class ExtracurricularMemberRepository {
   // Get all extracurricular members
   Future<List<ExtracurricularMember>> getExtracurricularMembers() async {
     try {
-      print('🔍 [MEMBER REPO] Fetching extracurricular members');
+      debugPrint('🔍 [MEMBER REPO] Fetching extracurricular members');
 
       final response = await Api.get(
         url: Api.getExtracurricularMembers,
         useAuthToken: true,
       );
 
-      print('🔍 [MEMBER REPO] Response: $response');
+      debugPrint('🔍 [MEMBER REPO] Response: $response');
 
       if (response['error'] == true) {
-        print('❌ [MEMBER REPO] Error: ${response['message']}');
+        debugPrint('❌ [MEMBER REPO] Error: ${response['message']}');
         throw ApiException(response['message'] ?? 'Failed to fetch members');
       }
 
@@ -26,11 +27,11 @@ class ExtracurricularMemberRepository {
           .map((memberJson) => ExtracurricularMember.fromJson(memberJson))
           .toList();
 
-      print('✅ [MEMBER REPO] Successfully fetched ${members.length} members');
-      print('🔍 [MEMBER REPO] Raw data count: ${membersData.length}');
+      debugPrint('✅ [MEMBER REPO] Successfully fetched ${members.length} members');
+      debugPrint('🔍 [MEMBER REPO] Raw data count: ${membersData.length}');
       return members;
     } catch (e) {
-      print('❌ [MEMBER REPO] Exception: $e');
+      debugPrint('❌ [MEMBER REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -38,7 +39,7 @@ class ExtracurricularMemberRepository {
   // Approve extracurricular member
   Future<void> approveMember(int memberId) async {
     try {
-      print('🔍 [MEMBER REPO] Approving member ID: $memberId');
+      debugPrint('🔍 [MEMBER REPO] Approving member ID: $memberId');
 
       final response = await Api.put(
         url: '${Api.approveExtracurricularMember}/$memberId',
@@ -48,16 +49,16 @@ class ExtracurricularMemberRepository {
         },
       );
 
-      print('🔍 [MEMBER REPO] Approve response: $response');
+      debugPrint('🔍 [MEMBER REPO] Approve response: $response');
 
       if (response['error'] == true) {
-        print('❌ [MEMBER REPO] Approve failed: ${response['message']}');
+        debugPrint('❌ [MEMBER REPO] Approve failed: ${response['message']}');
         throw ApiException(response['message'] ?? 'Failed to approve member');
       }
 
-      print('✅ [MEMBER REPO] Member approved successfully');
+      debugPrint('✅ [MEMBER REPO] Member approved successfully');
     } catch (e) {
-      print('❌ [MEMBER REPO] Approve exception: $e');
+      debugPrint('❌ [MEMBER REPO] Approve exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -65,7 +66,7 @@ class ExtracurricularMemberRepository {
   // Reject extracurricular member
   Future<void> rejectMember(int memberId) async {
     try {
-      print('🔍 [MEMBER REPO] Rejecting member ID: $memberId');
+      debugPrint('🔍 [MEMBER REPO] Rejecting member ID: $memberId');
 
       final response = await Api.put(
         url: '${Api.rejectExtracurricularMember}/$memberId',
@@ -75,16 +76,16 @@ class ExtracurricularMemberRepository {
         },
       );
 
-      print('🔍 [MEMBER REPO] Reject response: $response');
+      debugPrint('🔍 [MEMBER REPO] Reject response: $response');
 
       if (response['error'] == true) {
-        print('❌ [MEMBER REPO] Reject failed: ${response['message']}');
+        debugPrint('❌ [MEMBER REPO] Reject failed: ${response['message']}');
         throw ApiException(response['message'] ?? 'Failed to reject member');
       }
 
-      print('✅ [MEMBER REPO] Member rejected successfully');
+      debugPrint('✅ [MEMBER REPO] Member rejected successfully');
     } catch (e) {
-      print('❌ [MEMBER REPO] Reject exception: $e');
+      debugPrint('❌ [MEMBER REPO] Reject exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -92,17 +93,17 @@ class ExtracurricularMemberRepository {
   // Get members by status (filter)
   Future<List<ExtracurricularMember>> getMembersByStatus(String status) async {
     try {
-      print('🔍 [MEMBER REPO] Fetching members with status: $status');
+      debugPrint('🔍 [MEMBER REPO] Fetching members with status: $status');
 
       final response = await Api.get(
         url: '${Api.getExtracurricularMembers}?status=$status',
         useAuthToken: true,
       );
 
-      print('🔍 [MEMBER REPO] Response: $response');
+      debugPrint('🔍 [MEMBER REPO] Response: $response');
 
       if (response['error'] == true) {
-        print('❌ [MEMBER REPO] Error: ${response['message']}');
+        debugPrint('❌ [MEMBER REPO] Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to fetch members by status');
       }
@@ -114,11 +115,11 @@ class ExtracurricularMemberRepository {
           .map((memberJson) => ExtracurricularMember.fromJson(memberJson))
           .toList();
 
-      print(
+      debugPrint(
           '✅ [MEMBER REPO] Successfully fetched ${members.length} members with status $status');
       return members;
     } catch (e) {
-      print('❌ [MEMBER REPO] Exception: $e');
+      debugPrint('❌ [MEMBER REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -127,7 +128,7 @@ class ExtracurricularMemberRepository {
   Future<List<ExtracurricularMember>> getMembersByExtracurricular(
       int extracurricularId) async {
     try {
-      print(
+      debugPrint(
           '🔍 [MEMBER REPO] Fetching members for extracurricular ID: $extracurricularId');
 
       final response = await Api.get(
@@ -136,10 +137,10 @@ class ExtracurricularMemberRepository {
         useAuthToken: true,
       );
 
-      print('🔍 [MEMBER REPO] Response: $response');
+      debugPrint('🔍 [MEMBER REPO] Response: $response');
 
       if (response['error'] == true) {
-        print('❌ [MEMBER REPO] Error: ${response['message']}');
+        debugPrint('❌ [MEMBER REPO] Error: ${response['message']}');
         throw ApiException(response['message'] ??
             'Failed to fetch members by extracurricular');
       }
@@ -151,11 +152,11 @@ class ExtracurricularMemberRepository {
           .map((memberJson) => ExtracurricularMember.fromJson(memberJson))
           .toList();
 
-      print(
+      debugPrint(
           '✅ [MEMBER REPO] Successfully fetched ${members.length} members for extracurricular $extracurricularId');
       return members;
     } catch (e) {
-      print('❌ [MEMBER REPO] Exception: $e');
+      debugPrint('❌ [MEMBER REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }

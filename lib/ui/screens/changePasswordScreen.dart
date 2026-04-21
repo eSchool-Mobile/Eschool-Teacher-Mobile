@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:animate_do/animate_do.dart';
-import 'dart:ui';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -39,7 +38,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
   bool _hideConfirm = true;
 
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
+
   late AnimationController _fabAnimationController;
   late AnimationController _formAnimController;
   late AnimationController _pulseAnimController;
@@ -48,22 +47,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
 
   // Enhanced color palette with gradients
   final Color _maroonPrimary = const Color(0xFF800020);
-  final Color _maroonSecondary = const Color(0xFF9A1E3C);
 
   // Gradient definitions
-  final LinearGradient _primaryGradient = const LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFF800020), Color(0xFF9A1E3C), Color(0xFFAA6976)],
-    stops: [0.0, 0.5, 1.0],
-  );
-
-  final LinearGradient _backgroundGradient = const LinearGradient(
-    begin: Alignment.topCenter,
-    end: Alignment.bottomCenter,
-    colors: [Color(0xFFF8F9FA), Color(0xFFECEFF1), Color(0xFFF8F9FA)],
-    stops: [0.0, 0.5, 1.0],
-  );
 
   @override
   void initState() {
@@ -85,11 +70,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
         vsync: this, duration: const Duration(milliseconds: 1500));
     _progressAnimController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOutCubic,
-    );
 
     _animationController.forward();
     _formAnimController.forward();
@@ -159,19 +139,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
         validation['number'] == true;
   }
 
-  bool get _isFormValid {
-    final currentPassword = _currentPasswordController.text.trim();
-    final newPassword = _newPasswordController.text.trim();
-    final confirmPassword = _confirmPasswordController.text.trim();
-
-    return currentPassword.isNotEmpty &&
-        newPassword.isNotEmpty &&
-        confirmPassword.isNotEmpty &&
-        _isPasswordValid &&
-        newPassword == confirmPassword &&
-        currentPassword != newPassword;
-  }
-
   bool get _isPasswordsMatching {
     final newPassword = _newPasswordController.text.trim();
     final confirmPassword = _confirmPasswordController.text.trim();
@@ -230,20 +197,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
     }
   }
 
-  // PERBAIKAN: Password dianggap cukup kuat jika memenuhi requirements minimal (bukan harus 75%)
-  bool get _isPasswordStrong {
-    return _isPasswordValid; // Cukup jika memenuhi standar minimal
-  }
-
   Widget _buildModernPasswordStrengthIndicator() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: _passwordStrengthColor.withOpacity(0.05),
+        color: _passwordStrengthColor.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _passwordStrengthColor.withOpacity(0.2),
+          color: _passwordStrengthColor.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -258,7 +220,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _passwordStrengthColor.withOpacity(0.1),
+                      color: _passwordStrengthColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
@@ -328,14 +290,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         gradient: LinearGradient(
                           colors: [
                             _passwordStrengthColor,
-                            _passwordStrengthColor.withOpacity(0.8),
+                            _passwordStrengthColor.withValues(alpha: 0.8),
                           ],
                           begin: Alignment.centerLeft,
                           end: Alignment.centerRight,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: _passwordStrengthColor.withOpacity(0.3),
+                            color:
+                                _passwordStrengthColor.withValues(alpha: 0.3),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -357,8 +320,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                           borderRadius: BorderRadius.circular(4),
                           gradient: LinearGradient(
                             colors: [
-                              _passwordStrengthColor.withOpacity(
-                                  0.3 * _pulseAnimController.value),
+                              _passwordStrengthColor.withValues(
+                                  alpha: 0.3 * _pulseAnimController.value),
                               Colors.transparent,
                             ],
                             begin: Alignment.centerLeft,
@@ -459,7 +422,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -477,7 +440,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: _passwordStrengthColor.withOpacity(0.4),
+                      color: _passwordStrengthColor.withValues(alpha: 0.4),
                       blurRadius: 4,
                       offset: const Offset(0, 1),
                     ),
@@ -570,308 +533,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
         );
   }
 
-  Widget _buildUpdatePasswordButton(ChangePasswordState state) {
-    return Container(
-      margin: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 30,
-            offset: const Offset(0, -10),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.9),
-                  Colors.white.withOpacity(0.8),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 1.5,
-              ),
-            ),
-            child: AnimatedBuilder(
-              animation: _fadeAnimation,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, 20 * (1 - _fadeAnimation.value)),
-                  child: Opacity(
-                    opacity: _fadeAnimation.value,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      height: 60,
-                      decoration: BoxDecoration(
-                        gradient: state is ChangePasswordProgress
-                            ? LinearGradient(
-                                colors: [
-                                  _maroonPrimary.withOpacity(0.7),
-                                  _maroonSecondary.withOpacity(0.7),
-                                ],
-                              )
-                            : _primaryGradient,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: _maroonPrimary.withOpacity(0.4),
-                            blurRadius: 15,
-                            offset: const Offset(0, 8),
-                            spreadRadius: 0,
-                          ),
-                          BoxShadow(
-                            color: _maroonPrimary.withOpacity(0.2),
-                            blurRadius: 30,
-                            offset: const Offset(0, 15),
-                            spreadRadius: 0,
-                          ),
-                        ],
-                      ),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(16),
-                          onTap: state is ChangePasswordProgress
-                              ? null
-                              : () {
-                                  if (_currentPasswordController.text
-                                      .trim()
-                                      .isEmpty) {
-                                    Utils.showSnackBar(
-                                        message: pleaseEnterOldPasswordKey,
-                                        context: context);
-                                    return;
-                                  } else if (_newPasswordController.text
-                                      .trim()
-                                      .isEmpty) {
-                                    Utils.showSnackBar(
-                                        message: pleaseEnterNewPasswordKey,
-                                        context: context);
-                                    return;
-                                  } else if (_confirmPasswordController.text
-                                      .trim()
-                                      .isEmpty) {
-                                    Utils.showSnackBar(
-                                        message: pleaseEnterConfirmPasswordKey,
-                                        context: context);
-                                    return;
-                                  } else if (_confirmPasswordController.text
-                                          .trim() !=
-                                      _newPasswordController.text.trim()) {
-                                    Utils.showSnackBar(
-                                        message: passwordAreNotMatchKey,
-                                        context: context);
-                                    return;
-                                  }
-
-                                  context
-                                      .read<ChangePasswoedCubit>()
-                                      .changePassword(
-                                          oldPassword:
-                                              _currentPasswordController.text
-                                                  .trim(),
-                                          newPassword: _newPasswordController
-                                              .text
-                                              .trim(),
-                                          confirmPassword:
-                                              _confirmPasswordController.text
-                                                  .trim());
-                                },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (state is ChangePasswordProgress) ...[
-                                  SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    "Memperbarui...",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ] else ...[
-                                  Container(
-                                    padding: const EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.2),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: const Icon(
-                                      Icons.lock_reset_rounded,
-                                      color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    "Perbarui Kata Sandi",
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFixedUpdatePasswordButton(ChangePasswordState state) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 300),
-      height: 52,
-      decoration: BoxDecoration(
-        gradient: state is ChangePasswordProgress
-            ? LinearGradient(
-                colors: [
-                  _maroonPrimary.withOpacity(0.7),
-                  _maroonSecondary.withOpacity(0.7),
-                ],
-              )
-            : _primaryGradient,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: _maroonPrimary.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-            spreadRadius: 0,
-          ),
-          BoxShadow(
-            color: _maroonPrimary.withOpacity(0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-            spreadRadius: 0,
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: state is ChangePasswordProgress
-              ? null
-              : () {
-                  if (_currentPasswordController.text.trim().isEmpty) {
-                    Utils.showSnackBar(
-                        message: pleaseEnterOldPasswordKey, context: context);
-                    return;
-                  } else if (_newPasswordController.text.trim().isEmpty) {
-                    Utils.showSnackBar(
-                        message: pleaseEnterNewPasswordKey, context: context);
-                    return;
-                  } else if (_confirmPasswordController.text.trim().isEmpty) {
-                    Utils.showSnackBar(
-                        message: pleaseEnterConfirmPasswordKey,
-                        context: context);
-                    return;
-                  } else if (_confirmPasswordController.text.trim() !=
-                      _newPasswordController.text.trim()) {
-                    Utils.showSnackBar(
-                        message: passwordAreNotMatchKey, context: context);
-                    return;
-                  }
-
-                  context.read<ChangePasswoedCubit>().changePassword(
-                      oldPassword: _currentPasswordController.text.trim(),
-                      newPassword: _newPasswordController.text.trim(),
-                      confirmPassword: _confirmPasswordController.text.trim());
-                },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (state is ChangePasswordProgress) ...[
-                  SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    "Memperbarui...",
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ] else ...[
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.lock_reset_rounded,
-                      color: Colors.white,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    "Perbarui Kata Sandi",
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -899,11 +560,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: colorScheme.primary.withOpacity(0.1),
+                    color: colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.primary.withOpacity(0.1),
+                        color: colorScheme.primary.withValues(alpha: 0.1),
                         blurRadius: 20,
                         offset: const Offset(0, 5),
                       ),
@@ -944,7 +605,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                       'Tingkatkan keamanan akun Anda dengan kata sandi yang lebih kuat',
                       style: GoogleFonts.inter(
                         fontSize: 14,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                         fontWeight: FontWeight.w400,
                       ),
                       textAlign: TextAlign.center,
@@ -963,12 +624,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, 10),
                       ),
                       BoxShadow(
-                        color: colorScheme.primary.withOpacity(0.05),
+                        color: colorScheme.primary.withValues(alpha: 0.05),
                         blurRadius: 30,
                         offset: const Offset(0, 15),
                       ),
@@ -1101,8 +762,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                                         Container(
                                           padding: const EdgeInsets.all(6),
                                           decoration: BoxDecoration(
-                                            color:
-                                                Colors.white.withOpacity(0.2),
+                                            color: Colors.white
+                                                .withValues(alpha: 0.2),
                                             shape: BoxShape.circle,
                                           ),
                                           child: const Icon(
@@ -1169,8 +830,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                             final passwordValid = _isPasswordValid;
 
                             // Tidak dalam proses loading
-                            final notLoading =
-                                !(state is ChangePasswordProgress);
+                            final notLoading = state is! ChangePasswordProgress;
 
                             // Button enabled jika semua kondisi terpenuhi
                             final isButtonEnabled = allFieldsFilled &&
@@ -1204,7 +864,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                                             : [
                                                 colorScheme.primary,
                                                 colorScheme.primary
-                                                    .withOpacity(0.8),
+                                                    .withValues(alpha: 0.8),
                                               ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight,
@@ -1214,7 +874,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                                       ? [
                                           BoxShadow(
                                             color: colorScheme.primary
-                                                .withOpacity(0.25),
+                                                .withValues(alpha: 0.25),
                                             blurRadius: 15,
                                             offset: const Offset(0, 8),
                                           ),
@@ -1293,7 +953,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           style: GoogleFonts.inter(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 8),
@@ -1307,12 +967,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: colorScheme.primary.withOpacity(0.2),
+                color: colorScheme.primary.withValues(alpha: 0.2),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -1330,7 +990,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                 hintText: hintKey,
                 hintStyle: GoogleFonts.inter(
                   fontSize: 14,
-                  color: colorScheme.onSurface.withOpacity(0.5),
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(14),
@@ -1344,7 +1004,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                   margin: const EdgeInsets.only(left: 12, right: 8),
                   child: Icon(
                     icon,
-                    color: colorScheme.primary.withOpacity(0.7),
+                    color: colorScheme.primary.withValues(alpha: 0.7),
                     size: 20,
                   ),
                 ),
@@ -1356,7 +1016,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                           ? Icons.visibility_off_rounded
                           : Icons.visibility_rounded,
                       key: ValueKey(hideText),
-                      color: colorScheme.primary.withOpacity(0.6),
+                      color: colorScheme.primary.withValues(alpha: 0.6),
                       size: 18,
                     ),
                   ),

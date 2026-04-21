@@ -52,16 +52,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   final ScrollController _scrollController = ScrollController();
 
   // Define theme colors with simplified palette
-  final Color maroonPrimary = Color(0xFF8B1F41);
-  final Color maroonLight = Color(0xFFAC3B5C);
-  final Color maroonDark = Color(0xFF6A0F2A);
-  final Color accentColor = Color(0xFFF5EBE0);
-  final Color bgColor = Color(0xFFFAF6F2);
+  static const Color maroonPrimary = Color(0xFF8B1F41);
+  static const Color maroonLight = Color(0xFFAC3B5C);
+  static const Color accentColor = Color(0xFFF5EBE0);
+  static const Color bgColor = Color(0xFFFAF6F2);
   final Color cardColor = Colors.white;
-  final Color textDarkColor = Color(0xFF2D2D2D);
-  final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
-  final Color highlightColor = Color(0xFFFFD166);
+  static const Color textDarkColor = Color(0xFF2D2D2D);
+  static const Color textMediumColor = Color(0xFF717171);
+  static const Color borderColor = Color(0xFFE8E8E8);
 
   @override
   void dispose() {
@@ -79,7 +77,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
 
   Widget _buildStatusBadge(bool isActive) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: isActive ? Colors.green.shade50 : Colors.grey.shade50,
         borderRadius: BorderRadius.circular(20),
@@ -95,7 +93,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             Container(
               width: 8,
               height: 8,
-              margin: EdgeInsets.only(right: 6),
+              margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(
                 color: Colors.green.shade500,
                 shape: BoxShape.circle,
@@ -123,33 +121,34 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
     IconData? icon,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
       decoration: BoxDecoration(
-        color: isHighlighted ? maroonPrimary.withOpacity(0.08) : cardColor,
+        color:
+            isHighlighted ? maroonPrimary.withValues(alpha: 0.08) : cardColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isHighlighted ? 0.08 : 0.05),
+            color: Colors.black.withValues(alpha: isHighlighted ? 0.08 : 0.05),
             blurRadius: isHighlighted ? 12 : 8,
             offset: Offset(0, isHighlighted ? 4 : 3),
             spreadRadius: 0,
           ),
         ],
         border: isHighlighted
-            ? Border.all(color: maroonPrimary.withOpacity(0.2))
-            : Border.all(color: borderColor.withOpacity(0.8)),
+            ? Border.all(color: maroonPrimary.withValues(alpha: 0.2))
+            : Border.all(color: borderColor.withValues(alpha: 0.8)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           if (icon != null) ...[
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isHighlighted
-                    ? maroonPrimary.withOpacity(0.15)
-                    : accentColor.withOpacity(0.5),
+                    ? maroonPrimary.withValues(alpha: 0.15)
+                    : accentColor.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
@@ -158,7 +157,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 color: isHighlighted ? maroonPrimary : maroonLight,
               ),
             ),
-            SizedBox(width: 14),
+            const SizedBox(width: 14),
           ],
           Expanded(
             child: Column(
@@ -167,7 +166,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               children: [
                 Text(
                   titleKey.tr,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: textMediumColor,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -175,7 +174,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                     letterSpacing: 0.2,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   valueKey.tr,
                   style: TextStyle(
@@ -213,7 +212,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         builder: (BuildContext context) {
                           return Dialog(
                             backgroundColor: Colors.transparent,
-                            child: Container(
+                            child: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.9,
                               height: MediaQuery.of(context).size.height * 0.7,
                               child: Stack(
@@ -226,7 +225,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                             imageUrl: profileImage,
                                             fit: BoxFit.contain,
                                             placeholder: (context, url) =>
-                                                Center(
+                                                const Center(
                                               child: CircularProgressIndicator(
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
@@ -234,7 +233,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                               ),
                                             ),
                                             errorWidget:
-                                                (context, url, error) => Center(
+                                                (context, url, error) =>
+                                                    const Center(
                                               child: Icon(
                                                 Icons.error,
                                                 color: maroonPrimary,
@@ -242,7 +242,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                               ),
                                             ),
                                           )
-                                        : Center(
+                                        : const Center(
                                             child: Icon(
                                               Icons.person,
                                               color: maroonPrimary,
@@ -254,7 +254,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                     top: 10,
                                     right: 10,
                                     child: Material(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
                                       borderRadius: BorderRadius.circular(20),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(20),
@@ -298,14 +299,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       children: [
                         Text(
                           guardian?.firstName ?? "-",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: textDarkColor,
                             fontFamily: 'Poppins',
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         _buildBadge(guardianKey.tr),
                       ],
                     ),
@@ -315,44 +316,46 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildInfoCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Email row: tappable to open mail app
               Container(
-                margin: EdgeInsets.only(bottom: 16),
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                margin: const EdgeInsets.only(bottom: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
                 decoration: BoxDecoration(
-                  color: maroonPrimary.withOpacity(0.08),
+                  color: maroonPrimary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                       spreadRadius: 0,
                     ),
                   ],
-                  border: Border.all(color: maroonPrimary.withOpacity(0.2)),
+                  border:
+                      Border.all(color: maroonPrimary.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: maroonPrimary.withOpacity(0.15),
+                        color: maroonPrimary.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         FontAwesomeIcons.envelope,
                         size: 18,
                         color: maroonPrimary,
                       ),
                     ),
-                    SizedBox(width: 14),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -360,7 +363,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         children: [
                           Text(
                             emailKey.tr,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: textMediumColor,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -368,7 +371,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                               letterSpacing: 0.2,
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           InkWell(
                             onTap: (guardian?.email ?? "").isNotEmpty &&
                                     (guardian?.email ?? "-") != "-"
@@ -415,7 +418,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildInfoCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,23 +426,23 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.12),
+                      color: maroonPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       FontAwesomeIcons.phoneVolume,
                       size: 20,
                       color: maroonPrimary,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "Kontak Wali",
                           style: TextStyle(
                             fontSize: 13,
@@ -451,7 +454,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         ),
                         Text(
                           guardian?.mobile ?? "-",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: textDarkColor,
@@ -490,7 +493,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         builder: (BuildContext context) {
                           return Dialog(
                             backgroundColor: Colors.transparent,
-                            child: Container(
+                            child: SizedBox(
                               width: MediaQuery.of(context).size.width * 0.9,
                               height: MediaQuery.of(context).size.height * 0.7,
                               child: Stack(
@@ -503,7 +506,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                             imageUrl: profileImage,
                                             fit: BoxFit.contain,
                                             placeholder: (context, url) =>
-                                                Center(
+                                                const Center(
                                               child: CircularProgressIndicator(
                                                 valueColor:
                                                     AlwaysStoppedAnimation<
@@ -511,7 +514,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                               ),
                                             ),
                                             errorWidget:
-                                                (context, url, error) => Center(
+                                                (context, url, error) =>
+                                                    const Center(
                                               child: Icon(
                                                 Icons.error,
                                                 color: maroonPrimary,
@@ -519,7 +523,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                               ),
                                             ),
                                           )
-                                        : Center(
+                                        : const Center(
                                             child: Icon(
                                               Icons.person,
                                               color: maroonPrimary,
@@ -531,7 +535,8 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                     top: 10,
                                     right: 10,
                                     child: Material(
-                                      color: Colors.black.withOpacity(0.5),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.5),
                                       borderRadius: BorderRadius.circular(20),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(20),
@@ -578,20 +583,20 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                       children: [
                         Text(
                           widget.studentDetails.firstName ?? "-",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
                             color: textDarkColor,
                             fontFamily: 'Poppins',
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         Row(
                           children: [
                             _buildStatusBadge(widget.studentDetails.isActive()),
                           ],
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         // Admission / registration number with copy-to-clipboard
                         Builder(builder: (context) {
                           final admissionNo =
@@ -601,7 +606,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                               Expanded(
                                 child: Text(
                                   "No. Pendaftaran: $admissionNo",
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: textMediumColor,
                                     fontFamily: 'Poppins',
@@ -621,7 +626,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                       ScaffoldMessenger.of(context)
                                           .removeCurrentSnackBar();
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
+                                          .showSnackBar(const SnackBar(
                                         content: Text(
                                             'No. Pendaftaran disalin ke clipboard'),
                                         backgroundColor: maroonPrimary,
@@ -630,12 +635,13 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                     },
                                     borderRadius: BorderRadius.circular(8),
                                     child: Container(
-                                      padding: EdgeInsets.all(6),
+                                      padding: const EdgeInsets.all(6),
                                       decoration: BoxDecoration(
-                                        color: maroonPrimary.withOpacity(0.08),
+                                        color: maroonPrimary.withValues(
+                                            alpha: 0.08),
                                         borderRadius: BorderRadius.circular(8),
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.copy,
                                         size: 18,
                                         color: maroonPrimary,
@@ -654,7 +660,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildInfoCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,25 +668,25 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.12),
+                      color: maroonPrimary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       FontAwesomeIcons.phoneVolume,
                       size: 20,
                       color: maroonPrimary,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           emergencyContactKey.tr,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: textMediumColor,
                             fontWeight: FontWeight.w500,
@@ -690,7 +696,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         ),
                         Text(
                           widget.studentDetails.mobile ?? "-",
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: textDarkColor,
@@ -707,14 +713,14 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildInfoCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSectionHeader("Informasi Siswa"),
-              Divider(color: borderColor, thickness: 1),
-              SizedBox(height: 12),
+              const Divider(color: borderColor, thickness: 1),
+              const SizedBox(height: 12),
               _buildStudentDetailsTitleAndValueContainer(
                 titleKey: sessionYearKey,
                 valueKey: widget.sessionYear.name ?? "-",
@@ -764,10 +770,10 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: borderColor, width: 1),
+        side: const BorderSide(color: borderColor, width: 1),
       ),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: child,
       ),
     );
@@ -775,9 +781,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
 
   Widget _buildBadge(String text) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             maroonPrimary,
             maroonLight,
@@ -786,15 +792,15 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.3),
+            color: maroonPrimary.withValues(alpha: 0.3),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 12,
           fontWeight: FontWeight.w600,
@@ -807,26 +813,26 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   Widget _buildProfileImage(
       {required String imageUrl, required String nameInitials}) {
     return Container(
-      padding: EdgeInsets.all(3),
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [maroonPrimary, maroonLight],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.3),
+            color: maroonPrimary.withValues(alpha: 0.3),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
             spreadRadius: 0,
           ),
         ],
       ),
       child: Container(
-        padding: EdgeInsets.all(2),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.all(2),
+        decoration: const BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
         ),
@@ -836,7 +842,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
               ? Container(
                   height: 70,
                   width: 70,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [maroonLight, maroonPrimary],
                       begin: Alignment.topLeft,
@@ -847,7 +853,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   child: Center(
                     child: Text(
                       nameInitials,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -866,18 +872,18 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
 
   Widget _buildCallButton(String phoneNumber) {
     if (phoneNumber.isEmpty || phoneNumber == "-") {
-      return SizedBox(width: 0);
+      return const SizedBox(width: 0);
     }
 
     return Padding(
-      padding: EdgeInsets.only(left: 8),
+      padding: const EdgeInsets.only(left: 8),
       child: InkWell(
         onTap: () => Utils.launchCallLog(context: context, mobile: phoneNumber),
         borderRadius: BorderRadius.circular(50),
         child: Container(
-          padding: EdgeInsets.all(12),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
+            gradient: const LinearGradient(
               colors: [maroonLight, maroonPrimary],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -885,13 +891,13 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: maroonPrimary.withOpacity(0.25),
+                color: maroonPrimary.withValues(alpha: 0.25),
                 blurRadius: 10,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          child: Icon(
+          child: const Icon(
             Icons.call,
             color: Colors.white,
             size: 20,
@@ -937,7 +943,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
       ),
       body: Container(
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -949,19 +955,19 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
         ),
         child: SingleChildScrollView(
           controller: _scrollController,
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.only(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.only(
             bottom: 32,
             top: 20, // Increased top padding for better spacing from the AppBar
           ),
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Content based on selected tab
                 AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
+                  duration: const Duration(milliseconds: 300),
                   child: _selectedTabTitleKey == generalKey
                       ? _buildStudentGeneralDetails()
                       : _buildGuardianDetails(),
@@ -977,7 +983,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   Widget _buildSectionHeader(String title) {
     return Text(
       title,
-      style: TextStyle(
+      style: const TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: maroonPrimary,

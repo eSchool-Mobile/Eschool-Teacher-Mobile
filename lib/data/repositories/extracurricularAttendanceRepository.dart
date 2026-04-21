@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/dateFormatter.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:flutter/foundation.dart';
 
 class ExtracurricularAttendanceRepository {
   // Get attendance data for extracurricular
@@ -12,7 +13,7 @@ class ExtracurricularAttendanceRepository {
     String? date,
   }) async {
     try {
-      print('🔍 [ATTENDANCE REPO] Getting attendance for ID: $attendanceId');
+      debugPrint('🔍 [ATTENDANCE REPO] Getting attendance for ID: $attendanceId');
 
       // Build query parameters
       Map<String, dynamic> queryParams = {};
@@ -23,7 +24,7 @@ class ExtracurricularAttendanceRepository {
         queryParams['date'] = date;
       }
 
-      print('🔍 [ATTENDANCE REPO] Query params: $queryParams');
+      debugPrint('🔍 [ATTENDANCE REPO] Query params: $queryParams');
 
       final response = await Api.get(
         url: Api.getExtracurricularAttendance
@@ -32,18 +33,18 @@ class ExtracurricularAttendanceRepository {
         queryParameters: queryParams,
       );
 
-      print('🔍 [ATTENDANCE REPO] Response: $response');
+      debugPrint('🔍 [ATTENDANCE REPO] Response: $response');
 
       if (response['error'] == false) {
-        print('🔍 [ATTENDANCE REPO] Parsing response with fromJson...');
+        debugPrint('🔍 [ATTENDANCE REPO] Parsing response with fromJson...');
         final attendanceResponse =
             ExtracurricularAttendanceResponse.fromJson(response);
-        print(
+        debugPrint(
             '✅ [ATTENDANCE REPO] Successfully parsed ${attendanceResponse.members.length} members');
 
         // Debug: Print first few members
         if (attendanceResponse.members.isNotEmpty) {
-          print(
+          debugPrint(
               '🔍 [ATTENDANCE REPO] First member: ${attendanceResponse.members.first.toString()}');
         }
 
@@ -52,7 +53,7 @@ class ExtracurricularAttendanceRepository {
         throw Exception(response['message'] ?? 'Failed to get attendance data');
       }
     } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error getting attendance: $e');
+      debugPrint('❌ [ATTENDANCE REPO] Error getting attendance: $e');
       throw Exception('Failed to get attendance data: $e');
     }
   }
@@ -63,16 +64,16 @@ class ExtracurricularAttendanceRepository {
     required ExtracurricularAttendanceRequest request,
   }) async {
     try {
-      print('🔍 [ATTENDANCE REPO] Saving attendance for session: $sessionId');
-      print('🔍 [ATTENDANCE REPO] Request body: ${request.toJson()}');
+      debugPrint('🔍 [ATTENDANCE REPO] Saving attendance for session: $sessionId');
+      debugPrint('🔍 [ATTENDANCE REPO] Request body: ${request.toJson()}');
 
       // Log authentication info before making request
       final authBox = Hive.box(authBoxKey);
       final token = authBox.get(authTokenKey);
       final schoolCode = authBox.get('schoolCode'); // Match AuthRepository key
-      print(
+      debugPrint(
           '🔑 [ATTENDANCE REPO] Auth Token: ${token != null ? "Bearer $token" : "NO TOKEN"}');
-      print(
+      debugPrint(
           '🏫 [ATTENDANCE REPO] School Code: ${schoolCode ?? "NO SCHOOL CODE"}');
 
       // Validate request data
@@ -100,7 +101,7 @@ class ExtracurricularAttendanceRepository {
         useAuthToken: true,
       );
 
-      print('🔍 [ATTENDANCE REPO] Save response: $response');
+      debugPrint('🔍 [ATTENDANCE REPO] Save response: $response');
 
       // Check if request was successful
       if (response['error'] == false) {
@@ -111,7 +112,7 @@ class ExtracurricularAttendanceRepository {
           savedCount: request.attendanceData.length,
         );
 
-        print(
+        debugPrint(
             '✅ [ATTENDANCE REPO] Successfully saved ${request.attendanceData.length} attendance records');
         return saveResponse;
       } else {
@@ -124,12 +125,12 @@ class ExtracurricularAttendanceRepository {
               'Format tanggal tidak valid. Pastikan menggunakan format YYYY-MM-DD');
         }
 
-        print(
+        debugPrint(
             '❌ [ATTENDANCE REPO] API returned error: $errorMessage (code: $errorCode)');
         throw Exception(errorMessage);
       }
     } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error saving attendance: $e');
+      debugPrint('❌ [ATTENDANCE REPO] Error saving attendance: $e');
 
       // Provide user-friendly error messages
       if (e.toString().contains('Carbon')) {
@@ -143,14 +144,14 @@ class ExtracurricularAttendanceRepository {
   // Get extracurricular list for dropdown/filter
   Future<List<Map<String, dynamic>>> getExtracurricularList() async {
     try {
-      print('🔍 [ATTENDANCE REPO] Getting extracurricular list');
+      debugPrint('🔍 [ATTENDANCE REPO] Getting extracurricular list');
 
       final response = await Api.get(
         url: Api.getExtracurriculars,
         useAuthToken: true,
       );
 
-      print('🔍 [ATTENDANCE REPO] Extracurricular list response: $response');
+      debugPrint('🔍 [ATTENDANCE REPO] Extracurricular list response: $response');
 
       // Handle different response structures
       List<dynamic> data = [];
@@ -161,7 +162,7 @@ class ExtracurricularAttendanceRepository {
         if (rawData is List) {
           data = rawData;
         } else {
-          print(
+          debugPrint(
               '⚠️ [ATTENDANCE REPO] Expected List but got: ${rawData.runtimeType}');
           data = [];
         }
@@ -179,12 +180,12 @@ class ExtracurricularAttendanceRepository {
               })
           .toList();
 
-      print(
+      debugPrint(
           '✅ [ATTENDANCE REPO] Successfully fetched ${extracurriculars.length} extracurriculars');
-      print('✅ [ATTENDANCE REPO] Extracurriculars: $extracurriculars');
+      debugPrint('✅ [ATTENDANCE REPO] Extracurriculars: $extracurriculars');
       return extracurriculars;
     } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error getting extracurricular list: $e');
+      debugPrint('❌ [ATTENDANCE REPO] Error getting extracurricular list: $e');
       throw Exception('Failed to get extracurricular list: $e');
     }
   }
@@ -205,7 +206,7 @@ class ExtracurricularAttendanceRepository {
         throw Exception('Staff data not found');
       }
     } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error getting staff info: $e');
+      debugPrint('❌ [ATTENDANCE REPO] Error getting staff info: $e');
       throw Exception('Failed to get staff info: $e');
     }
   }
@@ -232,7 +233,7 @@ class ExtracurricularAttendanceRepository {
     DateTime? endDate,
   }) async {
     try {
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE REPO] Getting attendance history for extracurricular: $extracurricularId');
 
       Map<String, dynamic> queryParams = {
@@ -253,7 +254,7 @@ class ExtracurricularAttendanceRepository {
         queryParameters: queryParams,
       );
 
-      print('🔍 [ATTENDANCE REPO] History response: $response');
+      debugPrint('🔍 [ATTENDANCE REPO] History response: $response');
 
       if (response['error'] == false) {
         final List<dynamic> data = response['data'] ?? [];
@@ -261,7 +262,7 @@ class ExtracurricularAttendanceRepository {
             .map((item) => ExtracurricularAttendance.fromJson(item))
             .toList();
 
-        print(
+        debugPrint(
             '✅ [ATTENDANCE REPO] Successfully fetched ${attendanceList.length} attendance records');
         return attendanceList;
       } else {
@@ -269,7 +270,7 @@ class ExtracurricularAttendanceRepository {
             response['message'] ?? 'Failed to get attendance history');
       }
     } catch (e) {
-      print('❌ [ATTENDANCE REPO] Error getting attendance history: $e');
+      debugPrint('❌ [ATTENDANCE REPO] Error getting attendance history: $e');
       throw Exception('Failed to get attendance history: $e');
     }
   }

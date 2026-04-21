@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/assignment.dart';
 import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
@@ -51,7 +49,7 @@ class AssignmentRepository {
       );
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       throw ApiException(e.toString());
     }
@@ -77,13 +75,13 @@ class AssignmentRepository {
     required List<String> acceptedFile,
   }) async {
     try {
-      print("OTEWE HIT");
+      debugPrint("OTEWE HIT");
 
-      print("due_date: ${dateTime}");
-      print("start_date: ${startDate}");
-      print("end_date: ${endDate}");
+      debugPrint("due_date: $dateTime");
+      debugPrint("start_date: $startDate");
+      debugPrint("end_date: $endDate");
 
-      print("SUS LE");
+      debugPrint("SUS LE");
 
       var body = {
         "class_section_id": classSelectionId,
@@ -139,15 +137,15 @@ class AssignmentRepository {
 
       // // Cetak setiap baris dalam loop
       // for (var line in jsonLines) {
-      //   print(line);
+      //   debugPrint(line.toString());
       // }
 
       if (response['error'] != false) {
         throw ApiException(response['message'] ?? 'Unknown error occurred');
       }
     } catch (e) {
-      print("ERROR LE");
-      print(e);
+      debugPrint("ERROR LE");
+      debugPrint(e.toString());
       throw ApiException(e.toString());
     }
   }
@@ -211,7 +209,6 @@ class AssignmentRepository {
       }
 
       // Convert to FormData
-      final formData = FormData.fromMap(bodyMap);
 
       final response = await Api.post(
         url: Api.createAssignment,
@@ -219,10 +216,10 @@ class AssignmentRepository {
         useAuthToken: true,
       );
 
-      print("SETTED DATA");
-      print(response);
+      debugPrint("SETTED DATA");
+      debugPrint(response.toString());
     } catch (e) {
-      print("ERROR LE AWOKOKAOKWOKAOKO");
+      debugPrint("ERROR LE AWOKOKAOKWOKAOKO");
       throw ApiException(e.toString());
     }
   }
@@ -238,7 +235,7 @@ class AssignmentRepository {
           .map((e) => AssignmentFileType.fromJson(e))
           .toList();
     } catch (e) {
-      print('Repository error: $e');
+      debugPrint('Repository error: $e');
       throw ApiException(e.toString());
     }
   }

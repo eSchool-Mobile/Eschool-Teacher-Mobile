@@ -122,19 +122,19 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                   context: context,
                 );
               },
-              highlightColor: Colors.white.withOpacity(0.1),
-              splashColor: Colors.white.withOpacity(0.2),
+              highlightColor: Colors.white.withValues(alpha: 0.1),
+              splashColor: Colors.white.withValues(alpha: 0.2),
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.calendar_today_rounded,
                       color: Colors.white,
                       size: 16,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _selectedSessionYear?.name ?? "Tahun Ajaran",
@@ -146,7 +146,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.arrow_drop_down,
                       color: Colors.white,
                       size: 20,
@@ -157,7 +157,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
             ),
           );
         }
-        return SizedBox();
+        return const SizedBox();
       },
     );
   }
@@ -172,18 +172,18 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _maroonPrimary.withOpacity(0.1),
+                      color: _maroonPrimary.withValues(alpha: 0.1),
                     ),
                     child: Icon(
                       Icons.account_balance_wallet_outlined,
                       size: 70,
-                      color: _maroonPrimary.withOpacity(0.7),
+                      color: _maroonPrimary.withValues(alpha: 0.7),
                     ),
                   ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Text(
                     'Gaji Belum Tersedia',
                     style: GoogleFonts.poppins(
@@ -192,7 +192,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                       color: _maroonPrimary,
                     ),
                   ).animate().fadeIn(delay: 200.ms),
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   Text(
                     'Gaji Anda untuk periode ini belum tersedia',
                     style: GoogleFonts.poppins(
@@ -212,7 +212,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
             color: _maroonPrimary,
             child: SingleChildScrollView(
               controller: _scrollController,
-              padding: EdgeInsets.only(
+              padding: const EdgeInsets.only(
                 bottom: 100,
                 // Adjust padding since we're now using PreferredSizeWidget
                 top: 20,
@@ -251,15 +251,15 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
 
                   // Payroll list with container styling
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -274,18 +274,18 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary.withValues(alpha: 0.9),
                                 _maroonPrimary,
                                 _maroonLight,
                               ],
                             ),
                             borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16)),
+                                const BorderRadius.vertical(top: Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 10,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -293,12 +293,12 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                             children: [
                               // Animated icon
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.account_balance_wallet,
                                   color: Colors.white,
                                   size: 20,
@@ -328,7 +328,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                                       '${state.payrolls.length} pembayaran tersedia',
                                       style: GoogleFonts.poppins(
                                         fontSize: 12,
-                                        color: Colors.white.withOpacity(0.8),
+                                        color: Colors.white.withValues(alpha: 0.8),
                                       ),
                                     ),
                                   ],
@@ -343,9 +343,9 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                                   borderRadius: BorderRadius.circular(22),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color: Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 4,
-                                      offset: Offset(0, 2),
+                                      offset: const Offset(0, 2),
                                     ),
                                   ],
                                 ),
@@ -356,7 +356,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                                   ),
                                   child: Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.check_circle,
                                         size: 16,
                                         color: Color(0xFF28A745),
@@ -367,7 +367,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: Color(0xFF28A745),
+                                          color: const Color(0xFF28A745),
                                         ),
                                       ),
                                     ],
@@ -415,7 +415,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
           );
         }
 
-        return SkeletonPayrollCard().animate().fadeIn(duration: 300.ms);
+        return const SkeletonPayrollCard().animate().fadeIn(duration: 300.ms);
       },
     );
   }
@@ -465,7 +465,7 @@ class _MyPayrollScreenState extends State<MyPayrollScreen>
                 );
               }
 
-              return SkeletonPayrollCard();
+              return const SkeletonPayrollCard();
             },
           ),
 
@@ -595,7 +595,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                     padding: const EdgeInsets.all(6),
                     margin: const EdgeInsets.only(right: 8),
                     decoration: BoxDecoration(
-                      color: widget.maroonPrimary.withOpacity(0.08),
+                      color: widget.maroonPrimary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Icon(
@@ -669,10 +669,10 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
               boxShadow: [
                 BoxShadow(
                   color: _isHovered
-                      ? widget.maroonPrimary.withOpacity(0.15)
-                      : Colors.black.withOpacity(0.03),
+                      ? widget.maroonPrimary.withValues(alpha: 0.15)
+                      : Colors.black.withValues(alpha: 0.03),
                   blurRadius: _isHovered ? 10 : 4,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                   spreadRadius: _isHovered ? 1 : 0,
                 ),
               ],
@@ -694,8 +694,8 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                     }
                   },
                   borderRadius: BorderRadius.circular(16),
-                  splashColor: widget.maroonPrimary.withOpacity(0.05),
-                  highlightColor: widget.maroonPrimary.withOpacity(0.05),
+                  splashColor: widget.maroonPrimary.withValues(alpha: 0.05),
+                  highlightColor: widget.maroonPrimary.withValues(alpha: 0.05),
                   child: Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -703,7 +703,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: _isHovered
-                            ? widget.maroonPrimary.withOpacity(0.2)
+                            ? widget.maroonPrimary.withValues(alpha: 0.2)
                             : Colors.transparent,
                         width: 1.5,
                       ),
@@ -725,7 +725,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                   //       begin: Alignment.topLeft,
                                   //       end: Alignment.bottomRight,
                                   //       colors: [
-                                  //         widget.maroonPrimary.withOpacity(0.8),
+                                  //         widget.maroonPrimary.withValues(alpha: 0.8),
                                   //         widget.maroonLight,
                                   //       ],
                                   //     ),
@@ -733,7 +733,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                   //     boxShadow: [
                                   //       BoxShadow(
                                   //         color: widget.maroonPrimary
-                                  //             .withOpacity(0.2),
+                                  //             .withValues(alpha: 0.2),
                                   //         blurRadius: 8,
                                   //         offset: const Offset(0, 4),
                                   //       ),
@@ -755,7 +755,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "${getIndonesianMonth(widget.payRoll.month ?? 1)}",
+                                          getIndonesianMonth(widget.payRoll.month ?? 1),
                                           style: GoogleFonts.poppins(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w600,
@@ -790,7 +790,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                     decoration: BoxDecoration(
                                       color: _animationController.isCompleted
                                           ? widget.maroonPrimary
-                                              .withOpacity(0.1)
+                                              .withValues(alpha: 0.1)
                                           : Colors.grey[100],
                                       shape: BoxShape.circle,
                                     ),
@@ -862,7 +862,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                 height: 40,
                                 width: 1,
                                 color: Colors.grey[300],
-                                margin: EdgeInsets.symmetric(horizontal: 12),
+                                margin: const EdgeInsets.symmetric(horizontal: 12),
                               ),
 
                               // Net salary
@@ -995,7 +995,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                                   gradient: LinearGradient(
                                                     colors: [
                                                       widget.maroonPrimary,
-                                                      Color(0xFF9A1E3C),
+                                                      const Color(0xFF9A1E3C),
                                                     ],
                                                     begin: Alignment.centerLeft,
                                                     end: Alignment.centerRight,
@@ -1006,7 +1006,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                                     BoxShadow(
                                                       color: widget
                                                           .maroonPrimary
-                                                          .withOpacity(0.3),
+                                                          .withValues(alpha: 0.3),
                                                       offset:
                                                           const Offset(0, 3),
                                                       blurRadius: 6,
@@ -1019,7 +1019,7 @@ class _MyPayrollDetailsContainerState extends State<MyPayrollDetailsContainer>
                                                     mainAxisSize:
                                                         MainAxisSize.min,
                                                     children: [
-                                                      Icon(
+                                                      const Icon(
                                                         Icons.download_rounded,
                                                         color: Colors.white,
                                                         size: 18,

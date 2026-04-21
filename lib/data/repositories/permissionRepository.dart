@@ -4,6 +4,7 @@ import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/foundation.dart';
 
 class PermissionRepository {
   Future<List<PermissionDetails>> getPermission(
@@ -14,18 +15,18 @@ class PermissionRepository {
         if (date != null) 'date': DateFormat('yyyy-MM-dd').format(date),
       });
 
-      print("Raw API Response: ${result['data']}");
+      debugPrint("Raw API Response: ${result['data']}");
 
       return ((result['data'] ?? []) as List).map((permissionDetails) {
-        print("Processing item: $permissionDetails");
+        debugPrint("Processing item: $permissionDetails");
 
         // Check if this is the new API structure with student_name, from_date, etc.
         if (permissionDetails['student_name'] != null) {
-          print("Using new API data structure");
+          debugPrint("Using new API data structure");
           return PermissionDetails.fromApiData(
               Map.from(permissionDetails ?? {}));
         } else {
-          print("Using legacy data structure");
+          debugPrint("Using legacy data structure");
           return PermissionDetails.fromJson(Map.from(permissionDetails ?? {}));
         }
       }).toList();
@@ -54,17 +55,17 @@ class PermissionRepository {
         body["rejection_reason"] = rejectionReason.trim();
       }
 
-      print("DEBUG: Student Permission Approve Request Body: $body");
-      print(
+      debugPrint("DEBUG: Student Permission Approve Request Body: $body");
+      debugPrint(
           "DEBUG: Student Permission Approve URL: ${Api.submitStudentPermission}");
-      print("DEBUG: Student Permission Approve Request Method: POST JSON");
+      debugPrint("DEBUG: Student Permission Approve Request Method: POST JSON");
 
       await Api.postJson(url: Api.submitStudentPermission, body: body);
     } catch (e) {
-      print("DEBUG: Student Permission Approve Error: $e");
-      print("DEBUG: Student Permission Approve Error Type: ${e.runtimeType}");
+      debugPrint("DEBUG: Student Permission Approve Error: $e");
+      debugPrint("DEBUG: Student Permission Approve Error Type: ${e.runtimeType}");
       if (e is ApiException) {
-        print(
+        debugPrint(
             "DEBUG: Student Permission Approve ApiException Message: ${e.errorMessage}");
       }
       throw ApiException(e.toString());

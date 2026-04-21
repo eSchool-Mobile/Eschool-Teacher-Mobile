@@ -78,7 +78,7 @@ class CustomTextFieldContainer extends StatelessWidget {
           suffixIcon: suffixWidget,
           hintText: Utils.getTranslatedLabel(hintTextKey),
           labelStyle: TextStyle(
-              color: Theme.of(context).colorScheme.secondary.withOpacity(0.76),
+              color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.76),
               fontSize: Utils.getScaledValue(context, 14)),
           hintStyle: TextStyle(
               color: Colors.grey.shade500,

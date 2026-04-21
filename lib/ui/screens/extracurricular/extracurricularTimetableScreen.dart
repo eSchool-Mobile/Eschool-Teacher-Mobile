@@ -15,7 +15,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart'
-    as timetableCubit;
+    as timetable_cubit;
 import 'package:eschool_saas_staff/ui/widgets/extracurricularTimetableItem.dart';
 
 class ExtracurricularTimetableScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class AppBarDecorationPainter extends CustomPainter {
 
 // Skeleton widget for timetable slots
 class _TimetableSlotSkeleton extends StatelessWidget {
-  const _TimetableSlotSkeleton({Key? key}) : super(key: key);
+  const _TimetableSlotSkeleton();
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +316,7 @@ class _ExtracurricularTimetableScreenState
     return SingleChildScrollView(
       controller: _dayScrollController,
       scrollDirection: Axis.horizontal,
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
@@ -342,18 +342,18 @@ class _ExtracurricularTimetableScreenState
                         _focusSelectedDay();
                       });
                     },
-                    highlightColor: Colors.white.withOpacity(0.1),
-                    splashColor: Colors.white.withOpacity(0.2),
+                    highlightColor: Colors.white.withValues(alpha: 0.1),
+                    splashColor: Colors.white.withValues(alpha: 0.2),
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8, horizontal: 14),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: isSelected ? Colors.white : Colors.transparent,
                         border: Border.all(
                           color: isSelected
-                              ? Colors.white.withOpacity(0.9)
-                              : Colors.white.withOpacity(0.3),
+                              ? Colors.white.withValues(alpha: 0.9)
+                              : Colors.white.withValues(alpha: 0.3),
                           width: isSelected ? 1 : 0.5,
                         ),
                       ),
@@ -373,10 +373,10 @@ class _ExtracurricularTimetableScreenState
                       target: isSelected ? 1 : 0,
                     )
                     .scale(
-                      begin: Offset(1.0, 1.0),
-                      end: Offset(1.05, 1.05),
+                      begin: const Offset(1.0, 1.0),
+                      end: const Offset(1.05, 1.05),
                       curve: Curves.easeOutCubic,
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                     ));
           }).toList(),
         ),
@@ -418,7 +418,8 @@ class _ExtracurricularTimetableScreenState
       final extracurricularRepo = ExtracurricularRepository();
       extracurriculars = await extracurricularRepo.getExtracurriculars();
     } catch (e) {
-      print('Error fetching extracurriculars: $e');
+      debugPrint('Error fetching extracurriculars: $e');
+      if (!mounted) return;
       // Fallback: try to get from current timetable state
       final currentState = context.read<ExtracurricularTimetableCubit>().state;
       if (currentState is ExtracurricularTimetableSuccess) {
@@ -437,7 +438,7 @@ class _ExtracurricularTimetableScreenState
     }
 
     final result = await Get.to(() => BlocProvider(
-          create: (context) => timetableCubit.ExtracurricularTimetableCubit(
+          create: (context) => timetable_cubit.ExtracurricularTimetableCubit(
             ExtracurricularTimetableRepository(),
           ),
           child: CreateExtracurricularTimetableScreen(
@@ -446,6 +447,7 @@ class _ExtracurricularTimetableScreenState
         ));
 
     if (result == true) {
+      if (!mounted) return;
       // Refresh timetable data
       context
           .read<ExtracurricularTimetableCubit>()
@@ -456,7 +458,7 @@ class _ExtracurricularTimetableScreenState
   Widget _buildAppBar() {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).padding.top + 170,
         child: Stack(
           children: [
@@ -471,19 +473,19 @@ class _ExtracurricularTimetableScreenState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF690013),
+                          const Color(0xFF690013),
                           _maroonPrimary,
-                          Color(0xFFA12948),
+                          const Color(0xFFA12948),
                           _maroonLight,
                         ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
                         transform: GradientRotation(
                             _fabAnimationController.value * 0.02),
                       ).createShader(bounds);
                     },
                     blendMode: BlendMode.srcATop,
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -507,7 +509,7 @@ class _ExtracurricularTimetableScreenState
             Positioned.fill(
               child: CustomPaint(
                 painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -526,11 +528,11 @@ class _ExtracurricularTimetableScreenState
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.2),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
-                        stops: [0.0, 0.5, 1.0],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
@@ -550,10 +552,10 @@ class _ExtracurricularTimetableScreenState
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -567,12 +569,13 @@ class _ExtracurricularTimetableScreenState
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor:
+                                  Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: () => Navigator.of(context).pop(),
                               child: Container(
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
+                                padding: const EdgeInsets.all(8),
+                                child: const Icon(
                                   Icons.arrow_back_rounded,
                                   color: Colors.white,
                                 ),
@@ -590,9 +593,9 @@ class _ExtracurricularTimetableScreenState
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.5),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.5),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),
@@ -627,8 +630,9 @@ class _ExtracurricularTimetableScreenState
                                   child: InkWell(
                                     borderRadius: BorderRadius.circular(50),
                                     highlightColor:
-                                        Colors.white.withOpacity(0.15),
-                                    splashColor: Colors.white.withOpacity(0.25),
+                                        Colors.white.withValues(alpha: 0.15),
+                                    splashColor:
+                                        Colors.white.withValues(alpha: 0.25),
                                     onTap: _handleAddPressed,
                                     child: Container(
                                       width: 40,
@@ -637,31 +641,34 @@ class _ExtracurricularTimetableScreenState
                                         shape: BoxShape.circle,
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.12),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.12),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                             spreadRadius: 0.3,
                                           ),
                                           // Subtle glow shadow
                                           BoxShadow(
-                                            color: _maroonPrimary
-                                                .withOpacity(0.15),
+                                            color: _maroonPrimary.withValues(
+                                                alpha: 0.15),
                                             blurRadius: 8,
                                             offset: const Offset(0, 0),
                                             spreadRadius: 1,
                                           ),
                                         ],
                                         border: Border.all(
-                                          color: Colors.white.withOpacity(0.4),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.4),
                                           width: 1.5,
                                         ),
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            _maroonLight.withOpacity(0.75),
-                                            _maroonPrimary.withOpacity(0.75),
+                                            _maroonLight.withValues(
+                                                alpha: 0.75),
+                                            _maroonPrimary.withValues(
+                                                alpha: 0.75),
                                           ],
                                         ),
                                       ),
@@ -677,14 +684,15 @@ class _ExtracurricularTimetableScreenState
                                               gradient: RadialGradient(
                                                 colors: [
                                                   Colors.white
-                                                      .withOpacity(0.25),
-                                                  Colors.white.withOpacity(0.0),
+                                                      .withValues(alpha: 0.25),
+                                                  Colors.white
+                                                      .withValues(alpha: 0.0),
                                                 ],
                                               ),
                                             ),
                                           ),
                                           // Icon
-                                          Icon(
+                                          const Icon(
                                             Icons.add_rounded,
                                             color: Colors.white,
                                             size: 24,
@@ -717,13 +725,13 @@ class _ExtracurricularTimetableScreenState
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
                           blurRadius: 8,
@@ -773,9 +781,9 @@ class _ExtracurricularTimetableScreenState
                 }).toList();
 
                 if (filteredItems.isEmpty) {
-                  return Center(
+                  return const Center(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 50),
+                      padding: EdgeInsets.only(top: 50),
                       child: CustomTextContainer(
                         textKey: 'Tidak ada jadwal ekstrakurikuler',
                       ),

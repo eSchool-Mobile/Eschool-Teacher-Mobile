@@ -35,15 +35,15 @@ class SimpleFileCompressionUtils {
       final fileExtension = path.extension(fileName).toLowerCase();
 
       if (kDebugMode) {
-        print('🔧 [SIMPLE COMPRESSION] Processing: $fileName');
-        print('   📊 Original size: ${formatFileSize(fileSize)}');
-        print('   🎯 Target: ${maxSizeInMB.toStringAsFixed(2)} MB');
+        debugPrint('🔧 [SIMPLE COMPRESSION] Processing: $fileName');
+        debugPrint('   📊 Original size: ${formatFileSize(fileSize)}');
+        debugPrint('   🎯 Target: ${maxSizeInMB.toStringAsFixed(2)} MB');
       }
 
       // Check if it's an image
       if (!_supportedImageFormats.contains(fileExtension)) {
         if (kDebugMode) {
-          print('   ⚠️  Not an image file, skipping compression');
+          debugPrint('   ⚠️  Not an image file, skipping compression');
         }
         return file;
       }
@@ -54,7 +54,7 @@ class SimpleFileCompressionUtils {
       // Skip only if very small and not forced
       if (!forceCompress && fileSize < 100 * 1024) {
         if (kDebugMode) {
-          print('   ⏭️  File very small, skipping compression');
+          debugPrint('   ⏭️  File very small, skipping compression');
         }
         return file;
       }
@@ -63,7 +63,7 @@ class SimpleFileCompressionUtils {
           forceCompress: forceCompress);
     } catch (e) {
       if (kDebugMode) {
-        print('❌ [COMPRESSION ERROR] $e');
+        debugPrint('❌ [COMPRESSION ERROR] $e');
       }
       return file; // Return original file on error
     }
@@ -74,19 +74,19 @@ class SimpleFileCompressionUtils {
       File file, int maxSizeInBytes, int? customQuality,
       {bool forceCompress = true}) async {
     try {
-      final fileSize = await file.length();
       final bytes = await file.readAsBytes();
       final image = img.decodeImage(bytes);
 
       if (image == null) {
         if (kDebugMode) {
-          print('   ❌ Failed to decode image');
+          debugPrint('   ❌ Failed to decode image');
         }
         return file;
       }
 
       if (kDebugMode) {
-        print('   🖼️  Original dimensions: ${image.width}x${image.height}');
+        debugPrint(
+            '   🖼️  Original dimensions: ${image.width}x${image.height}');
       }
 
       // Smart compression with iterative approach for target size
@@ -94,7 +94,7 @@ class SimpleFileCompressionUtils {
           image, maxSizeInBytes, customQuality, file);
     } catch (e) {
       if (kDebugMode) {
-        print('   ❌ Compression failed: $e');
+        debugPrint('   ❌ Compression failed: $e');
       }
       return file;
     }
@@ -156,7 +156,7 @@ class SimpleFileCompressionUtils {
         final compressedBytes = img.encodeJpg(resizedImage, quality: quality);
 
         if (kDebugMode) {
-          print(
+          debugPrint(
               '   🧪 Testing quality $quality%: ${formatFileSize(compressedBytes.length)}');
         }
 
@@ -184,7 +184,7 @@ class SimpleFileCompressionUtils {
       // If still too large, try smaller dimensions
       if (bestSize > maxSizeInBytes && targetWidth > 800) {
         if (kDebugMode) {
-          print('   🔄 Still too large, trying smaller dimensions...');
+          debugPrint('   🔄 Still too large, trying smaller dimensions...');
         }
 
         // Reduce dimensions more aggressively
@@ -217,15 +217,15 @@ class SimpleFileCompressionUtils {
       final compressionRatio = ((originalSize - bestSize) / originalSize * 100);
 
       if (kDebugMode) {
-        print('   ✅ Compression successful!');
-        print('   📊 Final size: ${formatFileSize(bestSize)}');
-        print('   📉 Reduction: ${compressionRatio.toStringAsFixed(1)}%');
-        print('   🖼️  Final dimensions: ${targetWidth}x${targetHeight}');
-        print('   🎨 Quality: $bestQuality%');
+        debugPrint('   ✅ Compression successful!');
+        debugPrint('   📊 Final size: ${formatFileSize(bestSize)}');
+        debugPrint('   📉 Reduction: ${compressionRatio.toStringAsFixed(1)}%');
+        debugPrint('   🖼️  Final dimensions: ${targetWidth}x$targetHeight');
+        debugPrint('   🎨 Quality: $bestQuality%');
         if (bestSize <= maxSizeInBytes) {
-          print('   🎯 Target achieved!');
+          debugPrint('   🎯 Target achieved!');
         } else {
-          print(
+          debugPrint(
               '   ⚠️  Target not fully achieved, but this is the best compression possible');
         }
       }
@@ -233,7 +233,7 @@ class SimpleFileCompressionUtils {
       return bestResult ?? originalFile;
     } catch (e) {
       if (kDebugMode) {
-        print('   ❌ Compression failed: $e');
+        debugPrint('   ❌ Compression failed: $e');
       }
       return originalFile;
     }
@@ -243,8 +243,9 @@ class SimpleFileCompressionUtils {
   static String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -280,7 +281,7 @@ class SimpleFileCompressionUtils {
         compressedFiles.add(compressedFile);
       } catch (e) {
         if (kDebugMode) {
-          print('Error compressing file ${file.path}: $e');
+          debugPrint('Error compressing file ${file.path}: $e');
         }
         compressedFiles.add(file); // Add original file if compression fails
       }

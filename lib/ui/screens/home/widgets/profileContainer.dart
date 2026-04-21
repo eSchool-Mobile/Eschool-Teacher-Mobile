@@ -16,7 +16,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:animate_do/animate_do.dart';
-import 'dart:ui';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -121,7 +120,7 @@ class _ProfileContainerState extends State<ProfileContainer>
     });
 
     // Set system UI overlay style for status bar
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
@@ -190,9 +189,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                   painter: BackgroundPatternPainter(
                     animation: _animation,
                     primaryColor:
-                        AppColorPalette.primaryMaroon.withOpacity(0.03),
+                        AppColorPalette.primaryMaroon.withValues(alpha: 0.03),
                     accentColor:
-                        AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                        AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
                   ),
                 );
               },
@@ -228,7 +227,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Pengaturan Personal",
                         icon: Icons.person_outline,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 0,
                         menus: [
                           _buildMenuItem(
@@ -261,7 +261,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Cuti",
                         icon: Icons.event_available,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 1,
                         menus: [
                           _buildMenuItem(
@@ -287,7 +288,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Penggajian",
                         icon: Icons.account_balance_wallet,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 2,
                         menus: [
                           _buildMenuItem(
@@ -312,7 +314,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Informasi",
                         icon: Icons.info_outline,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 3,
                         menus: [
                           _buildMenuItem(
@@ -359,7 +362,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         context: context,
                         title: "Sekolah",
                         icon: Icons.school_outlined,
-                        iconColor: Color(0xFF8B0000).withOpacity(0.9),
+                        iconColor:
+                            const Color(0xFF8B0000).withValues(alpha: 0.9),
                         index: 4,
                         menus: [
                           _buildMenuItem(
@@ -395,14 +399,14 @@ class _ProfileContainerState extends State<ProfileContainer>
                                 final schoolsData =
                                     await authCubit.getSchoolsData();
 
-                                print(
+                                debugPrint(
                                     'DEBUG: schoolsData type: ${schoolsData.runtimeType}');
-                                print(
+                                debugPrint(
                                     'DEBUG: schoolsData length: ${schoolsData.length}');
                                 if (schoolsData.isNotEmpty) {
-                                  print(
+                                  debugPrint(
                                       'DEBUG: first school type: ${schoolsData.first.runtimeType}');
-                                  print(
+                                  debugPrint(
                                       'DEBUG: first school keys: ${schoolsData.first.keys}');
                                 }
 
@@ -424,9 +428,12 @@ class _ProfileContainerState extends State<ProfileContainer>
                                   },
                                 };
 
-                                print('DEBUG: userData created successfully');
-                                print(
+                                debugPrint(
+                                    'DEBUG: userData created successfully');
+                                debugPrint(
                                     'DEBUG: userData[data][schools] type: ${userData['data']?['schools']?.runtimeType}');
+
+                                if (!context.mounted) return;
 
                                 // Close loading dialog
                                 Navigator.of(context).pop();
@@ -435,6 +442,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                                 Get.to(
                                     () => SchoolListScreen(userData: userData));
                               } catch (e) {
+                                if (!context.mounted) return;
+
                                 // Close loading dialog
                                 Navigator.of(context).pop();
 
@@ -458,7 +467,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                                   ),
                                 );
 
-                                print('Error in Pindah Sekolah: $e');
+                                debugPrint('Error in Pindah Sekolah: $e');
                               }
                             },
                           ),
@@ -490,13 +499,13 @@ class _ProfileContainerState extends State<ProfileContainer>
   //         end: Alignment.bottomRight,
   //         colors: [
   //           Colors.white,
-  //           AppColorPalette.warmBeige.withOpacity(0.4),
+  //           AppColorPalette.warmBeige.withValues(alpha: 0.4),
   //         ],
   //       ),
   //       borderRadius: BorderRadius.circular(24),
   //       boxShadow: [
   //         BoxShadow(
-  //           color: AppColorPalette.primaryMaroon.withOpacity(0.05),
+  //           color: AppColorPalette.primaryMaroon.withValues(alpha: 0.05),
   //           blurRadius: 15,
   //           offset: const Offset(0, 8),
   //         ),
@@ -510,12 +519,12 @@ class _ProfileContainerState extends State<ProfileContainer>
   //             Container(
   //               padding: const EdgeInsets.all(10),
   //               decoration: BoxDecoration(
-  //                 color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+  //                 color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
   //                 borderRadius: BorderRadius.circular(12),
   //               ),
   //               child: Icon(
   //                 Icons.waving_hand_rounded,
-  //                 color: Color(0xFF8B0000).withOpacity(0.9),
+  //                 color: Color(0xFF8B0000).withValues(alpha: 0.9),
   //                 size: 22,
   //               ),
   //             ),
@@ -530,7 +539,7 @@ class _ProfileContainerState extends State<ProfileContainer>
   //                       fontSize: 15,
   //                       fontWeight: FontWeight.w500,
   //                       color:
-  //                           Colors.black.withOpacity(0.7), // Changed to black
+  //                           Colors.black.withValues(alpha: 0.7), // Changed to black
   //                     ),
   //                   ),
   //                   const SizedBox(height: 4),
@@ -575,19 +584,19 @@ class _ProfileContainerState extends State<ProfileContainer>
                 end: Alignment.bottomRight,
                 colors: [
                   Colors.white,
-                  Colors.white.withOpacity(0.95),
+                  Colors.white.withValues(alpha: 0.95),
                 ],
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: iconColor.withOpacity(0.1),
+                  color: iconColor.withValues(alpha: 0.1),
                   blurRadius: 15,
                   offset: const Offset(0, 5),
                 ),
               ],
               border: Border.all(
-                color: iconColor.withOpacity(0.05),
+                color: iconColor.withValues(alpha: 0.05),
                 width: 1,
               ),
             ),
@@ -605,14 +614,14 @@ class _ProfileContainerState extends State<ProfileContainer>
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              iconColor.withOpacity(0.2),
-                              iconColor.withOpacity(0.1),
+                              iconColor.withValues(alpha: 0.2),
+                              iconColor.withValues(alpha: 0.1),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: iconColor.withOpacity(0.1),
+                              color: iconColor.withValues(alpha: 0.1),
                               blurRadius: 8,
                               offset: const Offset(0, 3),
                             ),
@@ -643,9 +652,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        iconColor.withOpacity(0.05),
-                        iconColor.withOpacity(0.2),
-                        iconColor.withOpacity(0.05),
+                        iconColor.withValues(alpha: 0.05),
+                        iconColor.withValues(alpha: 0.2),
+                        iconColor.withValues(alpha: 0.05),
                       ],
                     ),
                   ),
@@ -683,15 +692,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      AppColorPalette.primaryMaroon.withOpacity(0.05),
-                      AppColorPalette.secondaryMaroon.withOpacity(0.1),
+                      AppColorPalette.primaryMaroon.withValues(alpha: 0.05),
+                      AppColorPalette.secondaryMaroon.withValues(alpha: 0.1),
                     ],
                   )
                 : null,
             borderRadius: BorderRadius.circular(16),
             border: isHovered
                 ? Border.all(
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                     width: 1,
                   )
                 : null,
@@ -701,7 +710,7 @@ class _ProfileContainerState extends State<ProfileContainer>
             child: InkWell(
               borderRadius: BorderRadius.circular(16),
               onTap: onTap,
-              splashColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+              splashColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
               highlightColor: Colors.transparent,
               child: Padding(
                 padding:
@@ -713,14 +722,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isHovered
-                            ? AppColorPalette.primaryMaroon.withOpacity(0.1)
-                            : AppColorPalette.warmBeige.withOpacity(0.5),
+                            ? AppColorPalette.primaryMaroon
+                                .withValues(alpha: 0.1)
+                            : AppColorPalette.warmBeige.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                         boxShadow: isHovered
                             ? [
                                 BoxShadow(
                                   color: AppColorPalette.primaryMaroon
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -746,7 +756,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                           color: isHovered
                               ? Colors.black
                               : Colors.black
-                                  .withOpacity(0.8), // Changed to black
+                                  .withValues(alpha: 0.8), // Changed to black
                         ),
                       ),
                     ),
@@ -758,7 +768,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                         Icons.arrow_forward_ios,
                         color: isHovered
                             ? AppColorPalette.primaryMaroon
-                            : AppColorPalette.secondaryMaroon.withOpacity(0.5),
+                            : AppColorPalette.secondaryMaroon
+                                .withValues(alpha: 0.5),
                         size: 16,
                       ),
                     ),
@@ -798,7 +809,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.notifications_active_outlined,
                         color: AppColorPalette.primaryMaroon,
                         size: 28,
@@ -818,15 +829,16 @@ class _ProfileContainerState extends State<ProfileContainer>
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColorPalette.warmBeige.withOpacity(0.3),
+                      color: AppColorPalette.warmBeige.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                        color: AppColorPalette.primaryMaroon
+                            .withValues(alpha: 0.1),
                       ),
                     ),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.vibration,
                           color: AppColorPalette.primaryMaroon,
                           size: 24,
@@ -863,9 +875,9 @@ class _ProfileContainerState extends State<ProfileContainer>
                             });
                             await settingsRepository.setVibrationEnabled(value);
                           },
-                          activeColor: AppColorPalette.primaryMaroon,
-                          activeTrackColor:
-                              AppColorPalette.secondaryMaroon.withOpacity(0.5),
+                          activeThumbColor: AppColorPalette.primaryMaroon,
+                          activeTrackColor: AppColorPalette.secondaryMaroon
+                              .withValues(alpha: 0.5),
                         ),
                       ],
                     ),
@@ -949,7 +961,7 @@ class _ProfileContainerState extends State<ProfileContainer>
   Widget _buildDramaticCurvedAppBar({required BuildContext context}) {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
+      child: SizedBox(
         height: 210 +
             MediaQuery.of(context)
                 .padding
@@ -970,7 +982,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                   colors: [
                     maroonDark,
                     maroonPrimary,
-                    Color(0xFF9A1E3C),
+                    const Color(0xFF9A1E3C),
                     maroonLight,
                   ],
                   stops: [0.0, 0.3, 0.6, 1.0],
@@ -989,8 +1001,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                 builder: (context, _) {
                   return CustomPaint(
                     painter: AnimatedAppBarDecorationPainter(
-                      color: Colors.white
-                          .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                      color: Colors.white.withValues(
+                          alpha: 0.07 + (_glowAnimation.value * 0.05)),
                       glowValue: _glowAnimation.value,
                       pulseValue: _pulseAnimation.value,
                       rotationValue: _rotationAnimation.value,
@@ -1024,13 +1036,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
-                                    0.15 + (_glowAnimation.value * 0.05)),
-                                Colors.white.withOpacity(
-                                    0.08 + (_glowAnimation.value * 0.03)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.15 + (_glowAnimation.value * 0.05)),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.08 + (_glowAnimation.value * 0.03)),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.6, 1.0],
+                              stops: const [0.0, 0.6, 1.0],
                             ),
                           ),
                         ),
@@ -1053,13 +1067,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
-                                    0.12 + (_glowAnimation.value * 0.04)),
-                                Colors.white.withOpacity(
-                                    0.06 + (_glowAnimation.value * 0.02)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.12 + (_glowAnimation.value * 0.04)),
+                                Colors.white.withValues(
+                                    alpha:
+                                        0.06 + (_glowAnimation.value * 0.02)),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.7, 1.0],
+                              stops: const [0.0, 0.7, 1.0],
                             ),
                           ),
                         ),
@@ -1084,13 +1100,15 @@ class _ProfileContainerState extends State<ProfileContainer>
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  Colors.white.withOpacity(
-                                      0.08 + (_glowAnimation.value * 0.03)),
-                                  Colors.white.withOpacity(
-                                      0.04 + (_glowAnimation.value * 0.015)),
-                                  Colors.white.withOpacity(0.0),
+                                  Colors.white.withValues(
+                                      alpha:
+                                          0.08 + (_glowAnimation.value * 0.03)),
+                                  Colors.white.withValues(
+                                      alpha: 0.04 +
+                                          (_glowAnimation.value * 0.015)),
+                                  Colors.white.withValues(alpha: 0.0),
                                 ],
-                                stops: [0.0, 0.8, 1.0],
+                                stops: const [0.0, 0.8, 1.0],
                               ),
                             ),
                           ),
@@ -1109,8 +1127,8 @@ class _ProfileContainerState extends State<ProfileContainer>
               right: 0,
               child: CustomPaint(
                 painter: EnhancedWavePatternPainter(
-                  color1: Colors.white.withOpacity(0.1),
-                  color2: Colors.white.withOpacity(0.07),
+                  color1: Colors.white.withValues(alpha: 0.1),
+                  color2: Colors.white.withValues(alpha: 0.07),
                 ),
                 child: SizedBox(
                   height: 80,
@@ -1150,13 +1168,13 @@ class _ProfileContainerState extends State<ProfileContainer>
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withOpacity(0.3),
+                      color: maroonPrimary.withValues(alpha: 0.3),
                       blurRadius: 15,
                       offset: const Offset(0, 5),
                       spreadRadius: 0,
                     ),
                     BoxShadow(
-                      color: maroonLight.withOpacity(0.15),
+                      color: maroonLight.withValues(alpha: 0.15),
                       blurRadius: 25,
                       offset: const Offset(0, 10),
                       spreadRadius: 0,
@@ -1185,7 +1203,7 @@ class _ProfileContainerState extends State<ProfileContainer>
               builder: (BuildContext context) {
                 return Dialog(
                   backgroundColor: Colors.transparent,
-                  child: Container(
+                  child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
                     height: MediaQuery.of(context).size.height * 0.7,
                     child: Stack(
@@ -1223,7 +1241,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                           top: 10,
                           right: 10,
                           child: Material(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(20),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(20),
@@ -1262,7 +1280,7 @@ class _ProfileContainerState extends State<ProfileContainer>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: maroonPrimary.withOpacity(0.3),
+                  color: maroonPrimary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   spreadRadius: 1,
                 ),
@@ -1302,8 +1320,8 @@ class _ProfileContainerState extends State<ProfileContainer>
                 builder: (context) {
                   final userDetails =
                       context.read<AuthCubit>().getUserDetails();
-                  final fullName = "${userDetails.firstName ?? ""}".trim();
-                  print(
+                  final fullName = (userDetails.firstName ?? "").trim();
+                  debugPrint(
                       'DEBUG ProfileContainer: firstName="${userDetails.firstName}", email="${userDetails.email}", schoolName="${userDetails.school?.name}"');
                   return Text(
                     fullName.isEmpty ? "Pengguna" : fullName,
@@ -1326,7 +1344,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.1),
+                      color: maroonPrimary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -1360,7 +1378,7 @@ class _ProfileContainerState extends State<ProfileContainer>
                   Container(
                     padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.1),
+                      color: maroonPrimary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -1500,13 +1518,13 @@ class LogoutConfirmationDialog extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 Colors.white,
-                AppColorPalette.warmBeige.withOpacity(0.9),
+                AppColorPalette.warmBeige.withValues(alpha: 0.9),
               ],
             ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                 blurRadius: 20,
                 spreadRadius: 5,
                 offset: const Offset(0, 10),
@@ -1521,7 +1539,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                 width: 100,
                 height: 100,
                 margin: const EdgeInsets.only(bottom: 20),
-                child: Icon(
+                child: const Icon(
                   Icons.logout_rounded,
                   size: 60,
                   color: AppColorPalette.primaryMaroon,
@@ -1568,7 +1586,7 @@ class LogoutConfirmationDialog extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                           side: BorderSide(
-                            color: Colors.grey.withOpacity(0.3),
+                            color: Colors.grey.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -1665,7 +1683,7 @@ class DramaticCurvedGradientPainter extends CustomPainter {
 
     // Add more dramatic highlights for enhanced depth
     final highlightPaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
+      ..color = Colors.white.withValues(alpha: 0.15)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 
@@ -1774,7 +1792,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final glowPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.3 + glowValue * 0.3))
       ..style = PaintingStyle.fill
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
 
@@ -1837,7 +1855,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..strokeWidth = 1.5 + glowValue * 0.5;
 
     final glowArcPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3 + glowValue * 1
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
@@ -1884,7 +1902,8 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       );
 
       final particlePaint = Paint()
-        ..color = color.withOpacity(0.4 + sin(glowValue * 2 * pi + i * 2) * 0.3)
+        ..color =
+            color.withValues(alpha: 0.4 + sin(glowValue * 2 * pi + i * 2) * 0.3)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(particleCenter, particleSize, particlePaint);

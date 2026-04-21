@@ -76,7 +76,7 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                         child: Column(
                           children: [
                             // TeacherHomeOverviewContainer(),
-                            SizedBox(
+                            const SizedBox(
                               height: 45,
                             ),
                             BlocProvider(
@@ -86,10 +86,10 @@ class _TeacherHomeContainerState extends State<TeacherHomeContainer> {
                               },
                               child: const TeacherTodaysTimetableContainer(),
                             ),
-                            TeacherPermissionContainer(),
-                            TeacherLeavesContainer(),
-                            TeacherHolidaysContainer(),
-                            SizedBox(
+                            const TeacherPermissionContainer(),
+                            const TeacherLeavesContainer(),
+                            const TeacherHolidaysContainer(),
+                            const SizedBox(
                               height: 15,
                             ),
                           ],

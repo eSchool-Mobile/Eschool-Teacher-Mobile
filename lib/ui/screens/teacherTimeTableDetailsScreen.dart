@@ -85,7 +85,7 @@ class AppBarDecorationPainter extends CustomPainter {
 
 // Skeleton widget for timetable slots
 class _TimetableSlotSkeleton extends StatelessWidget {
-  const _TimetableSlotSkeleton({Key? key}) : super(key: key);
+  const _TimetableSlotSkeleton();
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +323,7 @@ class _TeacherTimeTableDetailsScreenState
     return SingleChildScrollView(
       controller: _dayScrollController,
       scrollDirection: Axis.horizontal,
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
@@ -355,18 +355,18 @@ class _TeacherTimeTableDetailsScreenState
                         _focusSelectedDay();
                       });
                     },
-                    highlightColor: Colors.white.withOpacity(0.1),
-                    splashColor: Colors.white.withOpacity(0.2),
+                    highlightColor: Colors.white.withValues(alpha: 0.1),
+                    splashColor: Colors.white.withValues(alpha: 0.2),
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(vertical: 8, horizontal: 14),
+                          const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
                         color: isSelected ? Colors.white : Colors.transparent,
                         border: Border.all(
                           color: isSelected
-                              ? Colors.white.withOpacity(0.9)
-                              : Colors.white.withOpacity(0.3),
+                              ? Colors.white.withValues(alpha: 0.9)
+                              : Colors.white.withValues(alpha: 0.3),
                           width: isSelected ? 1 : 0.5,
                         ),
                       ),
@@ -386,10 +386,10 @@ class _TeacherTimeTableDetailsScreenState
                       target: isSelected ? 1 : 0,
                     )
                     .scale(
-                      begin: Offset(1.0, 1.0),
-                      end: Offset(1.05, 1.05),
+                      begin: const Offset(1.0, 1.0),
+                      end: const Offset(1.05, 1.05),
                       curve: Curves.easeOutCubic,
-                      duration: Duration(milliseconds: 300),
+                      duration: const Duration(milliseconds: 300),
                     ));
           }).toList(),
         ),
@@ -426,7 +426,7 @@ class _TeacherTimeTableDetailsScreenState
   Widget _buildAppBar() {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
+      child: SizedBox(
         height: MediaQuery.of(context).padding.top +
             220, // Increased height for better spacing between elements
         child: Stack(
@@ -442,19 +442,19 @@ class _TeacherTimeTableDetailsScreenState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          Color(0xFF690013),
+                          const Color(0xFF690013),
                           _maroonPrimary,
-                          Color(0xFFA12948),
+                          const Color(0xFFA12948),
                           _maroonLight,
                         ],
-                        stops: [0.0, 0.3, 0.6, 1.0],
+                        stops: const [0.0, 0.3, 0.6, 1.0],
                         transform: GradientRotation(
                             _fabAnimationController.value * 0.02),
                       ).createShader(bounds);
                     },
                     blendMode: BlendMode.srcATop,
                     child: Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -478,7 +478,7 @@ class _TeacherTimeTableDetailsScreenState
             Positioned.fill(
               child: CustomPaint(
                 painter: AppBarDecorationPainter(
-                  color: Colors.white.withOpacity(0.07),
+                  color: Colors.white.withValues(alpha: 0.07),
                 ),
               ),
             ),
@@ -497,11 +497,11 @@ class _TeacherTimeTableDetailsScreenState
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white.withOpacity(0.2),
-                          Colors.white.withOpacity(0.1),
-                          Colors.white.withOpacity(0.0),
+                          Colors.white.withValues(alpha: 0.2),
+                          Colors.white.withValues(alpha: 0.1),
+                          Colors.white.withValues(alpha: 0.0),
                         ],
-                        stops: [0.0, 0.5, 1.0],
+                        stops: const [0.0, 0.5, 1.0],
                       ),
                     ),
                   ),
@@ -521,10 +521,10 @@ class _TeacherTimeTableDetailsScreenState
                   child: Container(
                     height: 56,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
                     ),
@@ -538,12 +538,12 @@ class _TeacherTimeTableDetailsScreenState
                             borderRadius: BorderRadius.circular(12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(12),
-                              highlightColor: Colors.white.withOpacity(0.1),
-                              splashColor: Colors.white.withOpacity(0.2),
+                              highlightColor: Colors.white.withValues(alpha: 0.1),
+                              splashColor: Colors.white.withValues(alpha: 0.2),
                               onTap: () => Navigator.of(context).pop(),
                               child: Container(
-                                padding: EdgeInsets.all(8),
-                                child: Icon(
+                                padding: const EdgeInsets.all(8),
+                                child: const Icon(
                                   Icons.arrow_back_rounded,
                                   color: Colors.white,
                                 ),
@@ -561,9 +561,9 @@ class _TeacherTimeTableDetailsScreenState
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                               colors: [
-                                Colors.white.withOpacity(0.0),
-                                Colors.white.withOpacity(0.5),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
+                                Colors.white.withValues(alpha: 0.5),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
                             ),
                           ),
@@ -601,16 +601,16 @@ class _TeacherTimeTableDetailsScreenState
                   child: Container(
                     height: 75,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.3),
+                        color: Colors.white.withValues(alpha: 0.3),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          offset: Offset(0, 10),
+                          color: Colors.black.withValues(alpha: 0.1),
+                          offset: const Offset(0, 10),
                           blurRadius: 20,
                           spreadRadius: -5,
                         ),
@@ -629,7 +629,7 @@ class _TeacherTimeTableDetailsScreenState
                               builder: (BuildContext context) {
                                 return Dialog(
                                   backgroundColor: Colors.transparent,
-                                  child: Container(
+                                  child: SizedBox(
                                     width:
                                         MediaQuery.of(context).size.width * 0.9,
                                     height: MediaQuery.of(context).size.height *
@@ -676,7 +676,7 @@ class _TeacherTimeTableDetailsScreenState
                                           right: 10,
                                           child: Material(
                                             color:
-                                                Colors.black.withOpacity(0.5),
+                                                Colors.black.withValues(alpha: 0.5),
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                             child: InkWell(
@@ -715,15 +715,15 @@ class _TeacherTimeTableDetailsScreenState
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                                 colors: [
-                                  Colors.white.withOpacity(0.9),
-                                  Colors.white.withOpacity(0.5)
+                                  Colors.white.withValues(alpha: 0.9),
+                                  Colors.white.withValues(alpha: 0.5)
                                 ],
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _maroonPrimary.withOpacity(0.4),
+                                  color: _maroonPrimary.withValues(alpha: 0.4),
                                   blurRadius: 8,
-                                  offset: Offset(0, 2),
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
@@ -737,7 +737,7 @@ class _TeacherTimeTableDetailsScreenState
                                   width: 50,
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: _maroonPrimary.withOpacity(0.2),
+                                    color: _maroonPrimary.withValues(alpha: 0.2),
                                   ),
                                   child: (widget.teacherDetails.image ?? "")
                                           .isNotEmpty
@@ -751,8 +751,9 @@ class _TeacherTimeTableDetailsScreenState
                                                       size: 30),
                                           loadingBuilder: (context, child,
                                               loadingProgress) {
-                                            if (loadingProgress == null)
+                                            if (loadingProgress == null) {
                                               return child;
+                                            }
                                             return Center(
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 2,
@@ -770,7 +771,7 @@ class _TeacherTimeTableDetailsScreenState
                                             );
                                           },
                                         )
-                                      : Icon(
+                                      : const Icon(
                                           Icons.person,
                                           color: Colors.white,
                                           size: 30,
@@ -797,9 +798,9 @@ class _TeacherTimeTableDetailsScreenState
                                   letterSpacing: 0.3,
                                   shadows: [
                                     Shadow(
-                                      color: Colors.black.withOpacity(0.3),
+                                      color: Colors.black.withValues(alpha: 0.3),
                                       blurRadius: 3,
-                                      offset: Offset(0, 1),
+                                      offset: const Offset(0, 1),
                                     ),
                                   ],
                                 ),
@@ -810,7 +811,7 @@ class _TeacherTimeTableDetailsScreenState
                               Text(
                                 "Guru",
                                 style: GoogleFonts.poppins(
-                                  color: Colors.white.withOpacity(0.85),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                   fontSize: 14,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -842,13 +843,13 @@ class _TeacherTimeTableDetailsScreenState
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.12),
+                      color: Colors.white.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         width: 1.5,
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black12,
                           blurRadius: 8,

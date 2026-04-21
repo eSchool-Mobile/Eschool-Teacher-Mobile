@@ -37,7 +37,7 @@ class CustomCheckboxContainer extends StatelessWidget {
                     color: Theme.of(context)
                         .colorScheme
                         .secondary
-                        .withOpacity(0.76),
+                        .withValues(alpha: 0.76),
                     fontSize: 15.0),
               ),
             ),

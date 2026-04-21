@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 class StudentExamStatus {
   final int id;
   final String name;
@@ -31,8 +32,8 @@ class StudentExamStatus {
         endTime: json['end_time'],
       );
     } catch (e) {
-      print('Error parsing StudentExamStatus: $e');
-      print('JSON data: $json');
+      debugPrint('Error parsing StudentExamStatus: $e');
+      debugPrint('JSON data: $json');
       rethrow;
     }
   }

@@ -8,7 +8,6 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class ContactDetailScreen extends StatefulWidget {
@@ -135,7 +134,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -150,8 +149,8 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: contact.isInquiry
-                      ? Colors.blue.withOpacity(0.1)
-                      : Colors.red.withOpacity(0.1),
+                      ? Colors.blue.withValues(alpha: 0.1)
+                      : Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
@@ -249,7 +248,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -320,7 +319,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
           final index = entry.key;
           final reply = entry.value;
           return _buildReplyItem(reply, index);
-        }).toList(),
+        }),
       ],
     );
   }
@@ -330,10 +329,10 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.green.withOpacity(0.05),
+        color: Colors.green.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Colors.green.withOpacity(0.2),
+          color: Colors.green.withValues(alpha: 0.2),
         ),
       ),
       child: Column(
@@ -344,10 +343,10 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.admin_panel_settings_rounded,
                   color: Colors.green,
                   size: 16,
@@ -459,7 +458,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -560,7 +559,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
@@ -642,8 +641,9 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       });
 
       // Show success message
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Balasan berhasil dikirim'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 2),
@@ -651,20 +651,22 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
       );
 
       // Refresh contact detail to show new reply
+      if (!mounted) return;
       await context.read<ContactDetailCubit>().getContactDetail(contact.id);
 
       // Scroll to bottom to show the new reply
-      Future.delayed(Duration(milliseconds: 300), () {
+      Future.delayed(const Duration(milliseconds: 300), () {
         if (_scrollController.hasClients) {
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
-            duration: Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 500),
             curve: Curves.easeOut,
           );
         }
       });
     } catch (e) {
       // Show error message
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal mengirim balasan: ${e.toString()}'),
@@ -678,7 +680,7 @@ class _ContactDetailScreenState extends State<ContactDetailScreen>
     context.read<ContactDetailCubit>().updateContactStatus(contact.id, status);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Status kontak berhasil diperbarui'),
         backgroundColor: Colors.green,
       ),

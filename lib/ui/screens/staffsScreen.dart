@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/staff/staffsCubit.dart';
@@ -12,7 +11,6 @@ import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -83,7 +81,7 @@ class _StaffsScreenState extends State<StaffsScreen>
     // Pulse animation untuk efek interaktif
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
@@ -96,7 +94,7 @@ class _StaffsScreenState extends State<StaffsScreen>
     // Rotation animation untuk elemen dekoratif
     _rotationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 10000),
+      duration: const Duration(milliseconds: 10000),
     )..repeat();
 
     _rotationAnimation = Tween<double>(
@@ -107,7 +105,7 @@ class _StaffsScreenState extends State<StaffsScreen>
     // Initialize fabAnimationController for CustomModernAppBar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
 
     Future.delayed(Duration.zero, () {
@@ -188,7 +186,7 @@ class _StaffsScreenState extends State<StaffsScreen>
       child: GestureDetector(
         onTap: () => changeTab(key),
         child: Container(
-          padding: EdgeInsets.symmetric(
+          padding: const EdgeInsets.symmetric(
               vertical: 12), // Memperbesar padding vertikal untuk tab
           decoration: BoxDecoration(
             color: isSelected ? maroonPrimary : Colors.transparent,
@@ -211,20 +209,20 @@ class _StaffsScreenState extends State<StaffsScreen>
 
   Widget _buildStaffSkeleton() {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Column(
         children: List.generate(6, (index) {
           return Container(
-            margin: EdgeInsets.only(bottom: 16),
-            padding: EdgeInsets.all(16),
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
             ),
@@ -237,12 +235,12 @@ class _StaffsScreenState extends State<StaffsScreen>
                   Container(
                     width: 50,
                     height: 50,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
 
                   // Staff info skeleton
                   Expanded(
@@ -261,10 +259,10 @@ class _StaffsScreenState extends State<StaffsScreen>
                                 ),
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             // Status badge skeleton
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -281,7 +279,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                             ),
                           ],
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
                         // Role text skeleton
                         Container(
                           height: 14,
@@ -291,13 +289,13 @@ class _StaffsScreenState extends State<StaffsScreen>
                             borderRadius: BorderRadius.circular(6),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         // Role tags skeleton
                         Row(
                           children: List.generate(3, (tagIndex) {
                             return Container(
-                              margin: EdgeInsets.only(right: 6),
-                              padding: EdgeInsets.symmetric(
+                              margin: const EdgeInsets.only(right: 6),
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 2),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -371,12 +369,12 @@ class _StaffsScreenState extends State<StaffsScreen>
                     child: Icon(
                       Icons.people_outline,
                       size: 80,
-                      color: maroonPrimary.withOpacity(0.6),
+                      color: maroonPrimary.withValues(alpha: 0.6),
                     ),
                   );
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Text(
                 "Tidak ada data staff ditemukan",
                 style: GoogleFonts.poppins(
@@ -393,9 +391,9 @@ class _StaffsScreenState extends State<StaffsScreen>
 
     return AnimationLimiter(
       child: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
         controller: _scrollController,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         itemCount: state.saffs.length,
         itemBuilder: (context, index) {
           final staffDetails = state.saffs[index];
@@ -403,7 +401,7 @@ class _StaffsScreenState extends State<StaffsScreen>
 
           return AnimationConfiguration.staggeredList(
             position: index,
-            duration: Duration(milliseconds: 450),
+            duration: const Duration(milliseconds: 450),
             child: SlideAnimation(
               horizontalOffset: 40,
               child: FadeInAnimation(
@@ -431,7 +429,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                     });
                   },
                   onTapUp: (_) {
-                    Future.delayed(Duration(milliseconds: 300), () {
+                    Future.delayed(const Duration(milliseconds: 300), () {
                       if (mounted) {
                         setState(() {
                           _hoveredStaffIndex = -1;
@@ -440,34 +438,34 @@ class _StaffsScreenState extends State<StaffsScreen>
                     });
                   },
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
-                    margin: EdgeInsets.only(bottom: 16),
-                    padding: EdgeInsets.all(16),
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: isHovered
                             ? [
-                                maroonPrimary.withOpacity(0.02),
-                                maroonSecondary.withOpacity(0.05),
+                                maroonPrimary.withValues(alpha: 0.02),
+                                maroonSecondary.withValues(alpha: 0.05),
                               ]
                             : [Colors.white, Colors.white],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isHovered
-                            ? maroonPrimary.withOpacity(0.2)
-                            : Colors.grey.withOpacity(0.1),
+                            ? maroonPrimary.withValues(alpha: 0.2)
+                            : Colors.grey.withValues(alpha: 0.1),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: isHovered
-                              ? maroonPrimary.withOpacity(0.1)
-                              : Colors.black.withOpacity(0.03),
+                              ? maroonPrimary.withValues(alpha: 0.1)
+                              : Colors.black.withValues(alpha: 0.03),
                           blurRadius: isHovered ? 12 : 6,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                           spreadRadius: isHovered ? 1 : 0,
                         ),
                       ],
@@ -480,14 +478,14 @@ class _StaffsScreenState extends State<StaffsScreen>
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: isHovered
-                                  ? maroonPrimary.withOpacity(0.4)
+                                  ? maroonPrimary.withValues(alpha: 0.4)
                                   : Colors.grey.shade200,
                               width: 2,
                             ),
                             boxShadow: isHovered
                                 ? [
                                     BoxShadow(
-                                      color: maroonPrimary.withOpacity(0.15),
+                                      color: maroonPrimary.withValues(alpha: 0.15),
                                       blurRadius: 10,
                                       spreadRadius: 2,
                                     )
@@ -498,7 +496,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                             imageUrl: staffDetails.image ?? "",
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
 
                         // Staff info
                         Expanded(
@@ -524,12 +522,12 @@ class _StaffsScreenState extends State<StaffsScreen>
 
                                   // Status indicator
                                   Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: staffDetails.status == 1
-                                          ? Colors.green.withOpacity(0.1)
-                                          : Colors.grey.withOpacity(0.1),
+                                          ? Colors.green.withValues(alpha: 0.1)
+                                          : Colors.grey.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
@@ -547,7 +545,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
                               Text(
                                 staffDetails.getRoles(),
                                 style: GoogleFonts.poppins(
@@ -555,7 +553,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                                   fontSize: 14,
                                 ),
                               ),
-                              SizedBox(height: 4),
+                              const SizedBox(height: 4),
 
                               // Role tags
                               if (staffDetails.getRoles().isNotEmpty) ...[
@@ -568,11 +566,11 @@ class _StaffsScreenState extends State<StaffsScreen>
                                       .map((role) => role.trim())
                                       .where((role) => role.isNotEmpty)
                                       .map((role) => Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 2),
                                             decoration: BoxDecoration(
                                               color: maroonPrimary
-                                                  .withOpacity(0.08),
+                                                  .withValues(alpha: 0.08),
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
@@ -594,14 +592,14 @@ class _StaffsScreenState extends State<StaffsScreen>
 
                         // Icon animasi
                         AnimatedContainer(
-                          duration: Duration(milliseconds: 200),
+                          duration: const Duration(milliseconds: 200),
                           transform: Matrix4.translationValues(
                               isHovered ? 8.0 : 0.0, 0.0, 0.0),
                           child: Icon(
                             Icons.arrow_forward_ios,
                             color: isHovered
                                 ? maroonPrimary
-                                : maroonPrimary.withOpacity(0.5),
+                                : maroonPrimary.withValues(alpha: 0.5),
                             size: 16,
                           ),
                         ),
@@ -649,7 +647,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  warmBeige.withOpacity(0.5),
+                  warmBeige.withValues(alpha: 0.5),
                   Colors.white,
                 ],
               ),
@@ -664,8 +662,8 @@ class _StaffsScreenState extends State<StaffsScreen>
                 return CustomPaint(
                   painter: BackgroundPatternPainter(
                     animation: _rotationAnimation.value,
-                    primaryColor: maroonPrimary.withOpacity(0.03),
-                    accentColor: maroonSecondary.withOpacity(0.02),
+                    primaryColor: maroonPrimary.withValues(alpha: 0.03),
+                    accentColor: maroonSecondary.withValues(alpha: 0.02),
                   ),
                 );
               },
@@ -680,16 +678,16 @@ class _StaffsScreenState extends State<StaffsScreen>
               children: [
                 // Search Bar
                 Padding(
-                  padding: EdgeInsets.fromLTRB(24, 16, 24, 16),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -697,11 +695,11 @@ class _StaffsScreenState extends State<StaffsScreen>
                       controller: _textEditingController,
                       decoration: InputDecoration(
                         hintText: "Cari staff...",
-                        hintStyle: TextStyle(color: Colors.grey),
+                        hintStyle: const TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.search, color: maroonPrimary),
                         suffixIcon: _textEditingController.text.isNotEmpty
                             ? IconButton(
-                                icon: Icon(Icons.clear, color: Colors.grey),
+                                icon: const Icon(Icons.clear, color: Colors.grey),
                                 onPressed: () {
                                   _textEditingController.clear();
                                   getStaffs();
@@ -712,7 +710,7 @@ class _StaffsScreenState extends State<StaffsScreen>
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                     ),
                   ),

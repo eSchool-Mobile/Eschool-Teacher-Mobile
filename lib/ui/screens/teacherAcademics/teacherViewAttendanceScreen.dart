@@ -4,7 +4,6 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
@@ -16,8 +15,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
-import 'package:flutter/services.dart';
 
 class TeacherViewAttendanceScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -114,24 +111,8 @@ class _TeacherViewAttendanceScreenState
     }
   }
 
-  String _getSelectedStatusKey() {
-    if (isPresentStatusOnly == null && selectedStatus == null) {
-      return allKey;
-    } else if (isPresentStatusOnly == true) {
-      return presentKey;
-    } else if (selectedStatus == StudentAttendanceStatus.sick) {
-      return sickKey;
-    } else if (selectedStatus == StudentAttendanceStatus.permission) {
-      return permissionKey;
-    } else if (selectedStatus == StudentAttendanceStatus.alpa) {
-      return alpaKey;
-    } else {
-      return absentKey;
-    }
-  }
-
   void getAttendance({StudentAttendanceStatus? selectedStatus}) {
-    print('Getting attendance with:');
+    debugPrint('Getting attendance with:');
     debugPrint('Date: $_selectedDateTime');
     debugPrint('ClassSectionId: ${_selectedClassSection?.id}');
     debugPrint('Selected Status: $selectedStatus');
@@ -193,10 +174,10 @@ class _TeacherViewAttendanceScreenState
         horizontal: small ? 8 : 16,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -206,9 +187,9 @@ class _TeacherViewAttendanceScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.all(6),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -236,7 +217,7 @@ class _TeacherViewAttendanceScreenState
               color: Colors.grey[700],
             ),
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           Text(
             '$count/$total',
             style: GoogleFonts.poppins(
@@ -250,40 +231,12 @@ class _TeacherViewAttendanceScreenState
     );
   }
 
-  Widget _buildTotalTitleContainer(
-      {required String value,
-      required String title,
-      required Color backgroundColor}) {
-    return Container(
-      height: Utils().getResponsiveHeight(context, 90),
-      padding: EdgeInsets.symmetric(
-          horizontal: appContentHorizontalPadding, vertical: 12.5),
-      decoration: BoxDecoration(
-          color: backgroundColor, borderRadius: BorderRadius.circular(5.0)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomTextContainer(
-            textKey: value,
-            style: TextStyle(
-                fontSize: Utils.getScaledValue(context, 23),
-                fontWeight: FontWeight.w600),
-          ),
-          CustomTextContainer(
-            textKey: title,
-            style: TextStyle(fontSize: Utils.getScaledValue(context, 13)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildStudentsContainer() {
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(top: 20, bottom: 90),
+        padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: BlocBuilder<AttendanceCubit, AttendanceState>(
           builder: (context, state) {
             if (state is AttendanceFetchSuccess) {
@@ -309,7 +262,7 @@ class _TeacherViewAttendanceScreenState
                             size: 48,
                             color: Colors.grey[400],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak Ada Kehadiran Hari Ini',
                             style: GoogleFonts.poppins(
@@ -337,7 +290,7 @@ class _TeacherViewAttendanceScreenState
                           size: 48,
                           color: Colors.grey[400],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         Text(
                           'Belum Ada Data Kehadiran',
                           style: GoogleFonts.poppins(
@@ -381,16 +334,18 @@ class _TeacherViewAttendanceScreenState
 
                   // Statistics cards
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 20),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -400,9 +355,9 @@ class _TeacherViewAttendanceScreenState
                         Row(
                           children: [
                             Container(
-                              padding: EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
-                                color: _maroonPrimary.withOpacity(0.1),
+                                color: _maroonPrimary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Icon(
@@ -411,7 +366,7 @@ class _TeacherViewAttendanceScreenState
                                 color: _maroonPrimary,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Text(
                               'Ringkasan Kehadiran',
                               style: GoogleFonts.poppins(
@@ -422,7 +377,7 @@ class _TeacherViewAttendanceScreenState
                             ),
                           ],
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Present and Absent stats
                         Row(
@@ -438,7 +393,7 @@ class _TeacherViewAttendanceScreenState
                                 color: Colors.green,
                               ),
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.cancel_rounded,
@@ -452,7 +407,7 @@ class _TeacherViewAttendanceScreenState
                             ),
                           ],
                         ),
-                        SizedBox(height: 12),
+                        const SizedBox(height: 12),
 
                         // Sick, Permission, and Alpa stats
                         Row(
@@ -469,7 +424,7 @@ class _TeacherViewAttendanceScreenState
                                 small: true,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.sticky_note_2_rounded,
@@ -482,7 +437,7 @@ class _TeacherViewAttendanceScreenState
                                 small: true,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: _buildStatCard(
                                 icon: Icons.not_interested_rounded,
@@ -506,15 +461,16 @@ class _TeacherViewAttendanceScreenState
 
                   // Students attendance list
                   Container(
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -529,18 +485,18 @@ class _TeacherViewAttendanceScreenState
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                _maroonPrimary.withOpacity(0.9),
+                                _maroonPrimary.withValues(alpha: 0.9),
                                 _maroonPrimary,
                                 _maroonLight,
                               ],
                             ),
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(16)),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
-                                color: _maroonPrimary.withOpacity(0.3),
+                                color: _maroonPrimary.withValues(alpha: 0.3),
                                 blurRadius: 10,
-                                offset: Offset(0, 3),
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -548,12 +504,12 @@ class _TeacherViewAttendanceScreenState
                             children: [
                               // Animated icon
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   shape: BoxShape.circle,
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.people_alt_rounded,
                                   color: Colors.white,
                                   size: 20,
@@ -585,24 +541,24 @@ class _TeacherViewAttendanceScreenState
 
                               // Filter badge
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.4),
+                                    color: Colors.white.withValues(alpha: 0.4),
                                     width: 1,
                                   ),
                                 ),
                                 child: Row(
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.filter_list_rounded,
                                       color: Colors.white,
                                       size: 12,
                                     ),
-                                    SizedBox(width: 4),
+                                    const SizedBox(width: 4),
                                     Text(
                                       selectedStatus == null
                                           ? isPresentStatusOnly == false
@@ -665,10 +621,10 @@ class _TeacherViewAttendanceScreenState
                 ),
               );
             } else {
-              return Center(
+              return const Center(
                 child: Padding(
                   padding: EdgeInsets.only(top: 20),
-                  child: const SkeletonSubjectAttendanceScreen(itemCount: 4),
+                  child: SkeletonSubjectAttendanceScreen(itemCount: 4),
                 ),
               );
             }
@@ -695,7 +651,7 @@ class _TeacherViewAttendanceScreenState
         return Column(
           children: [
             // First row: Class and Date filters
-            Container(
+            SizedBox(
               height: 50,
               child: Row(
                 children: [
@@ -732,25 +688,25 @@ class _TeacherViewAttendanceScreenState
                               },
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: Colors.white.withValues(alpha: 0.3),
                                     width: 1,
                                   ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.class_rounded,
                                       color: Colors.white,
                                       size: 16,
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
                                         _selectedClassSection?.fullName ??
@@ -782,7 +738,7 @@ class _TeacherViewAttendanceScreenState
                     ),
                   ),
 
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
 
                   // Date filter
                   Expanded(
@@ -805,25 +761,25 @@ class _TeacherViewAttendanceScreenState
                         },
                         borderRadius: BorderRadius.circular(10),
                         child: Container(
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.3),
+                              color: Colors.white.withValues(alpha: 0.3),
                               width: 1,
                             ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.calendar_today_rounded,
                                 color: Colors.white,
                                 size: 16,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Flexible(
                                 child: Text(
                                   Utils.formatDate(_selectedDateTime),
@@ -845,10 +801,10 @@ class _TeacherViewAttendanceScreenState
               ),
             ),
 
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
 
             // Second row: Status filters
-            Container(
+            SizedBox(
               height: 50,
               child: ListView(
                 scrollDirection: Axis.horizontal,
@@ -960,13 +916,13 @@ class _TeacherViewAttendanceScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Filter Status Kehadiran'),
+          title: const Text('Filter Status Kehadiran'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.all_inclusive_rounded),
-                title: Text('Semua'),
+                leading: const Icon(Icons.all_inclusive_rounded),
+                title: const Text('Semua'),
                 onTap: () {
                   setState(() {
                     isPresentStatusOnly = null;
@@ -977,8 +933,9 @@ class _TeacherViewAttendanceScreenState
                 },
               ),
               ListTile(
-                leading: Icon(Icons.check_circle_rounded, color: Colors.green),
-                title: Text('Hadir'),
+                leading:
+                    const Icon(Icons.check_circle_rounded, color: Colors.green),
+                title: const Text('Hadir'),
                 onTap: () {
                   setState(() {
                     isPresentStatusOnly = true;
@@ -989,8 +946,9 @@ class _TeacherViewAttendanceScreenState
                 },
               ),
               ListTile(
-                leading: Icon(Icons.remove_circle_rounded, color: Colors.red),
-                title: Text('Tidak Hadir'),
+                leading:
+                    const Icon(Icons.remove_circle_rounded, color: Colors.red),
+                title: const Text('Tidak Hadir'),
                 onTap: () {
                   setState(() {
                     isPresentStatusOnly = false;
@@ -1027,11 +985,13 @@ class _TeacherViewAttendanceScreenState
               borderRadius: BorderRadius.circular(10),
               border: Border.all(
                 color: isSelected
-                    ? color.withOpacity(0.7)
-                    : Colors.white.withOpacity(0.3),
+                    ? color.withValues(alpha: 0.7)
+                    : Colors.white.withValues(alpha: 0.3),
                 width: 1,
               ),
-              color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
+              color: isSelected
+                  ? color.withValues(alpha: 0.2)
+                  : Colors.transparent,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -1041,7 +1001,7 @@ class _TeacherViewAttendanceScreenState
                   color: isSelected ? color : Colors.white,
                   size: 16,
                 ),
-                SizedBox(width: 4),
+                const SizedBox(width: 4),
                 Text(
                   label,
                   style: GoogleFonts.poppins(
@@ -1062,7 +1022,7 @@ class _TeacherViewAttendanceScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(240),
+        preferredSize: const Size.fromHeight(240),
         child: _buildAppbarAndFilters(),
       ),
       body: BlocBuilder<ClassesCubit, ClassesState>(

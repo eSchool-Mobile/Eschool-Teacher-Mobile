@@ -154,10 +154,14 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                                       '${isSelected ? 'selected' : 'normal'}${item.iconPath}'),
                                   height: 28.0,
                                   width: 28.0,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : maroonPrimary.withOpacity(
-                                          0.7), // Use maroon color for unselected icons
+                                  colorFilter: ColorFilter.mode(
+                                    isSelected
+                                        ? Colors.white
+                                        : maroonPrimary.withValues(
+                                            alpha:
+                                                0.7), // Use maroon color for unselected icons
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                               ),
                             ),
@@ -169,8 +173,8 @@ class _AnimatedBottomNavigationState extends State<AnimatedBottomNavigation>
                               style: TextStyle(
                                 fontSize: Utils.getScaledValue(context, 14.0),
                                 fontWeight: FontWeight.w500,
-                                color: maroonPrimary.withOpacity(
-                                    0.8), // Use maroon color for text
+                                color: maroonPrimary.withValues(
+                                    alpha: 0.8), // Use maroon color for text
                               ),
                             ),
                           ],

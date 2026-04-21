@@ -41,9 +41,9 @@ class CustomColors extends ThemeExtension<CustomColors> {
       totalTeacherOverviewBackgroundColor:
           totalTeacherOverviewBackgroundColor ??
               this.totalTeacherOverviewBackgroundColor,
-      sickBackgroundColor: sickBackgroundColor ?? this.sickBackgroundColor,
+      sickBackgroundColor: sickBackgroundColor ?? sickBackgroundColor,
       permissionBackgroundColor:
-          permissionBackgroundColor ?? this.permissionBackgroundColor,
+          permissionBackgroundColor ?? permissionBackgroundColor,
     );
   }
 

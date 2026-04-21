@@ -1,8 +1,8 @@
-import 'dart:convert';
 
 import 'package:eschool_saas_staff/data/models/holiday.dart';
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class AttendanceRepository {
   Future<
@@ -32,8 +32,8 @@ class AttendanceRepository {
         throw ApiException("Invalid response from API");
       }
 
-      // JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
-      // print("KUCING MESIR");
+      // JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(debugPrint);
+      // debugPrint("KUCING MESIR");
 
       return (
         attendance: (result['data'] as List)
@@ -50,7 +50,7 @@ class AttendanceRepository {
         )
       );
     } catch (e) {
-      print("Error in getAttendance: $e");
+      debugPrint("Error in getAttendance: $e");
       throw ApiException("Failed to Fetch Attendance: $e");
     }
   }

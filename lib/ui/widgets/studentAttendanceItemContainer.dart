@@ -1,9 +1,6 @@
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRadioButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -51,7 +48,6 @@ class _StudentAttendanceItemContainerState
 
   // Colors for the maroon theme to match teacherAddAttendanceSubjectScreen.dart
   final Color _maroonPrimary = const Color(0xFF800020);
-  final Color _maroonLight = const Color(0xFFAA6976);
 
   // Animation controller for interactive elements
   late AnimationController _animationController;
@@ -104,7 +100,7 @@ class _StudentAttendanceItemContainerState
                 .extension<CustomColors>()!
                 .sickBackgroundColor!,
           ),
-          SizedBox(width: 2), // Minimal spacing between buttons
+          const SizedBox(width: 2), // Minimal spacing between buttons
           _buildAttendanceOption(
             context,
             status: StudentAttendanceStatus.permission,
@@ -113,7 +109,7 @@ class _StudentAttendanceItemContainerState
                 .extension<CustomColors>()!
                 .permissionBackgroundColor!,
           ),
-          SizedBox(width: 2), // Minimal spacing between buttons
+          const SizedBox(width: 2), // Minimal spacing between buttons
           _buildAttendanceOption(
             context,
             status: StudentAttendanceStatus.alpa,
@@ -130,12 +126,12 @@ class _StudentAttendanceItemContainerState
   // Badge to show when student has resigned
   Widget _buildResignedBadge() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
+        color: Colors.grey.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: Colors.grey.withOpacity(0.3),
+          color: Colors.grey.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -184,22 +180,22 @@ class _StudentAttendanceItemContainerState
             widget.onChangeAttendance!(selectedValue);
           }
         },
-        splashColor: color.withOpacity(0.2),
+        splashColor: color.withValues(alpha: 0.2),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           width: 32, // Reduced from 36 to 32
           height: 32, // Reduced from 36 to 32
           decoration: BoxDecoration(
-            color: isSelected ? color : color.withOpacity(0.15),
+            color: isSelected ? color : color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
             border: Border.all(
-              color: isSelected ? color : color.withOpacity(0.3),
+              color: isSelected ? color : color.withValues(alpha: 0.3),
               width: isSelected ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.3),
+                      color: color.withValues(alpha: 0.3),
                       blurRadius: 5,
                       offset: const Offset(0, 2),
                     ),
@@ -233,7 +229,7 @@ class _StudentAttendanceItemContainerState
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -252,8 +248,8 @@ class _StudentAttendanceItemContainerState
             // Light feedback when tapping the row
             HapticFeedback.selectionClick();
           },
-          splashColor: Colors.grey.withOpacity(0.1),
-          highlightColor: Colors.grey.withOpacity(0.05),
+          splashColor: Colors.grey.withValues(alpha: 0.1),
+          highlightColor: Colors.grey.withValues(alpha: 0.05),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
             child: Row(
@@ -266,7 +262,7 @@ class _StudentAttendanceItemContainerState
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: _maroonPrimary.withOpacity(0.1),
+                      color: _maroonPrimary.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -384,13 +380,13 @@ class _StudentAttendanceItemContainerState
                     : "-";
 
     return Container(
-      padding:
-          EdgeInsets.symmetric(horizontal: 8, vertical: 6), // Reduced padding
+      padding: const EdgeInsets.symmetric(
+          horizontal: 8, vertical: 6), // Reduced padding
       decoration: BoxDecoration(
-        color: statusColor.withOpacity(0.1),
+        color: statusColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: statusColor.withOpacity(0.3),
+          color: statusColor.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -403,7 +399,7 @@ class _StudentAttendanceItemContainerState
             width: 22, // Reduced from 24 to 22
             height: 22, // Reduced from 24 to 22
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(0.2),
+              color: statusColor.withValues(alpha: 0.2),
               shape: BoxShape.circle,
               border: Border.all(
                 color: statusColor,

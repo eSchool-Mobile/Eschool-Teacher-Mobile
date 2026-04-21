@@ -18,7 +18,7 @@ class ElegantCurvePainter extends CustomPainter {
       ..strokeWidth = 0;
 
     // Beautiful flowing wave at the bottom
-    paint.color = secondaryColor.withOpacity(0.1);
+    paint.color = secondaryColor.withValues(alpha: 0.1);
     var path1 = Path();
     path1.moveTo(0, size.height * 0.65);
     path1.quadraticBezierTo(
@@ -38,7 +38,7 @@ class ElegantCurvePainter extends CustomPainter {
     canvas.drawPath(path1, paint);
 
     // Middle elegant curve
-    paint.color = primaryColor.withOpacity(0.08);
+    paint.color = primaryColor.withValues(alpha: 0.08);
     var path2 = Path();
     path2.moveTo(0, size.height * 0.75);
     path2.quadraticBezierTo(
@@ -58,7 +58,7 @@ class ElegantCurvePainter extends CustomPainter {
     canvas.drawPath(path2, paint);
 
     // Subtle top curve decoration
-    paint.color = accentColor.withOpacity(0.05);
+    paint.color = accentColor.withValues(alpha: 0.05);
     var path3 = Path();
     path3.moveTo(0, size.height * 0.15);
     path3.quadraticBezierTo(
@@ -80,8 +80,8 @@ class ElegantCurvePainter extends CustomPainter {
     // Decorative floating circles with gradients
     final circleGradient = RadialGradient(
       colors: [
-        primaryColor.withOpacity(0.1),
-        primaryColor.withOpacity(0.05),
+        primaryColor.withValues(alpha: 0.1),
+        primaryColor.withValues(alpha: 0.05),
         Colors.transparent,
       ],
     );
@@ -116,7 +116,7 @@ class ElegantCurvePainter extends CustomPainter {
 
     // Add some thin decorative lines
     final linePaint = Paint()
-      ..color = accentColor.withOpacity(0.03)
+      ..color = accentColor.withValues(alpha: 0.03)
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 

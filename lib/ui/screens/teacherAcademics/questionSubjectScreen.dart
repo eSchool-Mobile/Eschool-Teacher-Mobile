@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +12,6 @@ import '../../../data/models/subjectQuestion.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-
 
 class QuestionSubjectController extends GetxController {
   final BuildContext context;
@@ -34,7 +32,7 @@ class QuestionSubjectController extends GetxController {
   }
 
   void _reloadData() {
-    print("Reloading QuestionSubjectScreen");
+    debugPrint("Reloading QuestionSubjectScreen");
     context
         .read<QuestionBankCubit>()
         .fetchTeacherSubjects(isStaffView: isStaffView);
@@ -55,7 +53,7 @@ class LightRaysPainter extends CustomPainter {
 
     // Draw multiple rays from center
     final center = Offset(size.width / 2, size.height / 2);
-    final rays = 12; // Number of rays
+    const rays = 12; // Number of rays
     final maxLength = size.width > size.height ? size.width : size.height;
 
     for (int i = 0; i < rays; i++) {
@@ -82,9 +80,9 @@ class QuestionSubjectScreen extends StatefulWidget {
   final bool isStaffView;
 
   const QuestionSubjectScreen({
-    Key? key,
+    super.key,
     this.isStaffView = false,
-  }) : super(key: key);
+  });
 
   @override
   State<QuestionSubjectScreen> createState() => _QuestionSubjectScreenState();
@@ -92,10 +90,8 @@ class QuestionSubjectScreen extends StatefulWidget {
 
 class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     with TickerProviderStateMixin {
-  late QuestionSubjectController _controller;
   // Animation controllers
   late AnimationController _backgroundAnimationController;
-  late AnimationController _waveAnimationController;
   late AnimationController _floatingIconsController;
   late AnimationController _cardHoverController;
   late AnimationController _pulseController;
@@ -104,12 +100,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
   // Animations
   late Animation<double> _backgroundAnimation;
-  late Animation<double> _waveAnimation;
   late Animation<double> _pulseAnimation;
 
-  int _selectedTabIndex = 0;
   int _hoveredCardIndex = -1;
-  double _dragPosition = 0;
 
   // Search functionality
   final TextEditingController _searchController = TextEditingController();
@@ -119,80 +112,67 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   // final List<ParticleModel> _particles = [];
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor =
+  static const Color _primaryColor =
       Color(0xFF7A1E23); // Softer deep maroon (was 0xFF4A0000)
-  final Color _accentColor =
+  static const Color _accentColor =
       Color(0xFF9D3C3C); // Softer medium maroon (was 0xFF800000)
-  final Color _highlightColor =
+  static const Color _highlightColor =
       Color(0xFFB84D4D); // Softer bright maroon (was 0xFFA52A2A)
-  final Color _energyColor =
+  static const Color _energyColor =
       Color(0xFFCE6D6D); // Softer light maroon (was 0xFFC13E3E)
-  final Color _glowColor =
+  static const Color _glowColor =
       Color(0xFFAF4F4F); // Softer rich maroon (was 0xFF9E2A2A)
 
   final List<Color> _cardGradients = [
-    Color(0xFF7A2828), // Softer dark maroon (was 0xFF5D0000)
-    Color(0xFF9D3C3C), // Softer classic maroon (was 0xFF800000)
-    Color(0xFFAF4F4F), // Softer rich maroon (was 0xFF9E2A2A)
-    Color(0xFFB84D4D), // Softer brown-maroon (was 0xFFA52A2A)
-    Color(0xFFC65454), // Softer firebrick (was 0xFFB22222)
-    Color(0xFFAA3939), // Softer dark red (was 0xFF8B0000)
-    Color(0xFF8F2D2D), // Softer deep maroon (was 0xFF700000)
-    Color(0xFFB14040), // Softer bright maroon (was 0xFF940000)
+    const Color(0xFF7A2828), // Softer dark maroon (was 0xFF5D0000)
+    const Color(0xFF9D3C3C), // Softer classic maroon (was 0xFF800000)
+    const Color(0xFFAF4F4F), // Softer rich maroon (was 0xFF9E2A2A)
+    const Color(0xFFB84D4D), // Softer brown-maroon (was 0xFFA52A2A)
+    const Color(0xFFC65454), // Softer firebrick (was 0xFFB22222)
+    const Color(0xFFAA3939), // Softer dark red (was 0xFF8B0000)
+    const Color(0xFF8F2D2D), // Softer deep maroon (was 0xFF700000)
+    const Color(0xFFB14040), // Softer bright maroon (was 0xFF940000)
   ];
-  // Track if the screen is initially loaded for animations
-  bool _isFirstLoad = true;
 
   @override
   void initState() {
     super.initState();
-    _controller =
-        Get.put(QuestionSubjectController(context, widget.isStaffView));
+    Get.put(QuestionSubjectController(context, widget.isStaffView));
 
     // Setup animation controllers
     _backgroundAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 30000),
-    )..repeat();
-
-    _waveAnimationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 7000),
+      duration: const Duration(milliseconds: 30000),
     )..repeat();
 
     _floatingIconsController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
     _cardHoverController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _loadingController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
     _tabTransitionController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
     );
 
     // Setup animations
     _backgroundAnimation = CurvedAnimation(
       parent: _backgroundAnimationController,
       curve: Curves.linear,
-    );
-
-    _waveAnimation = CurvedAnimation(
-      parent: _waveAnimationController,
-      curve: Curves.easeInOut,
     );
 
     _pulseAnimation = CurvedAnimation(
@@ -211,27 +191,17 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
     ]);
 
     // Set system UI style for immersive experience
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: _primaryColor,
       systemNavigationBarIconBrightness: Brightness.light,
     ));
-
-    // Delay to ensure animations look good on first load
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _isFirstLoad = false;
-        });
-      }
-    });
   }
 
   @override
   void dispose() {
     _backgroundAnimationController.dispose();
-    _waveAnimationController.dispose();
     _floatingIconsController.dispose();
     _cardHoverController.dispose();
     _pulseController.dispose();
@@ -249,7 +219,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
   }
 
   void _filterSubjects(String query, List<SubjectQuestion> subjects) {
-    print(
+    debugPrint(
         '_filterSubjects called with query: "$query", total subjects: ${subjects.length}');
 
     // Defer setState to avoid calling it during build
@@ -259,7 +229,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       setState(() {
         if (query.isEmpty) {
           _filteredSubjects = List.from(subjects);
-          print(
+          debugPrint(
               'Query empty, showing all ${_filteredSubjects.length} subjects');
         } else {
           _filteredSubjects = subjects.where((subject) {
@@ -277,7 +247,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
           }).toList();
 
           // Debug: Print hasil filter
-          print(
+          debugPrint(
               'Search query: "$query", Found: ${_filteredSubjects.length} results from ${subjects.length} total subjects');
         }
       });
@@ -316,42 +286,37 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
               color: Colors.white,
               child: NotificationListener<ScrollNotification>(
                 onNotification: (notification) {
-                  if (notification is ScrollUpdateNotification) {
-                    setState(() {
-                      _dragPosition = notification.metrics.pixels / 10;
-                    });
-                  }
                   return false;
                 },
                 child: Column(
                   children: [
                     // Leave space for the app bar
-                    SizedBox(height: 90),
+                    const SizedBox(height: 90),
 
                     Expanded(
                       child: Container(
-                        margin: EdgeInsets.only(top: 10),
+                        margin: const EdgeInsets.only(top: 10),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.white.withOpacity(0.95),
-                              Color(0xFFFFF0F0),
+                              Colors.white.withValues(alpha: 0.95),
+                              const Color(0xFFFFF0F0),
                             ],
                           ),
                           borderRadius: BorderRadius.zero,
                           boxShadow: [
                             BoxShadow(
-                              color: _glowColor.withOpacity(0.2),
+                              color: _glowColor.withValues(alpha: 0.2),
                               blurRadius: 20,
                               spreadRadius: 5,
-                              offset: Offset(0, -5),
+                              offset: const Offset(0, -5),
                             ),
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 30,
-                              offset: Offset(0, -10),
+                              offset: const Offset(0, -10),
                             ),
                           ],
                         ),
@@ -381,11 +346,11 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       return _buildErrorView(state.message);
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 
   Widget _buildLoadingView() {
-    return SkeletonQuestionSubjectScreen(
+    return const SkeletonQuestionSubjectScreen(
       itemCount: 6,
       showSearch: true,
     );
@@ -409,10 +374,10 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
   Widget _buildEmptyView() {
     return FadeIn(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Center(
         child: Padding(
-          padding: EdgeInsets.all(30),
+          padding: const EdgeInsets.all(30),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -421,8 +386,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                 width: 180,
                 height: 180,
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Belum ada mata pelajaran',
                 style: TextStyle(
                   fontSize: 20,
@@ -430,7 +395,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                   color: _accentColor, // Using maroon instead of purple
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
             ],
           ),
         ),
@@ -486,14 +451,14 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
       // Search bar if needed
       if (shouldShowSearch)
         FadeInDown(
-          duration: Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 600),
           child: Container(
-            margin: EdgeInsets.fromLTRB(20, 25, 20, 20),
+            margin: const EdgeInsets.fromLTRB(20, 25, 20, 20),
             height: 55,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 10,
@@ -505,10 +470,10 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari mata pelajaran...',
-                prefixIcon: Icon(Icons.search, color: _primaryColor),
+                prefixIcon: const Icon(Icons.search, color: _primaryColor),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: _primaryColor),
+                        icon: const Icon(Icons.clear, color: _primaryColor),
                         onPressed: () {
                           _clearSearch(subjects);
                         },
@@ -516,7 +481,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                     : null,
                 border: InputBorder.none,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               ),
               onChanged: (value) {
                 _filterSubjects(value, subjects);
@@ -560,8 +525,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                 ),
                                 colors: [
                                   Colors.transparent,
-                                  _highlightColor.withOpacity(0.01),
-                                  _accentColor.withOpacity(0.02),
+                                  _highlightColor.withValues(alpha: 0.01),
+                                  _accentColor.withValues(alpha: 0.02),
                                   Colors.transparent,
                                 ],
                                 radius: 1.0,
@@ -579,7 +544,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                     ListView.builder(
                       padding: EdgeInsets.fromLTRB(
                           20, shouldShowSearch ? 15 : 25, 20, 100),
-                      physics: BouncingScrollPhysics(),
+                      physics: const BouncingScrollPhysics(),
                       itemCount: displaySubjects.length,
                       itemBuilder: (context, index) {
                         final subject = displaySubjects[index];
@@ -603,7 +568,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
                               // Elaborate haptic pattern
                               HapticFeedback.mediumImpact();
-                              await Future.delayed(Duration(milliseconds: 50));
+                              await Future.delayed(
+                                  const Duration(milliseconds: 50));
                               HapticFeedback.lightImpact();
 
                               // Exaggerated scale animation on tap
@@ -628,7 +594,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                             });
                           },
                           onTapUp: (_) {
-                            Future.delayed(Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
                               if (mounted) {
                                 setState(() {
                                   _hoveredCardIndex = -1;
@@ -640,9 +607,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                             offset:
                                 Offset(0, index == _hoveredCardIndex ? -5 : 0),
                             child: AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 300),
                               curve: Curves.easeOutCubic,
-                              margin: EdgeInsets.only(bottom: 24),
+                              margin: const EdgeInsets.only(bottom: 24),
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
@@ -654,14 +621,14 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                       ..rotateX(isHovered ? 0.05 : 0.0)
                                       ..rotateY(isHovered ? -0.05 : 0.0),
                                     child: Container(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            cardBaseColor.withOpacity(
-                                                isHovered ? 1.0 : 0.85),
+                                            cardBaseColor.withValues(
+                                                alpha: isHovered ? 1.0 : 0.85),
                                             HSLColor.fromColor(cardBaseColor)
                                                 .withLightness(
                                                   HSLColor.fromColor(
@@ -670,27 +637,28 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                       0.7,
                                                 )
                                                 .toColor()
-                                                .withOpacity(
-                                                    isHovered ? 0.95 : 0.8),
+                                                .withValues(
+                                                    alpha:
+                                                        isHovered ? 0.95 : 0.8),
                                           ],
-                                          stops: [0.3, 1.0],
+                                          stops: const [0.3, 1.0],
                                         ),
                                         borderRadius: BorderRadius.circular(28),
                                         boxShadow: [
                                           // Outer glow shadow
                                           BoxShadow(
-                                            color: neonGlowColor.withOpacity(
-                                                isHovered ? 0.35 : 0.15),
+                                            color: neonGlowColor.withValues(
+                                                alpha: isHovered ? 0.35 : 0.15),
                                             blurRadius: isHovered ? 25 : 15,
                                             spreadRadius: isHovered ? 2 : 0,
                                           ),
                                           // Inner depth shadow
                                           BoxShadow(
-                                            color:
-                                                cardBaseColor.withOpacity(0.5),
+                                            color: cardBaseColor.withValues(
+                                                alpha: 0.5),
                                             blurRadius: 15,
                                             spreadRadius: -3,
-                                            offset: Offset(0, 8),
+                                            offset: const Offset(0, 8),
                                           ),
                                         ],
                                       ),
@@ -727,21 +695,25 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                 .bottomRight,
                                                             colors: [
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      1.0),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          1.0),
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      0.9),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.9),
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      1.0),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          1.0),
                                                             ],
                                                           ).createShader(
                                                                       bounds),
                                                           child: Text(
                                                             subject
                                                                 .subjectWithName,
-                                                            style: TextStyle(
+                                                            style:
+                                                                const TextStyle(
                                                               fontSize: 20,
                                                               height: 1.2,
                                                               fontWeight:
@@ -763,15 +735,18 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                           ),
                                                         ),
 
-                                                        SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
 
                                                         // Divider with animation
                                                         AnimatedContainer(
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  400),
-                                                          margin: EdgeInsets
-                                                              .symmetric(
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      400),
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .symmetric(
                                                                   vertical: 8),
                                                           height: 2,
                                                           width: isHovered
@@ -787,11 +762,13 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                   .centerRight,
                                                               colors: [
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.8),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.8),
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.2),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.2),
                                                               ],
                                                             ),
                                                             borderRadius:
@@ -801,14 +778,16 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                           ),
                                                         ),
 
-                                                        SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
 
                                                         // Question count chip with advanced styling
                                                         Row(
                                                           children: [
                                                             Container(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .symmetric(
                                                                       horizontal:
                                                                           12,
                                                                       vertical:
@@ -817,8 +796,9 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                   BoxDecoration(
                                                                 color: Colors
                                                                     .white
-                                                                    .withOpacity(
-                                                                        0.15),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.15),
                                                                 borderRadius:
                                                                     BorderRadius
                                                                         .circular(
@@ -827,11 +807,12 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                     Border.all(
                                                                   color: Colors
                                                                       .white
-                                                                      .withOpacity(
-                                                                          0.2),
+                                                                      .withValues(
+                                                                          alpha:
+                                                                              0.2),
                                                                   width: 1,
                                                                 ),
-                                                                boxShadow: [
+                                                                boxShadow: const [
                                                                   BoxShadow(
                                                                     color: Colors
                                                                         .black12,
@@ -850,7 +831,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                                   Text(
                                                                     '${subject.bankSoalCount} Bank Soal',
                                                                     style:
-                                                                        TextStyle(
+                                                                        const TextStyle(
                                                                       color: Colors
                                                                           .white,
                                                                       fontWeight:
@@ -871,7 +852,7 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
 
                                                   // Arrow button with animations and effects
                                                   AnimatedContainer(
-                                                    duration: Duration(
+                                                    duration: const Duration(
                                                         milliseconds: 300),
                                                     width: isHovered ? 50 : 45,
                                                     height: isHovered ? 50 : 45,
@@ -885,27 +866,32 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                         colors: isHovered
                                                             ? [
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.3),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.3),
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.1)
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.1)
                                                               ]
                                                             : [
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.2),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.2),
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.05)
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.05)
                                                               ],
                                                       ),
                                                       boxShadow: isHovered
                                                           ? [
                                                               BoxShadow(
                                                                 color: neonGlowColor
-                                                                    .withOpacity(
-                                                                        0.4),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.4),
                                                                 blurRadius: 15,
                                                                 spreadRadius: 1,
                                                               ),
@@ -913,7 +899,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                                           : [],
                                                       border: Border.all(
                                                         color: Colors.white
-                                                            .withOpacity(0.3),
+                                                            .withValues(
+                                                                alpha: 0.3),
                                                         width: 1,
                                                       ),
                                                     ),
@@ -966,7 +953,8 @@ class _QuestionSubjectScreenState extends State<QuestionSubjectScreen>
                                       height: 30,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: neonGlowColor.withOpacity(0.1),
+                                        color: neonGlowColor.withValues(
+                                            alpha: 0.1),
                                       ),
                                     ),
                                   ),

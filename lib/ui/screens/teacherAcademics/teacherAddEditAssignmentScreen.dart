@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
@@ -24,8 +24,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:animate_do/animate_do.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class TeacherAddEditAssignmentScreen extends StatefulWidget {
   final Assignment? assignment;
@@ -109,46 +107,6 @@ class _TeacherAddEditAssignmentScreenState
   static const Color _burgundy = Color(0xFF5D2329); // Dark burgundy
   static const Color _champagne =
       Color(0xFFF5F0ED); // Lighter champagne for better contrast
-
-  // Text styles
-  final TextStyle _sectionTitleStyle = TextStyle(
-    fontSize: 20,
-    fontWeight: FontWeight.w700,
-    color: _deepMaroon,
-    letterSpacing: -0.3,
-  );
-
-  final TextStyle _sectionSubtitleStyle = TextStyle(
-    fontSize: 14,
-    color: _dustyRose,
-    fontWeight: FontWeight.w500,
-  );
-
-  final BoxDecoration _cardDecoration = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(16),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.05),
-        blurRadius: 15,
-        offset: Offset(0, 5),
-        spreadRadius: 0,
-      ),
-    ],
-  );
-
-  final BoxDecoration _inputDecoration = BoxDecoration(
-    color: _pearl,
-    borderRadius: BorderRadius.circular(12),
-    border: Border.all(color: _blushPink.withOpacity(0.3)),
-    boxShadow: [
-      BoxShadow(
-        color: _blushPink.withOpacity(0.1),
-        blurRadius: 8,
-        offset: Offset(0, 2),
-      ),
-    ],
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -247,11 +205,9 @@ class _TeacherAddEditAssignmentScreenState
         : '',
   );
 
-  late DateTime? start_date =
-      widget.assignment != null ? widget.assignment!.startDate : null;
+  late DateTime? startDate = widget.assignment?.startDate;
 
-  late DateTime? end_date =
-      widget.assignment != null ? widget.assignment!.endDate : null;
+  late DateTime? endDate = widget.assignment?.endDate;
 
   String? selectedAnswerType = "dokumen"; // Default to dokumen
 
@@ -276,7 +232,7 @@ class _TeacherAddEditAssignmentScreenState
         ClassSectionsAndSubjectsState>(
       builder: (context, state) {
         if (state is ClassSectionsAndSubjectsFetchInProgress) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(_deepMaroon),
             ),
@@ -312,10 +268,10 @@ class _TeacherAddEditAssignmentScreenState
           }
 
           return SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Basic Information Section
                 _buildLuxurySection(
@@ -326,7 +282,7 @@ class _TeacherAddEditAssignmentScreenState
                   children: [
                     // Subject selection
                     _buildSubjectSelection(),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     // Assignment Name
                     _buildAnimatedTextField(
                       controller: _assignmentNameTextEditingController,
@@ -335,7 +291,7 @@ class _TeacherAddEditAssignmentScreenState
                       maxLines: null,
                       textAlignVertical: TextAlignVertical.top,
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     // Description
                     _buildAnimatedTextField(
                       controller: _assignmentDescriptionTextEditingController,
@@ -347,7 +303,7 @@ class _TeacherAddEditAssignmentScreenState
                   ],
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Date & Time Section
                 _buildLuxurySection(
@@ -361,7 +317,7 @@ class _TeacherAddEditAssignmentScreenState
                   ],
                 ),
 
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
 
                 // Scoring Section
                 _buildLuxurySection(
@@ -383,7 +339,7 @@ class _TeacherAddEditAssignmentScreenState
                             ],
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: _buildAnimatedTextField(
                             controller: _minPointsTextEditingController,
@@ -397,7 +353,7 @@ class _TeacherAddEditAssignmentScreenState
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildAnimatedTextField(
                       controller: _extraResubmissionDaysTextEditingController,
                       label: 'Pengumpulan Ulang',
@@ -408,28 +364,28 @@ class _TeacherAddEditAssignmentScreenState
                   ],
                 ),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Answer Type Section
                 _buildAnswerTypeSection(),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Attachment Section
                 _buildAttachmentSection(),
 
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
 
                 // Submit Button
                 _buildSubmitButton(),
 
-                SizedBox(height: 100), // Bottom spacing
+                const SizedBox(height: 100), // Bottom spacing
               ],
             ),
           );
         }
 
-        return Center(
+        return const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(_deepMaroon),
           ),
@@ -444,7 +400,7 @@ class _TeacherAddEditAssignmentScreenState
         .initState(); // Initialize the animation controller for the modern app bar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 3000),
     );
     _fabAnimationController.repeat();
 
@@ -460,8 +416,8 @@ class _TeacherAddEditAssignmentScreenState
 
     // Initialize dates from existing assignment if editing
     if (widget.assignment != null) {
-      start_date = widget.assignment!.startDate;
-      end_date = widget.assignment!.endDate;
+      startDate = widget.assignment!.startDate;
+      endDate = widget.assignment!.endDate;
 
       // Update the text controllers with formatted dates
       _startDateTextEditingController.text =
@@ -549,14 +505,14 @@ class _TeacherAddEditAssignmentScreenState
     // Initialize file types from saved assignment
     if (widget.assignment != null) {
       final savedTypes = widget.assignment!.acceptedFile;
-      fileTypes.forEach((type) {
+      for (var type in fileTypes) {
         type.isSelected = savedTypes.contains(type.name.toLowerCase());
-      });
+      }
     }
 
     // Initialize animation controllers
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
@@ -564,7 +520,7 @@ class _TeacherAddEditAssignmentScreenState
     // Add pulse animation controller
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
   }
 
@@ -592,6 +548,7 @@ class _TeacherAddEditAssignmentScreenState
         fileTypes = types;
       });
     } catch (e) {
+      if (!mounted) return;
       Utils.showSnackBar(
         context: context,
         message: e.toString(),
@@ -600,7 +557,7 @@ class _TeacherAddEditAssignmentScreenState
   }
 
   Future<void> _addFiles() async {
-    print(
+    debugPrint(
         '🎯 [ASSIGNMENT SCREEN] Memulai upload file dengan kompresi otomatis');
 
     // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
@@ -617,8 +574,8 @@ class _TeacherAddEditAssignmentScreenState
         final fileSize = await file.length();
         final fileName = file.path.split('/').last;
 
-        print('✅ [ASSIGNMENT SCREEN] File berhasil diproses: $fileName');
-        print(
+        debugPrint('✅ [ASSIGNMENT SCREEN] File berhasil diproses: $fileName');
+        debugPrint(
             '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
         final platformFile = PlatformFile(
@@ -631,7 +588,8 @@ class _TeacherAddEditAssignmentScreenState
       }
       setState(() {});
     } else {
-      print('❌ [ASSIGNMENT SCREEN] Tidak ada file yang dipilih atau diproses');
+      debugPrint(
+          '❌ [ASSIGNMENT SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 
@@ -652,19 +610,19 @@ class _TeacherAddEditAssignmentScreenState
   }
 
   Future<void> _selectStartDate(BuildContext context) async {
-    start_date = (start_date ?? DateTime.now()).isBefore(DateTime.now())
+    startDate = (startDate ?? DateTime.now()).isBefore(DateTime.now())
         ? DateTime.now()
-        : start_date;
+        : startDate;
 
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: start_date ?? DateTime.now(),
+      initialDate: startDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != start_date) {
+    if (picked != null && picked != startDate) {
       setState(() {
-        start_date = picked;
+        startDate = picked;
         _startDateTextEditingController.text =
             DateFormat('dd-MM-yyyy').format(picked);
       });
@@ -674,13 +632,13 @@ class _TeacherAddEditAssignmentScreenState
   Future<void> _selectEndDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: end_date ?? DateTime.now(),
+      initialDate: endDate ?? DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != end_date) {
+    if (picked != null && picked != endDate) {
       setState(() {
-        end_date = picked;
+        endDate = picked;
         _endDateTextEditingController.text =
             DateFormat('dd-MM-yyyy').format(picked);
       });
@@ -774,7 +732,7 @@ class _TeacherAddEditAssignmentScreenState
           color: Colors.transparent,
           child: Center(
             child: TweenAnimationBuilder<double>(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               tween: Tween<double>(begin: 0.0, end: 1.0),
               builder: (context, value, child) {
                 return Transform.translate(
@@ -782,17 +740,17 @@ class _TeacherAddEditAssignmentScreenState
                   child: Opacity(
                     opacity: value,
                     child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 16),
                       decoration: BoxDecoration(
                         color: Colors.green.shade600,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 15,
-                            offset: Offset(0, 8),
+                            offset: const Offset(0, 8),
                             spreadRadius: -2,
                           )
                         ],
@@ -800,12 +758,12 @@ class _TeacherAddEditAssignmentScreenState
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.check_circle_rounded,
+                          const Icon(Icons.check_circle_rounded,
                               color: Colors.white, size: 24),
-                          SizedBox(width: 16),
+                          const SizedBox(width: 16),
                           Text(
                             displayMessage,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.w500,
@@ -826,7 +784,7 @@ class _TeacherAddEditAssignmentScreenState
 
     Overlay.of(context).insert(overlayEntry);
 
-    Future.delayed(Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () {
       overlayEntry.remove();
     });
   }
@@ -888,13 +846,13 @@ class _TeacherAddEditAssignmentScreenState
       showErrorMessage("Kolom Waktu Tenggat wajib diisi.");
       return;
     }
-    if (start_date == null) {
+    if (startDate == null) {
       // Add this line
       showErrorMessage("Kolom Tanggal Mulai Penugasan wajib diisi.");
       return;
     }
 
-    if (end_date == null) {
+    if (endDate == null) {
       // Add this line
       showErrorMessage("Kolom Tanggal Akhir Penugasan wajib diisi.");
       return;
@@ -940,10 +898,12 @@ class _TeacherAddEditAssignmentScreenState
           name: _assignmentNameTextEditingController.text.trim(),
           dateTime:
               "${DateFormat('dd-MM-yyyy').format(dueDate!).toString()} ${dueTime!.hour}:${dueTime!.minute}",
-          startDate:
-              "${DateFormat('dd-MM-yyyy').format(start_date!).toString()}", // Add this line
-          endDate:
-              "${DateFormat('dd-MM-yyyy').format(end_date!).toString()}", // Add this line
+          startDate: DateFormat('dd-MM-yyyy')
+              .format(startDate!)
+              .toString(), // Add this line
+          endDate: DateFormat('dd-MM-yyyy')
+              .format(endDate!)
+              .toString(), // Add this line
           extraDayForResubmission:
               _extraResubmissionDaysTextEditingController.text.trim(),
           description: _assignmentDescriptionTextEditingController.text.trim(),
@@ -1009,11 +969,11 @@ class _TeacherAddEditAssignmentScreenState
       showErrorMessage("Kolom Waktu Tenggat wajib diisi.");
       return;
     }
-    if (start_date == null) {
+    if (startDate == null) {
       showErrorMessage("Kolom Tanggal Mulai Penugasan wajib diisi.");
       return;
     }
-    if (end_date == null) {
+    if (endDate == null) {
       showErrorMessage("Kolom Tanggal Akhir Penugasan wajib diisi.");
       return;
     }
@@ -1036,8 +996,8 @@ class _TeacherAddEditAssignmentScreenState
       return;
     }
 
-    print("File allowed?");
-    print(_isFileAnswerAllowed);
+    debugPrint("File allowed?");
+    debugPrint(_isFileAnswerAllowed.toString());
 
     final selectedFileTypes = _isFileAnswerAllowed
         ? fileTypes
@@ -1052,14 +1012,14 @@ class _TeacherAddEditAssignmentScreenState
     }
 
     // Format dates properly for API
-    final formattedStartDate = DateFormat('dd-MM-yyyy').format(start_date!);
-    final formattedEndDate = DateFormat('dd-MM-yyyy').format(end_date!);
+    final formattedStartDate = DateFormat('dd-MM-yyyy').format(startDate!);
+    final formattedEndDate = DateFormat('dd-MM-yyyy').format(endDate!);
     final textValue = _isTextAnswerAllowed ? "1" : "0";
 
-    print("Must Upload");
-    print(uploadedFiles);
-    print("====");
-    print(_assignmentUploadedFilesEditingController);
+    debugPrint("Must Upload");
+    debugPrint(uploadedFiles.toString());
+    debugPrint("====");
+    debugPrint(_assignmentUploadedFilesEditingController.toString());
 
     context.read<EditAssignmentCubit>().editAssignment(
           classSelectionId: _selectedClassSection?.id ?? 0,
@@ -1098,7 +1058,7 @@ class _TeacherAddEditAssignmentScreenState
   // 🚀 PREMIUM SUBMIT BUTTON - Luxury design for action button
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: widget.assignment != null
           ? BlocConsumer<EditAssignmentCubit, EditAssignmentState>(
               listener: (context, state) {
@@ -1145,8 +1105,8 @@ class _TeacherAddEditAssignmentScreenState
                   // Reset dates and time
                   dueDate = null;
                   dueTime = null;
-                  start_date = null;
-                  end_date = null;
+                  startDate = null;
+                  endDate = null;
                   // Reset answer types
                   _isTextAnswerAllowed = false;
                   _isFileAnswerAllowed = false;
@@ -1159,7 +1119,8 @@ class _TeacherAddEditAssignmentScreenState
                   assignmentAttachments = [];
                   refreshAssignmentsInPreviousPage = true;
                   setState(() {});
-                  Future.delayed(Duration(milliseconds: 500), () {
+                  Future.delayed(const Duration(milliseconds: 500), () {
+                    if (!context.mounted) return;
                     Navigator.pop(context, true);
                   });
                 } else if (state is CreateAssignmentFailure) {
@@ -1196,11 +1157,11 @@ class _TeacherAddEditAssignmentScreenState
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         width: double.infinity,
         height: 80,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [_deepMaroon, _softMaroon],
@@ -1209,9 +1170,9 @@ class _TeacherAddEditAssignmentScreenState
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: _deepMaroon.withOpacity(0.3),
+              color: _deepMaroon.withValues(alpha: 0.3),
               blurRadius: 15,
-              offset: Offset(0, 8),
+              offset: const Offset(0, 8),
               spreadRadius: 0,
             ),
           ],
@@ -1223,7 +1184,7 @@ class _TeacherAddEditAssignmentScreenState
             onTap: onTap,
             borderRadius: BorderRadius.circular(16),
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -1233,10 +1194,10 @@ class _TeacherAddEditAssignmentScreenState
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: SizedBox(
                           width: 20,
                           height: 20,
@@ -1248,12 +1209,12 @@ class _TeacherAddEditAssignmentScreenState
                         ),
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Memproses...',
                           style: TextStyle(
                             color: Colors.white,
@@ -1262,11 +1223,11 @@ class _TeacherAddEditAssignmentScreenState
                             letterSpacing: -0.2,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        const SizedBox(height: 2),
                         Text(
                           'Mohon tunggu sebentar',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1279,10 +1240,10 @@ class _TeacherAddEditAssignmentScreenState
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -1292,7 +1253,7 @@ class _TeacherAddEditAssignmentScreenState
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1300,7 +1261,7 @@ class _TeacherAddEditAssignmentScreenState
                         children: [
                           Text(
                             title,
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
@@ -1309,11 +1270,11 @@ class _TeacherAddEditAssignmentScreenState
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             subtitle,
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
+                              color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -1323,7 +1284,7 @@ class _TeacherAddEditAssignmentScreenState
                         ],
                       ),
                     ),
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward_rounded,
                       color: Colors.white,
                       size: 20,
@@ -1384,7 +1345,7 @@ class _TeacherAddEditAssignmentScreenState
         fillColor: Colors.grey.shade50,
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: _deepMaroon),
+          borderSide: const BorderSide(color: _deepMaroon),
         ),
       ),
     );
@@ -1456,9 +1417,9 @@ class _TeacherAddEditAssignmentScreenState
               children: [
                 // Tingkatan Dropdown
                 DropdownButtonFormField<String>(
-                  value: selectedTingkatan,
+                  initialValue: selectedTingkatan,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.layers, color: _deepMaroon),
+                    prefixIcon: const Icon(Icons.layers, color: _deepMaroon),
                     labelText: 'Pilih Tingkatan',
                     filled: true,
                     fillColor: Colors.grey.shade50,
@@ -1478,15 +1439,15 @@ class _TeacherAddEditAssignmentScreenState
                     });
                   },
                   isExpanded: true,
-                  hint: Text('Pilih Tingkatan'),
+                  hint: const Text('Pilih Tingkatan'),
                 ),
                 if (selectedTingkatan != null) ...[
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   // Kelas Dropdown
                   DropdownButtonFormField<String>(
-                    value: selectedKelas,
+                    initialValue: selectedKelas,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.class_, color: _deepMaroon),
+                      prefixIcon: const Icon(Icons.class_, color: _deepMaroon),
                       labelText: 'Pilih Kelas',
                       filled: true,
                       fillColor: Colors.grey.shade50,
@@ -1515,15 +1476,15 @@ class _TeacherAddEditAssignmentScreenState
                       }
                     },
                     isExpanded: true,
-                    hint: Text('Pilih Kelas'),
+                    hint: const Text('Pilih Kelas'),
                   ),
                 ],
                 if (selectedKelas != null) ...[
-                  SizedBox(height: 12),
+                  const SizedBox(height: 12),
                   // Mata Pelajaran Dropdown - Show loading if subjects are being fetched
                   if (context.watch<ClassSectionsAndSubjectsCubit>().state
                       is ClassSectionsAndSubjectsFetchInProgress)
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8),
                       child: Row(
                         children: [
@@ -1599,8 +1560,8 @@ class _TeacherAddEditAssignmentScreenState
                       });
 
                       return Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 12),
                         decoration: BoxDecoration(
                           color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12),
@@ -1610,7 +1571,7 @@ class _TeacherAddEditAssignmentScreenState
                           children: [
                             Icon(Icons.info_outline,
                                 color: Colors.grey.shade600, size: 20),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Tidak ada mata pelajaran tersedia untuk kelas ini',
@@ -1626,9 +1587,10 @@ class _TeacherAddEditAssignmentScreenState
                     })
                   else
                     DropdownButtonFormField<String>(
-                      value: selectedMapel,
+                      initialValue: selectedMapel,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.menu_book, color: _deepMaroon),
+                        prefixIcon:
+                            const Icon(Icons.menu_book, color: _deepMaroon),
                         labelText: 'Pilih Mata Pelajaran',
                         filled: true,
                         fillColor: Colors.grey.shade50,
@@ -1657,14 +1619,14 @@ class _TeacherAddEditAssignmentScreenState
                         }
                       },
                       isExpanded: true,
-                      hint: Text('Pilih Mata Pelajaran'),
+                      hint: const Text('Pilih Mata Pelajaran'),
                     ),
                 ],
               ],
             );
           }
         }
-        return Container(
+        return const SizedBox(
           height: 50,
           child: Center(
             child: CircularProgressIndicator(
@@ -1686,16 +1648,16 @@ class _TeacherAddEditAssignmentScreenState
     required List<Widget> children,
   }) {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -1705,9 +1667,9 @@ class _TeacherAddEditAssignmentScreenState
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: _deepMaroon.withOpacity(0.1),
+                  color: _deepMaroon.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
@@ -1716,14 +1678,14 @@ class _TeacherAddEditAssignmentScreenState
                   size: 24,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: _deepMaroon,
@@ -1743,7 +1705,7 @@ class _TeacherAddEditAssignmentScreenState
               ),
             ],
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           ...children,
         ],
       ),
@@ -1754,24 +1716,25 @@ class _TeacherAddEditAssignmentScreenState
   Widget _buildElegantField(
       String label, String description, IconData icon, Widget child) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(
-              color: _deepMaroon.withOpacity(0.05),
+              color: _deepMaroon.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(8),
-              border: Border(left: BorderSide(color: _deepMaroon, width: 3)),
+              border:
+                  const Border(left: BorderSide(color: _deepMaroon, width: 3)),
             ),
             child: Row(
               children: [
                 Icon(icon, color: _deepMaroon, size: 18),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   label,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: _deepMaroon,
                     fontSize: 15,
@@ -1782,12 +1745,12 @@ class _TeacherAddEditAssignmentScreenState
             ),
           ),
           if (description.isNotEmpty) ...[
-            SizedBox(height: 6),
+            const SizedBox(height: 6),
             Padding(
               padding: const EdgeInsets.only(left: 4.0),
               child: Text(
                 description,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12.5,
                   color: _dustyRose,
                   fontWeight: FontWeight.w400,
@@ -1796,15 +1759,15 @@ class _TeacherAddEditAssignmentScreenState
               ),
             ),
           ],
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: _blushPink.withOpacity(0.1),
+                  color: _blushPink.withValues(alpha: 0.1),
                   blurRadius: 8,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -1824,8 +1787,8 @@ class _TeacherAddEditAssignmentScreenState
             Expanded(
               child: _buildAnimatedTextField(
                 controller: TextEditingController(
-                  text: start_date != null
-                      ? DateFormat('dd-MM-yyyy').format(start_date!)
+                  text: startDate != null
+                      ? DateFormat('dd-MM-yyyy').format(startDate!)
                       : '',
                 ),
                 label: 'Tgl Mulai',
@@ -1834,12 +1797,12 @@ class _TeacherAddEditAssignmentScreenState
                 readOnly: true,
               ),
             ),
-            SizedBox(width: 15),
+            const SizedBox(width: 15),
             Expanded(
               child: _buildAnimatedTextField(
                 controller: TextEditingController(
-                  text: end_date != null
-                      ? DateFormat('dd-MM-yyyy').format(end_date!)
+                  text: endDate != null
+                      ? DateFormat('dd-MM-yyyy').format(endDate!)
                       : '',
                 ),
                 label: 'Tgl Akhir',
@@ -1850,7 +1813,7 @@ class _TeacherAddEditAssignmentScreenState
             ),
           ],
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Row(
           children: [
             Expanded(
@@ -1866,7 +1829,7 @@ class _TeacherAddEditAssignmentScreenState
                 readOnly: true,
               ),
             ),
-            SizedBox(width: 15),
+            const SizedBox(width: 15),
             Expanded(
               child: _buildAnimatedTextField(
                 controller: TextEditingController(
@@ -1896,27 +1859,27 @@ class _TeacherAddEditAssignmentScreenState
       children: [
         // Answer Type Cards with Required Indicator
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_champagne.withOpacity(0.6), _pearl],
+              colors: [_champagne.withValues(alpha: 0.6), _pearl],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withOpacity(0.3)),
+            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                       colors: [Colors.red.shade400, Colors.red.shade600]),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child:
-                    Icon(Icons.warning_rounded, color: Colors.white, size: 16),
+                child: const Icon(Icons.warning_rounded,
+                    color: Colors.white, size: 16),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1935,7 +1898,7 @@ class _TeacherAddEditAssignmentScreenState
             ],
           ),
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         IntrinsicHeight(
           child: Row(
             children: [
@@ -1948,7 +1911,7 @@ class _TeacherAddEditAssignmentScreenState
                 () => setState(
                     () => _isTextAnswerAllowed = !_isTextAnswerAllowed),
               )),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Expanded(
                   child: _buildAnswerTypeCard(
                 "File *",
@@ -1964,9 +1927,9 @@ class _TeacherAddEditAssignmentScreenState
 
         // File Type Selection
         if (_isFileAnswerAllowed) ...[
-          SizedBox(height: 28),
+          const SizedBox(height: 28),
           _buildFileTypeSelection(),
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
           _buildElegantField(
             "Ukuran Maksimal File",
             "Batas ukuran file dalam MB",
@@ -1990,28 +1953,28 @@ class _TeacherAddEditAssignmentScreenState
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
-        padding: EdgeInsets.all(20),
+        duration: const Duration(milliseconds: 300),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: isSelected
-              ? LinearGradient(
+              ? const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [_deepMaroon, _softMaroon],
                 )
-              : LinearGradient(
+              : const LinearGradient(
                   colors: [Colors.white, _pearl],
                 ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? _deepMaroon : _blushPink.withOpacity(0.3),
+            color: isSelected ? _deepMaroon : _blushPink.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? _deepMaroon.withOpacity(0.25)
-                  : _blushPink.withOpacity(0.1),
+                  ? _deepMaroon.withValues(alpha: 0.25)
+                  : _blushPink.withValues(alpha: 0.1),
               blurRadius: isSelected ? 15 : 8,
               offset: Offset(0, isSelected ? 8 : 4),
             ),
@@ -2020,11 +1983,11 @@ class _TeacherAddEditAssignmentScreenState
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.2)
-                    : _dustyRose.withOpacity(0.1),
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : _dustyRose.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -2033,7 +1996,7 @@ class _TeacherAddEditAssignmentScreenState
                 size: 24,
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               title,
               style: TextStyle(
@@ -2043,14 +2006,16 @@ class _TeacherAddEditAssignmentScreenState
                 letterSpacing: -0.2,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white.withOpacity(0.8) : _dustyRose,
+                color: isSelected
+                    ? Colors.white.withValues(alpha: 0.8)
+                    : _dustyRose,
                 letterSpacing: 0.1,
               ),
             ),
@@ -2068,18 +2033,19 @@ class _TeacherAddEditAssignmentScreenState
         Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
-                  _dustyRose.withOpacity(0.15),
-                  _blushPink.withOpacity(0.1)
+                  _dustyRose.withValues(alpha: 0.15),
+                  _blushPink.withValues(alpha: 0.1)
                 ]),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.folder_rounded, size: 18, color: _deepMaroon),
+              child: const Icon(Icons.folder_rounded,
+                  size: 18, color: _deepMaroon),
             ),
-            SizedBox(width: 12),
-            Text(
+            const SizedBox(width: 12),
+            const Text(
               "Format File yang Diizinkan",
               style: TextStyle(
                 fontSize: 16,
@@ -2090,15 +2056,15 @@ class _TeacherAddEditAssignmentScreenState
             ),
           ],
         ),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_pearl, _champagne.withOpacity(0.5)],
+              colors: [_pearl, _champagne.withValues(alpha: 0.5)],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withOpacity(0.3)),
+            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
           ),
           child: Wrap(
             spacing: 12,
@@ -2116,22 +2082,24 @@ class _TeacherAddEditAssignmentScreenState
     return GestureDetector(
       onTap: () => setState(() => type.isSelected = !type.isSelected),
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 250),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        duration: const Duration(milliseconds: 250),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           gradient: type.isSelected
-              ? LinearGradient(colors: [_deepMaroon, _softMaroon])
-              : LinearGradient(colors: [Colors.white, _roseMist]),
+              ? const LinearGradient(colors: [_deepMaroon, _softMaroon])
+              : const LinearGradient(colors: [Colors.white, _roseMist]),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: type.isSelected ? _deepMaroon : _dustyRose.withOpacity(0.4),
+            color: type.isSelected
+                ? _deepMaroon
+                : _dustyRose.withValues(alpha: 0.4),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
               color: type.isSelected
-                  ? _deepMaroon.withOpacity(0.3)
-                  : _dustyRose.withOpacity(0.1),
+                  ? _deepMaroon.withValues(alpha: 0.3)
+                  : _dustyRose.withValues(alpha: 0.1),
               blurRadius: type.isSelected ? 8 : 4,
               offset: Offset(0, type.isSelected ? 4 : 2),
             ),
@@ -2160,27 +2128,28 @@ class _TeacherAddEditAssignmentScreenState
       children: [
         // Info Banner
         Container(
-          padding: EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [_champagne.withOpacity(0.6), _pearl],
+              colors: [_champagne.withValues(alpha: 0.6), _pearl],
             ),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: _blushPink.withOpacity(0.3)),
+            border: Border.all(color: _blushPink.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [_dustyRose, _blushPink]),
+                  gradient:
+                      const LinearGradient(colors: [_dustyRose, _blushPink]),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(Icons.info_outline_rounded,
+                child: const Icon(Icons.info_outline_rounded,
                     color: Colors.white, size: 16),
               ),
-              SizedBox(width: 12),
-              Expanded(
+              const SizedBox(width: 12),
+              const Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -2199,7 +2168,7 @@ class _TeacherAddEditAssignmentScreenState
           ),
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Current Attachments
         if (widget.assignment != null && assignmentAttachments.isNotEmpty) ...[
@@ -2220,7 +2189,7 @@ class _TeacherAddEditAssignmentScreenState
                     ),
                   )
                   .toList()),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
 
         // New Attachments
@@ -2241,7 +2210,7 @@ class _TeacherAddEditAssignmentScreenState
                     ),
                   )
                   .toList()),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
 
         // Add Files Button
@@ -2255,27 +2224,29 @@ class _TeacherAddEditAssignmentScreenState
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  _deepMaroon.withOpacity(0.1),
-                  _dustyRose.withOpacity(0.05)
+                  _deepMaroon.withValues(alpha: 0.1),
+                  _dustyRose.withValues(alpha: 0.05)
                 ],
               ),
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: _deepMaroon.withOpacity(0.3), width: 2),
+              border: Border.all(
+                  color: _deepMaroon.withValues(alpha: 0.3), width: 2),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    gradient:
-                        LinearGradient(colors: [_deepMaroon, _softMaroon]),
+                    gradient: const LinearGradient(
+                        colors: [_deepMaroon, _softMaroon]),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(Icons.add_rounded, color: Colors.white, size: 20),
+                  child: const Icon(Icons.add_rounded,
+                      color: Colors.white, size: 20),
                 ),
-                SizedBox(width: 16),
-                Text(
+                const SizedBox(width: 16),
+                const Text(
                   "Tambah Lampiran",
                   style: TextStyle(
                     fontSize: 16,
@@ -2300,20 +2271,21 @@ class _TeacherAddEditAssignmentScreenState
         Row(
           children: [
             Container(
-              padding: EdgeInsets.all(6),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: [
-                  _dustyRose.withOpacity(0.15),
-                  _blushPink.withOpacity(0.1)
+                  _dustyRose.withValues(alpha: 0.15),
+                  _blushPink.withValues(alpha: 0.1)
                 ]),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(Icons.folder_outlined, size: 16, color: _deepMaroon),
+              child: const Icon(Icons.folder_outlined,
+                  size: 16, color: _deepMaroon),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: _deepMaroon,
@@ -2322,9 +2294,9 @@ class _TeacherAddEditAssignmentScreenState
             ),
           ],
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         ...attachments.map((attachment) => Padding(
-              padding: EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 8),
               child: attachment,
             )),
       ],

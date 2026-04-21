@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class DownloadFileState {}
 
@@ -50,7 +51,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
         final directory = await getExternalStorageDirectory();
         if (directory != null) {
           // Membuat path ke folder Downloads
-          final downloadsPath = '/storage/emulated/0/Download';
+          const downloadsPath = '/storage/emulated/0/Download';
           final downloadsDir = Directory(downloadsPath);
           if (await downloadsDir.exists()) {
             return downloadsPath;
@@ -60,7 +61,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
           }
         }
       } catch (e) {
-        print("Error getting external storage: $e");
+        debugPrint("Error getting external storage: $e");
       }
       // Fallback ke application documents directory
       final appDir = await getApplicationDocumentsDirectory();
@@ -81,7 +82,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       if (!await tempFile.exists()) {
         throw Exception("File sementara tidak ditemukan di: $sourcePath");
       }
-      print("File temp ditemukan, ukuran: ${await tempFile.length()} bytes");
+      debugPrint("File temp ditemukan, ukuran: ${await tempFile.length()} bytes");
 
       final byteData = await tempFile.readAsBytes();
       final downloadedFile = File(destinationPath);
@@ -89,16 +90,16 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       final directory = downloadedFile.parent;
       if (!await directory.exists()) {
         await directory.create(recursive: true);
-        print("Direktori tujuan dibuat: ${directory.path}");
+        debugPrint("Direktori tujuan dibuat: ${directory.path}");
       }
 
       await downloadedFile.writeAsBytes(
         byteData.buffer
             .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
       );
-      print("File berhasil ditulis ke: $destinationPath");
+      debugPrint("File berhasil ditulis ke: $destinationPath");
     } catch (e) {
-      print("Error saat menulis file dari temp: $e");
+      debugPrint("Error saat menulis file dari temp: $e");
       rethrow;
     }
   }
@@ -114,10 +115,10 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
         if (androidVersion < 13) {  // Android 12L (API 32) dan di bawahnya
           final permission = await Permission.storage.request();
           if (!permission.isGranted) {
-            print("Izin penyimpanan ditolak");
+            debugPrint("Izin penyimpanan ditolak");
             throw Exception("Izin untuk mengakses penyimpanan ditolak");
           }
-          print("Izin penyimpanan diberikan");
+          debugPrint("Izin penyimpanan diberikan");
         }
         // Untuk Android 13+ tidak perlu permission khusus karena menggunakan MediaStore
       }
@@ -128,7 +129,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
           "${tempDir.path}/${studyMaterial.fileName}.${studyMaterial.fileExtension}";
 
       if (await File(tempFileSavePath).exists()) {
-        print("File temp sudah ada: $tempFileSavePath");
+        debugPrint("File temp sudah ada: $tempFileSavePath");
         final fileSize = await File(tempFileSavePath).length();
         if (fileSize > 0) {
           String downloadFilePath = await _getDownloadsDirectory();
@@ -144,12 +145,12 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
           emit(DownloadFileSuccess(downloadFilePath));
           return;
         } else {
-          print("File temp kosong, menghapus dan mengunduh ulang");
+          debugPrint("File temp kosong, menghapus dan mengunduh ulang");
           await File(tempFileSavePath).delete();
         }
       }
 
-      print("Mulai mengunduh file dari: ${studyMaterial.fileUrl}");
+      debugPrint("Mulai mengunduh file dari: ${studyMaterial.fileUrl}");
       await _studyMaterialRepository.downloadStudyMaterialFile(
         cancelToken: _cancelToken,
         savePath: tempFileSavePath,
@@ -171,17 +172,17 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       emit(DownloadFileSuccess(downloadFilePath));
     } catch (e) {
       if (_cancelToken.isCancelled) {
-        print("Proses unduhan dibatalkan");
+        debugPrint("Proses unduhan dibatalkan");
         emit(DownloadFileProcessCanceled());
       } else {
-        print("Error saat mengunduh file: $e");
+        debugPrint("Error saat mengunduh file: $e");
         emit(DownloadFileFailure(e.toString())); // Gunakan pesan error spesifik
       }
     }
   }
 
   void cancelDownloadProcess() {
-    print("Membatalkan proses unduhan");
+    debugPrint("Membatalkan proses unduhan");
     _cancelToken.cancel();
   }
 
@@ -190,7 +191,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
       final androidInfo = await DeviceInfoPlugin().androidInfo;
       return androidInfo.version.sdkInt;
     } catch (e) {
-      print("Gagal mendapatkan versi Android: $e");
+      debugPrint("Gagal mendapatkan versi Android: $e");
       return 0;
     }
   }
@@ -210,7 +211,7 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
 
 //     while (attempts < maxAttempts) {
 //       try {
-//         print("Mencoba mengunduh dari $url (Percobaan ${attempts + 1}/$maxAttempts)");
+//         debugPrint("Mencoba mengunduh dari $url (Percobaan ${attempts + 1}/$maxAttempts)");
 //         await _dio.download(
 //           url,
 //           savePath,
@@ -221,15 +222,15 @@ class DownloadFileCubit extends Cubit<DownloadFileState> {
 //             }
 //           },
 //         );
-//         print("Unduhan berhasil ke: $savePath");
+//         debugPrint("Unduhan berhasil ke: $savePath");
 //         break;
 //       } catch (e) {
 //         attempts++;
 //         if (attempts == maxAttempts) {
-//           print("Gagal setelah $maxAttempts percobaan: $e");
+//           debugPrint("Gagal setelah $maxAttempts percobaan: $e");
 //           rethrow;
 //         }
-//         print("Gagal mengunduh, mencoba lagi setelah 1 detik: $e");
+//         debugPrint("Gagal mengunduh, mencoba lagi setelah 1 detik: $e");
 //         await Future.delayed(const Duration(seconds: 1));
 //       }
 //     }

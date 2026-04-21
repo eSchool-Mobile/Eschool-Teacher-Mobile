@@ -40,7 +40,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
 
   @override
@@ -91,7 +91,6 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
               surface: Colors.white,
-              background: Colors.white,
             ),
       ),
       child: Scaffold(
@@ -118,14 +117,14 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
         body: Stack(
           children: [
             AnimatedPositioned(
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
               curve: Curves.easeInOut,
               top: 0,
               left: 0,
               right: 0,
               height: MediaQuery.of(context).size.height,
               child: AnimatedOpacity(
-                duration: Duration(seconds: 1),
+                duration: const Duration(seconds: 1),
                 opacity: 0.15,
                 child: Stack(
                   children: [
@@ -146,7 +145,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                           height: 4 + Random().nextDouble() * 8,
                           decoration: BoxDecoration(
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.4),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
@@ -209,7 +208,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -219,10 +218,10 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Cari tahun ajaran...',
-                    prefixIcon: Icon(Icons.search,
+                    prefixIcon: const Icon(Icons.search,
                         color: AppColorPalette.secondaryMaroon),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.close,
+                      icon: const Icon(Icons.close,
                           color: AppColorPalette.secondaryMaroon),
                       onPressed: () {
                         setState(() {
@@ -242,7 +241,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   },
                 ),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
       ),
     );
   }
@@ -253,12 +252,12 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
       builder: (context, child) {
         return Center(
           child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TweenAnimationBuilder(
-                    duration: Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                     tween: Tween<double>(begin: 0.8, end: 1.0),
                     curve: Curves.elasticOut,
                     builder: (context, value, child) {
@@ -270,7 +269,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.1),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                           ),
                           child: Center(
                             child: Transform.scale(
@@ -279,7 +278,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                                 Icons.calendar_today_outlined,
                                 size: 100,
                                 color: AppColorPalette.primaryMaroon
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                           ),
@@ -288,7 +287,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     }),
                 const SizedBox(height: 32),
                 ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
+                  shaderCallback: (bounds) => const LinearGradient(
                     colors: [
                       AppColorPalette.primaryMaroon,
                       AppColorPalette.secondaryMaroon,
@@ -309,7 +308,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     getSessionYears();
                     HapticFeedback.mediumImpact();
                   },
-                  icon: Icon(Icons.refresh_rounded),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(
                     "Refresh Tahun Ajaran",
                     style: GoogleFonts.poppins(
@@ -319,7 +318,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColorPalette.primaryMaroon,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -347,7 +346,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
     return AnimationLimiter(
       child: CustomScrollView(
         controller: _scrollController,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
@@ -400,7 +399,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SizedBox(height: 80),
           ),
         ],
@@ -417,7 +416,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           children: [
             Card(
               elevation: 16,
-              shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+              shadowColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
@@ -432,16 +431,16 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColorPalette.primaryMaroon.withOpacity(0.9),
-                          AppColorPalette.secondaryMaroon.withOpacity(0.9),
+                          AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
+                          AppColorPalette.secondaryMaroon.withValues(alpha: 0.9),
                         ],
                         stops: const [0.2, 1.0],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                          color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                           blurRadius: 15,
-                          offset: Offset(0, 8),
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -468,10 +467,10 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                                           letterSpacing: 0.5,
                                         ),
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Icon(
                                         Icons.workspace_premium,
-                                        color: Colors.white.withOpacity(0.9),
+                                        color: Colors.white.withValues(alpha: 0.9),
                                         size: 20,
                                       ),
                                     ],
@@ -481,7 +480,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                                     width: 60,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.7),
+                                      color: Colors.white.withValues(alpha: 0.7),
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -503,7 +502,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
               child: Icon(
                 Icons.calendar_today,
                 size: 100,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
             ),
             ...List.generate(4, (index) {
@@ -515,7 +514,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   height: 30 - (index * 5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1 - (index * 0.02)),
+                    color: Colors.white.withValues(alpha: 0.1 - (index * 0.02)),
                   ),
                 ),
               );
@@ -535,13 +534,13 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
     ];
 
     return TweenAnimationBuilder(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       tween: Tween<double>(begin: 0.96, end: 1.0),
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.symmetric(vertical: 8),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -549,8 +548,8 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                   HapticFeedback.lightImpact();
                 },
                 borderRadius: BorderRadius.circular(24),
-                splashColor: AppColorPalette.primaryMaroon.withOpacity(0.2),
-                highlightColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                splashColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                highlightColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
@@ -561,14 +560,14 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                         blurRadius: 15,
-                        offset: Offset(0, 8),
+                        offset: const Offset(0, 8),
                         spreadRadius: 1,
                       ),
                     ],
                     border: Border.all(
-                      color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                   ),
@@ -590,11 +589,11 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
   Widget _buildEnhancedCardHeader(
       BuildContext context, dynamic sessionYear, bool isEven) {
     return Container(
-      padding: EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.15),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -602,11 +601,11 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           begin: isEven ? Alignment.centerLeft : Alignment.centerRight,
           end: isEven ? Alignment.centerRight : Alignment.centerLeft,
           colors: [
-            AppColorPalette.primaryMaroon.withOpacity(0.15),
-            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
           ],
         ),
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(24),
         ),
       ),
@@ -638,41 +637,41 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
         sessionYear.isThisDefault() ? "Default" : "Tahun Ajaran";
 
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           _buildEnhancedInfoRow(
               context, 'Status', yearStatus, Icons.check_circle_outline,
               gradient: [
-                AppColorPalette.primaryMaroon.withOpacity(0.08),
-                AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
               ]),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           if (sessionYear.isThisDefault())
             Align(
               alignment: Alignment.centerRight,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: AppColorPalette.primaryMaroon,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
                       blurRadius: 8,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.star_rounded,
                       color: Colors.white,
                       size: 16,
                     ),
-                    SizedBox(width: 6),
+                    const SizedBox(width: 6),
                     Text(
                       "Default",
                       style: GoogleFonts.poppins(
@@ -694,12 +693,12 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
       BuildContext context, String label, String value, IconData icon,
       {required List<Color> gradient}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColorPalette.primaryMaroon.withOpacity(0.12),
-            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: 0.12),
+            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -707,34 +706,34 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+          color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColorPalette.primaryMaroon.withOpacity(0.9),
+              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Icon(icon, size: 24, color: Colors.white),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -747,7 +746,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     color: AppColorPalette.secondaryMaroon,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   value,
                   style: GoogleFonts.poppins(
@@ -775,7 +774,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
 
   Widget _buildLoadingState(BuildContext context) {
     return SingleChildScrollView(
-      physics: BouncingScrollPhysics(),
+      physics: const BouncingScrollPhysics(),
       padding: EdgeInsets.only(
         top: Utils.appContentTopScrollPadding(context: context),
         bottom: 80,
@@ -791,7 +790,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
           ...List.generate(4, (index) => _buildSessionYearCardSkeleton(index)),
 
           // Add some bottom padding
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
     );
@@ -805,7 +804,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
         highlightColor: Colors.grey.shade100,
         child: Card(
           elevation: 16,
-          shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+          shadowColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
@@ -837,12 +836,12 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Container(
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -853,7 +852,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     width: 60,
                     height: 3,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -874,9 +873,9 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -927,7 +926,7 @@ class _SessionYearsScreenState extends State<SessionYearsScreen>
                     Container(
                       width: 40,
                       height: 40,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -1032,7 +1031,7 @@ class BackgroundPatternPainter extends CustomPainter {
     canvas.drawPath(
       path2,
       Paint()
-        ..color = color.withOpacity(0.2)
+        ..color = color.withValues(alpha: 0.2)
         ..style = PaintingStyle.fill,
     );
   }

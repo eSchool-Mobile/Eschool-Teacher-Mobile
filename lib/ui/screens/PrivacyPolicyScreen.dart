@@ -167,7 +167,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               builder: (context, state) {
                 return SingleChildScrollView(
                   controller: _scrollController,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     top: 20, // Reduced padding since we have the app bar
                   ),
                   child: Column(
@@ -244,7 +244,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
           Container(
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [
                   AppColorPalette.primaryMaroon,
                   AppColorPalette.secondaryMaroon,
@@ -253,7 +253,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -267,7 +267,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                   child: Icon(
                     Icons.security,
                     size: 200,
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                   ),
                 ),
                 Column(
@@ -279,7 +279,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.privacy_tip,
                         size: 40,
                         color: AppColorPalette.primaryMaroon,
@@ -299,7 +299,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
                       "Kami menghargai privasi Anda dan berkomitmen untuk melindungi informasi pribadi Anda",
                       style: GoogleFonts.poppins(
                         fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -327,7 +327,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -376,7 +376,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen>
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),

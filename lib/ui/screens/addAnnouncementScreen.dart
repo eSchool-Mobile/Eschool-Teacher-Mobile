@@ -1,30 +1,16 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/sendGeneralAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/ui/widgets/customAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/multiSelectionValueBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/route_manager.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
-import 'dart:math';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/app/routes.dart';
 
 class AddAnnouncementScreen extends StatefulWidget {
   const AddAnnouncementScreen({super.key});
@@ -64,20 +50,20 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
   // Animation controllers for the UI elements
   late AnimationController _animationController; // For the AppBar
   late AnimationController _pulseController; // For pulsing effects
-  final Color _highlightColor = Color(0xFFB84D4D);
+  static const Color _highlightColor = Color(0xFFB84D4D);
 
   @override
   void initState() {
     super.initState();
     context.read<ClassesCubit>().getClasses();
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
   }
 
@@ -157,7 +143,8 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                 InkWell(
                   onTap: () => _showClassSelectionDialog(context, classes),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 15),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(12),
@@ -168,8 +155,9 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.school_rounded, color: Color(0xFF8B0000)),
-                        SizedBox(width: 12),
+                        const Icon(Icons.school_rounded,
+                            color: Color(0xFF8B0000)),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             _selectedClassSections.isEmpty
@@ -190,10 +178,10 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                 ),
                 if (field.hasError)
                   Padding(
-                    padding: EdgeInsets.only(left: 12, top: 8),
+                    padding: const EdgeInsets.only(left: 12, top: 8),
                     child: Text(
                       field.errorText!,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.red,
                         fontSize: 12,
                       ),
@@ -228,8 +216,9 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
               children: [
                 // Header dengan gradient
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Color(0xFF8B0000), Color(0xFFB84D4D)],
                       begin: Alignment.centerLeft,
@@ -240,7 +229,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                       topRight: Radius.circular(20),
                     ),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
                       Icon(Icons.school_rounded, color: Colors.white, size: 24),
                       SizedBox(width: 12),
@@ -259,17 +248,17 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                 MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: AnimatedContainer(
-                    duration: Duration(milliseconds: 200),
-                    margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Colors.grey.shade300),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           blurRadius: 4,
-                          offset: Offset(0, 2),
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -289,18 +278,18 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                           this.setState(() {});
                         },
                         child: Padding(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           child: Row(
                             children: [
                               Icon(
                                 _selectedClassSections.length == classes.length
                                     ? Icons.check_circle
                                     : Icons.select_all,
-                                color: Color(0xFF8B0000),
+                                color: const Color(0xFF8B0000),
                                 size: 24,
                               ),
-                              SizedBox(width: 12),
-                              Text(
+                              const SizedBox(width: 12),
+                              const Text(
                                 'Pilih Semua',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w600,
@@ -308,17 +297,18 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                                   color: Color(0xFF8B0000),
                                 ),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               Container(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: Color(0xFF8B0000).withOpacity(0.1),
+                                  color: const Color(0xFF8B0000)
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
                                   '${classes.length} Kelas',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Color(0xFF8B0000),
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
@@ -332,18 +322,18 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                     ),
                   ),
                 ),
-                Divider(height: 1),
+                const Divider(height: 1),
                 // List kelas dengan animasi
                 Expanded(
                   child: ListView.builder(
-                    padding: EdgeInsets.symmetric(vertical: 8),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     itemCount: classes.length,
                     itemBuilder: (context, index) {
                       final classSection = classes[index];
                       final isSelected =
                           _selectedClassSections.contains(classSection);
                       return TweenAnimationBuilder<double>(
-                        duration: Duration(milliseconds: 200),
+                        duration: const Duration(milliseconds: 200),
                         tween: Tween(begin: 0, end: 1),
                         builder: (context, value, child) {
                           return Transform.translate(
@@ -351,11 +341,11 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                             child: Opacity(
                               opacity: value,
                               child: Padding(
-                                padding: EdgeInsets.symmetric(
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 2),
                                 child: Material(
                                   color: isSelected
-                                      ? Color(0xFFFBE9E7)
+                                      ? const Color(0xFFFBE9E7)
                                       : Colors.transparent,
                                   borderRadius: BorderRadius.circular(12),
                                   child: InkWell(
@@ -373,32 +363,32 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                                       this.setState(() {});
                                     },
                                     child: Padding(
-                                      padding: EdgeInsets.all(12),
+                                      padding: const EdgeInsets.all(12),
                                       child: Row(
                                         children: [
                                           AnimatedContainer(
-                                            duration:
-                                                Duration(milliseconds: 200),
+                                            duration: const Duration(
+                                                milliseconds: 200),
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
                                               border: Border.all(
                                                 color: isSelected
-                                                    ? Color(0xFF8B0000)
+                                                    ? const Color(0xFF8B0000)
                                                     : Colors.grey.shade400,
                                                 width: 2,
                                               ),
                                               color: isSelected
-                                                  ? Color(0xFF8B0000)
+                                                  ? const Color(0xFF8B0000)
                                                   : Colors.transparent,
                                             ),
-                                            padding: EdgeInsets.all(2),
-                                            child: Icon(
+                                            padding: const EdgeInsets.all(2),
+                                            child: const Icon(
                                               Icons.check,
                                               size: 16,
                                               color: Colors.white,
                                             ),
                                           ),
-                                          SizedBox(width: 12),
+                                          const SizedBox(width: 12),
                                           Expanded(
                                             child: Text(
                                               classSection.fullName ?? '-',
@@ -408,7 +398,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                                                     ? FontWeight.w600
                                                     : FontWeight.normal,
                                                 color: isSelected
-                                                    ? Color(0xFF8B0000)
+                                                    ? const Color(0xFF8B0000)
                                                     : Colors.black87,
                                               ),
                                             ),
@@ -428,14 +418,14 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                 ),
                 // Footer dengan efek elevated
                 Container(
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
-                        offset: Offset(0, -5),
+                        offset: const Offset(0, -5),
                       ),
                     ],
                   ),
@@ -445,24 +435,25 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Color(0xFF8B0000).withOpacity(0.1),
+                              color: const Color(0xFF8B0000)
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.check_circle_outline,
                                   size: 18,
                                   color: Color(0xFF8B0000),
                                 ),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text(
                                   '${_selectedClassSections.length} dari ${classes.length} kelas dipilih',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Color(0xFF8B0000),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -472,14 +463,15 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                           ),
                         ],
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Expanded(
                             child: TextButton(
                               onPressed: () => Navigator.of(context).pop(),
                               style: TextButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -493,19 +485,20 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                               ),
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () => Navigator.of(context).pop(),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF8B0000),
+                                backgroundColor: const Color(0xFF8B0000),
                                 elevation: 0,
-                                padding: EdgeInsets.symmetric(vertical: 12),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'Selesai',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -529,7 +522,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
 
   Future<void> _pickFiles() async {
     try {
-      print(
+      debugPrint(
           '🎯 [ANNOUNCEMENT SCREEN] Memulai upload file dengan kompresi otomatis');
 
       // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
@@ -548,8 +541,9 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
           final fileSize = await file.length();
           final fileName = file.path.split('/').last;
 
-          print('✅ [ANNOUNCEMENT SCREEN] File berhasil diproses: $fileName');
-          print(
+          debugPrint(
+              '✅ [ANNOUNCEMENT SCREEN] File berhasil diproses: $fileName');
+          debugPrint(
               '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
           final platformFile = PlatformFile(
@@ -560,12 +554,14 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
 
           _pickedFiles.add(platformFile);
         }
+        if (!mounted) return;
         setState(() {});
       } else {
-        print(
+        debugPrint(
             '❌ [ANNOUNCEMENT SCREEN] Tidak ada file yang dipilih atau diproses');
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error picking file: $e'),
@@ -577,18 +573,18 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
 
   Widget _buildFileUploadSection() {
     return FadeInUp(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: Container(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 5,
               blurRadius: 10,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -601,13 +597,13 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           UploadImageOrFileButton(
             uploadFile: true,
             includeImageFileOnlyAllowedNote: true,
             onTap: _pickFiles,
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           ..._pickedFiles.map(
             (file) => Padding(
               padding: const EdgeInsets.only(bottom: 10),
@@ -628,7 +624,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                   ),
                   title: Text(
                     file.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w500,
                       color: Colors.black87,
@@ -636,7 +632,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                     overflow: TextOverflow.ellipsis,
                   ),
                   trailing: IconButton(
-                    icon: Icon(Icons.close, color: Colors.red),
+                    icon: const Icon(Icons.close, color: Colors.red),
                     onPressed: () {
                       setState(() {
                         _pickedFiles.remove(file);
@@ -654,16 +650,16 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
 
   Widget _buildBasicInfoSection() {
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 5,
             blurRadius: 10,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -678,15 +674,15 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
               color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
           _buildClassSectionDropdown(),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _titleController,
             label: 'Judul Pengumuman',
             icon: Icons.title,
           ),
-          SizedBox(height: 15),
+          const SizedBox(height: 15),
           _buildAnimatedTextField(
             controller: _descController,
             label: 'Deskripsi',
@@ -700,7 +696,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: BlocConsumer<SendGeneralAnnouncementCubit,
           SendGeneralAnnouncementState>(
         listener: (context, state) {
@@ -708,8 +704,8 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.check_circle, color: Colors.white),
@@ -726,9 +722,10 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                   ),
                 ),
                 backgroundColor: Colors.green.shade400,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -753,7 +750,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
         },
         builder: (context, state) {
           return FadeInUp(
-            duration: Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 600),
             child: Container(
               height: 60,
               decoration: BoxDecoration(
@@ -768,11 +765,13 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                 borderRadius: BorderRadius.circular(15),
                 boxShadow: [
                   BoxShadow(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.3),
                     spreadRadius: 1,
                     blurRadius: 8,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
@@ -783,15 +782,15 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                       ? null
                       : _submitForm,
                   borderRadius: BorderRadius.circular(15),
-                  splashColor: Colors.white.withOpacity(0.2),
-                  highlightColor: Colors.white.withOpacity(0.1),
+                  splashColor: Colors.white.withValues(alpha: 0.2),
+                  highlightColor: Colors.white.withValues(alpha: 0.1),
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (state is SendGeneralAnnouncementInProgress)
-                          SizedBox(
+                          const SizedBox(
                             width: 24,
                             height: 24,
                             child: CircularProgressIndicator(
@@ -801,7 +800,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                             ),
                           )
                         else ...[
-                          Text(
+                          const Text(
                             'Kirim Pengumuman',
                             style: TextStyle(
                               color: Colors.white,
@@ -810,8 +809,8 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                               letterSpacing: 0.5,
                             ),
                           ),
-                          SizedBox(width: 8),
-                          Icon(
+                          const SizedBox(width: 8),
+                          const Icon(
                             Icons.arrow_forward_rounded,
                             color: Colors.white,
                             size: 22,
@@ -820,7 +819,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
                           }).slideX(
                             begin: 0,
                             end: 0.3,
-                            duration: Duration(milliseconds: 1000),
+                            duration: const Duration(milliseconds: 1000),
                             curve: Curves.easeInOut,
                           ),
                         ],
@@ -840,7 +839,7 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedClassSections.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Pilih kelas terlebih dahulu')),
+          const SnackBar(content: Text('Pilih kelas terlebih dahulu')),
         );
         return;
       }
@@ -873,28 +872,28 @@ class _AddAnnouncementScreenState extends State<AddAnnouncementScreen>
         title: 'Tambah Pengumuman',
         icon: Icons.campaign,
         fabAnimationController: _animationController,
-        primaryColor: Color(0xFF7A1E23),
+        primaryColor: const Color(0xFF7A1E23),
         lightColor: _highlightColor,
         onBackPressed: () => Navigator.of(context).pop(),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 FadeInDown(
-                  duration: Duration(milliseconds: 500),
+                  duration: const Duration(milliseconds: 500),
                   child: _buildBasicInfoSection(),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildFileUploadSection(),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 _buildSubmitButton(),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
               ],
             ),
           ),

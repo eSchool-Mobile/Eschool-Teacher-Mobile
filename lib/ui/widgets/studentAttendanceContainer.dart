@@ -1,6 +1,5 @@
 import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/studentDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceItemContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
@@ -137,7 +136,7 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -153,12 +152,12 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
               margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
+                gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
                     Colors.white,
-                    const Color(0xFFF8F9FA),
+                    Color(0xFFF8F9FA),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
@@ -314,13 +313,13 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
                 end: Alignment.bottomRight,
                 colors: [
                   _maroonPrimary,
-                  Color(0xFF9A1E3C),
+                  const Color(0xFF9A1E3C),
                   _maroonLight,
                 ],
               ),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withOpacity(0.3),
+                  color: _maroonPrimary.withValues(alpha: 0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 3),
                 ),
@@ -493,10 +492,10 @@ class _StudentAttendanceContainerState extends State<StudentAttendanceContainer>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(30),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: color.withValues(alpha: 0.3),
           width: 1,
         ),
       ),

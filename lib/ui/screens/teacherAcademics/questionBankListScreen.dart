@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +35,7 @@ class QuestionBankListController extends GetxController {
   }
 
   void _reloadData() {
-    print("Reloading QuestionBankListScreen for subject ID: $subjectId");
+    debugPrint("Reloading QuestionBankListScreen for subject ID: $subjectId");
     context.read<QuestionBankCubit>().fetchBankSoal(subjectId);
   }
 }
@@ -55,7 +54,7 @@ class LightRaysPainter extends CustomPainter {
 
     // Draw multiple rays from center
     final center = Offset(size.width / 2, size.height / 2);
-    final rays = 12; // Number of rays
+    const rays = 12; // Number of rays
     final maxLength = size.width > size.height ? size.width : size.height;
 
     for (int i = 0; i < rays; i++) {
@@ -126,20 +125,21 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   // final List<ParticleModel> _particles = [];
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-  final Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
+  static const Color _highlightColor =
+      Color(0xFFB84D4D); // Softer bright maroon
+  static const Color _glowColor = Color(0xFFAF4F4F); // Softer rich maroon
 
   final List<Color> _cardGradients = [
-    Color(0xFF7A2828), // Softer dark maroon
-    Color(0xFF9D3C3C), // Softer classic maroon
-    Color(0xFFAF4F4F), // Softer rich maroon
-    Color(0xFFB84D4D), // Softer brown-maroon
-    Color(0xFFC65454), // Softer firebrick
-    Color(0xFFAA3939), // Softer dark red
-    Color(0xFF8F2D2D), // Softer deep maroon
-    Color(0xFFB14040), // Softer bright maroon
+    const Color(0xFF7A2828), // Softer dark maroon
+    const Color(0xFF9D3C3C), // Softer classic maroon
+    const Color(0xFFAF4F4F), // Softer rich maroon
+    const Color(0xFFB84D4D), // Softer brown-maroon
+    const Color(0xFFC65454), // Softer firebrick
+    const Color(0xFFAA3939), // Softer dark red
+    const Color(0xFF8F2D2D), // Softer deep maroon
+    const Color(0xFFB14040), // Softer bright maroon
   ];
 
   @override
@@ -148,46 +148,46 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     // Setup animation controllers
     _backgroundAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 30000),
+      duration: const Duration(milliseconds: 30000),
     )..repeat();
 
     _waveAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 7000),
+      duration: const Duration(milliseconds: 7000),
     )..repeat();
 
     _floatingIconsController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
     _cardHoverController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 200),
     );
 
     _breathingController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 3000),
     )..repeat(reverse: true);
 
     _rotationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 10000),
+      duration: const Duration(milliseconds: 10000),
     )..repeat();
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _loadingController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1500),
+      duration: const Duration(milliseconds: 1500),
     )..repeat();
     _tabTransitionController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 400),
     );
 
     // Setup animations
@@ -212,7 +212,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     ]);
 
     // Set system UI style for immersive experience
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
       systemNavigationBarColor: _primaryColor,
@@ -220,7 +220,6 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
     ));
 
     // Delay to ensure animations look good on first load
-  
   }
 
   @override
@@ -243,12 +242,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
   }
 
   void _reloadData() {
-    print("Manual reload triggered for QuestionBankListScreen");
+    debugPrint("Manual reload triggered for QuestionBankListScreen");
     context.read<QuestionBankCubit>().fetchBankSoal(widget.subject.subject.id);
   }
 
   void _filterBanks(String query, List<BankSoal> banks) {
-    print(
+    debugPrint(
         '_filterBanks called with query: "$query", total banks: ${banks.length}');
 
     // Defer setState to avoid calling it during build
@@ -258,7 +257,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       setState(() {
         if (query.isEmpty) {
           _filteredBanks = List.from(banks);
-          print('Query empty, showing all ${_filteredBanks.length} banks');
+          debugPrint('Query empty, showing all ${_filteredBanks.length} banks');
         } else {
           _filteredBanks = banks.where((bank) {
             final bankNameMatch =
@@ -268,7 +267,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           }).toList();
 
           // Debug: Print hasil filter
-          print(
+          debugPrint(
               'Search query: "$query", Found: ${_filteredBanks.length} results from ${banks.length} total banks');
         }
       });
@@ -316,9 +315,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       false, // Don't add padding at the top to allow white background to extend to status bar
                   child: NotificationListener<ScrollNotification>(
                     onNotification: (notification) {
-                      if (notification is ScrollUpdateNotification) {
-                      
-                      }
+                      if (notification is ScrollUpdateNotification) {}
                       return false;
                     },
                     child: Column(
@@ -327,37 +324,38 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         Expanded(
                           child: Container(
                             // Add top margin to start content below the AppBar
-                            margin: EdgeInsets.only(top: kToolbarHeight + 30),
+                            margin:
+                                const EdgeInsets.only(top: kToolbarHeight + 30),
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.white.withOpacity(0.95),
-                                  Color(0xFFFFF0F0),
+                                  Colors.white.withValues(alpha: 0.95),
+                                  const Color(0xFFFFF0F0),
                                 ],
                               ),
                               // Add top border radius for a nice curve
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(30),
                                 topRight: Radius.circular(30),
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: _glowColor.withOpacity(0.2),
+                                  color: _glowColor.withValues(alpha: 0.2),
                                   blurRadius: 20,
                                   spreadRadius: 5,
-                                  offset: Offset(0, -5),
+                                  offset: const Offset(0, -5),
                                 ),
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.1),
+                                  color: Colors.black.withValues(alpha: 0.1),
                                   blurRadius: 30,
-                                  offset: Offset(0, -10),
+                                  offset: const Offset(0, -10),
                                 ),
                               ],
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.only(
+                              borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(30),
                                 topRight: Radius.circular(30),
                               ),
@@ -418,11 +416,11 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       );
     }
 
-    return SizedBox();
+    return const SizedBox();
   }
 
   Widget _buildLoadingView() {
-    return SkeletonQuestionBankListScreen(
+    return const SkeletonQuestionBankListScreen(
       itemCount: 6,
       showSearch: false,
     );
@@ -430,7 +428,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
 
   Widget _buildEmptyView() {
     return FadeInUp(
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -440,7 +438,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               size: 80,
               color: Colors.grey[400],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Belum ada bank soal',
               style: TextStyle(
@@ -449,15 +447,16 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 fontWeight: FontWeight.w500,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _showAddBankDialog,
-              icon: Icon(Icons.add),
-              label: Text('Tambah Bank Soal'),
+              icon: const Icon(Icons.add),
+              label: const Text('Tambah Bank Soal'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Theme.of(context).colorScheme.secondary,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -516,14 +515,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       // Search bar if needed
       if (shouldShowSearch)
         FadeInDown(
-          duration: Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 600),
           child: Container(
-            margin: EdgeInsets.fromLTRB(20, 50, 20, 20),
+            margin: const EdgeInsets.fromLTRB(20, 50, 20, 20),
             height: 55,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(15),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 10,
@@ -535,10 +534,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari bank soal...',
-                prefixIcon: Icon(Icons.search, color: _primaryColor),
+                prefixIcon: const Icon(Icons.search, color: _primaryColor),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
-                        icon: Icon(Icons.clear, color: _primaryColor),
+                        icon: const Icon(Icons.clear, color: _primaryColor),
                         onPressed: () {
                           _clearSearch(banks);
                         },
@@ -546,7 +545,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     : null,
                 border: InputBorder.none,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               ),
               onChanged: (value) {
                 _filterBanks(value, banks);
@@ -590,8 +589,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 ),
                                 colors: [
                                   Colors.transparent,
-                                  _highlightColor.withOpacity(0.01),
-                                  _accentColor.withOpacity(0.02),
+                                  _highlightColor.withValues(alpha: 0.01),
+                                  _accentColor.withValues(alpha: 0.02),
                                   Colors.transparent,
                                 ],
                                 radius: 1.0,
@@ -609,7 +608,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     ListView.builder(
                       padding: EdgeInsets.fromLTRB(
                           20, shouldShowSearch ? 15 : 50, 20, 100),
-                      physics: BouncingScrollPhysics(),
+                      physics: const BouncingScrollPhysics(),
                       itemCount: displayBanks.length,
                       itemBuilder: (context, index) {
                         final bank = displayBanks[index];
@@ -632,7 +631,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
 
                             // Elaborate haptic pattern
                             HapticFeedback.mediumImpact();
-                            await Future.delayed(Duration(milliseconds: 50));
+                            await Future.delayed(
+                                const Duration(milliseconds: 50));
                             HapticFeedback.lightImpact();
 
                             // Exaggerated scale animation on tap
@@ -662,7 +662,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             });
                           },
                           onTapUp: (_) {
-                            Future.delayed(Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
                               if (mounted) {
                                 setState(() {
                                   _hoveredCardIndex = -1;
@@ -674,9 +675,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             offset:
                                 Offset(0, index == _hoveredCardIndex ? -5 : 0),
                             child: AnimatedContainer(
-                              duration: Duration(milliseconds: 300),
+                              duration: const Duration(milliseconds: 300),
                               curve: Curves.easeOutCubic,
-                              margin: EdgeInsets.only(bottom: 24),
+                              margin: const EdgeInsets.only(bottom: 24),
                               child: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
@@ -688,14 +689,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                       ..rotateX(isHovered ? 0.05 : 0.0)
                                       ..rotateY(isHovered ? -0.05 : 0.0),
                                     child: Container(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            cardBaseColor.withOpacity(
-                                                isHovered ? 1.0 : 0.85),
+                                            cardBaseColor.withValues(
+                                                alpha: isHovered ? 1.0 : 0.85),
                                             HSLColor.fromColor(cardBaseColor)
                                                 .withLightness(
                                                   HSLColor.fromColor(
@@ -704,27 +705,28 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                       0.7,
                                                 )
                                                 .toColor()
-                                                .withOpacity(
-                                                    isHovered ? 0.95 : 0.8),
+                                                .withValues(
+                                                    alpha:
+                                                        isHovered ? 0.95 : 0.8),
                                           ],
-                                          stops: [0.3, 1.0],
+                                          stops: const [0.3, 1.0],
                                         ),
                                         borderRadius: BorderRadius.circular(28),
                                         boxShadow: [
                                           // Outer glow shadow
                                           BoxShadow(
-                                            color: neonGlowColor.withOpacity(
-                                                isHovered ? 0.35 : 0.15),
+                                            color: neonGlowColor.withValues(
+                                                alpha: isHovered ? 0.35 : 0.15),
                                             blurRadius: isHovered ? 25 : 15,
                                             spreadRadius: isHovered ? 2 : 0,
                                           ),
                                           // Inner depth shadow
                                           BoxShadow(
-                                            color:
-                                                cardBaseColor.withOpacity(0.5),
+                                            color: cardBaseColor.withValues(
+                                                alpha: 0.5),
                                             blurRadius: 15,
                                             spreadRadius: -3,
-                                            offset: Offset(0, 8),
+                                            offset: const Offset(0, 8),
                                           ),
                                         ],
                                       ),
@@ -759,20 +761,24 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                                 .bottomRight,
                                                             colors: [
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      1.0),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          1.0),
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      0.9),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.9),
                                                               Colors.white
-                                                                  .withOpacity(
-                                                                      1.0),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          1.0),
                                                             ],
                                                           ).createShader(
                                                                       bounds),
                                                           child: Text(
                                                             bank.name,
-                                                            style: TextStyle(
+                                                            style:
+                                                                const TextStyle(
                                                               fontSize: 20,
                                                               height: 1.2,
                                                               fontWeight:
@@ -794,15 +800,18 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                           ),
                                                         ),
 
-                                                        SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
 
                                                         // Divider with animation
                                                         AnimatedContainer(
-                                                          duration: Duration(
-                                                              milliseconds:
-                                                                  400),
-                                                          margin: EdgeInsets
-                                                              .symmetric(
+                                                          duration:
+                                                              const Duration(
+                                                                  milliseconds:
+                                                                      400),
+                                                          margin:
+                                                              const EdgeInsets
+                                                                  .symmetric(
                                                                   vertical: 8),
                                                           height: 2,
                                                           width: isHovered
@@ -818,11 +827,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                                   .centerRight,
                                                               colors: [
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.8),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.8),
                                                                 Colors.white
-                                                                    .withOpacity(
-                                                                        0.2),
+                                                                    .withValues(
+                                                                        alpha:
+                                                                            0.2),
                                                               ],
                                                             ),
                                                             borderRadius:
@@ -832,20 +843,23 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                           ),
                                                         ),
 
-                                                        SizedBox(height: 4),
+                                                        const SizedBox(
+                                                            height: 4),
 
                                                         // Question count badge
                                                         Container(
-                                                          padding: EdgeInsets
-                                                              .symmetric(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .symmetric(
                                                                   horizontal:
                                                                       12,
                                                                   vertical: 7),
                                                           decoration:
                                                               BoxDecoration(
                                                             color: Colors.white
-                                                                .withOpacity(
-                                                                    0.15),
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.15),
                                                             borderRadius:
                                                                 BorderRadius
                                                                     .circular(
@@ -853,11 +867,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                             border: Border.all(
                                                               color: Colors
                                                                   .white
-                                                                  .withOpacity(
-                                                                      0.2),
+                                                                  .withValues(
+                                                                      alpha:
+                                                                          0.2),
                                                               width: 1,
                                                             ),
-                                                            boxShadow: [
+                                                            boxShadow: const [
                                                               BoxShadow(
                                                                 color: Colors
                                                                     .black12,
@@ -874,7 +889,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                               Text(
                                                                 '${bank.soalCount} Soal',
                                                                 style:
-                                                                    TextStyle(
+                                                                    const TextStyle(
                                                                   color: Colors
                                                                       .white,
                                                                   fontWeight:
@@ -902,7 +917,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                 ],
                                               ),
 
-                                              SizedBox(height: 0),
+                                              const SizedBox(height: 0),
 
                                               // Arrow button repositioned at bottom right for better layout
                                               Align(
@@ -917,25 +932,26 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
                                                         color: Colors.white
-                                                            .withOpacity(
-                                                                isHovered
+                                                            .withValues(
+                                                                alpha: isHovered
                                                                     ? 0.2
                                                                     : 0.15),
                                                         border: Border.all(
                                                           color: Colors.white
-                                                              .withOpacity(
-                                                                  isHovered
-                                                                      ? 0.3
-                                                                      : 0.2),
+                                                              .withValues(
+                                                                  alpha:
+                                                                      isHovered
+                                                                          ? 0.3
+                                                                          : 0.2),
                                                           width: 1.5,
                                                         ),
                                                         boxShadow: isHovered
                                                             ? [
                                                                 BoxShadow(
                                                                   color: neonGlowColor
-                                                                      .withOpacity(0.2 +
-                                                                          0.1 *
-                                                                              _pulseAnimation.value),
+                                                                      .withValues(
+                                                                          alpha:
+                                                                              0.2 + 0.1 * _pulseAnimation.value),
                                                                   blurRadius:
                                                                       10,
                                                                   spreadRadius: 1 *
@@ -953,7 +969,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                                                       _pulseAnimation
                                                                           .value
                                                               : 1.0,
-                                                          child: Icon(
+                                                          child: const Icon(
                                                             Icons
                                                                 .arrow_forward_rounded,
                                                             color: Colors.white,
@@ -981,7 +997,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                       height: 30,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: neonGlowColor.withOpacity(0.1),
+                                        color: neonGlowColor.withValues(
+                                            alpha: 0.1),
                                       ),
                                     ),
                                   ),
@@ -1013,7 +1030,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
         borderRadius: BorderRadius.circular(20),
       ),
       elevation: 12,
-      offset: Offset(0, 50),
+      offset: const Offset(0, 50),
       color: Colors.white,
       onSelected: (value) {
         if (value == 'edit') {
@@ -1029,12 +1046,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           height: 64,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.9, end: 1.0),
-            duration: Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 200),
             builder: (context, value, child) {
               return Transform.scale(
                 scale: value,
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.blue.shade400, Colors.blue.shade600],
@@ -1044,9 +1062,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.shade500.withOpacity(0.3),
+                        color: Colors.blue.shade500.withValues(alpha: 0.3),
                         blurRadius: 12,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                         spreadRadius: -2,
                       )
                     ],
@@ -1055,18 +1073,18 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.white.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.edit_rounded,
                           color: Colors.white,
                           size: 20,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Edit',
@@ -1091,12 +1109,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           height: 64,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.9, end: 1.0),
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             builder: (context, value, child) {
               return Transform.scale(
                 scale: value,
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [Colors.red.shade400, Colors.red.shade700],
@@ -1106,9 +1125,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.shade500.withOpacity(0.3),
+                        color: Colors.red.shade500.withValues(alpha: 0.3),
                         blurRadius: 12,
-                        offset: Offset(0, 4),
+                        offset: const Offset(0, 4),
                         spreadRadius: -2,
                       )
                     ],
@@ -1117,18 +1136,18 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: EdgeInsets.all(6),
+                        padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.25),
+                          color: Colors.white.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
+                        child: const Icon(
                           Icons.delete_outline_rounded,
                           color: Colors.white,
                           size: 20,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           'Hapus',
@@ -1149,7 +1168,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       ],
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0.8, end: 1.0),
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         builder: (context, value, child) {
           return Transform.scale(
             scale: value,
@@ -1169,14 +1188,14 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _primaryColor.withOpacity(0.1),
+                    color: _primaryColor.withValues(alpha: 0.1),
                     blurRadius: 10,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                     spreadRadius: -2,
                   ),
                 ],
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.more_vert_rounded,
                 color: _primaryColor,
                 size: 22,
@@ -1196,7 +1215,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
-      transitionDuration: Duration(milliseconds: 400),
+      transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) => Container(),
       transitionBuilder: (context, anim1, anim2, child) {
         return StatefulBuilder(
@@ -1214,12 +1233,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 title: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Theme.of(context)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -1227,7 +1246,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Text(
                       'Tambah Bank',
                       style: TextStyle(
@@ -1249,7 +1268,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         minLines: 2,
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
-                          prefixIcon: Icon(Icons.folder_outlined),
+                          prefixIcon: const Icon(Icons.folder_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -1320,19 +1339,19 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                     widget.subject.subject.id,
                                   );
 
-                                  if (!mounted) return;
+                                  if (!context.mounted) return;
                                   Navigator.pop(context);
                                   _nameController.clear();
 
                                   // Show custom success notification
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     // Auto-dismissing success banner
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Container(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 8),
-                                          child: Row(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8),
+                                          child: const Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
@@ -1351,9 +1370,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                           ),
                                         ),
                                         backgroundColor: Colors.green.shade400,
-                                        duration: Duration(seconds: 2),
+                                        duration: const Duration(seconds: 2),
                                         behavior: SnackBarBehavior.floating,
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 10),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1364,7 +1383,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                     );
                                   }
                                 } catch (e) {
-                                  if (!mounted) return;
+                                  if (!context.mounted) return;
                                   ScaffoldMessenger.of(context)
                                       .showSnackBar(SnackBar(
                                     content:
@@ -1380,8 +1399,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 }
                               }
                             },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
                       child: isSubmitting
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
@@ -1390,17 +1413,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : Text(
+                          : const Text(
                               'Simpan',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
                     ),
                   ),
                 ],
@@ -1414,8 +1433,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
 
   void _showEditBankDialog(List<BankSoal> banks, int index) {
     final bank = banks[index];
-    final _editController = TextEditingController(text: bank.name);
-    final _editFormKey = GlobalKey<FormState>();
+    final editController = TextEditingController(text: bank.name);
+    final editFormKey = GlobalKey<FormState>();
     bool isSubmitting = false;
 
     // Simpan cubit di luar showDialog untuk menghindari masalah provider
@@ -1426,7 +1445,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
-      transitionDuration: Duration(milliseconds: 400),
+      transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, anim1, anim2) => Container(),
       transitionBuilder: (context, anim1, anim2, child) {
         return StatefulBuilder(
@@ -1444,12 +1463,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                 title: Row(
                   children: [
                     Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: Theme.of(dialogContext)
                             .colorScheme
                             .secondary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -1457,7 +1476,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                         color: Theme.of(dialogContext).colorScheme.secondary,
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Text(
                       'Edit Bank Soal',
                       style: TextStyle(
@@ -1468,18 +1487,18 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                   ],
                 ),
                 content: Form(
-                  key: _editFormKey,
+                  key: editFormKey,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextFormField(
-                        controller: _editController,
+                        controller: editController,
                         enabled: !isSubmitting,
                         maxLines: 4,
                         minLines: 2,
                         decoration: InputDecoration(
                           labelText: 'Nama Bank Soal',
-                          prefixIcon: Icon(Icons.folder_outlined),
+                          prefixIcon: const Icon(Icons.folder_outlined),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -1532,7 +1551,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       onPressed: isSubmitting
                           ? null
                           : () async {
-                              if (_editFormKey.currentState?.validate() ??
+                              if (editFormKey.currentState?.validate() ??
                                   false) {
                                 try {
                                   setState(() {
@@ -1543,9 +1562,10 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                   await questionBankCubit.updateQuestionBank(
                                     subjectId: widget.subject.subject.id,
                                     banksoalId: bank.id,
-                                    name: _editController.text.trim(),
+                                    name: editController.text.trim(),
                                   );
 
+                                  if (!dialogContext.mounted) return;
                                   Navigator.pop(dialogContext);
 
                                   // Refresh bank soal list
@@ -1557,9 +1577,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                         .showSnackBar(
                                       SnackBar(
                                         content: Container(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 8),
-                                          child: Row(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 8),
+                                          child: const Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
@@ -1578,9 +1598,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                           ),
                                         ),
                                         backgroundColor: Colors.green.shade400,
-                                        duration: Duration(seconds: 2),
+                                        duration: const Duration(seconds: 2),
                                         behavior: SnackBarBehavior.floating,
-                                        margin: EdgeInsets.symmetric(
+                                        margin: const EdgeInsets.symmetric(
                                             horizontal: 20, vertical: 10),
                                         shape: RoundedRectangleBorder(
                                           borderRadius:
@@ -1610,8 +1630,12 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                 }
                               }
                             },
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      elevation: 0,
                       child: isSubmitting
-                          ? SizedBox(
+                          ? const SizedBox(
                               height: 20,
                               width: 20,
                               child: CircularProgressIndicator(
@@ -1620,17 +1644,13 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : Text(
+                          : const Text(
                               'Simpan',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 0,
                     ),
                   ),
                 ],
@@ -1657,15 +1677,15 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           title: Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.red[50],
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(Icons.delete_outline, color: Colors.red),
+                child: const Icon(Icons.delete_outline, color: Colors.red),
               ),
-              SizedBox(width: 16),
-              Text(
+              const SizedBox(width: 16),
+              const Text(
                 'Bank Soal',
                 style:
                     TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
@@ -1674,7 +1694,7 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
           ),
           content: Text(
             'Apakah Anda yakin ingin menghapus bank soal "${bank.name}"? Tindakan ini tidak dapat dibatalkan.',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
           actions: [
             TextButton(
@@ -1707,8 +1727,8 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                       ScaffoldMessenger.of(currentContext).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -1725,9 +1745,9 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -1750,15 +1770,15 @@ class _QuestionBankListScreenState extends State<QuestionBankListScreen>
                     }
                   }
                 },
-                child: Text(
-                  'Hapus',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
                 elevation: 0,
+                child: const Text(
+                  'Hapus',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ],

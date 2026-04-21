@@ -1,13 +1,12 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'package:eschool_saas_staff/data/models/question.dart' hide ApiException;
+import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart';
 
 class QuestionBankRepository {
   Future<List<SubjectQuestion>> getTeacherSubjects(
@@ -19,7 +18,7 @@ class QuestionBankRepository {
             isStaffView ? {'view_type': 'staff', 'all': true} : null,
       );
 
-      print(
+      debugPrint(
           "Raw API Response for ${isStaffView ? 'Staff' : 'Teacher'}: $response");
 
       if (response['data'] == null) {
@@ -42,33 +41,34 @@ class QuestionBankRepository {
             .toList();
       }
 
-      print("Processed subjects data: $subjectsData");
+      debugPrint("Processed subjects data: $subjectsData");
 
       final subjects = subjectsData.map((json) {
         try {
           return SubjectQuestion.fromJson(json);
         } catch (e) {
-          print("Error parsing subject: $e");
-          print("Subject JSON: $json");
+          debugPrint("Error parsing subject: $e");
+          debugPrint("Subject JSON: $json");
           rethrow;
         }
       }).toList();
 
-      print("Successfully parsed ${subjects.length} subjects");
+      debugPrint("Successfully parsed ${subjects.length} subjects");
       return subjects;
     } catch (e) {
-      print("Error fetching subjects: $e");
+      debugPrint("Error fetching subjects: $e");
       throw ApiException(e.toString());
     }
   }
 
-  Future<List<Question>> getBankQuestions({required int subjectId, required int bankId, int? onlineExamId}) async {
+  Future<List<Question>> getBankQuestions(
+      {required int subjectId, required int bankId, int? onlineExamId}) async {
     try {
-      print({
-          'subject_id': subjectId,
-          'banksoal_id': bankId,
-          if (onlineExamId != null) 'online_exam_id': onlineExamId
-        });
+      debugPrint({
+        'subject_id': subjectId,
+        'banksoal_id': bankId,
+        if (onlineExamId != null) 'online_exam_id': onlineExamId
+      }.toString());
       final response = await Api.get(
         url: Api.getBankQuestions,
         queryParameters: {
@@ -88,7 +88,7 @@ class QuestionBankRepository {
 
       return questions;
     } catch (e) {
-      print("Error fetching questions: $e");
+      debugPrint("Error fetching questions: $e");
       throw ApiException(e.toString());
     }
   }
@@ -119,7 +119,7 @@ class QuestionBankRepository {
     required String name,
   }) async {
     try {
-      print(
+      debugPrint(
           "Creating bank soal with: subject_id=$subjectId, name=$name"); // Debug log
 
       final response = await Api.post(
@@ -130,13 +130,13 @@ class QuestionBankRepository {
         },
       );
 
-      print("Create bank soal response: $response"); // Debug log
+      debugPrint("Create bank soal response: $response"); // Debug log
 
       if (response['error'] == true) {
         throw ApiException(response['message']);
       }
     } catch (e) {
-      print("Error creating bank soal: $e"); // Debug log
+      debugPrint("Error creating bank soal: $e"); // Debug log
       throw ApiException(e.toString());
     }
   }
@@ -154,8 +154,8 @@ class QuestionBankRepository {
     File? image,
   }) async {
     try {
-      print('\n=== CREATE QUESTION WITH IMAGE ===');
-      print('Starting question creation process...');
+      debugPrint('\n=== CREATE QUESTION WITH IMAGE ===');
+      debugPrint('Starting question creation process...');
 
       // Create FormData manually to ensure correct format
       final formData = FormData.fromMap({
@@ -180,11 +180,11 @@ class QuestionBankRepository {
 
       // Add image if exists
       if (image != null) {
-        print('\n=== IMAGE DETAILS ===');
-        print('Image Path: ${image.path}');
-        print(
+        debugPrint('\n=== IMAGE DETAILS ===');
+        debugPrint('Image Path: ${image.path}');
+        debugPrint(
             'Image Size: ${(image.lengthSync() / 1024).toStringAsFixed(2)} KB');
-        print('Image Name: ${image.path.split('/').last}');
+        debugPrint('Image Name: ${image.path.split('/').last}');
 
         formData.files.add(
           MapEntry(
@@ -196,12 +196,12 @@ class QuestionBankRepository {
             ),
           ),
         );
-        print('Image successfully added to form data');
+        debugPrint('Image successfully added to form data');
       }
 
-      print('\n=== SENDING REQUEST ===');
-      print('Request URL: ${Api.createQuestion}');
-      print('Form Data Fields: ${formData.fields}');
+      debugPrint('\n=== SENDING REQUEST ===');
+      debugPrint('Request URL: ${Api.createQuestion}');
+      debugPrint('Form Data Fields: ${formData.fields}');
 
       // Use Dio with custom headers
       final dio = Dio();
@@ -219,20 +219,20 @@ class QuestionBankRepository {
         ),
       );
 
-      print('\n=== RESPONSE DETAILS ===');
-      print('Response Status: ${response.statusCode}');
-      print('Response Data: ${response.data}');
+      debugPrint('\n=== RESPONSE DETAILS ===');
+      debugPrint('Response Status: ${response.statusCode}');
+      debugPrint('Response Data: ${response.data}');
 
       if (response.data['error'] == true) {
         throw ApiException(
             response.data['message'] ?? 'Failed to create question');
       }
 
-      print('\n=== QUESTION CREATED SUCCESSFULLY ===');
+      debugPrint('\n=== QUESTION CREATED SUCCESSFULLY ===');
     } catch (e) {
-      print('\n=== ERROR CREATING QUESTION ===');
-      print('Error Type: ${e.runtimeType}');
-      print('Error Message: $e');
+      debugPrint('\n=== ERROR CREATING QUESTION ===');
+      debugPrint('Error Type: ${e.runtimeType}');
+      debugPrint('Error Message: $e');
       throw ApiException('Failed to create question: ${e.toString()}');
     }
   }
@@ -271,7 +271,7 @@ class QuestionBankRepository {
     String? orderType,
     String note = '',
     required List<QuestionOption> options,
-    dynamic? image, // Tambahkan parameter image
+    dynamic image, // Tambahkan parameter image
   }) async {
     try {
       final Map<String, dynamic> requestBody = {
@@ -297,7 +297,7 @@ class QuestionBankRepository {
       if (image != null) {
         if (image is XFile) {
           requestBody['image'] = MultipartFile.fromBytes(
-            await (image as XFile).readAsBytes(),
+            await (image).readAsBytes(),
             filename: image.name.isNotEmpty ? image.name : 'default_image.jpg',
           );
         } else {
@@ -305,9 +305,7 @@ class QuestionBankRepository {
             (image as File).path,
           );
         }
-      }
-
-      else {
+      } else {
         requestBody['image'] = null;
       }
 
@@ -315,16 +313,16 @@ class QuestionBankRepository {
           await Api.post(url: Api.updateQuestion, body: requestBody);
 
       if (response['code'] == 200 && response['error'] == false) {
-        print("Question updated successfully");
+        debugPrint("Question updated successfully");
         return;
       }
 
       throw ApiException(response['message'] ?? 'Failed to update question');
     } catch (e) {
-      print("Error updating question: $e");
+      debugPrint("Error updating question: $e");
 
       if (e.toString().contains('Soal Updated Successfully')) {
-        print("Update successful despite error");
+        debugPrint("Update successful despite error");
         return;
       }
 
@@ -337,9 +335,9 @@ class QuestionBankRepository {
     required int banksoalId,
   }) async {
     try {
-      print('🗑️ Attempting to delete bank soal:');
-      print('Subject ID: $subjectId');
-      print('Bank Soal ID: $banksoalId');
+      debugPrint('🗑️ Attempting to delete bank soal:');
+      debugPrint('Subject ID: $subjectId');
+      debugPrint('Bank Soal ID: $banksoalId');
 
       final response = await Api.delete(
         url: Api.deleteQuestionBank,
@@ -349,16 +347,16 @@ class QuestionBankRepository {
         },
       );
 
-      print('Delete Response: $response');
+      debugPrint('Delete Response: $response');
 
       if (response['error'] == true) {
-        print('❌ Delete Error: ${response['message']}');
+        debugPrint('❌ Delete Error: ${response['message']}');
         throw ApiException(response['message']);
       }
 
-      print('✅ Bank soal deleted successfully');
+      debugPrint('✅ Bank soal deleted successfully');
     } catch (e) {
-      print('❌ Delete Exception: $e');
+      debugPrint('❌ Delete Exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -369,13 +367,14 @@ class QuestionBankRepository {
     required int banksoalSoalId,
   }) async {
     try {
-      print('🗑️ Attempting to delete question:');
-      print('Subject ID: $subjectId');
-      print('Bank Soal ID: $banksoalId');
-      print('Question ID: $banksoalSoalId');
+      debugPrint('🗑️ Attempting to delete question:');
+      debugPrint('Subject ID: $subjectId');
+      debugPrint('Bank Soal ID: $banksoalId');
+      debugPrint('Question ID: $banksoalSoalId');
 
       // Verify question exists first
-      final questions = await getBankQuestions(subjectId: subjectId, bankId: banksoalId);
+      final questions =
+          await getBankQuestions(subjectId: subjectId, bankId: banksoalId);
       final questionExists = questions.any((q) => q.id == banksoalSoalId);
 
       if (!questionExists) {
@@ -391,7 +390,7 @@ class QuestionBankRepository {
         },
       );
 
-      print('Delete Response: $response');
+      debugPrint('Delete Response: $response');
 
       // Handle specific validation error
       if (response['error'] == true) {
@@ -404,9 +403,9 @@ class QuestionBankRepository {
         throw ApiException(response['message'].toString());
       }
 
-      print('✅ Question deleted successfully');
+      debugPrint('✅ Question deleted successfully');
     } catch (e) {
-      print('❌ Delete Exception: $e');
+      debugPrint('❌ Delete Exception: $e');
     }
   }
 }

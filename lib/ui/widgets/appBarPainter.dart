@@ -46,7 +46,7 @@ class AppBarPainter extends CustomPainter {
 
     // Add a shadow effect to make it more attractive
     var shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.1)
+      ..color = Colors.black.withValues(alpha: 0.1)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0);
 
     Path path = Path();
@@ -93,7 +93,7 @@ class AppBarPainter extends CustomPainter {
       radius: 1.0,
       colors: [
         circleColor,
-        circleColor.withOpacity(0.8),
+        circleColor.withValues(alpha: 0.8),
       ],
     );
 
@@ -109,7 +109,7 @@ class AppBarPainter extends CustomPainter {
         Offset(circleCenterX, circleCenterY),
         38.0,
         Paint()
-          ..color = Colors.black.withOpacity(0.2)
+          ..color = Colors.black.withValues(alpha: 0.2)
           ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0));
 
     // Draw main circle
@@ -120,7 +120,7 @@ class AppBarPainter extends CustomPainter {
         Offset(circleCenterX - 10.0, circleCenterY - 10.0),
         15.0,
         Paint()
-          ..color = Colors.white.withOpacity(0.2)
+          ..color = Colors.white.withValues(alpha: 0.2)
           ..style = PaintingStyle.fill);
   }
 

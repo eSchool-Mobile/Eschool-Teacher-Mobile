@@ -148,7 +148,7 @@ enum StudentListStatus { all, active, inactive }
 enum StudentAttendanceStatus { absent, present, sick, permission, alpa }
 
 StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
-  print('Getting attendance status for value: $status');
+  debugPrint('Getting attendance status for value: $status');
 
   StudentAttendanceStatus result;
   if (status == 0) {
@@ -165,7 +165,7 @@ StudentAttendanceStatus getStudentAttendanceStatusFromValue(int status) {
     result = StudentAttendanceStatus.absent;
   }
 
-  print('Attendance status resolved to: ${result.toString().split('.').last}');
+  debugPrint('Attendance status resolved to: ${result.toString().split('.').last}');
   return result;
 }
 

@@ -5,6 +5,7 @@ import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class LeaveSettingsAndSessionYearsState {}
 
@@ -50,7 +51,7 @@ class LeaveSettingsAndSessionYearsCubit
       emit(LeaveSettingsAndSessionYearsFetchFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getLeaveSettingsAndSessionYears: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

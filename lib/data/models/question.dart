@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class Question {
   final int id;
@@ -12,34 +13,34 @@ class Question {
   final BankSoalInfo bankSoal;
   final List<QuestionVersion> versions;
 
-  Question(
-      {required this.id,
-      required this.bankSoalId,
-      required this.subjectId,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.bankSoal,
-      this.marks = 0,
-      required this.versions,
-      required this.selected,
-      required this.defaultPoint,
-      });
+  Question({
+    required this.id,
+    required this.bankSoalId,
+    required this.subjectId,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.bankSoal,
+    this.marks = 0,
+    required this.versions,
+    required this.selected,
+    required this.defaultPoint,
+  });
 
   factory Question.fromJson(Map<String, dynamic> json) {
     final versions = (json['versions'] as List?)
-              ?.map((v) => QuestionVersion.fromJson(v))
-              .toList() ??
-          [];
+            ?.map((v) => QuestionVersion.fromJson(v))
+            .toList() ??
+        [];
     return Question(
       id: json['id'] ?? 0,
       bankSoalId: json['bank_soal_id'] ?? 0,
       subjectId: json['subject_id'] ?? 0,
       createdAt: json['created_at'] ?? '',
       updatedAt: json['updated_at'] ?? '',
-      marks: versions[versions.length - 1].defaultPoint ?? 0,
-      defaultPoint: versions[versions.length - 1].defaultPoint ?? 0,
+      marks: versions[versions.length - 1].defaultPoint,
+      defaultPoint: versions[versions.length - 1].defaultPoint,
       bankSoal: BankSoalInfo.fromJson(json['bank_soal'] ?? {}),
-      selected: versions[versions.length - 1].selected ?? false,
+      selected: versions[versions.length - 1].selected,
       // orderType: json['choice_style'] ?? 'numeric',
       versions: versions,
     );
@@ -91,19 +92,18 @@ class QuestionVersion {
   final List<QuestionOption> options;
   final String? image;
 
-  QuestionVersion({
-    required this.id,
-    required this.version,
-    required this.question,
-    required this.name,
-    required this.note,
-    required this.defaultPoint,
-    required this.type,
-    required this.options,
-    required this.orderType,
-    this.image,
-    this.selected = false
-  });
+  QuestionVersion(
+      {required this.id,
+      required this.version,
+      required this.question,
+      required this.name,
+      required this.note,
+      required this.defaultPoint,
+      required this.type,
+      required this.options,
+      required this.orderType,
+      this.image,
+      this.selected = false});
 
   factory QuestionVersion.fromJson(Map<String, dynamic> json) {
     List<QuestionOption> parseOptions(String optionsString) {
@@ -111,8 +111,8 @@ class QuestionVersion {
       return optionsList.map((o) => QuestionOption.fromJson(o)).toList();
     }
 
-    print("JESONNYA");
-    print(json);
+    debugPrint("JESONNYA");
+    debugPrint(json.toString());
 
     return QuestionVersion(
       id: json['id'] ?? 0,

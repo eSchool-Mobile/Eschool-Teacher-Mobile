@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/settingCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -134,7 +133,6 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
               surface: AppColorPalette.warmBeige,
-              background: AppColorPalette.warmBeige,
             ),
       ),
       child: Scaffold(
@@ -188,16 +186,16 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                AppColorPalette.primaryMaroon.withOpacity(0.9),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
                                 AppColorPalette.secondaryMaroon
-                                    .withOpacity(0.9),
+                                    .withValues(alpha: 0.9),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColorPalette.primaryMaroon
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 blurRadius: 10,
                                 offset: const Offset(0, 5),
                               ),
@@ -208,7 +206,7 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                               Icon(
                                 Icons.gavel_rounded,
                                 size: 48,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                               ),
                               const SizedBox(height: 16),
                               Text(
@@ -225,7 +223,7 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                 ),
                               ),
                             ],
@@ -238,11 +236,11 @@ class _TermsAndConditionScreenState extends State<TermsAndConditionScreen>
                         margin: const EdgeInsets.all(20),
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
                               offset: const Offset(0, 5),
                             ),

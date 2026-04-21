@@ -3,19 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
-import 'dart:ui';
 
 import 'package:eschool_saas_staff/cubits/extracurricularMember/extracurricularMemberCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularMemberRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularMember.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/extracurricularMemberListCard.dart';
-import 'package:eschool_saas_staff/utils/constants.dart' as constants;
 import 'package:eschool_saas_staff/utils/utils.dart';
 
 class ExtracurricularMemberScreen extends StatefulWidget {
-  const ExtracurricularMemberScreen({Key? key}) : super(key: key);
+  const ExtracurricularMemberScreen({super.key});
 
   @override
   State<ExtracurricularMemberScreen> createState() =>
@@ -110,26 +107,28 @@ class _ExtracurricularMemberScreenState
             color: _maroonPrimary,
           ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: _statusFilters.map((filter) {
-            return RadioListTile<String>(
-              title: Text(
-                filter['label']!,
-                style: GoogleFonts.poppins(fontSize: 14),
-              ),
-              value: filter['key']!,
-              groupValue: _selectedStatusFilter ?? '',
-              onChanged: (value) {
-                setState(() {
-                  _selectedStatusFilter = value == '' ? null : value;
-                });
-                Navigator.pop(context);
-                _applyFilters();
-              },
-              activeColor: _maroonPrimary,
-            );
-          }).toList(),
+        content: RadioGroup<String>(
+          groupValue: _selectedStatusFilter ?? '',
+          onChanged: (value) {
+            setState(() {
+              _selectedStatusFilter = value == '' ? null : value;
+            });
+            Navigator.pop(context);
+            _applyFilters();
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _statusFilters.map((filter) {
+              return RadioListTile<String>(
+                title: Text(
+                  filter['label']!,
+                  style: GoogleFonts.poppins(fontSize: 14),
+                ),
+                value: filter['key']!,
+                activeColor: _maroonPrimary,
+              );
+            }).toList(),
+          ),
         ),
         actions: [
           TextButton(
@@ -263,9 +262,9 @@ class _ExtracurricularMemberScreenState
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: _maroonPrimary.withOpacity(0.1),
+                  color: _maroonPrimary.withValues(alpha: 0.1),
                   blurRadius: 10,
-                  offset: Offset(0, 4),
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
@@ -288,7 +287,7 @@ class _ExtracurricularMemberScreenState
                 ),
                 filled: true,
                 fillColor: Colors.white,
-                contentPadding: EdgeInsets.symmetric(
+                contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
                 ),
@@ -301,16 +300,17 @@ class _ExtracurricularMemberScreenState
             child: BlocConsumer<ExtracurricularMemberCubit,
                 ExtracurricularMemberState>(
               listener: (context, state) {
-                print(' [MEMBER SCREEN] State changed: ${state.runtimeType}');
+                debugPrint(
+                    ' [MEMBER SCREEN] State changed: ${state.runtimeType}');
 
                 if (state is ExtracurricularMemberSuccess) {
-                  print(
+                  debugPrint(
                       ' [MEMBER SCREEN] Success state with ${state.members?.length ?? 0} members');
 
                   if (state.members != null) {
                     _allMembers = state.members!;
                     _applyFilters();
-                    print(
+                    debugPrint(
                         ' [MEMBER SCREEN] Applied filters, filtered count: ${_filteredMembers.length}');
                   }
 
@@ -368,16 +368,16 @@ class _ExtracurricularMemberScreenState
                 if (_filteredMembers.isEmpty) {
                   return Center(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 100),
+                      padding: const EdgeInsets.only(top: 100),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.people_outlined,
                             size: 80,
-                            color: _maroonPrimary.withOpacity(0.3),
+                            color: _maroonPrimary.withValues(alpha: 0.3),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Text(
                             _searchController.text.isNotEmpty ||
                                     _selectedStatusFilter != null
@@ -389,7 +389,7 @@ class _ExtracurricularMemberScreenState
                               color: Colors.grey[600],
                             ),
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           Text(
                             _searchController.text.isNotEmpty ||
                                     _selectedStatusFilter != null
@@ -407,13 +407,13 @@ class _ExtracurricularMemberScreenState
                 }
 
                 return SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 10),
-                  physics: BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(top: 10),
+                  physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: [
                       // Header with member count
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         child: Row(
                           children: [
                             Icon(
@@ -421,7 +421,7 @@ class _ExtracurricularMemberScreenState
                               color: _maroonPrimary,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               "Daftar Anggota",
                               style: GoogleFonts.poppins(
@@ -430,15 +430,15 @@ class _ExtracurricularMemberScreenState
                                 color: Colors.grey[800],
                               ),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: _maroonPrimary.withOpacity(0.1),
+                                color: _maroonPrimary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(
-                                  color: _maroonPrimary.withOpacity(0.3),
+                                  color: _maroonPrimary.withValues(alpha: 0.3),
                                   width: 1,
                                 ),
                               ),
@@ -454,13 +454,13 @@ class _ExtracurricularMemberScreenState
                           ],
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
 
                       // Member list
                       ListView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        padding: EdgeInsets.symmetric(horizontal: 20),
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         itemCount: _filteredMembers.length,
                         itemBuilder: (context, index) {
                           final member = _filteredMembers[index];
@@ -510,12 +510,12 @@ class _ExtracurricularMemberScreenState
 
   Widget _buildLoadingSkeleton() {
     return ListView.builder(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       itemCount: 6,
       itemBuilder: (context, index) {
         return Container(
-          margin: EdgeInsets.only(bottom: 12),
-          padding: EdgeInsets.all(16),
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -533,7 +533,7 @@ class _ExtracurricularMemberScreenState
                     color: Colors.grey.shade300,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -543,13 +543,13 @@ class _ExtracurricularMemberScreenState
                         width: double.infinity,
                         color: Colors.grey.shade300,
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Container(
                         height: 12,
                         width: 150,
                         color: Colors.grey.shade300,
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Container(
                         height: 12,
                         width: 120,

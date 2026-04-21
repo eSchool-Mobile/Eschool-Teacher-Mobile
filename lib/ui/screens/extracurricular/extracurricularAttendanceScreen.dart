@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricularAttendanceCubit.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricularAttendanceState.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularAttendanceRepository.dart';
@@ -17,7 +16,7 @@ import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/dateFormatter.dart';
 
 class ExtracurricularAttendanceScreen extends StatefulWidget {
-  const ExtracurricularAttendanceScreen({Key? key}) : super(key: key);
+  const ExtracurricularAttendanceScreen({super.key});
 
   static Widget getRouteInstance() {
     return BlocProvider(
@@ -105,27 +104,27 @@ class _ExtracurricularAttendanceScreenState
   // Save attendance data with validation
   void _saveAttendance() {
     if (_selectedExtracurricularId == null) {
-      print('❌ [ATTENDANCE SCREEN] Cannot save: No extracurricular selected');
+      debugPrint('❌ [ATTENDANCE SCREEN] Cannot save: No extracurricular selected');
       _showErrorSnackbar('Pilih ekstrakurikuler terlebih dahulu');
       return;
     }
 
     if (attendanceReport.isEmpty) {
-      print('❌ [ATTENDANCE SCREEN] Cannot save: No attendance data');
+      debugPrint('❌ [ATTENDANCE SCREEN] Cannot save: No attendance data');
       _showErrorSnackbar('Tidak ada data absensi untuk disimpan');
       return;
     }
 
-    print('🔍 [ATTENDANCE SCREEN] Preparing to save attendance...');
-    print(
+    debugPrint('🔍 [ATTENDANCE SCREEN] Preparing to save attendance...');
+    debugPrint(
         '🔍 [ATTENDANCE SCREEN] Attendance report count: ${attendanceReport.length}');
-    print(
+    debugPrint(
         '🔍 [ATTENDANCE SCREEN] Selected date: ${_formatDateForApi(_selectedDate)}');
 
     // Validate date format
     final dateString = _formatDateForApi(_selectedDate);
     if (!DateFormatter.isValidGetRequestDateFormat(dateString)) {
-      print('❌ [ATTENDANCE SCREEN] Invalid date format: $dateString');
+      debugPrint('❌ [ATTENDANCE SCREEN] Invalid date format: $dateString');
       _showErrorSnackbar('Format tanggal tidak valid');
       return;
     }
@@ -135,12 +134,12 @@ class _ExtracurricularAttendanceScreenState
     bool hasInvalidData = false;
 
     for (final report in attendanceReport) {
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Processing report: StudentID=${report.studentId}, Status=${report.status}');
 
       // Validate student ID
       if (report.studentId <= 0) {
-        print('❌ [ATTENDANCE SCREEN] Invalid student ID: ${report.studentId}');
+        debugPrint('❌ [ATTENDANCE SCREEN] Invalid student ID: ${report.studentId}');
         hasInvalidData = true;
         continue;
       }
@@ -153,15 +152,15 @@ class _ExtracurricularAttendanceScreenState
 
         if (data.isValid()) {
           attendanceData.add(data);
-          print(
+          debugPrint(
               '✅ [ATTENDANCE SCREEN] Added valid attendance data: ${data.toString()}');
         } else {
-          print(
+          debugPrint(
               '❌ [ATTENDANCE SCREEN] Invalid attendance data: ${data.toString()}');
           hasInvalidData = true;
         }
       } catch (e) {
-        print('❌ [ATTENDANCE SCREEN] Error creating attendance data: $e');
+        debugPrint('❌ [ATTENDANCE SCREEN] Error creating attendance data: $e');
         hasInvalidData = true;
       }
     }
@@ -173,15 +172,15 @@ class _ExtracurricularAttendanceScreenState
     }
 
     if (attendanceData.isEmpty) {
-      print('❌ [ATTENDANCE SCREEN] No valid attendance data to save');
+      debugPrint('❌ [ATTENDANCE SCREEN] No valid attendance data to save');
       _showErrorSnackbar('Tidak ada data absensi yang valid untuk disimpan');
       return;
     }
 
-    print(
+    debugPrint(
         '🔍 [ATTENDANCE SCREEN] Final attendance data (${attendanceData.length} items):');
     for (final data in attendanceData) {
-      print('  - ${data.toString()}');
+      debugPrint('  - ${data.toString()}');
     }
 
     // Send to API
@@ -250,13 +249,13 @@ class _ExtracurricularAttendanceScreenState
           // Show search input if search is active
           if (_isSearchVisible) {
             return Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -274,19 +273,19 @@ class _ExtracurricularAttendanceScreenState
                   decoration: InputDecoration(
                     hintText: 'Cari nama anggota...',
                     hintStyle: GoogleFonts.poppins(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 14,
                     ),
                     prefixIcon: Icon(
                       Icons.search_rounded,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha: 0.8),
                       size: 20,
                     ),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
                             icon: Icon(
                               Icons.clear_rounded,
-                              color: Colors.white.withOpacity(0.8),
+                              color: Colors.white.withValues(alpha: 0.8),
                               size: 20,
                             ),
                             onPressed: () {
@@ -299,7 +298,7 @@ class _ExtracurricularAttendanceScreenState
                         : null,
                     border: InputBorder.none,
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
               ),
@@ -334,13 +333,13 @@ class _ExtracurricularAttendanceScreenState
                     },
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.calendar_today_rounded,
+                          const Icon(Icons.calendar_today_rounded,
                               color: Colors.white, size: 16),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               Utils.formatDate(_selectedDate),
@@ -363,15 +362,15 @@ class _ExtracurricularAttendanceScreenState
               Container(
                 height: 24,
                 width: 1.5,
-                margin: EdgeInsets.symmetric(horizontal: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.white.withOpacity(0.0),
-                      Colors.white.withOpacity(0.4),
-                      Colors.white.withOpacity(0.0),
+                      Colors.white.withValues(alpha: 0.0),
+                      Colors.white.withValues(alpha: 0.4),
+                      Colors.white.withValues(alpha: 0.0),
                     ],
                   ),
                 ),
@@ -387,13 +386,13 @@ class _ExtracurricularAttendanceScreenState
                     onTap: () => _showExtracurricularPicker(),
                     child: Container(
                       padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.sports_soccer,
+                          const Icon(Icons.sports_soccer,
                               color: Colors.white, size: 16),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               _selectedExtracurricularName ??
@@ -422,23 +421,23 @@ class _ExtracurricularAttendanceScreenState
             child: BlocConsumer<ExtracurricularAttendanceCubit,
                 ExtracurricularAttendanceState>(
               listener: (context, state) {
-                print(
+                debugPrint(
                     '🔍 [ATTENDANCE SCREEN] State changed: ${state.runtimeType}');
 
                 if (state is ExtracurricularAttendanceSuccess) {
-                  print('🔍 [ATTENDANCE SCREEN] Success state received');
+                  debugPrint('🔍 [ATTENDANCE SCREEN] Success state received');
 
                   if (state.extracurricularList != null) {
-                    print(
+                    debugPrint(
                         '🔍 [ATTENDANCE SCREEN] Extracurricular list received: ${state.extracurricularList!.length} items');
-                    print(
+                    debugPrint(
                         '🔍 [ATTENDANCE SCREEN] List content: ${state.extracurricularList}');
                     setState(() {
                       _extracurricularList = state.extracurricularList!;
                     });
                   }
                   if (state.attendanceData != null) {
-                    print(
+                    debugPrint(
                         '🔍 [ATTENDANCE SCREEN] Attendance data received: ${state.attendanceData!.members.length} members');
 
                     // Debug: Print first few members to see their structure
@@ -446,7 +445,7 @@ class _ExtracurricularAttendanceScreenState
                         i < state.attendanceData!.members.length && i < 3;
                         i++) {
                       final member = state.attendanceData!.members[i];
-                      print(
+                      debugPrint(
                           '🔍 [ATTENDANCE SCREEN] Member $i: AttendanceID=${member.attendanceId}, StudentID=${member.studentId}, Name=${member.studentName}');
                     }
 
@@ -469,9 +468,9 @@ class _ExtracurricularAttendanceScreenState
                     ),
                   );
                   // Reload data after save with delay to ensure backend has processed
-                  print(
+                  debugPrint(
                       '✅ [ATTENDANCE SCREEN] Save successful, reloading data...');
-                  Future.delayed(Duration(milliseconds: 500), () {
+                  Future.delayed(const Duration(milliseconds: 500), () {
                     _loadAttendanceData();
                   });
                 }
@@ -531,9 +530,9 @@ class _ExtracurricularAttendanceScreenState
             Icon(
               Icons.sports_soccer,
               size: 80,
-              color: _maroonPrimary.withOpacity(0.3),
+              color: _maroonPrimary.withValues(alpha: 0.3),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               'Pilih Ekstrakurikuler',
               style: GoogleFonts.poppins(
@@ -542,7 +541,7 @@ class _ExtracurricularAttendanceScreenState
                 color: Colors.grey[600],
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Text(
               'Silakan pilih ekstrakurikuler terlebih dahulu',
               style: GoogleFonts.poppins(
@@ -563,7 +562,7 @@ class _ExtracurricularAttendanceScreenState
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
         controller: _scrollController,
-        padding: EdgeInsets.only(top: 20, bottom: 90),
+        padding: const EdgeInsets.only(top: 20, bottom: 90),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -589,15 +588,15 @@ class _ExtracurricularAttendanceScreenState
 
             // Students attendance container
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
@@ -612,18 +611,18 @@ class _ExtracurricularAttendanceScreenState
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _maroonPrimary.withOpacity(0.9),
+                          _maroonPrimary.withValues(alpha: 0.9),
                           _maroonPrimary,
                           _maroonLight,
                         ],
                       ),
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(16)),
+                          const BorderRadius.vertical(top: Radius.circular(16)),
                       boxShadow: [
                         BoxShadow(
-                          color: _maroonPrimary.withOpacity(0.3),
+                          color: _maroonPrimary.withValues(alpha: 0.3),
                           blurRadius: 10,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -631,12 +630,12 @@ class _ExtracurricularAttendanceScreenState
                       children: [
                         // Animated icon
                         Container(
-                          padding: EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.people_alt_rounded,
                             color: Colors.white,
                             size: 20,
@@ -715,7 +714,7 @@ class _ExtracurricularAttendanceScreenState
 
     // Convert ExtracurricularAttendance to StudentAttendance format
     final studentAttendances = _attendanceList.map((member) {
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Converting member: AttendanceID=${member.attendanceId}, StudentID=${member.studentId}, Name=${member.studentName}, Status=${member.status.label}');
 
       // Create StudentDetails from ExtracurricularAttendance
@@ -736,7 +735,7 @@ class _ExtracurricularAttendanceScreenState
         },
       });
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Created StudentDetails: ID=${studentDetails.id}, UserID=${studentDetails.student?.userId}');
 
       // Convert backend status to StudentAttendance type
@@ -762,9 +761,9 @@ class _ExtracurricularAttendanceScreenState
             studentAttendanceType, // Use converted type for proper status detection
       );
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Created StudentAttendance: ID=${studentAttendance.studentDetails?.id}, Type=${studentAttendance.type}, Status=${member.status.label}');
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Status check - isPresent: ${studentAttendance.isPresent()}, isAbsent: ${studentAttendance.isAbsent()}, isSick: ${studentAttendance.isSick()}, isPermission: ${studentAttendance.isPermission()}, isAlpa: ${studentAttendance.isAlpa()}');
 
       return studentAttendance;
@@ -783,11 +782,11 @@ class _ExtracurricularAttendanceScreenState
       studentAttendances: filteredStudents,
       allStudentAttendances: studentAttendances,
       onStatusChanged: (attendanceStatuses) {
-        print(
+        debugPrint(
             '🔍 [ATTENDANCE SCREEN] Status changed callback received ${attendanceStatuses.length} items:');
         for (int i = 0; i < attendanceStatuses.length; i++) {
           final item = attendanceStatuses[i];
-          print(
+          debugPrint(
               '  - Index $i: StudentID=${item.studentId}, Status=${item.status}');
         }
         attendanceReport = attendanceStatuses;
@@ -802,8 +801,8 @@ class _ExtracurricularAttendanceScreenState
     attendanceReport = _attendanceList.map((member) {
       final convertedStatus =
           _convertAttendanceStatusToStudentStatus(member.status);
-      print(
-          '🔍 [ATTENDANCE SCREEN] Initializing report for student ID: ${member.studentId}, Original Status: ${member.status.label} (${member.status.value}), Converted: ${convertedStatus}');
+      debugPrint(
+          '🔍 [ATTENDANCE SCREEN] Initializing report for student ID: ${member.studentId}, Original Status: ${member.status.label} (${member.status.value}), Converted: $convertedStatus');
 
       return (
         status: convertedStatus,
@@ -811,13 +810,13 @@ class _ExtracurricularAttendanceScreenState
       );
     }).toList();
 
-    print(
+    debugPrint(
         '🔍 [ATTENDANCE SCREEN] Initialized ${attendanceReport.length} attendance reports');
 
     // Debug: Print all attendance reports
     for (int i = 0; i < attendanceReport.length; i++) {
       final report = attendanceReport[i];
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE SCREEN] Report $i: StudentID=${report.studentId}, Status=${report.status}');
     }
   }
@@ -844,14 +843,14 @@ class _ExtracurricularAttendanceScreenState
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.6,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: Column(
           children: [
             Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Text(
                 'Pilih Ekstrakurikuler',
                 style: GoogleFonts.poppins(
@@ -872,7 +871,7 @@ class _ExtracurricularAttendanceScreenState
                             size: 60,
                             color: Colors.grey[400],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Tidak ada ekstrakurikuler',
                             style: GoogleFonts.poppins(
@@ -880,7 +879,7 @@ class _ExtracurricularAttendanceScreenState
                               color: Colors.grey[600],
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             'Belum ada data ekstrakurikuler yang tersedia',
                             style: GoogleFonts.poppins(
@@ -888,7 +887,7 @@ class _ExtracurricularAttendanceScreenState
                               color: Colors.grey[500],
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
                               Navigator.pop(context);
@@ -897,7 +896,7 @@ class _ExtracurricularAttendanceScreenState
                                   .read<ExtracurricularAttendanceCubit>()
                                   .getExtracurricularList();
                             },
-                            child: Text('Coba Lagi'),
+                            child: const Text('Coba Lagi'),
                           ),
                         ],
                       ),
@@ -940,14 +939,14 @@ class _ExtracurricularAttendanceScreenState
 
   Widget _buildSubmitButton() {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -961,13 +960,13 @@ class _ExtracurricularAttendanceScreenState
             style: ElevatedButton.styleFrom(
               backgroundColor: _maroonPrimary,
               foregroundColor: Colors.white,
-              minimumSize: Size(double.infinity, 50),
+              minimumSize: const Size(double.infinity, 50),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             child: isLoading
-                ? SizedBox(
+                ? const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(

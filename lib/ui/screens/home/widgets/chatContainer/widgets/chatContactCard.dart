@@ -32,7 +32,7 @@ class ChatContactCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    print('Last Message Content: ${contact.lastMessage}');
+    debugPrint('Last Message Content: ${contact.lastMessage}');
 
     // Check if message is an image
     final isImageMessage = contact.lastMessage == null;

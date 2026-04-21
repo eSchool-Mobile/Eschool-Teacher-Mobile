@@ -5,7 +5,7 @@ import 'in_appbanner.dart';
 
 /// Demo screen untuk mentest desain clean notification banner
 class NotificationDemoScreen extends StatelessWidget {
-  const NotificationDemoScreen({Key? key}) : super(key: key);
+  const NotificationDemoScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,7 @@ class NotificationDemoScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -127,7 +127,7 @@ class NotificationDemoScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -138,9 +138,9 @@ class NotificationDemoScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.school_outlined,
-                        color: const Color(0xFF3B82F6),
+                        color: Color(0xFF3B82F6),
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -205,10 +205,10 @@ class NotificationDemoScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -221,7 +221,7 @@ class NotificationDemoScreen extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(

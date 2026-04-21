@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
@@ -18,8 +17,7 @@ class OnlineExamResultQuestionsScreen extends StatefulWidget {
   final String examName;
 
   const OnlineExamResultQuestionsScreen(
-      {Key? key, required this.examId, required this.examName})
-      : super(key: key);
+      {super.key, required this.examId, required this.examName});
 
   @override
   State<OnlineExamResultQuestionsScreen> createState() =>
@@ -42,7 +40,7 @@ class UltraModernPatternPainter extends CustomPainter {
       ..strokeWidth = 1.5
       ..style = PaintingStyle.stroke;
 
-    final double spacing = 30;
+    const double spacing = 30;
     for (double i = -size.width; i < size.width * 2; i += spacing) {
       canvas.drawLine(
         Offset(i, 0),
@@ -76,14 +74,10 @@ class _OnlineExamResultQuestionsScreenState
   List<QuestionOnlineExam> _filteredQuestions = [];
   bool _showSearch = false;
 
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+  late AnimationController _animationController;
 
-  final Color _primaryColor = Color(0xFF7A1E23);
-  final Color _accentColor = Color(0xFF9D3C3C);
-  final Color _highlightColor = Color(0xFFB84D4D);
-  final Color _energyColor = Color(0xFFCE6D6D);
-  final Color _glowColor = Color(0xFFAF4F4F);
+  static const Color _primaryColor = Color(0xFF7A1E23);
+  static const Color _accentColor = Color(0xFF9D3C3C);
 
   String parseHtmlString(String htmlString) {
     final document = parse(htmlString);
@@ -169,7 +163,7 @@ class _OnlineExamResultQuestionsScreenState
     }
 
     // Final fallback
-    return 'Soal ${question.question_id ?? 'Tanpa Nomor'}';
+    return 'Soal ${question.questionId}';
   }
 
   @override
@@ -180,20 +174,15 @@ class _OnlineExamResultQuestionsScreenState
           search: _searchController.text,
         );
 
-    _pulseController = AnimationController(
+    _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
   }
 
   @override
   void dispose() {
-    _pulseController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -203,7 +192,7 @@ class _OnlineExamResultQuestionsScreenState
       appBar: CustomModernAppBar(
         title: "Soal Ujian Online",
         icon: Icons.assessment,
-        fabAnimationController: _pulseController,
+        fabAnimationController: _animationController,
         primaryColor: _primaryColor,
         lightColor: _accentColor,
         onBackPressed: () => Navigator.of(context).pop(),
@@ -241,42 +230,6 @@ class _OnlineExamResultQuestionsScreenState
     );
   }
 
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildContent(List<QuestionOnlineExam> questions) {
     _showSearch = questions.length > 5;
 
@@ -294,7 +247,7 @@ class _OnlineExamResultQuestionsScreenState
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   spreadRadius: 0,
                   offset: const Offset(0, 5),
@@ -359,20 +312,20 @@ class _OnlineExamResultQuestionsScreenState
         children: [
           GestureDetector(
             onTap: () => Get.toNamed(
-                "/OnlineExamResultAnswerScreen/${widget.examId}/${question.question_id}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
+                "/OnlineExamResultAnswerScreen/${widget.examId}/${question.questionId}/${base64.encode(utf8.encode(widget.examName))}/${question.type}"),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: _getTypeColor(question.type).withOpacity(0.12),
+                    color: _getTypeColor(question.type).withValues(alpha: 0.12),
                     blurRadius: 40,
                     offset: const Offset(0, 15),
                     spreadRadius: 0,
                   ),
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 12,
                     offset: const Offset(0, 8),
                   ),
@@ -393,7 +346,8 @@ class _OnlineExamResultQuestionsScreenState
                             _getTypeColor(question.type),
                             Color.lerp(_getTypeColor(question.type),
                                 Colors.black, 0.2)!,
-                            _getTypeColor(question.type).withOpacity(0.85),
+                            _getTypeColor(question.type)
+                                .withValues(alpha: 0.85),
                           ],
                           stops: const [0.2, 0.6, 0.9],
                         ),
@@ -403,8 +357,10 @@ class _OnlineExamResultQuestionsScreenState
                         children: [
                           CustomPaint(
                             painter: UltraModernPatternPainter(
-                              primaryColor: Colors.white.withOpacity(0.12),
-                              secondaryColor: Colors.white.withOpacity(0.06),
+                              primaryColor:
+                                  Colors.white.withValues(alpha: 0.12),
+                              secondaryColor:
+                                  Colors.white.withValues(alpha: 0.06),
                             ),
                           ),
                           Positioned(
@@ -417,8 +373,8 @@ class _OnlineExamResultQuestionsScreenState
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    Colors.white.withOpacity(0.3),
-                                    Colors.white.withOpacity(0),
+                                    Colors.white.withValues(alpha: 0.3),
+                                    Colors.white.withValues(alpha: 0),
                                   ],
                                   stops: const [0.1, 1.0],
                                 ),
@@ -432,15 +388,15 @@ class _OnlineExamResultQuestionsScreenState
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 10),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.15),
+                                color: Colors.white.withValues(alpha: 0.15),
                                 borderRadius: BorderRadius.circular(18),
                                 border: Border.all(
-                                  color: Colors.white.withOpacity(0.5),
+                                  color: Colors.white.withValues(alpha: 0.5),
                                   width: 1,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.15),
+                                    color: Colors.black.withValues(alpha: 0.15),
                                     blurRadius: 15,
                                     spreadRadius: -5,
                                   ),
@@ -449,8 +405,8 @@ class _OnlineExamResultQuestionsScreenState
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    Colors.white.withOpacity(0.4),
-                                    Colors.white.withOpacity(0.1),
+                                    Colors.white.withValues(alpha: 0.4),
+                                    Colors.white.withValues(alpha: 0.1),
                                   ],
                                 ),
                               ),
@@ -464,7 +420,8 @@ class _OnlineExamResultQuestionsScreenState
                                         width: 26,
                                         height: 26,
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withOpacity(0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                         ),
                                       ),
                                       Icon(
@@ -499,13 +456,13 @@ class _OnlineExamResultQuestionsScreenState
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.2),
+                                    color: Colors.black.withValues(alpha: 0.2),
                                     blurRadius: 8,
                                     offset: const Offset(0, 3),
                                   ),
                                   BoxShadow(
                                     color: _getTypeColor(question.type)
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     blurRadius: 12,
                                     offset: const Offset(0, 1),
                                     spreadRadius: -3,
@@ -528,7 +485,7 @@ class _OnlineExamResultQuestionsScreenState
                                         color: Colors.amber.shade300,
                                         size: 17,
                                       ),
-                                      Icon(
+                                      const Icon(
                                         Icons.star_rounded,
                                         color: Colors.amber,
                                         size: 14,
@@ -559,11 +516,12 @@ class _OnlineExamResultQuestionsScreenState
                                   width: 40,
                                   height: 4,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     borderRadius: BorderRadius.circular(2),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.white.withOpacity(0.3),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.3),
                                         blurRadius: 4,
                                         spreadRadius: 1,
                                       )
@@ -581,13 +539,14 @@ class _OnlineExamResultQuestionsScreenState
                                     letterSpacing: 0.3,
                                     shadows: [
                                       Shadow(
-                                        color: Colors.black.withOpacity(0.4),
+                                        color:
+                                            Colors.black.withValues(alpha: 0.4),
                                         offset: const Offset(0, 2),
                                         blurRadius: 5,
                                       ),
                                       Shadow(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.6),
+                                            .withValues(alpha: 0.6),
                                         offset: const Offset(0, 1),
                                         blurRadius: 8,
                                       ),
@@ -620,13 +579,13 @@ class _OnlineExamResultQuestionsScreenState
                                     colors: [
                                       _getTypeColor(question.type),
                                       _getTypeColor(question.type)
-                                          .withOpacity(0.6),
+                                          .withValues(alpha: 0.6),
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
                                       color: _getTypeColor(question.type)
-                                          .withOpacity(0.4),
+                                          .withValues(alpha: 0.4),
                                       blurRadius: 8,
                                       offset: const Offset(0, 2),
                                     ),
@@ -654,7 +613,7 @@ class _OnlineExamResultQuestionsScreenState
                               border: Border.all(color: Colors.grey.shade100),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.02),
+                                  color: Colors.black.withValues(alpha: 0.02),
                                   blurRadius: 8,
                                   offset: const Offset(0, 4),
                                 ),
@@ -688,7 +647,7 @@ class _OnlineExamResultQuestionsScreenState
                               borderRadius: BorderRadius.circular(22),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 12,
                                   spreadRadius: 0,
                                   offset: const Offset(0, 4),
@@ -696,7 +655,7 @@ class _OnlineExamResultQuestionsScreenState
                               ],
                               border: Border.all(
                                 color: _getTypeColor(question.type)
-                                    .withOpacity(0.2),
+                                    .withValues(alpha: 0.2),
                                 width: 1.5,
                               ),
                             ),
@@ -710,7 +669,7 @@ class _OnlineExamResultQuestionsScreenState
                                       height: 48,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.08),
+                                            .withValues(alpha: 0.08),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -719,7 +678,7 @@ class _OnlineExamResultQuestionsScreenState
                                       height: 42,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.12),
+                                            .withValues(alpha: 0.12),
                                         shape: BoxShape.circle,
                                       ),
                                     ),
@@ -728,7 +687,7 @@ class _OnlineExamResultQuestionsScreenState
                                       height: 36,
                                       decoration: BoxDecoration(
                                         color: _getTypeColor(question.type)
-                                            .withOpacity(0.15),
+                                            .withValues(alpha: 0.15),
                                         shape: BoxShape.circle,
                                         border: Border.all(
                                           width: 1.5,
@@ -774,7 +733,7 @@ class _OnlineExamResultQuestionsScreenState
                                   height: 32,
                                   decoration: BoxDecoration(
                                     color: _getTypeColor(question.type)
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Icon(

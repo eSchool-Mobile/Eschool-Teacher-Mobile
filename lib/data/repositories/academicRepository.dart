@@ -5,12 +5,13 @@ import 'package:eschool_saas_staff/data/models/role.dart';
 import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class AcademicRepository {
   Future<({List<ClassSection> classes, List<ClassSection> primaryClasses})>
       getClasses({bool? modeAll, int? gradeLevelId}) async {
     try {
-      print("AcademicRepository: Fetching classes with mode=all parameter");
+      debugPrint("AcademicRepository: Fetching classes with mode=all parameter");
 
       Map<String, dynamic> queryParameters = {};
       if (modeAll == true) {
@@ -24,7 +25,7 @@ class AcademicRepository {
         url: Api.getClasses,
         queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
       );
-      print("AcademicRepository: Raw API response received");
+      debugPrint("AcademicRepository: Raw API response received");
 
       // Mapping untuk other classes (tetap dipertahankan)
       final otherClasses = ((result['other'] ?? []) as List)
@@ -60,10 +61,10 @@ class AcademicRepository {
         return ClassSection.fromJson(classSection);
       }).toList();
 
-      print(
+      debugPrint(
           "Primary Classes (Wali Kelas): ${primaryClasses.map((e) => e.name)}");
-      print("Other Classes: ${otherClasses.map((e) => e.name)}");
-      print(
+      debugPrint("Other Classes: ${otherClasses.map((e) => e.name)}");
+      debugPrint(
           "AcademicRepository: Total classes loaded - Primary: ${primaryClasses.length}, Other: ${otherClasses.length}");
 
       return (classes: otherClasses, primaryClasses: primaryClasses);
@@ -79,8 +80,8 @@ class AcademicRepository {
         url: Api.getClassesWithTeacherDetails,
         body: {if (modeAll == true) "mode": "all"},
       );
-      print("resultnya");
-      print(result);
+      debugPrint("resultnya");
+      debugPrint(result.toString());
       return ((result['data'] ?? []) as List)
           .map((classDetails) =>
               ClassSection.fromJson(Map.from(classDetails ?? {})))

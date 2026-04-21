@@ -16,7 +16,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'dart:ui';
 import 'package:shimmer/shimmer.dart';
 
 class ManageNotificationScreen extends StatefulWidget {
@@ -52,7 +51,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
   final Color _maroonPrimary = const Color(0xFF800020);
   final Color _maroonLight = const Color(0xFFAA6976);
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   bool _hasSearchText = false;
 
@@ -127,7 +126,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                     alignment: Alignment.bottomCenter,
                     child: Container(
                       padding: EdgeInsets.all(appContentHorizontalPadding),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
@@ -154,7 +153,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
-                              color: _maroonPrimary.withOpacity(0.3),
+                              color: _maroonPrimary.withValues(alpha: 0.3),
                               offset: const Offset(0, 4),
                               blurRadius: 12,
                               spreadRadius: -2,
@@ -165,8 +164,8 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(15),
-                            highlightColor: Colors.white.withOpacity(0.1),
-                            splashColor: Colors.white.withOpacity(0.2),
+                            highlightColor: Colors.white.withValues(alpha: 0.1),
+                            splashColor: Colors.white.withValues(alpha: 0.2),
                             onTap: () {
                               Get.toNamed(Routes.addNotificationScreen);
                             },
@@ -176,7 +175,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.add_circle_outline,
                                     color: Colors.white,
                                     size: 24,
@@ -228,18 +227,18 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                 ),
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
-                  color: _maroonPrimary.withOpacity(0.15),
+                  color: _maroonPrimary.withValues(alpha: 0.15),
                   width: 1.2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _maroonPrimary.withOpacity(0.12),
+                    color: _maroonPrimary.withValues(alpha: 0.12),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                     spreadRadius: -2,
                   ),
                   BoxShadow(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     blurRadius: 8,
                     offset: const Offset(0, -2),
                     spreadRadius: -4,
@@ -252,8 +251,8 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _hasSearchText
-                        ? _maroonPrimary.withOpacity(0.3)
-                        : Colors.grey.withOpacity(0.2),
+                        ? _maroonPrimary.withValues(alpha: 0.3)
+                        : Colors.grey.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -266,7 +265,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: _hasSearchText
-                            ? _maroonPrimary.withOpacity(0.1)
+                            ? _maroonPrimary.withValues(alpha: 0.1)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -318,7 +317,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                       duration: const Duration(milliseconds: 200),
                       child: _hasSearchText
                           ? Container(
-                              key: ValueKey('clear_button'),
+                              key: const ValueKey('clear_button'),
                               margin: const EdgeInsets.only(right: 4),
                               decoration: BoxDecoration(
                                 color: Colors.grey[100],
@@ -345,7 +344,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                                 ),
                               ),
                             )
-                          : SizedBox(key: ValueKey('empty'), width: 0),
+                          : const SizedBox(key: ValueKey('empty'), width: 0),
                     ),
                     // Close Button with premium design
                     //   Container(
@@ -362,7 +361,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                     //       borderRadius: BorderRadius.circular(10),
                     //       boxShadow: [
                     //         BoxShadow(
-                    //           color: _maroonPrimary.withOpacity(0.3),
+                    //           color: _maroonPrimary.withValues(alpha: 0.3),
                     //           blurRadius: 8,
                     //           offset: const Offset(0, 2),
                     //           spreadRadius: -2,
@@ -409,7 +408,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
 
   Widget _buildHeader() {
     return Container(
-      margin: EdgeInsets.only(top: 16),
+      margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,8 +441,8 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: _maroonPrimary.withOpacity(0.08),
-        borderRadius: BorderRadius.only(
+        color: _maroonPrimary.withValues(alpha: 0.08),
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
         ),
@@ -516,7 +515,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                 Container(
                   width: 36,
                   height: 36,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -554,7 +553,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                 Container(
                   width: 28,
                   height: 28,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
@@ -573,7 +572,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
         _buildHeader(),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.only(bottom: 100, top: 0),
+            padding: const EdgeInsets.only(bottom: 100, top: 0),
             children: [
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -582,7 +581,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
+                      color: Colors.black.withValues(alpha: 0.05),
                       blurRadius: 10,
                       spreadRadius: 0,
                     ),
@@ -595,7 +594,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
 
                     // Notification Items
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.only(
                           bottomLeft: Radius.circular(16),
                           bottomRight: Radius.circular(16),
@@ -694,7 +693,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                                     ).animate().fadeIn(delay: 300.ms)
                                   : ListView(
                                       controller: _scrollController,
-                                      padding: EdgeInsets.only(
+                                      padding: const EdgeInsets.only(
                                         bottom: 100,
                                         top: 0,
                                       ),
@@ -709,7 +708,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                                             boxShadow: [
                                               BoxShadow(
                                                 color: Colors.black
-                                                    .withOpacity(0.05),
+                                                    .withValues(alpha: 0.05),
                                                 blurRadius: 10,
                                                 spreadRadius: 0,
                                               ),
@@ -725,9 +724,9 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                                                         vertical: 12),
                                                 decoration: BoxDecoration(
                                                   color: _maroonPrimary
-                                                      .withOpacity(0.08),
+                                                      .withValues(alpha: 0.08),
                                                   borderRadius:
-                                                      BorderRadius.only(
+                                                      const BorderRadius.only(
                                                     topLeft:
                                                         Radius.circular(16),
                                                     topRight:
@@ -769,7 +768,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
 
                                               // Notification Items
                                               Container(
-                                                decoration: BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                   borderRadius:
                                                       BorderRadius.only(
                                                     bottomLeft:
@@ -870,7 +869,7 @@ class ManageNotificationScreenState extends State<ManageNotificationScreen>
                   height: 32,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: _maroonPrimary.withOpacity(0.1),
+                    color: _maroonPrimary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: CircularProgressIndicator(

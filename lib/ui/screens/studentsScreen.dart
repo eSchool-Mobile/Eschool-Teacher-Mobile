@@ -12,7 +12,6 @@ import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentListCard.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -62,15 +61,13 @@ class _StudentsScreenState extends State<StudentsScreen>
   late final Animation<double> _scaleAnimation;
 
   // Define theme colors
-  final Color maroonPrimary = Color(0xFF8B1F41);
-  final Color maroonLight = Color(0xFFAC3B5C);
-  final Color maroonDark = Color(0xFF6A0F2A);
-  final Color accentColor = Color(0xFFF5EBE0);
-  final Color bgColor = Color(0xFFFAF6F2);
+  static const Color maroonPrimary = Color(0xFF8B1F41);
+  static const Color maroonLight = Color(0xFFAC3B5C);
+  static const Color bgColor = Color(0xFFFAF6F2);
   final Color cardColor = Colors.white;
-  final Color textDarkColor = Color(0xFF2D2D2D);
-  final Color textMediumColor = Color(0xFF717171);
-  final Color borderColor = Color(0xFFE8E8E8);
+  static const Color textDarkColor = Color(0xFF2D2D2D);
+  static const Color textMediumColor = Color(0xFF717171);
+  static const Color borderColor = Color(0xFFE8E8E8);
 
   @override
   void initState() {
@@ -82,7 +79,7 @@ class _StudentsScreenState extends State<StudentsScreen>
     // Primary animation controller for fade effects
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -180,10 +177,11 @@ class _StudentsScreenState extends State<StudentsScreen>
 
   void getStudents() {
     if (_selectedClassSection == null || _selectedSessionYear == null) return;
-    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null) {
       return;
+    }
 
-    print('Fetching students with status: ${_selectedStatus ?? "all"}');
+    debugPrint('Fetching students with status: ${_selectedStatus ?? "all"}');
     context.read<StudentsCubit>().getStudents(
         search: _textEditingController.text.trim().isEmpty
             ? null
@@ -195,8 +193,9 @@ class _StudentsScreenState extends State<StudentsScreen>
 
   void getMoreStudents() {
     if (_selectedClassSection == null || _selectedSessionYear == null) return;
-    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null)
+    if (_selectedClassSection!.id == null || _selectedSessionYear!.id == null) {
       return;
+    }
 
     context.read<StudentsCubit>().fetchMore(
         search: _textEditingController.text.trim().isEmpty
@@ -276,11 +275,11 @@ class _StudentsScreenState extends State<StudentsScreen>
         maxChildSize: 0.9, // Maximum 90% of screen height
         expand: false,
         builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -295,8 +294,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                   ),
                 ),
               ),
-              SizedBox(height: 16),
-              Center(
+              const SizedBox(height: 16),
+              const Center(
                 child: Text(
                   "Pilih Kelas",
                   style: TextStyle(
@@ -307,7 +306,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
                   controller: scrollController,
@@ -325,12 +324,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Navigator.pop(context);
                       },
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 8),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? maroonPrimary.withOpacity(0.1)
+                              ? maroonPrimary.withValues(alpha: 0.1)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -346,7 +345,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   isSelected ? maroonPrimary : textMediumColor,
                               size: 22,
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 classSection.name ?? "",
@@ -363,7 +362,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               ),
                             ),
                             if (isSelected)
-                              Icon(
+                              const Icon(
                                 Icons.check_circle_rounded,
                                 color: maroonPrimary,
                                 size: 24,
@@ -395,11 +394,11 @@ class _StudentsScreenState extends State<StudentsScreen>
         maxChildSize: 0.9, // Maximum 90% of screen height
         expand: false,
         builder: (context, scrollController) => Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,8 +413,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                   ),
                 ),
               ),
-              SizedBox(height: 16),
-              Center(
+              const SizedBox(height: 16),
+              const Center(
                 child: Text(
                   "Pilih Tahun Ajaran",
                   style: TextStyle(
@@ -426,7 +425,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               Expanded(
                 child: ListView.builder(
                   controller: scrollController,
@@ -445,12 +444,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Navigator.pop(context);
                       },
                       child: Container(
-                        margin: EdgeInsets.only(bottom: 8),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 16, horizontal: 16),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? maroonPrimary.withOpacity(0.1)
+                              ? maroonPrimary.withValues(alpha: 0.1)
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
@@ -466,7 +465,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   isSelected ? maroonPrimary : textMediumColor,
                               size: 22,
                             ),
-                            SizedBox(width: 12),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -485,7 +484,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                     ),
                                   ),
                                   if (isDefault)
-                                    Text(
+                                    const Text(
                                       "Tahun Ajaran Saat Ini",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
@@ -497,7 +496,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               ),
                             ),
                             if (isSelected)
-                              Icon(
+                              const Icon(
                                 Icons.check_circle_rounded,
                                 color: maroonPrimary,
                                 size: 24,
@@ -522,11 +521,11 @@ class _StudentsScreenState extends State<StudentsScreen>
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,8 +540,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                 ),
               ),
             ),
-            SizedBox(height: 16),
-            Center(
+            const SizedBox(height: 16),
+            const Center(
               child: Text(
                 "Filter Status Siswa",
                 style: TextStyle(
@@ -553,7 +552,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             _buildStatusFilterOption(
               context: context,
               title: "Semua Siswa",
@@ -566,7 +565,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                 Navigator.pop(context);
               },
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildStatusFilterOption(
               context: context,
               title: "Siswa Aktif",
@@ -579,7 +578,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                 Navigator.pop(context);
               },
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             _buildStatusFilterOption(
               context: context,
               title: "Siswa Non-Aktif",
@@ -592,7 +591,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                 Navigator.pop(context);
               },
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         ),
       ),
@@ -610,9 +609,10 @@ class _StudentsScreenState extends State<StudentsScreen>
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? maroonPrimary.withOpacity(0.1) : Colors.white,
+          color:
+              isSelected ? maroonPrimary.withValues(alpha: 0.1) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? maroonPrimary : borderColor,
@@ -626,7 +626,7 @@ class _StudentsScreenState extends State<StudentsScreen>
               color: isSelected ? maroonPrimary : textMediumColor,
               size: 22,
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,7 +643,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                   ),
                   Text(
                     subtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 12,
                       color: textMediumColor,
@@ -653,7 +653,7 @@ class _StudentsScreenState extends State<StudentsScreen>
               ),
             ),
             if (isSelected)
-              Icon(
+              const Icon(
                 Icons.check_circle_rounded,
                 color: maroonPrimary,
                 size: 24,
@@ -667,14 +667,14 @@ class _StudentsScreenState extends State<StudentsScreen>
   Widget _buildStudents() {
     return SingleChildScrollView(
       controller: _scrollController,
-      padding: EdgeInsets.only(top: 10), // Fixed top padding
-      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.only(top: 10), // Fixed top padding
+      physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           // Only show search container when both filters are selected
           if (_selectedClassSection != null && _selectedSessionYear != null)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: AnimatedBuilder(
                 animation: _animationController,
                 builder: (context, child) {
@@ -688,9 +688,9 @@ class _StudentsScreenState extends State<StudentsScreen>
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.black.withValues(alpha: 0.05),
                               blurRadius: 10,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             )
                           ],
                         ),
@@ -698,17 +698,17 @@ class _StudentsScreenState extends State<StudentsScreen>
                           controller: _textEditingController,
                           decoration: InputDecoration(
                             hintText: "Cari siswa...",
-                            hintStyle: TextStyle(
+                            hintStyle: const TextStyle(
                               color: textMediumColor,
                               fontFamily: 'Poppins',
                             ),
-                            prefixIcon: Icon(
+                            prefixIcon: const Icon(
                               Icons.search,
                               color: maroonPrimary,
                             ),
                             suffixIcon: _textEditingController.text.isNotEmpty
                                 ? IconButton(
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.clear,
                                       color: textMediumColor,
                                     ),
@@ -724,12 +724,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                             ),
                             filled: true,
                             fillColor: Colors.grey.shade50,
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               vertical: 12,
                               horizontal: 16,
                             ),
                           ),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'Poppins',
                             color: textDarkColor,
                           ),
@@ -787,17 +787,18 @@ class _StudentsScreenState extends State<StudentsScreen>
                           if (state.students.isEmpty)
                             Center(
                               child: Padding(
-                                padding: EdgeInsets.only(top: 100),
+                                padding: const EdgeInsets.only(top: 100),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Icon(
                                       Icons.school_outlined,
                                       size: 80,
-                                      color: maroonPrimary.withOpacity(0.3),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.3),
                                     ),
-                                    SizedBox(height: 20),
-                                    Text(
+                                    const SizedBox(height: 20),
+                                    const Text(
                                       "Tidak ada data siswa",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
@@ -806,8 +807,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         color: textMediumColor,
                                       ),
                                     ),
-                                    SizedBox(height: 10),
-                                    Text(
+                                    const SizedBox(height: 10),
+                                    const Text(
                                       "Silakan pilih kelas dan tahun ajaran lain",
                                       style: TextStyle(
                                         fontFamily: 'Poppins',
@@ -821,16 +822,17 @@ class _StudentsScreenState extends State<StudentsScreen>
                             ),
                           if (state.students.isNotEmpty) ...[
                             Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24),
                               child: Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.people_alt_rounded,
                                     color: maroonPrimary,
                                     size: 20,
                                   ),
-                                  SizedBox(width: 8),
-                                  Text(
+                                  const SizedBox(width: 8),
+                                  const Text(
                                     "Daftar Siswa",
                                     style: TextStyle(
                                       fontFamily: 'Poppins',
@@ -839,21 +841,23 @@ class _StudentsScreenState extends State<StudentsScreen>
                                       color: textDarkColor,
                                     ),
                                   ),
-                                  Spacer(),
+                                  const Spacer(),
                                   Container(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: maroonPrimary.withOpacity(0.1),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(30),
                                       border: Border.all(
-                                        color: maroonPrimary.withOpacity(0.3),
+                                        color: maroonPrimary.withValues(
+                                            alpha: 0.3),
                                         width: 1,
                                       ),
                                     ),
                                     child: Text(
                                       "${state.students.length} Siswa",
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: maroonPrimary,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 12,
@@ -864,11 +868,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                                 ],
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             ListView.builder(
                               shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              padding: EdgeInsets.symmetric(horizontal: 20),
+                              physics: const NeverScrollableScrollPhysics(),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               itemCount: state.students.length +
                                   (context.read<StudentsCubit>().hasMore()
                                       ? 1
@@ -879,8 +884,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   if (state.fetchMoreError) {
                                     return Center(
                                       child: Padding(
-                                        padding:
-                                            EdgeInsets.symmetric(vertical: 20),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 20),
                                         child: CustomTextButton(
                                           buttonTextKey: retryKey,
                                           onTapButton: () {
@@ -890,7 +895,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                       ),
                                     );
                                   }
-                                  return Center(
+                                  return const Center(
                                     child: Padding(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 20),
@@ -982,10 +987,10 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Icon(
                           Icons.calendar_today_rounded,
                           size: 60,
-                          color: maroonPrimary.withOpacity(0.3),
+                          color: maroonPrimary.withValues(alpha: 0.3),
                         ),
-                        SizedBox(height: 24),
-                        Text(
+                        const SizedBox(height: 24),
+                        const Text(
                           "Kelas telah dipilih",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -995,13 +1000,13 @@ class _StudentsScreenState extends State<StudentsScreen>
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           "Silakan pilih tahun ajaran untuk melanjutkan",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: textMediumColor.withOpacity(0.8),
+                            color: textMediumColor.withValues(alpha: 0.8),
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
                           ),
@@ -1020,10 +1025,10 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Icon(
                           Icons.class_rounded,
                           size: 60,
-                          color: maroonPrimary.withOpacity(0.3),
+                          color: maroonPrimary.withValues(alpha: 0.3),
                         ),
-                        SizedBox(height: 24),
-                        Text(
+                        const SizedBox(height: 24),
+                        const Text(
                           "Tahun ajaran telah dipilih",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1033,13 +1038,13 @@ class _StudentsScreenState extends State<StudentsScreen>
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           "Silakan pilih kelas untuk melanjutkan",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: textMediumColor.withOpacity(0.8),
+                            color: textMediumColor.withValues(alpha: 0.8),
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w400,
                           ),
@@ -1059,10 +1064,10 @@ class _StudentsScreenState extends State<StudentsScreen>
                         Icon(
                           Icons.filter_list_rounded,
                           size: 60,
-                          color: maroonPrimary.withOpacity(0.3),
+                          color: maroonPrimary.withValues(alpha: 0.3),
                         ),
-                        SizedBox(height: 24),
-                        Text(
+                        const SizedBox(height: 24),
+                        const Text(
                           "Pilih Filter Terlebih Dahulu",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1072,8 +1077,8 @@ class _StudentsScreenState extends State<StudentsScreen>
                             fontWeight: FontWeight.w600,
                           ),
                         ),
-                        SizedBox(height: 12),
-                        Text(
+                        const SizedBox(height: 12),
+                        const Text(
                           "Silakan pilih kelas dan tahun ajaran\ndari menu filter di atas untuk melihat data siswa",
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -1095,7 +1100,7 @@ class _StudentsScreenState extends State<StudentsScreen>
             },
           ),
           // Add some bottom padding
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
         ],
       ),
     );
@@ -1113,9 +1118,9 @@ class _StudentsScreenState extends State<StudentsScreen>
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 15,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                   spreadRadius: 0,
                 ),
               ],
@@ -1132,7 +1137,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                     bottom: 0,
                     child: Container(
                       width: 8,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16),
@@ -1144,13 +1149,13 @@ class _StudentsScreenState extends State<StudentsScreen>
 
                   // Main content
                   Padding(
-                    padding: EdgeInsets.only(left: 8),
+                    padding: const EdgeInsets.only(left: 8),
                     child: Column(
                       children: [
                         // Header section with profile image and name
                         Container(
-                          padding: EdgeInsets.fromLTRB(16, 16, 16, 10),
-                          decoration: BoxDecoration(
+                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
+                          decoration: const BoxDecoration(
                             border: Border(
                               bottom: BorderSide(
                                 color: borderColor,
@@ -1165,7 +1170,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                               Container(
                                 width: 65,
                                 height: 65,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                 ),
@@ -1181,7 +1186,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                       children: [
                                         // Status badge skeleton
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
@@ -1198,10 +1203,10 @@ class _StudentsScreenState extends State<StudentsScreen>
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         // Gender badge skeleton
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 8, vertical: 3),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
@@ -1220,7 +1225,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 6),
+                                    const SizedBox(height: 6),
                                     // Student name skeleton
                                     Container(
                                       height: 17,
@@ -1230,7 +1235,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    SizedBox(height: 5),
+                                    const SizedBox(height: 5),
                                     // GR Number row skeleton
                                     Row(
                                       children: [
@@ -1243,7 +1248,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                                 BorderRadius.circular(2),
                                           ),
                                         ),
-                                        SizedBox(width: 6),
+                                        const SizedBox(width: 6),
                                         Container(
                                           height: 13,
                                           width: 100,
@@ -1264,7 +1269,7 @@ class _StudentsScreenState extends State<StudentsScreen>
 
                         // Information section skeleton
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               vertical: 12, horizontal: 16),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1277,12 +1282,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                                     Container(
                                       height: 32,
                                       width: 32,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
+                                    const SizedBox(height: 6),
                                     Container(
                                       height: 14,
                                       width: 30,
@@ -1291,7 +1296,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Container(
                                       height: 11,
                                       width: 40,
@@ -1316,12 +1321,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                                     Container(
                                       height: 32,
                                       width: 32,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
+                                    const SizedBox(height: 6),
                                     Container(
                                       height: 14,
                                       width: 25,
@@ -1330,7 +1335,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Container(
                                       height: 11,
                                       width: 35,
@@ -1355,12 +1360,12 @@ class _StudentsScreenState extends State<StudentsScreen>
                                     Container(
                                       height: 32,
                                       width: 32,
-                                      decoration: BoxDecoration(
+                                      decoration: const BoxDecoration(
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
                                     ),
-                                    SizedBox(height: 6),
+                                    const SizedBox(height: 6),
                                     Container(
                                       height: 14,
                                       width: 35,
@@ -1369,7 +1374,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Container(
                                       height: 11,
                                       width: 30,
@@ -1387,9 +1392,9 @@ class _StudentsScreenState extends State<StudentsScreen>
 
                         // Action row skeleton
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.only(
                               bottomLeft: Radius.circular(8),
@@ -1406,7 +1411,7 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Container(
                                 height: 12,
                                 width: 120,
@@ -1415,11 +1420,11 @@ class _StudentsScreenState extends State<StudentsScreen>
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                               ),
-                              Spacer(),
+                              const Spacer(),
                               Container(
                                 width: 28,
                                 height: 28,
-                                decoration: BoxDecoration(
+                                decoration: const BoxDecoration(
                                   color: Colors.white,
                                   shape: BoxShape.circle,
                                 ),
@@ -1450,7 +1455,7 @@ class _StudentsScreenState extends State<StudentsScreen>
         primary: maroonPrimary,
         secondary: maroonLight,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle(
           // Ensure status bar has correct styling with fixed AppBar
           statusBarColor: Colors.transparent,
@@ -1486,7 +1491,8 @@ class _StudentsScreenState extends State<StudentsScreen>
               ));
             }
 
-            return _buildStudentsSkeleton();},
+            return _buildStudentsSkeleton();
+          },
         ),
       ),
     );

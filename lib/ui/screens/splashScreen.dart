@@ -73,17 +73,20 @@ class _SplashScreenState extends State<SplashScreen>
           animation: _rotationController,
           builder: (context, child) {
             return Transform(
-              transform: Matrix4.identity()
-                ..translate(
-                  120 * cos(angle + _rotationController.value * 2 * 3.14),
-                  120 * sin(angle + _rotationController.value * 2 * 3.14),
-                ),
+              transform: Matrix4.translationValues(
+                120 * cos(angle + _rotationController.value * 2 * 3.14),
+                120 * sin(angle + _rotationController.value * 2 * 3.14),
+                0.0,
+              ),
               child: FadeInUp(
                 duration: Duration(milliseconds: 800 + (index * 100)),
                 child: Icon(
                   _schoolIcons[index],
                   size: 35,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.7),
                 ),
               ),
             );
@@ -119,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   Theme.of(context).colorScheme.surface,
                 ],
               ),
@@ -130,7 +133,7 @@ class _SplashScreenState extends State<SplashScreen>
                 children: [
                   _buildRotatingIcons(),
                   FadeInDown(
-                    duration: Duration(milliseconds: 1000),
+                    duration: const Duration(milliseconds: 1000),
                     child: Container(
                       padding: const EdgeInsets.all(25),
                       decoration: BoxDecoration(
@@ -141,7 +144,7 @@ class _SplashScreenState extends State<SplashScreen>
                             color: Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             blurRadius: 15,
                             spreadRadius: 5,
                           ),

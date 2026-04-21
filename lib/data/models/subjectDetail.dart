@@ -1,23 +1,25 @@
+import 'package:flutter/foundation.dart';
+
 class SubjectDetail {
   final int id;
   final Subject subject;
-  final int class_subject_id;
+  final int classSubjectId;
   final ClassSectionDetail classSection;
 
   SubjectDetail({
     required this.id,
-    required this.class_subject_id,
+    required this.classSubjectId,
     required this.subject,
     required this.classSection,
   });
 
   factory SubjectDetail.fromJson(Map<String, dynamic> json) {
     // Tambahkan debug print
-    print('Parsing SubjectDetail: ${json.toString()}');
+    debugPrint('Parsing SubjectDetail: ${json.toString()}');
 
     return SubjectDetail(
       id: json['id'] ?? 0,
-      class_subject_id: json['class_subject']['id'] ?? 0,
+      classSubjectId: json['class_subject']['id'] ?? 0,
       subject: Subject.fromJson(json['class_subject']['subject'] ?? {}),
       classSection: ClassSectionDetail.fromJson(json['class_section'] ?? {}),
     );
@@ -79,7 +81,7 @@ class ClassSectionDetail {
   factory ClassSectionDetail.fromJson(Map<String, dynamic> json) {
     return ClassSectionDetail(
       id: json['id'] ?? 0,
-      name: json['class']['name'] + ' ' + json['section']['name'] ?? '',
+      name: '${json['class']['name']} ${json['section']['name']}',
       classDetail: ClassDetail.fromJson(json['class'] ?? {}),
       section: SectionDetail.fromJson(json['section'] ?? {}),
     );

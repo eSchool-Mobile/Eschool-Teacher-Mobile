@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -138,7 +137,6 @@ class _AboutUsScreenState extends State<AboutUsScreen>
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
               surface: AppColorPalette.warmBeige,
-              background: AppColorPalette.warmBeige,
             ),
       ),
       child: Scaffold(
@@ -176,7 +174,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
 
                 SingleChildScrollView(
                   controller: _scrollController,
-                  padding: EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       // Hero Section with glassmorphism
@@ -186,7 +184,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           height: size.height * 0.4,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
+                            gradient: const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
@@ -201,7 +199,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                             boxShadow: [
                               BoxShadow(
                                 color: AppColorPalette.primaryMaroon
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -218,7 +216,8 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                                   ),
                                   child: CustomPaint(
                                     painter: BackgroundPainter(
-                                      color: Colors.white.withOpacity(0.1),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.1),
                                     ),
                                   ),
                                 ),
@@ -228,120 +227,134 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                               Center(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
+                                  children: [
                                     SlideInDown(
                                       child: Container(
-                                      padding: const EdgeInsets.all(20),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white,
-                                          Colors.white.withOpacity(0.9),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                                        padding: const EdgeInsets.all(20),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white,
+                                              Colors.white
+                                                  .withValues(alpha: 0.9),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          shape: BoxShape.circle,
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: AppColorPalette
+                                                  .primaryMaroon
+                                                  .withValues(alpha: 0.3),
+                                              blurRadius: 20,
+                                              spreadRadius: 2,
+                                              offset: const Offset(0, 8),
+                                            ),
+                                          ],
                                         ),
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                        BoxShadow(
-                                          color: AppColorPalette.primaryMaroon.withOpacity(0.3),
-                                          blurRadius: 20,
-                                          spreadRadius: 2,
-                                          offset: const Offset(0, 8),
+                                        child: ShaderMask(
+                                          blendMode: BlendMode.srcIn,
+                                          shaderCallback: (bounds) =>
+                                              const LinearGradient(
+                                            colors: [
+                                              AppColorPalette.primaryMaroon,
+                                              AppColorPalette.secondaryMaroon,
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ).createShader(bounds),
+                                          child: const Icon(
+                                            Icons.school,
+                                            size: 65,
+                                          ),
                                         ),
-                                        ],
-                                      ),
-                                      child: ShaderMask(
-                                        blendMode: BlendMode.srcIn,
-                                        shaderCallback: (bounds) => LinearGradient(
-                                        colors: [
-                                          AppColorPalette.primaryMaroon,
-                                          AppColorPalette.secondaryMaroon,
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        ).createShader(bounds),
-                                        child: const Icon(
-                                        Icons.school,
-                                        size: 65,
-                                        ),
-                                      ),
                                       ),
                                     ),
                                     const SizedBox(height: 24),
                                     FadeIn(
-                                      duration: const Duration(milliseconds: 800),
+                                      duration:
+                                          const Duration(milliseconds: 800),
                                       child: Text(
-                                      'eSchool SaaS',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 36,
-                                        fontWeight: FontWeight.bold,
-                                        foreground: Paint()
-                                        ..shader = LinearGradient(
-                                          colors: [
-                                          Colors.white,
-                                          Colors.white.withOpacity(0.85),
+                                        'eSchool SaaS',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.bold,
+                                          foreground: Paint()
+                                            ..shader = LinearGradient(
+                                              colors: [
+                                                Colors.white,
+                                                Colors.white
+                                                    .withValues(alpha: 0.85),
+                                              ],
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                            ).createShader(const Rect.fromLTWH(
+                                                0, 0, 200, 70)),
+                                          shadows: [
+                                            Shadow(
+                                              blurRadius: 10,
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.3),
+                                              offset: const Offset(0, 5),
+                                            ),
                                           ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        ).createShader(const Rect.fromLTWH(0, 0, 200, 70)),
-                                        shadows: [
-                                        Shadow(
-                                          blurRadius: 10,
-                                          color: Colors.black.withOpacity(0.3),
-                                          offset: const Offset(0, 5),
                                         ),
-                                        ],
-                                      ),
                                       ),
                                     ),
                                     const SizedBox(height: 16),
                                     FadeIn(
                                       delay: const Duration(milliseconds: 400),
                                       child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                        colors: [
-                                          Colors.white.withOpacity(0.25),
-                                          Colors.white.withOpacity(0.15),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                          vertical: 10,
                                         ),
-                                        borderRadius: BorderRadius.circular(25),
-                                        boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.1),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                        ],
-                                        border: Border.all(
-                                        color: Colors.white.withOpacity(0.3),
-                                        width: 1,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        'Transformasi Pendidikan Melalui Teknologi',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.poppins(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                        letterSpacing: 0.5,
-                                        shadows: [
-                                          Shadow(
-                                          blurRadius: 3,
-                                          color: Colors.black.withOpacity(0.3),
-                                          offset: const Offset(0, 1),
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.white
+                                                  .withValues(alpha: 0.25),
+                                              Colors.white
+                                                  .withValues(alpha: 0.15),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
                                           ),
-                                        ],
+                                          borderRadius:
+                                              BorderRadius.circular(25),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black
+                                                  .withValues(alpha: 0.1),
+                                              blurRadius: 8,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                          border: Border.all(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.3),
+                                            width: 1,
+                                          ),
                                         ),
-                                      ),
+                                        child: Text(
+                                          'Transformasi Pendidikan Melalui Teknologi',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                            letterSpacing: 0.5,
+                                            shadows: [
+                                              Shadow(
+                                                blurRadius: 3,
+                                                color: Colors.black
+                                                    .withValues(alpha: 0.3),
+                                                offset: const Offset(0, 1),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -364,9 +377,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                       //         label: 'Students',
                       //         value: '1000+',
                       //         gradient: [
-                      //           AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                       //           AppColorPalette.secondaryMaroon
-                      //               .withOpacity(0.2),
+                      //               .withValues(alpha: 0.2),
                       //         ],
                       //       ),
                       //       _buildStatCard(
@@ -375,8 +388,8 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                       //         value: '50+',
                       //         gradient: [
                       //           AppColorPalette.secondaryMaroon
-                      //               .withOpacity(0.1),
-                      //           AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      //               .withValues(alpha: 0.1),
+                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                       //         ],
                       //       ),
                       //       _buildStatCard(
@@ -384,9 +397,9 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                       //         label: 'Rating',
                       //         value: '4.8',
                       //         gradient: [
-                      //           AppColorPalette.primaryMaroon.withOpacity(0.1),
+                      //           AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                       //           AppColorPalette.secondaryMaroon
-                      //               .withOpacity(0.2),
+                      //               .withValues(alpha: 0.2),
                       //         ],
                       //       ),
                       //     ],
@@ -406,7 +419,8 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                                   'Platform pembelajaran digital yang modern',
                               gradient: [
                                 AppColorPalette.warmBeige,
-                                AppColorPalette.lightMaroon.withOpacity(0.3),
+                                AppColorPalette.lightMaroon
+                                    .withValues(alpha: 0.3),
                               ],
                             ),
                             _buildFeatureCard(
@@ -416,7 +430,8 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                                   'Pemantauan kinerja dan wawasan secara langsung',
                               gradient: [
                                 AppColorPalette.warmBeige,
-                                AppColorPalette.accentPink.withOpacity(0.3),
+                                AppColorPalette.accentPink
+                                    .withValues(alpha: 0.3),
                               ],
                             ),
                           ],
@@ -430,12 +445,12 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                           margin: const EdgeInsets.all(16),
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
                                 color: AppColorPalette.primaryMaroon
-                                    .withOpacity(0.1),
+                                    .withValues(alpha: 0.1),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -446,7 +461,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                             textStyle: GoogleFonts.poppins(
                               fontSize: 16,
                               color: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.8),
+                                  .withValues(alpha: 0.8),
                             ),
                             customStylesBuilder: (element) {
                               if (element.localName == 'b') {
@@ -515,7 +530,7 @@ class _AboutUsScreenState extends State<AboutUsScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
@@ -548,59 +563,11 @@ class _AboutUsScreenState extends State<AboutUsScreen>
                     description,
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: AppColorPalette.primaryMaroon.withOpacity(0.8),
+                      color:
+                          AppColorPalette.primaryMaroon.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String label,
-    required String value,
-    required List<Color> gradient,
-  }) {
-    return FadeInUp(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: gradient,
-          ),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: AppColorPalette.primaryMaroon.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Icon(icon, size: 30, color: AppColorPalette.primaryMaroon),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColorPalette.primaryMaroon,
-              ),
-            ),
-            Text(
-              label,
-              style: GoogleFonts.poppins(
-                fontSize: 14,
-                color: AppColorPalette.primaryMaroon.withOpacity(0.8),
               ),
             ),
           ],

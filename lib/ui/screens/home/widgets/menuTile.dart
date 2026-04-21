@@ -35,7 +35,8 @@ class MenuTile extends StatelessWidget {
               padding: EdgeInsets.all(iconPadding ?? 15),
               child: SvgPicture.asset(
                 Utils.getImagePath(iconImageName),
-                color: Theme.of(context).colorScheme.primary,
+                colorFilter: ColorFilter.mode(
+                    Theme.of(context).colorScheme.primary, BlendMode.srcIn),
               ),
             ),
             const SizedBox(
@@ -54,7 +55,7 @@ class MenuTile extends StatelessWidget {
             CircleAvatar(
               radius: 15.0,
               backgroundColor:
-                  Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               child: Icon(
                 Directionality.of(context).name == TextDirection.rtl.name
                     ? CupertinoIcons.arrow_left

@@ -29,7 +29,7 @@ class AppLogger {
     if (stack != null) {
       stackStr = stack.toString();
       if (stackStr.length > _maxStackLength) {
-        stackStr = stackStr.substring(0, _maxStackLength) + '...<truncated>';
+        stackStr = '${stackStr.substring(0, _maxStackLength)}...<truncated>';
       }
     }
 
@@ -45,7 +45,7 @@ class AppLogger {
 
     final encoded = jsonEncode(logMap);
     // ignore: avoid_print
-    print(encoded);
+    debugPrint(encoded.toString());
   }
 
   static dynamic _serialize(dynamic value) {

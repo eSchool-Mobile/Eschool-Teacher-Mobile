@@ -4,7 +4,6 @@ import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class RecapAttendanceItemContainer extends StatefulWidget {
   final ClassSection classSection;
@@ -25,7 +24,7 @@ class RecapAttendanceItemContainer extends StatefulWidget {
 
 class _StudentSubjectAttendanceItemContainerState
     extends State<RecapAttendanceItemContainer> {
-  DateTime _selectedDateTime = DateTime.now();
+  final DateTime _selectedDateTime = DateTime.now();
   @override
   Widget build(BuildContext context) {
     final border = BorderSide(color: Theme.of(context).colorScheme.tertiary);
@@ -62,23 +61,21 @@ class _StudentSubjectAttendanceItemContainerState
               ),
             ),
             SizedBox(
-              child: Container(
-                child: CustomTextButton(
-                  buttonTextKey: 'Unduh',
-                  icon: Icon(
-                    Icons.file_download,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 25,
-                  ),
-                  textStyle: TextStyle(
-                    fontSize: Utils.getScaledValue(context, 12),
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  onTapButton: () {
-                    widget.onDownload(widget.classSection);
-                  },
+              child: CustomTextButton(
+                buttonTextKey: 'Unduh',
+                icon: Icon(
+                  Icons.file_download,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 25,
                 ),
+                textStyle: TextStyle(
+                  fontSize: Utils.getScaledValue(context, 12),
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                onTapButton: () {
+                  widget.onDownload(widget.classSection);
+                },
               ),
             ),
           ],

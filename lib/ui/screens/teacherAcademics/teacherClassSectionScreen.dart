@@ -55,7 +55,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
   bool _isSearchActive = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
   GradeLevel? _selectedGradeLevel;
 
@@ -125,7 +125,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
         content: Text(message),
         backgroundColor: AppColorPalette.primaryMaroon,
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -166,24 +166,24 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
             },
             child: Container(
               width: double.infinity,
-              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
                 color: AppColorPalette.primaryMaroon,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColorPalette.primaryMaroon.withOpacity(0.12),
+                    color: AppColorPalette.primaryMaroon.withValues(alpha: 0.12),
                     blurRadius: 12,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.school_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 12),
+                  const Icon(Icons.school_rounded, color: Colors.white, size: 20),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       _selectedGradeLevel?.name ?? "Pilih Tingkatan",
@@ -197,8 +197,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(Icons.arrow_drop_down_rounded,
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_drop_down_rounded,
                       color: Colors.white, size: 28),
                 ],
               ),
@@ -217,7 +217,6 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
               surface: Colors.white,
-              background: Colors.white,
             ),
       ),
       child: Scaffold(
@@ -247,14 +246,14 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
           children: [
             // Enhanced Animated Background Pattern
             AnimatedPositioned(
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
               curve: Curves.easeInOut,
               top: 0,
               left: 0,
               right: 0,
               height: MediaQuery.of(context).size.height,
               child: AnimatedOpacity(
-                duration: Duration(seconds: 1),
+                duration: const Duration(seconds: 1),
                 opacity: 0.15,
                 child: Stack(
                   children: [
@@ -276,7 +275,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                           height: 4 + Random().nextDouble() * 8,
                           decoration: BoxDecoration(
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.4),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
@@ -344,7 +343,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -354,10 +353,10 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   controller: _searchController,
                   decoration: InputDecoration(
                     hintText: 'Cari kelas...',
-                    prefixIcon: Icon(Icons.search,
+                    prefixIcon: const Icon(Icons.search,
                         color: AppColorPalette.secondaryMaroon),
                     suffixIcon: IconButton(
-                      icon: Icon(Icons.close,
+                      icon: const Icon(Icons.close,
                           color: AppColorPalette.secondaryMaroon),
                       onPressed: () {
                         setState(() {
@@ -377,7 +376,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   },
                 ),
               )
-            : SizedBox.shrink(),
+            : const SizedBox.shrink(),
       ),
     );
   }
@@ -388,13 +387,13 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       builder: (context, child) {
         return Center(
           child: SingleChildScrollView(
-            physics: BouncingScrollPhysics(),
+            physics: const BouncingScrollPhysics(),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Enhanced animated empty state icon
                 TweenAnimationBuilder(
-                    duration: Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                     tween: Tween<double>(begin: 0.8, end: 1.0),
                     curve: Curves.elasticOut,
                     builder: (context, value, child) {
@@ -406,7 +405,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.1),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                           ),
                           child: Center(
                             child: Transform.scale(
@@ -415,7 +414,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                                 Icons.school_outlined,
                                 size: 100,
                                 color: AppColorPalette.primaryMaroon
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                               ),
                             ),
                           ),
@@ -426,7 +425,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
 
                 // Enhanced no classes text
                 ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
+                  shaderCallback: (bounds) => const LinearGradient(
                     colors: [
                       AppColorPalette.primaryMaroon,
                       AppColorPalette.secondaryMaroon,
@@ -451,7 +450,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                     getClassSectionDetails();
                     HapticFeedback.mediumImpact();
                   },
-                  icon: Icon(Icons.refresh_rounded),
+                  icon: const Icon(Icons.refresh_rounded),
                   label: Text(
                     "Refresh Classes",
                     style: GoogleFonts.poppins(
@@ -461,7 +460,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColorPalette.primaryMaroon,
                     foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -501,7 +500,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     return AnimationLimiter(
       child: CustomScrollView(
         controller: _scrollController,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
@@ -514,7 +513,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
               child: filteredClasses.isEmpty &&
                       (_searchQuery.isNotEmpty || _selectedGradeLevel != null)
                   ? Padding(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         top: 40, // Added top padding to give some space
                         left: 16,
                         right: 16,
@@ -568,7 +567,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
             ),
           ),
           // Add some bottom padding for better scroll experience
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SizedBox(height: 80),
           ),
         ],
@@ -586,7 +585,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
             // Enhanced Main Card with Improved Frosted Glass Effect
             Card(
               elevation: 16,
-              shadowColor: AppColorPalette.primaryMaroon.withOpacity(0.3),
+              shadowColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(28),
               ),
@@ -601,16 +600,16 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColorPalette.primaryMaroon.withOpacity(0.9),
-                          AppColorPalette.secondaryMaroon.withOpacity(0.9),
+                          AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
+                          AppColorPalette.secondaryMaroon.withValues(alpha: 0.9),
                         ],
                         stops: const [0.2, 1.0],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                          color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                           blurRadius: 15,
-                          offset: Offset(0, 8),
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
@@ -643,7 +642,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                                     width: 60,
                                     height: 3,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.7),
+                                      color: Colors.white.withValues(alpha: 0.7),
                                       borderRadius: BorderRadius.circular(2),
                                     ),
                                   ),
@@ -652,10 +651,10 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(14),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   Icons.class_outlined,
                                   color: Colors.white,
                                   size: 22,
@@ -680,7 +679,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
               child: Icon(
                 Icons.school,
                 size: 100,
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
               ),
             ),
 
@@ -694,7 +693,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                   height: 30 - (index * 5),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withOpacity(0.1 - (index * 0.02)),
+                    color: Colors.white.withValues(alpha: 0.1 - (index * 0.02)),
                   ),
                 ),
               );
@@ -714,13 +713,13 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     ];
 
     return TweenAnimationBuilder(
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
       tween: Tween<double>(begin: 0.96, end: 1.0),
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
           child: Container(
-            margin: EdgeInsets.symmetric(vertical: 8),
+            margin: const EdgeInsets.symmetric(vertical: 8),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -732,8 +731,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                       context: context);
                 },
                 borderRadius: BorderRadius.circular(24),
-                splashColor: AppColorPalette.primaryMaroon.withOpacity(0.2),
-                highlightColor: AppColorPalette.primaryMaroon.withOpacity(0.1),
+                splashColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
+                highlightColor: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
@@ -744,14 +743,14 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                        color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                         blurRadius: 15,
-                        offset: Offset(0, 8),
+                        offset: const Offset(0, 8),
                         spreadRadius: 1,
                       ),
                     ],
                     border: Border.all(
-                      color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+                      color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                   ),
@@ -773,11 +772,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   Widget _buildEnhancedCardHeader(
       BuildContext context, ClassSection details, bool isEven) {
     return Container(
-      padding: EdgeInsets.all(18),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.15),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
             width: 1.5,
           ),
         ),
@@ -785,11 +784,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
           begin: isEven ? Alignment.centerLeft : Alignment.centerRight,
           end: isEven ? Alignment.centerRight : Alignment.centerLeft,
           colors: [
-            AppColorPalette.primaryMaroon.withOpacity(0.15),
-            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
+            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
           ],
         ),
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(24),
         ),
       ),
@@ -821,26 +820,26 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
     final classTeacherNames = details.getClassTeacherNames();
 
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           _buildEnhancedInfoRow(
               context, 'Guru Kelas', classTeacherNames, Icons.person_outline,
               gradient: [
-                AppColorPalette.primaryMaroon.withOpacity(0.08),
-                AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
               ]),
 
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           _buildEnhancedInfoRow(context, 'Jumlah Mata Pelajaran',
               '${details.subjectTeachers?.length ?? 0}', Icons.book_outlined,
               gradient: [
-                AppColorPalette.primaryMaroon.withOpacity(0.08),
-                AppColorPalette.secondaryMaroon.withOpacity(0.02),
+                AppColorPalette.primaryMaroon.withValues(alpha: 0.08),
+                AppColorPalette.secondaryMaroon.withValues(alpha: 0.02),
               ]),
 
           // Add spacing before button
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // Smaller Selengkapnya button
           Align(
@@ -856,7 +855,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColorPalette.primaryMaroon,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -872,8 +871,8 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                       fontSize: 13,
                     ),
                   ),
-                  SizedBox(width: 4),
-                  Icon(
+                  const SizedBox(width: 4),
+                  const Icon(
                     Icons.arrow_forward_rounded,
                     size: 14,
                   ),
@@ -898,14 +897,14 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
       BuildContext context, String label, String value, IconData icon,
       {required List<Color> gradient}) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       margin:
-          EdgeInsets.symmetric(horizontal: 6), // Tambahkan margin horizontal
+          const EdgeInsets.symmetric(horizontal: 6), // Tambahkan margin horizontal
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppColorPalette.primaryMaroon.withOpacity(0.12),
-            AppColorPalette.secondaryMaroon.withOpacity(0.08),
+            AppColorPalette.primaryMaroon.withValues(alpha: 0.12),
+            AppColorPalette.secondaryMaroon.withValues(alpha: 0.08),
           ],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
@@ -913,34 +912,34 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColorPalette.primaryMaroon.withOpacity(0.1),
+            color: AppColorPalette.primaryMaroon.withValues(alpha: 0.1),
             blurRadius: 8,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: AppColorPalette.primaryMaroon.withOpacity(0.2),
+          color: AppColorPalette.primaryMaroon.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(10),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColorPalette.primaryMaroon.withOpacity(0.9),
+              color: AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.primaryMaroon.withOpacity(0.3),
+                  color: AppColorPalette.primaryMaroon.withValues(alpha: 0.3),
                   blurRadius: 8,
-                  offset: Offset(0, 2),
+                  offset: const Offset(0, 2),
                 ),
               ],
             ),
             child: Icon(icon, size: 24, color: Colors.white),
           ),
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -953,7 +952,7 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
                     color: AppColorPalette.secondaryMaroon,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   value,
                   style: GoogleFonts.poppins(
@@ -989,11 +988,11 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
   Widget _buildLoadingState(BuildContext context) {
     return SafeArea(
       child: CustomScrollView(
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.only(top: 16, bottom: 16),
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
               child: _buildEnhancedHeaderCard(context),
             ),
           ),
@@ -1001,12 +1000,12 @@ class _TeacherClassSectionScreenState extends State<TeacherClassSectionScreen>
             padding: const EdgeInsets.symmetric(horizontal: 0),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, index) => SkeletonClassSectionCard(),
+                (context, index) => const SkeletonClassSectionCard(),
                 childCount: 6, // Show 6 skeleton cards
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          const SliverToBoxAdapter(
             child: SizedBox(height: 80),
           ),
         ],
@@ -1027,25 +1026,25 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
         children: [
           // Elegant header with subtle gradient
           Container(
-            margin: EdgeInsets.only(bottom: 24, left: 16, right: 16),
+            margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16),
             width: double.infinity,
-            padding: EdgeInsets.symmetric(vertical: 22, horizontal: 24),
+            padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 24),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               gradient: LinearGradient(
                 colors: [
-                  AppColorPalette.primaryMaroon.withOpacity(0.9),
-                  AppColorPalette.primaryMaroon.withOpacity(0.85),
+                  AppColorPalette.primaryMaroon.withValues(alpha: 0.9),
+                  AppColorPalette.primaryMaroon.withValues(alpha: 0.85),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColorPalette.shadowColor.withOpacity(0.25),
+                  color: AppColorPalette.shadowColor.withValues(alpha: 0.25),
                   blurRadius: 12,
                   spreadRadius: 2,
-                  offset: Offset(0, 6),
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -1061,21 +1060,21 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                     letterSpacing: 0.5,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Container(
                       height: 2,
                       width: 40,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       '${subjectTeachers.length} mata pelajaran',
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       ),
                     ),
                   ],
@@ -1087,8 +1086,8 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
           AnimationLimiter(
             child: ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(
                   horizontal:
                       16), // Tambahkan margin horizontal untuk subjek kelas
               itemCount: subjectTeachers.length,
@@ -1102,12 +1101,12 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
 
                 return AnimationConfiguration.staggeredList(
                   position: index,
-                  duration: Duration(milliseconds: 450),
+                  duration: const Duration(milliseconds: 450),
                   child: SlideAnimation(
                     horizontalOffset: 50,
                     child: FadeInAnimation(
                       child: Container(
-                        margin: EdgeInsets.only(
+                        margin: const EdgeInsets.only(
                             bottom: 16,
                             left: 4,
                             right:
@@ -1117,15 +1116,15 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.15),
+                                AppColorPalette.primaryMaroon.withValues(alpha: 0.15),
                             width: 1.5,
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 15,
                               spreadRadius: 1,
-                              offset: Offset(0, 5),
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
@@ -1138,11 +1137,11 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                                 HapticFeedback.lightImpact();
                               },
                               splashColor: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               highlightColor: AppColorPalette.primaryMaroon
-                                  .withOpacity(0.05),
+                                  .withValues(alpha: 0.05),
                               child: Padding(
-                                padding: EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(16),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -1163,20 +1162,20 @@ class ClassSubjectsBottomsheet extends StatelessWidget {
                                       child: Container(
                                         height: 1,
                                         color: AppColorPalette.primaryMaroon
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                       ),
                                     ),
 
                                     // Teacher info - elegant and simple
                                     Row(
                                       children: [
-                                        Icon(
+                                        const Icon(
                                           Icons.person_outline,
                                           size: 18,
                                           color:
                                               AppColorPalette.secondaryMaroon,
                                         ),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             teacher,
@@ -1244,7 +1243,7 @@ class FilterBackgroundPainter extends CustomPainter {
       Offset(size.width * 0.1, size.height * 0.2),
       Offset(size.width * 0.8, size.height * 0.3),
       Paint()
-        ..color = color.withOpacity(0.3)
+        ..color = color.withValues(alpha: 0.3)
         ..strokeWidth = 1
         ..style = PaintingStyle.stroke,
     );
@@ -1304,7 +1303,7 @@ class BackgroundPatternPainter extends CustomPainter {
     canvas.drawPath(
       path2,
       Paint()
-        ..color = color.withOpacity(0.2)
+        ..color = color.withValues(alpha: 0.2)
         ..style = PaintingStyle.fill,
     );
   }

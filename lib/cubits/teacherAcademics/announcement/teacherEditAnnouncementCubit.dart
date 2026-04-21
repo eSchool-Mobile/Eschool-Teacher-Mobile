@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/repositories/teacherAnnouncementReposito
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class TeacherEditAnnouncementState {}
 
@@ -45,7 +46,7 @@ class TeacherEditAnnouncementCubit extends Cubit<TeacherEditAnnouncementState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherEditAnnouncementFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

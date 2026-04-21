@@ -15,20 +15,20 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   final VoidCallback? onRefresh;
 
   const ExtracurricularTimetableItem({
-    Key? key,
+    super.key,
     required this.item,
     required this.selectedDay,
     this.onRefresh,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final schedule = item.getScheduleForDay(selectedDay) ?? '-';
-    print('🔍 Raw schedule data: "$schedule"');
+    debugPrint('🔍 Raw schedule data: "$schedule"');
     final timeData = _parseScheduleTime(schedule);
-    print('🔍 Parsed timeData: $timeData');
-    final Color primaryColor = const Color(0xFF8B4B6B); // Soft maroon
-    final Color accentColor = const Color(0xFFD4A574); // Warm gold
+    debugPrint('🔍 Parsed timeData: $timeData');
+    const Color primaryColor = Color(0xFF8B4B6B); // Soft maroon
+    const Color accentColor = Color(0xFFD4A574); // Warm gold
 
     return Container(
       margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -45,9 +45,9 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                 Container(
                   height: 60,
                   width: 2,
-                  margin: EdgeInsets.symmetric(vertical: 8),
+                  margin: const EdgeInsets.symmetric(vertical: 8),
                   decoration: BoxDecoration(
-                    color: primaryColor.withOpacity(0.3),
+                    color: primaryColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -61,16 +61,16 @@ class ExtracurricularTimetableItem extends StatelessWidget {
           // Content section (75% width)
           Expanded(
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: primaryColor.withOpacity(0.2)),
+                border: Border.all(color: primaryColor.withValues(alpha: 0.2)),
                 boxShadow: [
                   BoxShadow(
-                    color: primaryColor.withOpacity(0.1),
+                    color: primaryColor.withValues(alpha: 0.1),
                     blurRadius: 8,
-                    offset: Offset(0, 2),
+                    offset: const Offset(0, 2),
                   ),
                 ],
               ),
@@ -92,10 +92,10 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               item.extracurricularName ?? 'Unnamed',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: primaryColor,
@@ -113,7 +113,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                           color: Colors.grey.shade600,
                           size: 20,
                         ),
-                        offset: Offset(-10, 40),
+                        offset: const Offset(-10, 40),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -131,12 +131,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.edit_rounded,
                                   color: Colors.blue,
                                   size: 18,
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 Text(
                                   'Edit Jadwal',
                                   style: TextStyle(
@@ -152,12 +152,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                             value: 'delete',
                             child: Row(
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.delete_rounded,
                                   color: Colors.red,
                                   size: 18,
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 Text(
                                   'Hapus Jadwal',
                                   style: TextStyle(
@@ -174,19 +174,19 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                     ],
                   ),
 
-                  Spacer(),
+                  const Spacer(),
 
                   // Schedule info
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.2),
+                      color: accentColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: accentColor.withOpacity(0.5)),
+                      border: Border.all(color: accentColor.withValues(alpha: 0.5)),
                     ),
                     child: Text(
                       '${timeData['startTime']} - ${timeData['endTime']}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: primaryColor,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -204,7 +204,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
 
   Widget _buildTimeText(String time, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
@@ -222,12 +222,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   String _formatTimeString(String time) {
-    print('🕐 Formatting time: "$time"');
+    debugPrint('🕐 Formatting time: "$time"');
     try {
       // Handle different time formats
       if (time.contains(':')) {
         final parts = time.split(':');
-        print('🕐 Time parts: $parts');
+        debugPrint('🕐 Time parts: $parts');
         if (parts.length >= 2) {
           final hour = int.parse(parts[0]);
           final minute = int.parse(parts[1]);
@@ -235,14 +235,14 @@ class ExtracurricularTimetableItem extends StatelessWidget {
           // Format as HH:MM
           final formatted =
               '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-          print('🕐 Formatted result: "$formatted"');
+          debugPrint('🕐 Formatted result: "$formatted"');
           return formatted;
         }
       }
-      print('🕐 No colon found, returning original: "$time"');
+      debugPrint('🕐 No colon found, returning original: "$time"');
       return time;
     } catch (e) {
-      print('❌ Error formatting time: $time, error: $e');
+      debugPrint('❌ Error formatting time: $time, error: $e');
       return time;
     }
   }
@@ -254,9 +254,9 @@ class ExtracurricularTimetableItem extends StatelessWidget {
     try {
       final extracurricularRepo = ExtracurricularRepository();
       extracurriculars = await extracurricularRepo.getExtracurriculars();
-      print('✅ Fetched ${extracurriculars.length} extracurriculars for edit');
+      debugPrint('✅ Fetched ${extracurriculars.length} extracurriculars for edit');
     } catch (e) {
-      print('❌ Error fetching extracurriculars for edit: $e');
+      debugPrint('❌ Error fetching extracurriculars for edit: $e');
       // Create a single extracurricular from current item as fallback
       extracurriculars = [
         Extracurricular(
@@ -300,13 +300,13 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final Color primaryMaroon = const Color(0xFF8B4B6B);
-    final Color lightMaroon = const Color(0xFFB85C7A);
-    final Color softCream = const Color(0xFFF5E6D3);
+    const Color primaryMaroon = Color(0xFF8B4B6B);
+    const Color lightMaroon = Color(0xFFB85C7A);
+    const Color softCream = Color(0xFFF5E6D3);
 
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (dialogContext) => Dialog(
         backgroundColor: Colors.transparent,
         child: Container(
@@ -317,15 +317,15 @@ class ExtracurricularTimetableItem extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 Colors.white,
-                softCream.withOpacity(0.3),
+                softCream.withValues(alpha: 0.3),
               ],
             ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: primaryMaroon.withOpacity(0.3),
+                color: primaryMaroon.withValues(alpha: 0.3),
                 blurRadius: 20,
-                offset: Offset(0, 10),
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -334,33 +334,33 @@ class ExtracurricularTimetableItem extends StatelessWidget {
             children: [
               // Header with icon
               Container(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
                     Container(
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [primaryMaroon, lightMaroon],
                         ),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: primaryMaroon.withOpacity(0.3),
+                            color: primaryMaroon.withValues(alpha: 0.3),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.delete_forever_rounded,
                         color: Colors.white,
                         size: 40,
                       ),
                     ),
-                    SizedBox(height: 20),
-                    Text(
+                    const SizedBox(height: 20),
+                    const Text(
                       'Hapus Jadwal',
                       style: TextStyle(
                         fontSize: 24,
@@ -368,7 +368,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                         color: primaryMaroon,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       'Tindakan ini tidak dapat dibatalkan',
                       style: TextStyle(
@@ -383,17 +383,17 @@ class ExtracurricularTimetableItem extends StatelessWidget {
 
               // Content
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
                     Container(
                       width: double.infinity,
-                      padding: EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: softCream.withOpacity(0.4),
+                        color: softCream.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: primaryMaroon.withOpacity(0.2),
+                          color: primaryMaroon.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -402,12 +402,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.school_rounded,
                                 color: primaryMaroon,
                                 size: 20,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Text(
                                 'Ekstrakurikuler',
                                 style: TextStyle(
@@ -418,24 +418,24 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                               ),
                             ],
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Text(
                             item.extracurricularName ?? 'Unnamed',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                               color: primaryMaroon,
                             ),
                           ),
-                          SizedBox(height: 12),
+                          const SizedBox(height: 12),
                           Row(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.calendar_today_rounded,
                                 color: primaryMaroon,
                                 size: 16,
                               ),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Text(
                                 _getDayInIndonesian(selectedDay),
                                 style: TextStyle(
@@ -449,7 +449,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     Text(
                       'Apakah Anda yakin ingin menghapus jadwal ini secara permanen?',
                       textAlign: TextAlign.center,
@@ -465,12 +465,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
 
               // Actions
               Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Row(
                   children: [
                     // Cancel button
                     Expanded(
-                      child: Container(
+                      child: SizedBox(
                         height: 50,
                         child: TextButton(
                           onPressed: () => Navigator.pop(dialogContext),
@@ -481,7 +481,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Batal',
                             style: TextStyle(
                               fontSize: 16,
@@ -492,22 +492,22 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                       ),
                     ),
 
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
 
                     // Delete button
                     Expanded(
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
-                          gradient: LinearGradient(
+                          gradient: const LinearGradient(
                             colors: [primaryMaroon, lightMaroon],
                           ),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: primaryMaroon.withOpacity(0.4),
+                              color: primaryMaroon.withValues(alpha: 0.4),
                               blurRadius: 8,
-                              offset: Offset(0, 4),
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -519,7 +519,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
                               _resetTimetable(context, true);
                             },
                             borderRadius: BorderRadius.circular(12),
-                            child: Center(
+                            child: const Center(
                               child: Text(
                                 'Hapus',
                                 style: TextStyle(
@@ -550,7 +550,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         showDialog(
           context: context,
           barrierDismissible: false,
-          builder: (context) => Center(
+          builder: (context) => const Center(
             child: CircularProgressIndicator(),
           ),
         );
@@ -560,17 +560,21 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         await repository.resetTimetableEntry(item.id!, permanent: permanent);
 
         // Close loading dialog
-        Navigator.pop(context);
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(permanent
-                ? 'Jadwal berhasil dihapus permanen'
-                : 'Jadwal berhasil direset'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(permanent
+                  ? 'Jadwal berhasil dihapus permanen'
+                  : 'Jadwal berhasil direset'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
 
         // Refresh the list
         if (onRefresh != null) {
@@ -578,15 +582,19 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         }
       } catch (e) {
         // Close loading dialog if still open
-        Navigator.pop(context);
+        if (context.mounted) {
+          Navigator.pop(context);
+        }
 
         // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -613,7 +621,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
   }
 
   Map<String, String> _parseScheduleTime(String schedule) {
-    print('🕐 Parsing schedule: "$schedule"');
+    debugPrint('🕐 Parsing schedule: "$schedule"');
 
     if (schedule == '-' || schedule.isEmpty || schedule == 'null') {
       return {'startTime': '', 'endTime': ''};
@@ -638,7 +646,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
             endTime = _extractAndCleanTime(endTime);
 
             if (startTime.isNotEmpty && endTime.isNotEmpty) {
-              print('✅ Parsed times: start="$startTime", end="$endTime"');
+              debugPrint('✅ Parsed times: start="$startTime", end="$endTime"');
               return {
                 'startTime': startTime,
                 'endTime': endTime,
@@ -659,7 +667,7 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         String endTime =
             '${timeMatches[1].group(1)}:${timeMatches[1].group(2)}';
 
-        print(
+        debugPrint(
             '✅ Extracted times from pattern: start="$startTime", end="$endTime"');
         return {
           'startTime': startTime,
@@ -667,15 +675,15 @@ class ExtracurricularTimetableItem extends StatelessWidget {
         };
       }
     } catch (e) {
-      print('❌ Error parsing schedule: $e');
+      debugPrint('❌ Error parsing schedule: $e');
     }
 
-    print('❌ Could not parse schedule: "$schedule"');
+    debugPrint('❌ Could not parse schedule: "$schedule"');
     return {'startTime': '', 'endTime': ''};
   }
 
   String _extractAndCleanTime(String timeStr) {
-    print('🧹 Cleaning time: "$timeStr"');
+    debugPrint('🧹 Cleaning time: "$timeStr"');
 
     // Remove extra whitespace
     timeStr = timeStr.trim();
@@ -692,12 +700,12 @@ class ExtracurricularTimetableItem extends StatelessWidget {
       if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
         String cleaned =
             '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-        print('🧹 Cleaned result: "$cleaned"');
+        debugPrint('🧹 Cleaned result: "$cleaned"');
         return cleaned;
       }
     }
 
-    print('🧹 Could not clean time: "$timeStr"');
+    debugPrint('🧹 Could not clean time: "$timeStr"');
     return '';
   }
 }

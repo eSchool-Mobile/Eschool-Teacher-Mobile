@@ -1,6 +1,7 @@
 import 'package:eschool_saas_staff/data/repositories/teacherAnnouncementRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class TeacherDeleteAnnouncementState {}
 
@@ -32,7 +33,7 @@ class TeacherDeleteAnnouncementCubit
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(TeacherDeleteAnnouncementFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }

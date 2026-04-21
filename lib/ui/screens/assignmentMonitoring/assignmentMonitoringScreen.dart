@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/assignment/assignmentMonitoringCubit.dart';
@@ -6,9 +5,6 @@ import 'package:eschool_saas_staff/data/models/sessionYear.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentMonitoringRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -20,7 +16,7 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 
 class AssignmentMonitoringScreen extends StatefulWidget {
-  const AssignmentMonitoringScreen({Key? key}) : super(key: key);
+  const AssignmentMonitoringScreen({super.key});
 
   static Widget getRouteInstance() {
     return MultiBlocProvider(
@@ -46,7 +42,6 @@ class AssignmentMonitoringScreen extends StatefulWidget {
 class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   // Define colors
   final Color maroonPrimary = const Color(0xFF8B1F41);
@@ -85,13 +80,6 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeInOut,
-      ),
     );
 
     // Start animations
@@ -141,12 +129,12 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
         _endDate != null ? DateFormat('yyyy-MM-dd').format(_endDate!) : null;
 
     // Debugging info untuk filter yang digunakan
-    print('Fetching assignment monitoring with filters:');
-    print(
+    debugPrint('Fetching assignment monitoring with filters:');
+    debugPrint(
         '- Submission Status: ${_submissionStatus.isEmpty ? "all" : _submissionStatus}');
-    print('- Start Date: $formattedStartDate');
-    print('- End Date: $formattedEndDate');
-    print('- Page: $_currentPage, Limit: $_limit');
+    debugPrint('- Start Date: $formattedStartDate');
+    debugPrint('- End Date: $formattedEndDate');
+    debugPrint('- Page: $_currentPage, Limit: $_limit');
 
     context.read<AssignmentMonitoringCubit>().getAssignmentMonitoring(
           submissionStatus:
@@ -175,7 +163,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
     });
 
     // Print status yang dipilih untuk debugging
-    print('Selected submission status: $_submissionStatus');
+    debugPrint('Selected submission status: $_submissionStatus');
 
     _fetchAssignmentMonitoring();
   }
@@ -255,11 +243,11 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? maroonPrimary.withOpacity(0.1)
+                              ? maroonPrimary.withValues(alpha: 0.1)
                               : null,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -379,11 +367,11 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? maroonPrimary.withOpacity(0.1)
+                              ? maroonPrimary.withValues(alpha: 0.1)
                               : null,
                           border: Border(
                             bottom: BorderSide(
-                              color: Colors.grey.withOpacity(0.1),
+                              color: Colors.grey.withValues(alpha: 0.1),
                               width: 1,
                             ),
                           ),
@@ -510,7 +498,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.15),
+            color: maroonPrimary.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -637,7 +625,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
             decoration: BoxDecoration(
-              color: bgColor.withOpacity(0.5),
+              color: bgColor.withValues(alpha: 0.5),
               borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(16),
                 bottomRight: Radius.circular(16),
@@ -681,12 +669,12 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: accentColor.withOpacity(0.3),
+                color: accentColor.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.assignment_outlined,
-                color: maroonPrimary.withOpacity(0.7),
+                color: maroonPrimary.withValues(alpha: 0.7),
                 size: 80,
               ),
             ).animate().scale(
@@ -797,7 +785,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.07),
+                      color: Colors.black.withValues(alpha: 0.07),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                       spreadRadius: 0.5,
@@ -815,8 +803,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            maroonPrimary.withOpacity(0.95),
-                            maroonLight.withOpacity(0.95),
+                            maroonPrimary.withValues(alpha: 0.95),
+                            maroonLight.withValues(alpha: 0.95),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -827,7 +815,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: maroonPrimary.withOpacity(0.1),
+                            color: maroonPrimary.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -902,7 +890,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.03),
+                                  color: Colors.black.withValues(alpha: 0.03),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -930,8 +918,9 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                     },
                                   );
                                 },
-                                splashColor: Colors.grey.withOpacity(0.1),
-                                highlightColor: Colors.grey.withOpacity(0.05),
+                                splashColor: Colors.grey.withValues(alpha: 0.1),
+                                highlightColor:
+                                    Colors.grey.withValues(alpha: 0.05),
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 14),
@@ -945,8 +934,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                           width: 28,
                                           height: 28,
                                           decoration: BoxDecoration(
-                                            color:
-                                                maroonPrimary.withOpacity(0.1),
+                                            color: maroonPrimary.withValues(
+                                                alpha: 0.1),
                                             shape: BoxShape.circle,
                                           ),
                                           alignment: Alignment.center,
@@ -1005,13 +994,14 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                                       BorderRadius.circular(30),
                                                   border: Border.all(
                                                     color: maroonPrimary
-                                                        .withOpacity(0.3),
+                                                        .withValues(alpha: 0.3),
                                                     width: 1,
                                                   ),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: maroonPrimary
-                                                          .withOpacity(0.2),
+                                                          .withValues(
+                                                              alpha: 0.2),
                                                       blurRadius: 4,
                                                       offset:
                                                           const Offset(0, 2),
@@ -1038,8 +1028,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                                   left: 8),
                                               padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
-                                                color: maroonPrimary
-                                                    .withOpacity(0.1),
+                                                color: maroonPrimary.withValues(
+                                                    alpha: 0.1),
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
@@ -1091,8 +1081,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: state.currentPage > 1
-                                    ? maroonPrimary.withOpacity(0.9)
-                                    : Colors.grey.withOpacity(0.2),
+                                    ? maroonPrimary.withValues(alpha: 0.9)
+                                    : Colors.grey.withValues(alpha: 0.2),
                                 foregroundColor: Colors.white,
                                 elevation: state.currentPage > 1 ? 2 : 0,
                                 padding: const EdgeInsets.symmetric(
@@ -1127,10 +1117,12 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                                 color: Colors.white,
                                 border: Border.symmetric(
                                   horizontal: BorderSide(
-                                      color: maroonPrimary.withOpacity(0.1),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.1),
                                       width: 1),
                                   vertical: BorderSide(
-                                      color: maroonPrimary.withOpacity(0.1),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.1),
                                       width: 1),
                                 ),
                               ),
@@ -1157,8 +1149,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     state.currentPage < state.totalPages
-                                        ? maroonPrimary.withOpacity(0.9)
-                                        : Colors.grey.withOpacity(0.2),
+                                        ? maroonPrimary.withValues(alpha: 0.9)
+                                        : Colors.grey.withValues(alpha: 0.2),
                                 foregroundColor: Colors.white,
                                 elevation: state.currentPage < state.totalPages
                                     ? 2
@@ -1212,7 +1204,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: maroonPrimary.withOpacity(0.15),
+            color: maroonPrimary.withValues(alpha: 0.15),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -1349,7 +1341,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -1370,7 +1362,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
               Container(
                 width: 32,
                 height: 28,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
@@ -1408,7 +1400,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                       margin: const EdgeInsets.only(left: 8),
                       width: 32,
                       height: 32,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.white,
                         shape: BoxShape.circle,
                       ),
@@ -1437,7 +1429,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.07),
+                color: Colors.black.withValues(alpha: 0.07),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
                 spreadRadius: 0.5,
@@ -1455,8 +1447,8 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      maroonPrimary.withOpacity(0.95),
-                      maroonLight.withOpacity(0.95),
+                      maroonPrimary.withValues(alpha: 0.95),
+                      maroonLight.withValues(alpha: 0.95),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -1467,7 +1459,7 @@ class _AssignmentMonitoringScreenState extends State<AssignmentMonitoringScreen>
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: maroonPrimary.withOpacity(0.1),
+                      color: maroonPrimary.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),

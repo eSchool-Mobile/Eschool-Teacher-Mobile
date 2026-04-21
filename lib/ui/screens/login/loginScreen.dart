@@ -322,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen>
         });
       }
     } catch (e) {
-      print('Error loading saved credentials: $e');
+      debugPrint('Error loading saved credentials: $e');
     }
   }
 
@@ -335,14 +335,14 @@ class _LoginScreenState extends State<LoginScreen>
         rememberMe: _rememberMe,
       );
     } catch (e) {
-      print('Error saving credentials: $e');
+      debugPrint('Error saving credentials: $e');
     }
   }
 
   Future<void> _saveTeacherId(int id) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('teacher Id', id);
-    print("Saved teacher Id: $id");
+    debugPrint("Saved teacher Id: $id");
   }
 
   Future<void> _autoSelectSingleSchool(Map<String, dynamic> userData) async {
@@ -354,7 +354,7 @@ class _LoginScreenState extends State<LoginScreen>
 
       final school = schools.first as Map<String, dynamic>;
 
-      print('Auto-selecting single school: ${school['school_name']}');
+      debugPrint('Auto-selecting single school: ${school['school_name']}');
 
       final prefs = await SharedPreferences.getInstance();
       final authRepository = AuthRepository();
@@ -375,7 +375,7 @@ class _LoginScreenState extends State<LoginScreen>
         prefs.setString('selected_school_name', school['school_name'] ?? ''),
         prefs.setString('selected_school_db', school['database_name'] ?? ''),
         // Save token without Bearer prefix (will be added in headers)
-        prefs.setString('auth_token', '$schoolToken'),
+        prefs.setString('auth_token', schoolToken),
       ]);
 
       // Get the school data from the user object - safely check nested structure
@@ -428,22 +428,22 @@ class _LoginScreenState extends State<LoginScreen>
       }
 
       // Update Auth state in BLoC with proper token format
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       final schoolsToStore = List<Map<String, dynamic>>.from(
           userDataFromResponse['schools'] ?? []);
 
       await context.read<AuthCubit>().authenticateUser(
-            authToken: '$schoolToken', // Token without Bearer prefix
+            authToken: schoolToken, // Token without Bearer prefix
             userDetails: userDetailsInstance,
             schoolCode: school['school_code'] ?? '',
             schools: schoolsToStore,
           );
 
-      print('DEBUG AUTO SCHOOL SELECTION: Authentication completed');
-      print('Full auth token set: $schoolToken');
-      print('School selected: ${school['school_name']}');
-      print('School ID: ${schoolData['id']}');
+      debugPrint('DEBUG AUTO SCHOOL SELECTION: Authentication completed');
+      debugPrint('Full auth token set: $schoolToken');
+      debugPrint('School selected: ${school['school_name']}');
+      debugPrint('School ID: ${schoolData['id']}');
 
       // Add small delay to ensure auth state is properly set
       await Future.delayed(const Duration(milliseconds: 500));
@@ -451,8 +451,8 @@ class _LoginScreenState extends State<LoginScreen>
       // Navigate directly to main application
       Get.offAllNamed(Routes.homeScreen);
     } catch (e) {
-      print('Error during auto school selection: $e');
-      if (!context.mounted) return;
+      debugPrint('Error during auto school selection: $e');
+      if (!mounted) return;
       Utils.showSnackBar(
           message: 'Failed to select school automatically: ${e.toString()}',
           context: context);
@@ -482,7 +482,7 @@ class _LoginScreenState extends State<LoginScreen>
           ),
         ),
         child: Text(
-          Utils.getTranslatedLabel(forgotPasswordKey) + "?",
+          "${Utils.getTranslatedLabel(forgotPasswordKey)}?",
           style: TextStyle(
             color: primaryMaroon,
             fontWeight: FontWeight.w500,
@@ -636,15 +636,15 @@ class _LoginScreenState extends State<LoginScreen>
               horizontal: isSmallScreen ? 16.0 : 24.0,
               vertical: isSmallScreen ? 10.0 : 20.0),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.75),
+            color: Colors.white.withValues(alpha: 0.75),
             borderRadius: BorderRadius.circular(28.0),
             border: Border.all(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               width: 1.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: primaryMaroon.withOpacity(0.1),
+                color: primaryMaroon.withValues(alpha: 0.1),
                 blurRadius: 20,
                 spreadRadius: 2,
                 offset: const Offset(0, 10),
@@ -688,7 +688,7 @@ class _LoginScreenState extends State<LoginScreen>
                   color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      color: primaryMaroon.withOpacity(0.3),
+                      color: primaryMaroon.withValues(alpha: 0.3),
                       blurRadius: 15 + _logoGlowAnimation.value,
                       spreadRadius: 3 + _logoGlowAnimation.value / 2,
                       offset: const Offset(0, 5),
@@ -738,7 +738,7 @@ class _LoginScreenState extends State<LoginScreen>
     required bool isFocused,
     required FocusNode focusNode,
   }) {
-    final Color darkTextColor = const Color(0xFF303030);
+    const Color darkTextColor = Color(0xFF303030);
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 360;
 
@@ -753,14 +753,14 @@ class _LoginScreenState extends State<LoginScreen>
           boxShadow: isFocused
               ? [
                   BoxShadow(
-                    color: primaryMaroon.withOpacity(0.25),
+                    color: primaryMaroon.withValues(alpha: 0.25),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   )
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   )
@@ -839,19 +839,20 @@ class _LoginScreenState extends State<LoginScreen>
                 state.responseJson['data']?['schools'] as List<dynamic>?;
             final schoolCount = schools?.length ?? 0;
 
-            print('Login successful. Number of schools: $schoolCount');
+            debugPrint('Login successful. Number of schools: $schoolCount');
 
             if (schoolCount == 1) {
               // Auto-select single school and navigate directly to home
-              print('Single school detected, auto-selecting...');
+              debugPrint('Single school detected, auto-selecting...');
               _autoSelectSingleSchool(state.responseJson);
             } else if (schoolCount > 1) {
               // Multiple schools, show selection screen
-              print('Multiple schools detected, showing selection screen...');
+              debugPrint(
+                  'Multiple schools detected, showing selection screen...');
               Get.offAll(() => SchoolListScreen(userData: state.responseJson));
             } else {
               // No schools found
-              print('No schools found for user');
+              debugPrint('No schools found for user');
               Utils.showSnackBar(
                   message: 'Tidak ada sekolah yang tersedia untuk akun ini',
                   context: context);
@@ -873,7 +874,7 @@ class _LoginScreenState extends State<LoginScreen>
               borderRadius: BorderRadius.circular(22),
               boxShadow: [
                 BoxShadow(
-                  color: primaryMaroon.withOpacity(0.3),
+                  color: primaryMaroon.withValues(alpha: 0.3),
                   blurRadius: 15,
                   offset: const Offset(0, 8),
                   spreadRadius: 1,
@@ -912,8 +913,8 @@ class _LoginScreenState extends State<LoginScreen>
                       );
                 },
                 borderRadius: BorderRadius.circular(22),
-                splashColor: Colors.white.withOpacity(0.2),
-                highlightColor: Colors.white.withOpacity(0.1),
+                splashColor: Colors.white.withValues(alpha: 0.2),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
                 child: Center(
                   child: state is SignInInProgress
                       ? const CustomCircularProgressIndicator(
@@ -937,7 +938,7 @@ class _LoginScreenState extends State<LoginScreen>
                             Container(
                               padding: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
@@ -1054,7 +1055,6 @@ class _LoginScreenState extends State<LoginScreen>
     required Color color,
     required Animation<double> animation,
     double? angle,
-    Widget? child,
   }) {
     return Positioned(
       top: top,
@@ -1076,7 +1076,7 @@ class _LoginScreenState extends State<LoginScreen>
                     borderRadius: BorderRadius.circular(size / 2),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 10,
                         spreadRadius: 0,
                       ),
@@ -1124,7 +1124,7 @@ class _LoginScreenState extends State<LoginScreen>
                     borderRadius: BorderRadius.circular(size / 3),
                     boxShadow: [
                       BoxShadow(
-                        color: colors.first.withOpacity(0.3),
+                        color: colors.first.withValues(alpha: 0.3),
                         blurRadius: 15,
                         spreadRadius: 1,
                       ),
@@ -1166,7 +1166,7 @@ class _LoginScreenState extends State<LoginScreen>
           top: -40,
           left: -30,
           size: screenWidth * 0.4,
-          color: primaryMaroon.withOpacity(0.15),
+          color: primaryMaroon.withValues(alpha: 0.15),
           animation: _float1,
         ),
 
@@ -1174,7 +1174,10 @@ class _LoginScreenState extends State<LoginScreen>
           top: screenHeight * 0.12,
           left: screenWidth * 0.7,
           size: screenWidth * 0.3,
-          colors: [lightMaroon.withOpacity(0.4), maroonRich.withOpacity(0.1)],
+          colors: [
+            lightMaroon.withValues(alpha: 0.4),
+            maroonRich.withValues(alpha: 0.1)
+          ],
           animation: _float2,
           angle: -math.pi / 6,
         ),
@@ -1183,7 +1186,7 @@ class _LoginScreenState extends State<LoginScreen>
           top: screenHeight * 0.55,
           left: -screenWidth * 0.15,
           size: screenWidth * 0.3,
-          color: accentGold.withOpacity(0.1),
+          color: accentGold.withValues(alpha: 0.1),
           animation: _float3,
           angle: math.pi / 4,
         ),
@@ -1193,8 +1196,8 @@ class _LoginScreenState extends State<LoginScreen>
           left: screenWidth * 0.6,
           size: screenWidth * 0.4,
           colors: [
-            primaryMaroon.withOpacity(0.1),
-            lightMaroon.withOpacity(0.05)
+            primaryMaroon.withValues(alpha: 0.1),
+            lightMaroon.withValues(alpha: 0.05)
           ],
           animation: _float1,
           angle: math.pi / 8,
@@ -1207,10 +1210,10 @@ class _LoginScreenState extends State<LoginScreen>
             left: screenWidth * (0.1 + i * 0.12) % screenWidth,
             size: 8 + (i % 4) * 3,
             color: i % 3 == 0
-                ? primaryMaroon.withOpacity(0.2)
+                ? primaryMaroon.withValues(alpha: 0.2)
                 : i % 3 == 1
-                    ? accentGold.withOpacity(0.3)
-                    : accentSky.withOpacity(0.3),
+                    ? accentGold.withValues(alpha: 0.3)
+                    : accentSky.withValues(alpha: 0.3),
             animation: i % 3 == 0
                 ? _float1
                 : i % 3 == 1

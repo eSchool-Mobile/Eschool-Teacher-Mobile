@@ -28,8 +28,6 @@ import 'package:eschool_saas_staff/ui/screens/generalPermissionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/holidaysScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/home/homeScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/chatContainer.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/chatScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/newChatContactsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/leaveRequestsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/login/loginScreen.dart';
@@ -44,7 +42,6 @@ import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultQuestio
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResultAnswerScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamResult.dart';
 import 'package:eschool_saas_staff/ui/screens/paidFeesScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/PrivacyPolicyScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchTeachersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchUsersScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/sessionYearsScreen.dart';
@@ -76,18 +73,14 @@ import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherViewAttend
 import 'package:eschool_saas_staff/ui/screens/teacherProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/TermsAndConditionScreen.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionBankListScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/questionSubjectScreen.dart';
-import 'package:flutter_bloc/flutter_bloc.dart' as bloc;
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editQuestionScreen.dart';
-import 'package:eschool_saas_staff/data/models/question.dart';
 import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
-import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/questionBank.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/bankQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamScreen.dart';
@@ -322,7 +315,7 @@ class Routes {
           repository: QuestionBankRepository(),
         )..fetchTeacherSubjects(
             isStaffView: true), // Set isStaffView to true for staff
-        child: QuestionSubjectScreen(isStaffView: true),
+        child: const QuestionSubjectScreen(isStaffView: true),
       ),
     ),
     GetPage(name: aboutUsScreen, page: () => AboutUsScreen.getRouteInstance()),
@@ -452,7 +445,7 @@ class Routes {
       page: () => BlocProvider(
         create: (context) =>
             QuestionBankCubit(repository: QuestionBankRepository()),
-        child: QuestionSubjectScreen(),
+        child: const QuestionSubjectScreen(),
       ),
     ),
     GetPage(
@@ -514,7 +507,7 @@ class Routes {
             create: (context) => ClassSectionsAndSubjectsCubit(),
           ),
         ],
-        child: OnlineExamResultScreen(),
+        child: const OnlineExamResultScreen(),
       ),
       transitionDuration: const Duration(milliseconds: 300),
     ),
@@ -631,7 +624,7 @@ class Routes {
             create: (context) => ClassSectionsAndSubjectsCubit(),
           ),
         ],
-        child: CreateOnlineExam(),
+        child: const CreateOnlineExam(),
       ),
     ),
     GetPage(
@@ -692,7 +685,7 @@ class Routes {
           ),
         ],
         child:
-            ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
+            const ArchiveOnlineExam(), // Replace Container() with ArchiveOnlineExam()
       ),
     ),
 
@@ -705,7 +698,7 @@ class Routes {
       name: createExtracurricular,
       page: () => BlocProvider<ExtracurricularCubit>(
         create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
-        child: CreateExtracurricular(),
+        child: const CreateExtracurricular(),
       ),
     ),
     GetPage(
@@ -721,7 +714,7 @@ class Routes {
       name: archiveExtracurricular,
       page: () => BlocProvider<ExtracurricularCubit>(
         create: (context) => ExtracurricularCubit(ExtracurricularRepository()),
-        child: ArchiveExtracurricular(),
+        child: const ArchiveExtracurricular(),
       ),
     ),
     GetPage(
@@ -748,7 +741,7 @@ class Routes {
         create: (context) => ExtracurricularMemberCubit(
           ExtracurricularMemberRepository(),
         ),
-        child: ExtracurricularMemberScreen(),
+        child: const ExtracurricularMemberScreen(),
       ),
     ),
     GetPage(
@@ -773,7 +766,7 @@ class Routes {
               repository: QuestionBankRepository(),
             )..fetchTeacherSubjects(
                 isStaffView: true), // Set isStaffView to true for staff
-            child: QuestionSubjectScreen(isStaffView: true),
+            child: const QuestionSubjectScreen(isStaffView: true),
           ),
         ],
         child: Builder(
@@ -811,7 +804,7 @@ class Routes {
             ),
           ),
         ],
-        child: ExamStatusScreen(),
+        child: const ExamStatusScreen(),
       ),
     ),
     // Add AssignmentMonitoringScreen route

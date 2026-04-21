@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularMemberRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularMember.dart';
+import 'package:flutter/foundation.dart';
 
 part 'extracurricularMemberState.dart';
 
@@ -17,13 +18,13 @@ class ExtracurricularMemberCubit extends Cubit<ExtracurricularMemberState> {
 
       final members = await _repository.getExtracurricularMembers();
 
-      print(
+      debugPrint(
           '🔍 [MEMBER CUBIT] Received ${members.length} members from repository');
 
       emit(ExtracurricularMemberSuccess('Data berhasil dimuat',
           members: members));
     } catch (e) {
-      print('❌ [MEMBER CUBIT] Error: $e');
+      debugPrint('❌ [MEMBER CUBIT] Error: $e');
       emit(ExtracurricularMemberFailure(e.toString()));
     }
   }

@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:eschool_saas_staff/data/repositories/feeRepository.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class DownloadStudentFeeReceiptState {}
 
@@ -39,13 +39,13 @@ class DownloadStudentFeeReceiptCubit
     try {
       emit(DownloadStudentFeeReceiptInProgress());
 
-      print('===== STARTING RECEIPT DOWNLOAD PROCESS =====');
-      print('Payment History IDs to process: $paymentHistoryIds');
-      print('Student Name: $studentName');
+      debugPrint('===== STARTING RECEIPT DOWNLOAD PROCESS =====');
+      debugPrint('Payment History IDs to process: $paymentHistoryIds');
+      debugPrint('Student Name: $studentName');
 
       // Validate input
       if (paymentHistoryIds.isEmpty) {
-        print('Error: Empty payment history IDs list');
+        debugPrint('Error: Empty payment history IDs list');
         throw ApiException("No payment records selected");
       }
 
@@ -53,48 +53,48 @@ class DownloadStudentFeeReceiptCubit
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final path = (await getApplicationDocumentsDirectory()).path;
       final filePath = "$path/Student-Fees/$studentName-receipt-$timestamp.pdf";
-      print('Target File Path: $filePath');
+      debugPrint('Target File Path: $filePath');
 
       // Create directory if it doesn't exist
       final directory = File(filePath).parent;
       if (!await directory.exists()) {
-        print('Creating directory: ${directory.path}');
+        debugPrint('Creating directory: ${directory.path}');
         await directory.create(recursive: true);
       }
 
       // Download receipt
-      print('Requesting PDF generation from server...');
+      debugPrint('Requesting PDF generation from server...');
       final slipContent = await _feeRepository.downloadStudentFeeReceipt(
         paymentHistoryIds: paymentHistoryIds,
       );
 
       if (slipContent.isEmpty) {
-        print('Error: Received empty PDF content from server');
+        debugPrint('Error: Received empty PDF content from server');
         throw ApiException("No receipt data available");
       }
 
-      print(
+      debugPrint(
           'Successfully received PDF content. Length: ${slipContent.length} bytes');
 
       try {
         // Decode base64 to validate it's proper PDF data
         final bytes = base64Decode(slipContent);
-        print('Successfully decoded base64 data. Size: ${bytes.length} bytes');
+        debugPrint('Successfully decoded base64 data. Size: ${bytes.length} bytes');
 
         // Write PDF file
         final file = File(filePath);
         await file.writeAsBytes(bytes);
-        print('Successfully wrote PDF file to: $filePath');
+        debugPrint('Successfully wrote PDF file to: $filePath');
 
         emit(DownloadStudentFeeReceiptSuccess(downloadedFilePath: filePath));
       } catch (e) {
-        print('Error processing PDF data: $e');
+        debugPrint('Error processing PDF data: $e');
         throw ApiException("Invalid PDF data received from server");
       }
     } catch (e) {
-      print('===== ERROR DOWNLOADING PDF RECEIPT =====');
-      print('Error type: ${e.runtimeType}');
-      print('Error message: ${e.toString()}');
+      debugPrint('===== ERROR DOWNLOADING PDF RECEIPT =====');
+      debugPrint('Error type: ${e.runtimeType}');
+      debugPrint('Error message: ${e.toString()}');
 
       // Generate appropriate error message based on error type
       String errorMessage;

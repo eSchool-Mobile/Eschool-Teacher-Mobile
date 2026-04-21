@@ -5,7 +5,6 @@ import 'package:eschool_saas_staff/data/models/classSection.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
 import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
-import 'package:flutter/services.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -120,7 +119,7 @@ class _TeacherAddEditAnnouncementScreenState
     // Initialize the animation controller for the modern app bar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 3000),
+      duration: const Duration(milliseconds: 3000),
     );
     _fabAnimationController.repeat();
 
@@ -144,7 +143,7 @@ class _TeacherAddEditAnnouncementScreenState
   }
 
   Future<void> _addFiles() async {
-    print(
+    debugPrint(
         '🎯 [ANNOUNCEMENT SCREEN] Memulai upload file dengan kompresi otomatis');
 
     // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
@@ -161,8 +160,8 @@ class _TeacherAddEditAnnouncementScreenState
         final fileSize = await file.length();
         final fileName = file.path.split('/').last;
 
-        print('✅ [ANNOUNCEMENT SCREEN] File berhasil diproses: $fileName');
-        print(
+        debugPrint('✅ [ANNOUNCEMENT SCREEN] File berhasil diproses: $fileName');
+        debugPrint(
             '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
         final platformFile = PlatformFile(
@@ -175,7 +174,7 @@ class _TeacherAddEditAnnouncementScreenState
       }
       setState(() {});
     } else {
-      print(
+      debugPrint(
           '❌ [ANNOUNCEMENT SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
@@ -276,24 +275,24 @@ class _TeacherAddEditAnnouncementScreenState
 
   Widget _buildAddEditAnnouncementForm() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           // Header with Icon
           Container(
-            padding: EdgeInsets.symmetric(vertical: 25, horizontal: 20),
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 20),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.9),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.9),
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7),
                 ],
               ),
               borderRadius: BorderRadius.circular(15),
-              boxShadow: [
+              boxShadow: const [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 10,
@@ -303,7 +302,7 @@ class _TeacherAddEditAnnouncementScreenState
             ),
             child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.campaign_rounded,
                   size: 42,
                   color: Colors.white,
@@ -312,13 +311,13 @@ class _TeacherAddEditAnnouncementScreenState
                     .scale(duration: 500.ms)
                     .then()
                     .shimmer(duration: 1000.ms),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 Text(
                   widget.announcement != null
                       ? "Edit Pengumuman"
                       : "Buat Pengumuman",
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -336,7 +335,7 @@ class _TeacherAddEditAnnouncementScreenState
             ),
           ),
 
-          SizedBox(height: 25),
+          const SizedBox(height: 25),
 
           // Form Content
           BlocConsumer<ClassSectionsAndSubjectsCubit,
@@ -367,7 +366,7 @@ class _TeacherAddEditAnnouncementScreenState
             },
           ),
 
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
 
           // Submit Button
           _buildSubmitButton(),
@@ -381,16 +380,16 @@ class _TeacherAddEditAnnouncementScreenState
       children: [
         // Basic Info Section
         Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: 5,
                 blurRadius: 10,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -405,7 +404,7 @@ class _TeacherAddEditAnnouncementScreenState
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Class Selection
               _buildAnimatedTextField(
@@ -431,7 +430,7 @@ class _TeacherAddEditAnnouncementScreenState
                   }
                 },
               ),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               // Subject Selection
               _buildAnimatedTextField(
@@ -462,20 +461,20 @@ class _TeacherAddEditAnnouncementScreenState
           ),
         ),
 
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Announcement Details Section
         Container(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: 5,
                 blurRadius: 10,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
@@ -490,14 +489,14 @@ class _TeacherAddEditAnnouncementScreenState
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildAnimatedTextField(
                   controller: _announcementTitleTextEditingController,
                   label: 'Judul Pengumuman',
                   icon: Icons.title,
                   maxLength: 128,
                   autoExpand: true),
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
               _buildAnimatedTextField(
                 controller: _announcementDescriptionTextEditingController,
                 label: 'Deskripsi',
@@ -509,7 +508,7 @@ class _TeacherAddEditAnnouncementScreenState
             ],
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
 
         // Attachments Section - Clean & Minimalist Design
         Container(
@@ -518,9 +517,9 @@ class _TeacherAddEditAnnouncementScreenState
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.04),
+                color: Colors.black.withValues(alpha: 0.04),
                 blurRadius: 12,
-                offset: Offset(0, 4),
+                offset: const Offset(0, 4),
               ),
             ],
           ),
@@ -529,7 +528,7 @@ class _TeacherAddEditAnnouncementScreenState
             children: [
               // Clean Header
               Padding(
-                padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                 child: Row(
                   children: [
                     Container(
@@ -539,7 +538,7 @@ class _TeacherAddEditAnnouncementScreenState
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -548,7 +547,7 @@ class _TeacherAddEditAnnouncementScreenState
                         size: 20,
                       ),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text(
                       'Lampiran Pengumuman',
                       style: TextStyle(
@@ -563,8 +562,8 @@ class _TeacherAddEditAnnouncementScreenState
 
               // Minimalist Info Card
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                padding: EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade50,
                   borderRadius: BorderRadius.circular(12),
@@ -580,7 +579,7 @@ class _TeacherAddEditAnnouncementScreenState
                           size: 16,
                           color: Colors.grey.shade600,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text(
                           'Format yang didukung',
                           style: TextStyle(
@@ -591,7 +590,7 @@ class _TeacherAddEditAnnouncementScreenState
                         ),
                       ],
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Wrap(
                       spacing: 8,
                       runSpacing: 4,
@@ -618,11 +617,11 @@ class _TeacherAddEditAnnouncementScreenState
                   ],
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Content Area
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -637,7 +636,7 @@ class _TeacherAddEditAnnouncementScreenState
                           color: Colors.grey.shade700,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       ...announcementAttachments.map(
                         (attachment) => Padding(
                           padding: const EdgeInsets.only(bottom: 8),
@@ -654,7 +653,7 @@ class _TeacherAddEditAnnouncementScreenState
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
 
                     // New attachments
@@ -667,7 +666,7 @@ class _TeacherAddEditAnnouncementScreenState
                           color: Colors.grey.shade700,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       ...List.generate(uploadedFiles.length, (index) => index)
                           .map(
                         (index) => Padding(
@@ -683,7 +682,7 @@ class _TeacherAddEditAnnouncementScreenState
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                     ],
 
                     // Clean Add Button
@@ -700,7 +699,7 @@ class _TeacherAddEditAnnouncementScreenState
                             color: Theme.of(context)
                                 .colorScheme
                                 .primary
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                             width: 1.5,
                           ),
                           borderRadius: BorderRadius.circular(12),
@@ -713,7 +712,7 @@ class _TeacherAddEditAnnouncementScreenState
                               color: Theme.of(context).colorScheme.primary,
                               size: 20,
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Text(
                               'Tambah Lampiran',
                               style: TextStyle(
@@ -730,7 +729,7 @@ class _TeacherAddEditAnnouncementScreenState
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -740,7 +739,7 @@ class _TeacherAddEditAnnouncementScreenState
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         height: 60,
         decoration: BoxDecoration(
@@ -755,7 +754,7 @@ class _TeacherAddEditAnnouncementScreenState
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -773,8 +772,8 @@ class _TeacherAddEditAnnouncementScreenState
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -791,9 +790,9 @@ class _TeacherAddEditAnnouncementScreenState
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -803,7 +802,7 @@ class _TeacherAddEditAnnouncementScreenState
                       );
 
                       // Add slight delay before popping
-                      Future.delayed(Duration(milliseconds: 2200), () {
+                      Future.delayed(const Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Get.back(result: true);
                         }
@@ -832,8 +831,8 @@ class _TeacherAddEditAnnouncementScreenState
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -850,9 +849,9 @@ class _TeacherAddEditAnnouncementScreenState
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -869,7 +868,7 @@ class _TeacherAddEditAnnouncementScreenState
                       refreshAnnouncementsInPreviousPage = true;
 
                       // Add slight delay before popping
-                      Future.delayed(Duration(milliseconds: 2200), () {
+                      Future.delayed(const Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Navigator.pop(context, true);
                         }
@@ -884,8 +883,9 @@ class _TeacherAddEditAnnouncementScreenState
                   builder: (context, state) {
                     return _buildButtonContent(
                       onTap: () {
-                        if (state is TeacherCreateAnnouncementInProgress)
+                        if (state is TeacherCreateAnnouncementInProgress) {
                           return;
+                        }
                         createAnnouncement();
                       },
                       isLoading: state is TeacherCreateAnnouncementInProgress,
@@ -906,15 +906,15 @@ class _TeacherAddEditAnnouncementScreenState
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(15),
-      splashColor: Colors.white.withOpacity(0.2),
-      highlightColor: Colors.white.withOpacity(0.1),
+      splashColor: Colors.white.withValues(alpha: 0.2),
+      highlightColor: Colors.white.withValues(alpha: 0.1),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (isLoading) ...[
-              SizedBox(
+              const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
@@ -922,11 +922,11 @@ class _TeacherAddEditAnnouncementScreenState
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
             Text(
               isLoading ? 'Memproses...' : title,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -934,8 +934,8 @@ class _TeacherAddEditAnnouncementScreenState
               ),
             ),
             if (!isLoading) ...[
-              SizedBox(width: 8),
-              Icon(
+              const SizedBox(width: 8),
+              const Icon(
                 Icons.arrow_forward_rounded,
                 color: Colors.white,
                 size: 22,
@@ -944,7 +944,7 @@ class _TeacherAddEditAnnouncementScreenState
               }).slideX(
                 begin: 0,
                 end: 0.3,
-                duration: Duration(milliseconds: 1000),
+                duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeInOut,
               ),
             ],
@@ -1002,7 +1002,7 @@ class _TeacherAddEditAnnouncementScreenState
 
   Widget _buildFormatChip(String label) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(6),

@@ -95,7 +95,7 @@ class ProfileImageContainer extends StatelessWidget {
                 fit: imageFit, image: CachedNetworkImageProvider(imageUrl)),
       ),
       child: imageUrl.isEmpty
-          ? Center(
+          ? const Center(
               child: Icon(
                 Icons.person,
                 size: 25,

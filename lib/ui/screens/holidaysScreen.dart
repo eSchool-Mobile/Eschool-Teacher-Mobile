@@ -9,7 +9,6 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:math';
-import 'dart:ui';
 
 class HolidaysScreen extends StatefulWidget {
   final List<Holiday> holidays;
@@ -53,7 +52,7 @@ class _HolidaysScreenState extends State<HolidaysScreen>
   void initState() {
     super.initState();
     _controller =
-        AnimationController(vsync: this, duration: Duration(seconds: 1));
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _controller.forward();
     _filteredHolidays = widget.holidays;
     _scrollController.addListener(_scrollListener);
@@ -83,16 +82,16 @@ class _HolidaysScreenState extends State<HolidaysScreen>
   Map<String, List<Holiday>> _groupHolidaysByMonth(List<Holiday> holidays) {
     final Map<String, List<Holiday>> grouped = {};
 
-    // Sort holidays by start_date first
+    // Sort holidays by startDate first
     final sortedHolidays = holidays.toList()
       ..sort((a, b) {
-        final dateA = DateTime.parse(a.start_date ?? "");
-        final dateB = DateTime.parse(b.start_date ?? "");
+        final dateA = DateTime.parse(a.startDate ?? "");
+        final dateB = DateTime.parse(b.startDate ?? "");
         return dateA.compareTo(dateB);
       });
 
     for (var holiday in sortedHolidays) {
-      final dateTime = DateTime.parse(holiday.start_date ?? "");
+      final dateTime = DateTime.parse(holiday.startDate ?? "");
       final monthYear =
           "${Utils.getMonthFullName(dateTime.month)} ${dateTime.year}";
 
@@ -116,7 +115,6 @@ class _HolidaysScreenState extends State<HolidaysScreen>
               primary: AppColorPalette.primaryMaroon,
               secondary: AppColorPalette.secondaryMaroon,
               surface: Colors.white,
-              background: Colors.white,
             ),
       ),
       child: Scaffold(
@@ -134,14 +132,14 @@ class _HolidaysScreenState extends State<HolidaysScreen>
           children: [
             // Enhanced Animated Background Pattern
             AnimatedPositioned(
-              duration: Duration(seconds: 1),
+              duration: const Duration(seconds: 1),
               curve: Curves.easeInOut,
               top: 0,
               left: 0,
               right: 0,
               height: MediaQuery.of(context).size.height,
               child: AnimatedOpacity(
-                duration: Duration(seconds: 1),
+                duration: const Duration(seconds: 1),
                 opacity: 0.15,
                 child: Stack(
                   children: [
@@ -162,8 +160,8 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                           width: 4 + Random().nextDouble() * 8,
                           height: 4 + Random().nextDouble() * 8,
                           decoration: BoxDecoration(
-                            color:
-                                AppColorPalette.primaryMaroon.withOpacity(0.4),
+                            color: AppColorPalette.primaryMaroon
+                                .withValues(alpha: 0.4),
                             borderRadius: BorderRadius.circular(20),
                           ),
                         ),
@@ -196,7 +194,7 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                                         size: 60,
                                         color: Colors.grey[400],
                                       ),
-                                      SizedBox(height: 16),
+                                      const SizedBox(height: 16),
                                     ],
                                   ),
                                 ).animate().fadeIn(delay: 300.ms)
@@ -224,9 +222,10 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                                           child: Row(
                                             children: [
                                               Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 14,
-                                                    vertical: 6),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 14,
+                                                        vertical: 6),
                                                 decoration: BoxDecoration(
                                                   color: AppColorPalette
                                                       .primaryMaroon,
@@ -235,7 +234,7 @@ class _HolidaysScreenState extends State<HolidaysScreen>
                                                 ),
                                                 child: Text(
                                                   monthYear,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     color: Colors.white,
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 14,
@@ -350,7 +349,7 @@ class BackgroundPatternPainter extends CustomPainter {
     canvas.drawPath(
       path2,
       Paint()
-        ..color = color.withOpacity(0.2)
+        ..color = color.withValues(alpha: 0.2)
         ..style = PaintingStyle.fill,
     );
   }

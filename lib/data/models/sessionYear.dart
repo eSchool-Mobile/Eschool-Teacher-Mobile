@@ -2,8 +2,8 @@ class SessionYear {
   final int? id;
   final String? name;
   final int? defaultYear;
-  final String? start_date;
-  final String? end_date;
+  final String? startDate;
+  final String? endDate;
   final int? schoolId;
   final String? createdAt;
   final String? updatedAt;
@@ -13,8 +13,8 @@ class SessionYear {
     this.id,
     this.name,
     this.defaultYear,
-    this.start_date,
-    this.end_date,
+    this.startDate,
+    this.endDate,
     this.schoolId,
     this.createdAt,
     this.updatedAt,
@@ -25,8 +25,8 @@ class SessionYear {
     int? id,
     String? name,
     int? defaultYear,
-    String? start_date,
-    String? end_date,
+    String? startDate,
+    String? endDate,
     int? schoolId,
     String? createdAt,
     String? updatedAt,
@@ -36,8 +36,8 @@ class SessionYear {
       id: id ?? this.id,
       name: name ?? this.name,
       defaultYear: defaultYear ?? this.defaultYear,
-      start_date: start_date ?? this.start_date,
-     end_date: end_date ?? this.end_date,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
       schoolId: schoolId ?? this.schoolId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -49,8 +49,8 @@ class SessionYear {
       : id = json['id'] as int?,
         name = json['name'] as String?,
         defaultYear = json['default'] as int?,
-        start_date = json['start_date'] as String?,
-        end_date = json['end_date'] as String?,
+        startDate = json['start_date'] as String?,
+        endDate = json['end_date'] as String?,
         schoolId = json['school_id'] as int?,
         createdAt = json['created_at'] as String?,
         updatedAt = json['updated_at'] as String?,
@@ -60,8 +60,8 @@ class SessionYear {
         'id': id,
         'name': name,
         'default': defaultYear,
-        'start_date': start_date,
-        'end_date':end_date,
+        'start_date': startDate,
+        'end_date': endDate,
         'school_id': schoolId,
         'created_at': createdAt,
         'updated_at': updatedAt,
@@ -72,7 +72,7 @@ class SessionYear {
     return defaultYear == 1;
   }
 
-   @override
+  @override
   bool operator ==(covariant SessionYear other) {
     return other.id == id;
   }

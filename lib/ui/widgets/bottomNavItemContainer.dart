@@ -56,7 +56,7 @@ class BottomNavItemContainer extends StatelessWidget {
                 color: Theme.of(context)
                     .colorScheme
                     .secondary
-                    .withOpacity(isSelected ? 1.0 : 0.75),
+                    .withValues(alpha: isSelected ? 1.0 : 0.75),
               ),
             ),
           ],

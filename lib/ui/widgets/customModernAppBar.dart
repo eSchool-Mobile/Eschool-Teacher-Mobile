@@ -35,7 +35,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
       tabBuilder; // New parameter for custom tabs in AppBar
 
   const CustomModernAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     required this.icon,
@@ -58,7 +58,7 @@ class CustomModernAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onHelperPressed,
     this.helperIcon, // Default will be handled in build method
     this.tabBuilder,
-  }) : super(key: key);
+  });
 
   @override
   State<CustomModernAppBar> createState() => _CustomModernAppBarState();
@@ -118,10 +118,10 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
 
     // Start animations with delays for more natural feel
     _glowAnimationController.repeat(reverse: true);
-    Future.delayed(Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       _pulseAnimationController.repeat(reverse: true);
     });
-    Future.delayed(Duration(milliseconds: 1000), () {
+    Future.delayed(const Duration(milliseconds: 1000), () {
       _rotationAnimationController.repeat();
     });
   }
@@ -136,7 +136,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MediaQuery.of(context).padding.top + widget.height,
       child: Stack(
         children: [
@@ -151,19 +151,19 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        Color(0xFF690013),
+                        const Color(0xFF690013),
                         widget.primaryColor,
-                        Color(0xFFA12948),
+                        const Color(0xFFA12948),
                         widget.lightColor,
                       ],
-                      stops: [0.0, 0.3, 0.6, 1.0],
+                      stops: const [0.0, 0.3, 0.6, 1.0],
                       transform: GradientRotation(
                           widget.fabAnimationController.value * 0.02),
                     ).createShader(bounds);
                   },
                   blendMode: BlendMode.srcATop,
                   child: Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -195,7 +195,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                 return CustomPaint(
                   painter: AnimatedAppBarDecorationPainter(
                     color: Colors.white
-                        .withOpacity(0.07 + (_glowAnimation.value * 0.05)),
+                        .withValues(alpha: 0.07 + (_glowAnimation.value * 0.05)),
                     glowValue: _glowAnimation.value,
                     pulseValue: _pulseAnimation.value,
                     rotationValue: _rotationAnimation.value,
@@ -231,13 +231,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.15 + (_glowAnimation.value * 0.05)),
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.08 + (_glowAnimation.value * 0.03)),
-                              Colors.white.withOpacity(0.0),
+                              Colors.white.withValues(alpha: 0.0),
                             ],
-                            stops: [0.0, 0.6, 1.0],
+                            stops: const [0.0, 0.6, 1.0],
                           ),
                         ),
                       ),
@@ -265,13 +265,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.12 + (_glowAnimation.value * 0.04)),
-                              Colors.white.withOpacity(
+                              Colors.white.withValues(alpha: 
                                   0.06 + (_glowAnimation.value * 0.02)),
-                              Colors.white.withOpacity(0.0),
+                              Colors.white.withValues(alpha: 0.0),
                             ],
-                            stops: [0.0, 0.7, 1.0],
+                            stops: const [0.0, 0.7, 1.0],
                           ),
                         ),
                       ),
@@ -298,13 +298,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                             shape: BoxShape.circle,
                             gradient: RadialGradient(
                               colors: [
-                                Colors.white.withOpacity(
+                                Colors.white.withValues(alpha: 
                                     0.08 + (_glowAnimation.value * 0.03)),
-                                Colors.white.withOpacity(
+                                Colors.white.withValues(alpha: 
                                     0.04 + (_glowAnimation.value * 0.015)),
-                                Colors.white.withOpacity(0.0),
+                                Colors.white.withValues(alpha: 0.0),
                               ],
-                              stops: [0.0, 0.8, 1.0],
+                              stops: const [0.0, 0.8, 1.0],
                             ),
                           ),
                         ),
@@ -330,10 +330,10 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                     child: Container(
                       height: 56,
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.12),
+                        color: Colors.white.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           width: 1.5,
                         ),
                       ),
@@ -350,18 +350,18 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                     child: InkWell(
                                       borderRadius: BorderRadius.circular(12),
                                       highlightColor:
-                                          Colors.white.withOpacity(0.1),
+                                          Colors.white.withValues(alpha: 0.1),
                                       splashColor:
-                                          Colors.white.withOpacity(0.2),
+                                          Colors.white.withValues(alpha: 0.2),
                                       onTap: widget.onBackPressed ??
                                           () => Navigator.of(context).pop(),
                                       child: Container(
-                                        padding: EdgeInsets.all(8),
+                                        padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
-                                        child: Icon(
+                                        child: const Icon(
                                           Icons.arrow_back_ios_rounded,
                                           color: Colors.white,
                                           size: 22,
@@ -374,7 +374,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                   .fadeIn(
                                       duration: 400.ms, curve: Curves.easeOut)
                                   .slideX(begin: -0.3, end: 0)
-                              : SizedBox(),
+                              : const SizedBox(),
 
                           // Animated divider
                           widget.onBackPressed != null
@@ -386,14 +386,14 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        Colors.white.withOpacity(0.0),
-                                        Colors.white.withOpacity(0.4),
-                                        Colors.white.withOpacity(0.0),
+                                        Colors.white.withValues(alpha: 0.0),
+                                        Colors.white.withValues(alpha: 0.4),
+                                        Colors.white.withValues(alpha: 0.0),
                                       ],
                                     ),
                                   ),
                                 )
-                              : SizedBox(),
+                              : const SizedBox(),
 
                           // Title with animated badge
                           Expanded(
@@ -428,19 +428,19 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                           math.pi) *
                                                       0.03),
                                               child: Container(
-                                                padding: EdgeInsets.all(6),
+                                                padding: const EdgeInsets.all(6),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   gradient: LinearGradient(
                                                     begin: Alignment.topLeft,
                                                     end: Alignment.bottomRight,
                                                     colors: [
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.92 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.05)),
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.5 +
                                                               (_glowAnimation
                                                                       .value *
@@ -450,7 +450,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.15 +
+                                                          .withValues(alpha: 0.15 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.05)),
@@ -458,7 +458,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                           (_glowAnimation
                                                                   .value *
                                                               1.5),
-                                                      offset: Offset(0, 2),
+                                                      offset: const Offset(0, 2),
                                                       spreadRadius:
                                                           _glowAnimation.value *
                                                               0.3,
@@ -466,14 +466,14 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                     // Subtle glow shadow
                                                     BoxShadow(
                                                       color: Colors.white
-                                                          .withOpacity(0.2 *
+                                                          .withValues(alpha: 0.2 *
                                                               _glowAnimation
                                                                   .value),
                                                       blurRadius: 6 +
                                                           (_glowAnimation
                                                                   .value *
                                                               2),
-                                                      offset: Offset(0, 0),
+                                                      offset: const Offset(0, 0),
                                                       spreadRadius:
                                                           _glowAnimation.value *
                                                               1,
@@ -491,7 +491,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                         },
                                       ),
 
-                                      SizedBox(width: 12),
+                                      const SizedBox(width: 12),
 
                                       // Title and subtitle with glowing effect
                                       Column(
@@ -504,7 +504,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                 end: Alignment.bottomCenter,
                                                 colors: [
                                                   Colors.white,
-                                                  Colors.white.withOpacity(0.9),
+                                                  Colors.white.withValues(alpha: 0.9),
                                                 ],
                                               ).createShader(bounds);
                                             },
@@ -515,7 +515,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.bold,
                                                 shadows: [
-                                                  Shadow(
+                                                  const Shadow(
                                                     color: Colors.black26,
                                                     offset: Offset(0, 1),
                                                     blurRadius: 3,
@@ -525,7 +525,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                             ),
                                           ),
                                           if (widget.subtitle != null) ...[
-                                            SizedBox(height: 2),
+                                            const SizedBox(height: 2),
                                             ShaderMask(
                                               shaderCallback: (Rect bounds) {
                                                 return LinearGradient(
@@ -533,9 +533,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   end: Alignment.bottomCenter,
                                                   colors: [
                                                     Colors.white
-                                                        .withOpacity(0.8),
+                                                        .withValues(alpha: 0.8),
                                                     Colors.white
-                                                        .withOpacity(0.6),
+                                                        .withValues(alpha: 0.6),
                                                   ],
                                                 ).createShader(bounds);
                                               },
@@ -546,7 +546,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w400,
                                                   shadows: [
-                                                    Shadow(
+                                                    const Shadow(
                                                       color: Colors.black26,
                                                       offset: Offset(0, 1),
                                                       blurRadius: 2,
@@ -577,15 +577,15 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
                                       colors: [
-                                        Colors.white.withOpacity(0.0),
-                                        Colors.white.withOpacity(0.4),
-                                        Colors.white.withOpacity(0.0),
+                                        Colors.white.withValues(alpha: 0.0),
+                                        Colors.white.withValues(alpha: 0.4),
+                                        Colors.white.withValues(alpha: 0.0),
                                       ],
                                     ),
                                   ),
                                 ).animate().fadeIn(
                                   duration: 300.ms, curve: Curves.easeOut)
-                              : SizedBox(), // Refined Add Button - elegant and subtle animations
+                              : const SizedBox(), // Refined Add Button - elegant and subtle animations
                           if (widget.showAddButton)
                             Padding(
                               padding: const EdgeInsets.only(right: 12.0),
@@ -606,9 +606,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(50),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.15),
+                                            Colors.white.withValues(alpha: 0.15),
                                         splashColor:
-                                            Colors.white.withOpacity(0.25),
+                                            Colors.white.withValues(alpha: 0.25),
                                         onTap: widget.onAddPressed,
                                         child: Container(
                                           width: 40,
@@ -617,7 +617,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
+                                                color: Colors.black.withValues(alpha: 
                                                     0.12 +
                                                         (_glowAnimation.value *
                                                             0.03)),
@@ -631,7 +631,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               // Subtle glow shadow
                                               BoxShadow(
                                                 color: widget.primaryColor
-                                                    .withOpacity(0.15 *
+                                                    .withValues(alpha: 0.15 *
                                                         _glowAnimation.value),
                                                 blurRadius: 8 +
                                                     (_glowAnimation.value * 3),
@@ -641,7 +641,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               ),
                                             ],
                                             border: Border.all(
-                                              color: Colors.white.withOpacity(
+                                              color: Colors.white.withValues(alpha: 
                                                   0.4 +
                                                       (_glowAnimation.value *
                                                           0.1)),
@@ -651,11 +651,11 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                widget.lightColor.withOpacity(
+                                                widget.lightColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.05)),
-                                                widget.primaryColor.withOpacity(
+                                                widget.primaryColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.05)),
@@ -681,13 +681,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shape: BoxShape.circle,
                                                   gradient: RadialGradient(
                                                     colors: [
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.25 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.1)),
                                                       Colors.white
-                                                          .withOpacity(0.0),
+                                                          .withValues(alpha: 0.0),
                                                     ],
                                                   ),
                                                 ),
@@ -706,8 +706,8 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shadows: [
                                                     Shadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      offset: Offset(0, 1),
+                                                          .withValues(alpha: 0.3),
+                                                      offset: const Offset(0, 1),
                                                       blurRadius: 2,
                                                     ),
                                                   ],
@@ -730,7 +730,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                     begin: 0.2,
                                     end:
                                         0), // No divider between archive and add buttons
-                          SizedBox(),
+                          const SizedBox(),
 
                           // // Add divider before the Archive button
                           // widget.showArchiveButton
@@ -743,9 +743,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                           //             begin: Alignment.topCenter,
                           //             end: Alignment.bottomCenter,
                           //             colors: [
-                          //               Colors.white.withOpacity(0.0),
-                          //               Colors.white.withOpacity(0.4),
-                          //               Colors.white.withOpacity(0.0),
+                          //               Colors.white.withValues(alpha: 0.0),
+                          //               Colors.white.withValues(alpha: 0.4),
+                          //               Colors.white.withValues(alpha: 0.0),
                           //             ],
                           //           ),
                           //         ),
@@ -774,9 +774,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(50),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.15),
+                                            Colors.white.withValues(alpha: 0.15),
                                         splashColor:
-                                            Colors.white.withOpacity(0.25),
+                                            Colors.white.withValues(alpha: 0.25),
                                         onTap: widget.onArchivePressed,
                                         child: Container(
                                           width: 40,
@@ -785,7 +785,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
+                                                color: Colors.black.withValues(alpha: 
                                                     0.12 +
                                                         (_glowAnimation.value *
                                                             0.02)),
@@ -800,7 +800,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               // Subtle glow shadow
                                               BoxShadow(
                                                 color: widget.lightColor
-                                                    .withOpacity(0.12 *
+                                                    .withValues(alpha: 0.12 *
                                                         _glowAnimation.value),
                                                 blurRadius: 6 +
                                                     (_glowAnimation.value * 2),
@@ -810,7 +810,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               ),
                                             ],
                                             border: Border.all(
-                                              color: Colors.white.withOpacity(
+                                              color: Colors.white.withValues(alpha: 
                                                   0.4 +
                                                       (_glowAnimation.value *
                                                           0.08)),
@@ -820,11 +820,11 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                widget.lightColor.withOpacity(
+                                                widget.lightColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.04)),
-                                                widget.primaryColor.withOpacity(
+                                                widget.primaryColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.04)),
@@ -852,13 +852,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shape: BoxShape.circle,
                                                   gradient: RadialGradient(
                                                     colors: [
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.25 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.08)),
                                                       Colors.white
-                                                          .withOpacity(0.0),
+                                                          .withValues(alpha: 0.0),
                                                     ],
                                                   ),
                                                 ),
@@ -879,8 +879,8 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shadows: [
                                                     Shadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      offset: Offset(0, 1),
+                                                          .withValues(alpha: 0.3),
+                                                      offset: const Offset(0, 1),
                                                       blurRadius: 2,
                                                     ),
                                                   ],
@@ -923,9 +923,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(50),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.15),
+                                            Colors.white.withValues(alpha: 0.15),
                                         splashColor:
-                                            Colors.white.withOpacity(0.25),
+                                            Colors.white.withValues(alpha: 0.25),
                                         onTap: widget.onFilterPressed,
                                         child: Container(
                                           width: 40,
@@ -937,7 +937,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.12),
+                                                          .withValues(alpha: 0.12),
                                                       blurRadius: 6,
                                                       offset:
                                                           const Offset(0, 2),
@@ -945,7 +945,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   ],
                                                   border: Border.all(
                                                       color: widget.primaryColor
-                                                          .withOpacity(0.12),
+                                                          .withValues(alpha: 0.12),
                                                       width: 1.0),
                                                 )
                                               : BoxDecoration(
@@ -953,7 +953,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.12 +
+                                                          .withValues(alpha: 0.12 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.02)),
@@ -971,7 +971,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                     // Subtle glow shadow
                                                     BoxShadow(
                                                       color: widget.lightColor
-                                                          .withOpacity(0.1 *
+                                                          .withValues(alpha: 0.1 *
                                                               _glowAnimation
                                                                   .value),
                                                       blurRadius: 5 +
@@ -987,7 +987,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   ],
                                                   border: Border.all(
                                                     color: Colors.white
-                                                        .withOpacity(0.4 +
+                                                        .withValues(alpha: 0.4 +
                                                             (_glowAnimation
                                                                     .value *
                                                                 0.06)),
@@ -998,12 +998,12 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                     end: Alignment.bottomRight,
                                                     colors: [
                                                       widget.lightColor
-                                                          .withOpacity(0.75 +
+                                                          .withValues(alpha: 0.75 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.03)),
                                                       widget.primaryColor
-                                                          .withOpacity(0.75 +
+                                                          .withValues(alpha: 0.75 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.03)),
@@ -1041,12 +1041,12 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                             RadialGradient(
                                                           colors: [
                                                             Colors.white
-                                                                .withOpacity(0.25 +
+                                                                .withValues(alpha: 0.25 +
                                                                     (_glowAnimation
                                                                             .value *
                                                                         0.06)),
                                                             Colors.white
-                                                                .withOpacity(
+                                                                .withValues(alpha: 
                                                                     0.0),
                                                           ],
                                                         ),
@@ -1069,10 +1069,10 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                         shadows: [
                                                           Shadow(
                                                             color: Colors.black
-                                                                .withOpacity(
+                                                                .withValues(alpha: 
                                                                     0.3),
                                                             offset:
-                                                                Offset(0, 1),
+                                                                const Offset(0, 1),
                                                             blurRadius: 2,
                                                           ),
                                                         ],
@@ -1115,9 +1115,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(50),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.15),
+                                            Colors.white.withValues(alpha: 0.15),
                                         splashColor:
-                                            Colors.white.withOpacity(0.25),
+                                            Colors.white.withValues(alpha: 0.25),
                                         onTap: widget.onSearchPressed,
                                         child: Container(
                                           width: 40,
@@ -1126,7 +1126,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
+                                                color: Colors.black.withValues(alpha: 
                                                     0.12 +
                                                         (_glowAnimation.value *
                                                             0.02)),
@@ -1141,7 +1141,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               // Subtle glow shadow
                                               BoxShadow(
                                                 color: widget.primaryColor
-                                                    .withOpacity(0.12 *
+                                                    .withValues(alpha: 0.12 *
                                                         _glowAnimation.value),
                                                 blurRadius: 6 +
                                                     (_glowAnimation.value * 2),
@@ -1151,7 +1151,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               ),
                                             ],
                                             border: Border.all(
-                                              color: Colors.white.withOpacity(
+                                              color: Colors.white.withValues(alpha: 
                                                   0.4 +
                                                       (_glowAnimation.value *
                                                           0.07)),
@@ -1161,11 +1161,11 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                widget.lightColor.withOpacity(
+                                                widget.lightColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.04)),
-                                                widget.primaryColor.withOpacity(
+                                                widget.primaryColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.04)),
@@ -1193,13 +1193,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shape: BoxShape.circle,
                                                   gradient: RadialGradient(
                                                     colors: [
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.25 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.07)),
                                                       Colors.white
-                                                          .withOpacity(0.0),
+                                                          .withValues(alpha: 0.0),
                                                     ],
                                                   ),
                                                 ),
@@ -1219,8 +1219,8 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shadows: [
                                                     Shadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      offset: Offset(0, 1),
+                                                          .withValues(alpha: 0.3),
+                                                      offset: const Offset(0, 1),
                                                       blurRadius: 2,
                                                     ),
                                                   ],
@@ -1263,9 +1263,9 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(50),
                                         highlightColor:
-                                            Colors.white.withOpacity(0.15),
+                                            Colors.white.withValues(alpha: 0.15),
                                         splashColor:
-                                            Colors.white.withOpacity(0.25),
+                                            Colors.white.withValues(alpha: 0.25),
                                         onTap: widget.onHelperPressed,
                                         child: Container(
                                           width: 40,
@@ -1274,7 +1274,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                             shape: BoxShape.circle,
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.black.withOpacity(
+                                                color: Colors.black.withValues(alpha: 
                                                     0.12 +
                                                         (_glowAnimation.value *
                                                             0.015)),
@@ -1288,7 +1288,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               // Subtle glow shadow
                                               BoxShadow(
                                                 color: widget.primaryColor
-                                                    .withOpacity(0.08 *
+                                                    .withValues(alpha: 0.08 *
                                                         _glowAnimation.value),
                                                 blurRadius: 4 +
                                                     (_glowAnimation.value * 1),
@@ -1298,7 +1298,7 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               ),
                                             ],
                                             border: Border.all(
-                                              color: Colors.white.withOpacity(
+                                              color: Colors.white.withValues(alpha: 
                                                   0.4 +
                                                       (_glowAnimation.value *
                                                           0.04)),
@@ -1308,11 +1308,11 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                               begin: Alignment.topLeft,
                                               end: Alignment.bottomRight,
                                               colors: [
-                                                widget.lightColor.withOpacity(
+                                                widget.lightColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.02)),
-                                                widget.primaryColor.withOpacity(
+                                                widget.primaryColor.withValues(alpha: 
                                                     0.75 +
                                                         (_glowAnimation.value *
                                                             0.02)),
@@ -1340,13 +1340,13 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shape: BoxShape.circle,
                                                   gradient: RadialGradient(
                                                     colors: [
-                                                      Colors.white.withOpacity(
+                                                      Colors.white.withValues(alpha: 
                                                           0.25 +
                                                               (_glowAnimation
                                                                       .value *
                                                                   0.05)),
                                                       Colors.white
-                                                          .withOpacity(0.0),
+                                                          .withValues(alpha: 0.0),
                                                     ],
                                                   ),
                                                 ),
@@ -1368,8 +1368,8 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                                                   shadows: [
                                                     Shadow(
                                                       color: Colors.black
-                                                          .withOpacity(0.3),
-                                                      offset: Offset(0, 1),
+                                                          .withValues(alpha: 0.3),
+                                                      offset: const Offset(0, 1),
                                                       blurRadius: 2,
                                                     ),
                                                   ],
@@ -1404,12 +1404,12 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
                         child: Container(
-                          padding: EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(4),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
+                            color: Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               width: 1.5,
                             ),
                           ),
@@ -1420,8 +1420,8 @@ class _CustomModernAppBarState extends State<CustomModernAppBar>
                         .animate()
                         .fadeIn(duration: 300.ms, curve: Curves.easeOut)
                         .scale(
-                          begin: Offset(0.95, 0.95),
-                          end: Offset(1.0, 1.0),
+                          begin: const Offset(0.95, 0.95),
+                          end: const Offset(1.0, 1.0),
                         ),
                   ),
               ],
@@ -1454,7 +1454,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..style = PaintingStyle.fill;
 
     final glowPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.3 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.3 + glowValue * 0.3))
       ..style = PaintingStyle.fill
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1 + glowValue * 2);
 
@@ -1524,7 +1524,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
       ..strokeWidth = 1.5 + glowValue * 0.5;
 
     final glowArcPaint = Paint()
-      ..color = color.withOpacity(color.opacity * (0.2 + glowValue * 0.3))
+      ..color = color.withValues(alpha: color.a * (0.2 + glowValue * 0.3))
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3 + glowValue * 1
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 0.5 + glowValue * 1.5);
@@ -1573,7 +1573,7 @@ class AnimatedAppBarDecorationPainter extends CustomPainter {
 
       final particlePaint = Paint()
         ..color = color
-            .withOpacity(0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
+            .withValues(alpha: 0.4 + math.sin(glowValue * 2 * math.pi + i * 2) * 0.3)
         ..style = PaintingStyle.fill;
 
       canvas.drawCircle(particleCenter, particleSize, particlePaint);

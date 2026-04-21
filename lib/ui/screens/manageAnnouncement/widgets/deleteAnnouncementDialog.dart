@@ -26,8 +26,8 @@ class DeleteAnnouncementDialog extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: const Row(
                     mainAxisAlignment: MainAxisAlignment.center, 
                     children: [
                     Icon(Icons.check_circle, color: Colors.white),
@@ -44,9 +44,9 @@ class DeleteAnnouncementDialog extends StatelessWidget {
                   ),
                   ),
                   backgroundColor: Colors.green.shade400,
-                  duration: Duration(seconds: 2),
+                  duration: const Duration(seconds: 2),
                   behavior: SnackBarBehavior.floating,
-                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                   ),

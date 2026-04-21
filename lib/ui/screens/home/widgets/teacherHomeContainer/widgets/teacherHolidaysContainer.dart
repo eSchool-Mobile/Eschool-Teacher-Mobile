@@ -17,11 +17,11 @@ class TeacherHolidaysContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Holiday> holidays = context.read<HomeScreenDataCubit>().getHolidays();
 
-    // Sort holidays based on start_date
+    // Sort holidays based on startDate
     holidays.sort((a, b) {
       // Parse the holiday dates as DateTime objects
-      final dateA = DateTime.parse(a.start_date ?? "");
-      final dateB = DateTime.parse(b.start_date ?? "");
+      final dateA = DateTime.parse(a.startDate ?? "");
+      final dateB = DateTime.parse(b.startDate ?? "");
 
       // Compare the entire DateTime object to ensure correct order
       return dateA.compareTo(dateB);

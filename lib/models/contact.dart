@@ -255,8 +255,9 @@ class SubmitContactRequest {
 
   String? validateSubject() {
     if (subject.trim().isEmpty) return 'Subjek tidak boleh kosong';
-    if (subject.length > 191)
+    if (subject.length > 191) {
       return 'Subjek terlalu panjang (max 191 karakter)';
+    }
     return null;
   }
 

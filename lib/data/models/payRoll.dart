@@ -1,5 +1,3 @@
-
-
 class PayRoll {
   final int? id;
   final int? staffId;

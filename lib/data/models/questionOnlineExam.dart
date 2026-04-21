@@ -1,8 +1,8 @@
-import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class QuestionOnlineExam {
   final int id;
-  final int question_id;
+  final int questionId;
   final String question;
   final String correctAnswer;
   final int marks;
@@ -14,7 +14,7 @@ class QuestionOnlineExam {
 
   QuestionOnlineExam({
     required this.id,
-    required this.question_id,
+    required this.questionId,
     required this.question,
     required this.correctAnswer,
     required this.marks,
@@ -34,7 +34,7 @@ class QuestionOnlineExam {
 
     // Pastikan kita mendapatkan nilai versi yang benar
     // Log lebih detail untuk membantu debug
-    print(
+    debugPrint(
         'Question ID: ${json['id']}, Raw version: $version, Type: ${version.runtimeType}');
 
     // Penanganan khusus untuk nilai versi
@@ -53,7 +53,7 @@ class QuestionOnlineExam {
 
     return QuestionOnlineExam(
       id: json['id'] ?? 0,
-      question_id: json['question_id'] ?? 0,
+      questionId: json['question_id'] ?? 0,
       question: json['question_text'] ?? '',
       correctAnswer: json['options'] != null &&
               json['options'].isNotEmpty &&

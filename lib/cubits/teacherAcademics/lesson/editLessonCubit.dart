@@ -48,7 +48,7 @@ class EditLessonCubit extends Cubit<EditLessonState> {
       emit(EditLessonSuccess());
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        debugPrint(e.toString());
       }
       emit(EditLessonFailure(e.toString()));
     }

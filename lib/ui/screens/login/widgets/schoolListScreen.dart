@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 
 class SchoolListScreen extends StatefulWidget {
   final Map<String, dynamic> userData;
-  const SchoolListScreen({Key? key, required this.userData}) : super(key: key);
+  const SchoolListScreen({super.key, required this.userData});
   @override
   State<SchoolListScreen> createState() => _SchoolListScreenState();
 }
@@ -91,14 +91,15 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   }
 
   void _loadSchools() {
-    print('=== DEBUG LOAD SCHOOLS ===');
-    print('userData received: ${widget.userData}');
-    print('userData keys: ${widget.userData.keys}');
-    print('userData[data]: ${widget.userData['data']}');
+    debugPrint('=== DEBUG LOAD SCHOOLS ===');
+    debugPrint('userData received: ${widget.userData}');
+    debugPrint('userData keys: ${widget.userData.keys}');
+    debugPrint('userData[data]: ${widget.userData['data']}');
     if (widget.userData['data'] != null) {
-      print('userData[data] keys: ${widget.userData['data'].keys}');
-      print('schools in userData: ${widget.userData['data']?['schools']}');
-      print('schools type: ${widget.userData['data']?['schools'].runtimeType}');
+      debugPrint('userData[data] keys: ${widget.userData['data'].keys}');
+      debugPrint('schools in userData: ${widget.userData['data']?['schools']}');
+      debugPrint(
+          'schools type: ${widget.userData['data']?['schools'].runtimeType}');
     }
 
     if (widget.userData['data']?['schools'] != null) {
@@ -110,14 +111,14 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             .toList();
         filteredSchools = List.from(schools); // Initialize filtered list
       });
-      print('Loaded schools: $schools');
-      print('Number of schools loaded: ${schools.length}');
+      debugPrint('Loaded schools: $schools');
+      debugPrint('Number of schools loaded: ${schools.length}');
       for (int i = 0; i < schools.length; i++) {
-        print(
+        debugPrint(
             'School $i: ${schools[i]['school_name']} - ${schools[i]['school_code']}');
       }
     } else {
-      print('No schools found in userData');
+      debugPrint('No schools found in userData');
     }
   }
 
@@ -159,7 +160,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         prefs.setString('selected_school_name', school['school_name'] ?? ""),
         prefs.setString('selected_school_db', school['database_name'] ?? ""),
         // Save token without Bearer prefix (will be added in headers)
-        prefs.setString('auth_token', '$schoolToken'),
+        prefs.setString('auth_token', schoolToken),
       ]);
 
       // Get the school data from the user object - safely check nested structure
@@ -206,63 +207,66 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       await authRepository.setIsLogIn(true);
 
       // Debug logging untuk memastikan data teacher tidak hilang
-      print('=== DEBUG TEACHER DATA PRESERVATION ===');
-      print('Original globalUser teacher: ${globalUser['teacher']}');
-      print('Selected school user teacher: ${school['user']['teacher']}');
-      print('Complete user details teacher: ${completeUserDetails['teacher']}');
-      print('Complete user details staff: ${completeUserDetails['staff']}');
-      print('========================================');
+      debugPrint('=== DEBUG TEACHER DATA PRESERVATION ===');
+      debugPrint('Original globalUser teacher: ${globalUser['teacher']}');
+      debugPrint('Selected school user teacher: ${school['user']['teacher']}');
+      debugPrint(
+          'Complete user details teacher: ${completeUserDetails['teacher']}');
+      debugPrint(
+          'Complete user details staff: ${completeUserDetails['staff']}');
+      debugPrint('========================================');
 
       // Create and save UserDetails instance with complete data
       final userDetailsInstance = UserDetails.fromJson(completeUserDetails);
       await authRepository.setUserDetails(userDetailsInstance);
 
       // Additional debug untuk UserDetails instance
-      print('=== DEBUG USERDETAILS INSTANCE ===');
-      print('UserDetails teacher ID: ${userDetailsInstance.teacher?.id}');
-      print('UserDetails staff ID: ${userDetailsInstance.staff?.id}');
-      print('UserDetails school ID: ${userDetailsInstance.schoolId}');
-      print('==================================');
+      debugPrint('=== DEBUG USERDETAILS INSTANCE ===');
+      debugPrint('UserDetails teacher ID: ${userDetailsInstance.teacher?.id}');
+      debugPrint('UserDetails staff ID: ${userDetailsInstance.staff?.id}');
+      debugPrint('UserDetails school ID: ${userDetailsInstance.schoolId}');
+      debugPrint('==================================');
 
       // Save teacher ID if available (dari sekolah yang dipilih, bukan global)
       if (userMap['teacher'] != null) {
         await prefs.setInt('teacher_id', userMap['teacher']['id']);
-        print(
+        debugPrint(
             'Saved teacher ID from selected school: ${userMap['teacher']['id']}');
       } else if (globalUser['teacher'] != null) {
         // Fallback ke teacher global jika tidak ada teacher untuk sekolah ini
         await prefs.setInt('teacher_id', globalUser['teacher']['id']);
-        print(
+        debugPrint(
             'Saved teacher ID from global data: ${globalUser['teacher']['id']}');
       } // Update Auth state in BLoC with proper token format
-      if (!context.mounted) return;
+      if (!mounted) return;
 
       final schoolsToStore = List<Map<String, dynamic>>.from(
           userDataFromResponse['schools'] ?? []);
-      print('DEBUG SCHOOL SELECTION: Schools to store: $schoolsToStore');
-      print('DEBUG SCHOOL SELECTION: Schools length: ${schoolsToStore.length}');
+      debugPrint('DEBUG SCHOOL SELECTION: Schools to store: $schoolsToStore');
+      debugPrint(
+          'DEBUG SCHOOL SELECTION: Schools length: ${schoolsToStore.length}');
 
       await context.read<AuthCubit>().authenticateUser(
-            authToken: '$schoolToken', // Token without Bearer prefix
+            authToken: schoolToken, // Token without Bearer prefix
             userDetails: userDetailsInstance,
             schoolCode: school['school_code'] ?? '',
             schools: schoolsToStore,
           );
 
-      print('DEBUG SCHOOL SELECTION: Authentication completed');
-      print('Final UserDetails verification:');
-      print('- Teacher ID: ${userDetailsInstance.teacher?.id}');
-      print('- Staff ID: ${userDetailsInstance.staff?.id}');
-      print('- School ID: ${userDetailsInstance.schoolId}');
-      print('- School Name: ${userDetailsInstance.school?.name}');
+      debugPrint('DEBUG SCHOOL SELECTION: Authentication completed');
+      debugPrint('Final UserDetails verification:');
+      debugPrint('- Teacher ID: ${userDetailsInstance.teacher?.id}');
+      debugPrint('- Staff ID: ${userDetailsInstance.staff?.id}');
+      debugPrint('- School ID: ${userDetailsInstance.schoolId}');
+      debugPrint('- School Name: ${userDetailsInstance.school?.name}');
 
       // Debug logging
-      print('Full auth token set: $schoolToken');
-      print('School selected: ${school['school_name']}');
-      print('School ID: ${schoolData['id']}');
-      print('Database name: ${school['database_name']}');
-      print('Auth state updated with complete user details');
-      print('User school_id: ${completeUserDetails['school_id']}');
+      debugPrint('Full auth token set: $schoolToken');
+      debugPrint('School selected: ${school['school_name']}');
+      debugPrint('School ID: ${schoolData['id']}');
+      debugPrint('Database name: ${school['database_name']}');
+      debugPrint('Auth state updated with complete user details');
+      debugPrint('User school_id: ${completeUserDetails['school_id']}');
 
       // Add small delay to ensure auth state is properly set
       await Future.delayed(const Duration(milliseconds: 500));
@@ -270,8 +274,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
       // Navigate to main application
       Get.offAllNamed(Routes.homeScreen);
     } catch (e) {
-      print('Error during school selection: $e');
-      if (!context.mounted) return;
+      debugPrint('Error during school selection: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to select school: ${e.toString()}'),
@@ -293,17 +297,17 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   @override
   Widget build(BuildContext context) {
     // Modern elegant maroon color palette
-    final Color primaryMaroon =
+    const Color primaryMaroon =
         Color(0xFF800020); // Primary maroon (main brand color)
-    final Color softMaroon =
+    const Color softMaroon =
         Color(0xFFE8D5DA); // Very soft maroon pink for backgrounds
-    final Color deepMaroon =
+    const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    final Color accentColor = Color(0xFF4A0012); // Dark maroon accent for text
-    final Color goldAccent =
+    const Color accentColor = Color(0xFF4A0012); // Dark maroon accent for text
+    const Color goldAccent =
         Color.fromARGB(255, 161, 88, 120); // Elegant gold for highlights
-    final Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
-    final Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
+    const Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
+    const Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
 
     return Scaffold(
       backgroundColor: creamWhite,
@@ -340,7 +344,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                       shape: BoxShape.circle,
                                       boxShadow: [
                                         BoxShadow(
-                                          color: primaryMaroon.withOpacity(0.2),
+                                          color: primaryMaroon.withValues(
+                                              alpha: 0.2),
                                           blurRadius: 16,
                                           offset: const Offset(0, 4),
                                         ),
@@ -354,7 +359,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                   ),
                                   const SizedBox(height: 20),
                                   // Clean Title
-                                  Text(
+                                  const Text(
                                     'Pilih Sekolah Anda',
                                     style: TextStyle(
                                       fontSize: 28,
@@ -420,60 +425,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     );
   }
 
-  Widget _buildTrustBadge(
-      String label, IconData icon, Color iconColor, Color bgColor) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            bgColor.withOpacity(0.2),
-            bgColor.withOpacity(0.1),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: bgColor.withOpacity(0.4),
-          width: 1.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: bgColor.withOpacity(0.2),
-            blurRadius: 8,
-            spreadRadius: 1,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 18,
-            color: iconColor,
-          ),
-          SizedBox(width: 8),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: iconColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildEmptyState(
       Color primaryMaroon, Color softMaroon, Color goldAccent) {
-    final Color deepMaroon =
+    const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    final Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
-    final Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
+    const Color shimmerColor = Color(0xFFFBF8F9); // Softest pink shimmer
+    const Color creamWhite = Color(0xFFFFFCFD); // Pure cream white background
 
     return Center(
       child: Container(
@@ -485,32 +442,32 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             end: Alignment.bottomRight,
             colors: [
               creamWhite,
-              shimmerColor.withOpacity(0.8),
+              shimmerColor.withValues(alpha: 0.8),
               Colors.grey.shade50,
             ],
           ),
           borderRadius: BorderRadius.circular(40),
           border: Border.all(
-            color: softMaroon.withOpacity(0.3),
+            color: softMaroon.withValues(alpha: 0.3),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: primaryMaroon.withOpacity(0.15),
+              color: primaryMaroon.withValues(alpha: 0.15),
               blurRadius: 40,
               spreadRadius: 0,
-              offset: Offset(0, 20),
+              offset: const Offset(0, 20),
             ),
             BoxShadow(
-              color: goldAccent.withOpacity(0.2),
+              color: goldAccent.withValues(alpha: 0.2),
               blurRadius: 30,
               spreadRadius: 3,
             ),
             BoxShadow(
-              color: creamWhite.withOpacity(0.9),
+              color: creamWhite.withValues(alpha: 0.9),
               blurRadius: 15,
               spreadRadius: -5,
-              offset: Offset(0, -10),
+              offset: const Offset(0, -10),
             ),
           ],
         ),
@@ -529,8 +486,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        goldAccent.withOpacity(0.3),
-                        goldAccent.withOpacity(0.1),
+                        goldAccent.withValues(alpha: 0.3),
+                        goldAccent.withValues(alpha: 0.1),
                         Colors.transparent,
                       ],
                     ),
@@ -544,26 +501,26 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        softMaroon.withOpacity(0.2),
-                        primaryMaroon.withOpacity(0.1),
-                        deepMaroon.withOpacity(0.1),
+                        softMaroon.withValues(alpha: 0.2),
+                        primaryMaroon.withValues(alpha: 0.1),
+                        deepMaroon.withValues(alpha: 0.1),
                       ],
                     ),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: softMaroon.withOpacity(0.3),
+                      color: softMaroon.withValues(alpha: 0.3),
                       width: 3,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: softMaroon.withOpacity(0.3),
+                        color: softMaroon.withValues(alpha: 0.3),
                         blurRadius: 25,
                         spreadRadius: 3,
                       ),
                       BoxShadow(
-                        color: primaryMaroon.withOpacity(0.2),
+                        color: primaryMaroon.withValues(alpha: 0.2),
                         blurRadius: 15,
-                        offset: Offset(0, 8),
+                        offset: const Offset(0, 8),
                       ),
                     ],
                   ),
@@ -586,7 +543,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   deepMaroon,
                   softMaroon,
                 ],
-                stops: [0.0, 0.6, 1.0],
+                stops: const [0.0, 0.6, 1.0],
               ).createShader(bounds),
               child: Text(
                 'Tidak Ada Sekolah',
@@ -597,8 +554,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   letterSpacing: -0.8,
                   shadows: [
                     Shadow(
-                      color: primaryMaroon.withOpacity(0.3),
-                      offset: Offset(0, 2),
+                      color: primaryMaroon.withValues(alpha: 0.3),
+                      offset: const Offset(0, 2),
                       blurRadius: 4,
                     ),
                   ],
@@ -613,19 +570,19 @@ class _SchoolListScreenState extends State<SchoolListScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    goldAccent.withOpacity(0.3),
+                    goldAccent.withValues(alpha: 0.3),
                     goldAccent,
                     primaryMaroon,
                     deepMaroon,
                     primaryMaroon,
                     goldAccent,
-                    goldAccent.withOpacity(0.3),
+                    goldAccent.withValues(alpha: 0.3),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(3),
                 boxShadow: [
                   BoxShadow(
-                    color: goldAccent.withOpacity(0.5),
+                    color: goldAccent.withValues(alpha: 0.5),
                     blurRadius: 12,
                     spreadRadius: 2,
                   ),
@@ -640,12 +597,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w500,
-                  color: primaryMaroon.withOpacity(0.7),
+                  color: primaryMaroon.withValues(alpha: 0.7),
                   letterSpacing: 0.3,
                   height: 1.5,
                 ),
                 children: [
-                  TextSpan(
+                  const TextSpan(
                     text: 'Saat ini ',
                   ),
                   TextSpan(
@@ -655,10 +612,10 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                       color: primaryMaroon,
                     ),
                   ),
-                  TextSpan(
+                  const TextSpan(
                     text: ' yang tersedia\nuntuk ',
                   ),
-                  TextSpan(
+                  const TextSpan(
                     text: 'akun Anda',
                     style: TextStyle(
                       fontWeight: FontWeight.w700,
@@ -680,27 +637,27 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    goldAccent.withOpacity(0.2),
-                    goldAccent.withOpacity(0.12),
-                    goldAccent.withOpacity(0.08),
+                    goldAccent.withValues(alpha: 0.2),
+                    goldAccent.withValues(alpha: 0.12),
+                    goldAccent.withValues(alpha: 0.08),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: goldAccent.withOpacity(0.5),
+                  color: goldAccent.withValues(alpha: 0.5),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: goldAccent.withOpacity(0.3),
+                    color: goldAccent.withValues(alpha: 0.3),
                     blurRadius: 15,
                     spreadRadius: 2,
                   ),
                   BoxShadow(
-                    color: primaryMaroon.withOpacity(0.1),
+                    color: primaryMaroon.withValues(alpha: 0.1),
                     blurRadius: 20,
                     spreadRadius: 1,
-                    offset: Offset(0, 5),
+                    offset: const Offset(0, 5),
                   ),
                 ],
               ),
@@ -708,7 +665,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    padding: EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
@@ -719,13 +676,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroon.withOpacity(0.4),
+                          color: primaryMaroon.withValues(alpha: 0.4),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
                       ],
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.support_agent_rounded,
                       color: Colors.white,
                       size: 20,
@@ -750,404 +707,6 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     );
   }
 
-  Widget _buildSchoolsList(
-    BuildContext context,
-    Color primaryMaroon,
-    Color softMaroon,
-    Color accentColor,
-    Color goldAccent,
-    Color shimmerColor,
-  ) {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      itemCount: schools.length,
-      itemBuilder: (context, index) {
-        final school = schools[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(28),
-            child: InkWell(
-              onTap: () => _selectSchool(school),
-              borderRadius: BorderRadius.circular(28),
-              splashColor: primaryMaroon.withOpacity(0.1),
-              highlightColor: goldAccent.withOpacity(0.05),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      Colors.grey.shade50,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: primaryMaroon.withOpacity(0.08),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: primaryMaroon.withOpacity(0.15),
-                      blurRadius: 32,
-                      spreadRadius: 0,
-                      offset: Offset(0, 16),
-                    ),
-                    BoxShadow(
-                      color: goldAccent.withOpacity(0.1),
-                      blurRadius: 24,
-                      spreadRadius: 2,
-                    ),
-                    BoxShadow(
-                      color: Colors.white.withOpacity(0.9),
-                      blurRadius: 8,
-                      spreadRadius: -4,
-                      offset: Offset(0, -8),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Modern School Header with improved design
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            primaryMaroon,
-                            primaryMaroon.withOpacity(0.9),
-                            softMaroon.withOpacity(0.8),
-                          ],
-                          stops: [0.0, 0.6, 1.0],
-                        ),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(28),
-                          topRight: Radius.circular(28),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          // Enhanced Logo Container
-                          Container(
-                            width: 88,
-                            height: 88,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.white,
-                                  Colors.grey.shade50,
-                                ],
-                              ),
-                              border: Border.all(
-                                color: goldAccent,
-                                width: 3,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  blurRadius: 16,
-                                  spreadRadius: 2,
-                                ),
-                                BoxShadow(
-                                  color: goldAccent.withOpacity(0.5),
-                                  blurRadius: 12,
-                                  spreadRadius: 0,
-                                ),
-                                BoxShadow(
-                                  color: Colors.white.withOpacity(0.8),
-                                  blurRadius: 8,
-                                  spreadRadius: -2,
-                                  offset: Offset(0, -4),
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(44),
-                              child: Image.network(
-                                school['user']['school']?['logo'] ??
-                                    school['user']['image'] ??
-                                    '',
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  print('Error loading image: $error');
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          softMaroon.withOpacity(0.1),
-                                          primaryMaroon.withOpacity(0.05),
-                                        ],
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.school_rounded,
-                                      color: primaryMaroon,
-                                      size: 44,
-                                    ),
-                                  );
-                                },
-                                loadingBuilder:
-                                    (context, child, loadingProgress) {
-                                  if (loadingProgress == null) return child;
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          softMaroon.withOpacity(0.1),
-                                          primaryMaroon.withOpacity(0.05),
-                                        ],
-                                      ),
-                                    ),
-                                    child: Icon(
-                                      Icons.school_rounded,
-                                      color: primaryMaroon,
-                                      size: 44,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 20),
-                          // School Info Section
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // School Name with better typography
-                                Text(
-                                  school['school_name'] ?? '',
-                                  style: const TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.white,
-                                    letterSpacing: -0.2,
-                                    height: 1.2,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                const SizedBox(height: 12),
-                                // School Code Badge with improved design
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.white.withOpacity(0.25),
-                                        Colors.white.withOpacity(0.15),
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.white.withOpacity(0.4),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
-                                        blurRadius: 8,
-                                        offset: Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.tag_rounded,
-                                        color: Colors.white,
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 6),
-                                      Text(
-                                        school['school_code'] ?? '',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.8,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Enhanced School Details Section
-                    Container(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Address Section with better design
-                          Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  softMaroon.withOpacity(0.08),
-                                  softMaroon.withOpacity(0.04),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: softMaroon.withOpacity(0.15),
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        primaryMaroon.withOpacity(0.1),
-                                        softMaroon.withOpacity(0.05),
-                                      ],
-                                    ),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: primaryMaroon.withOpacity(0.2),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.location_on_rounded,
-                                    color: primaryMaroon,
-                                    size: 20,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Alamat Sekolah',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: primaryMaroon.withOpacity(0.8),
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      SizedBox(height: 4),
-                                      Text(
-                                        school['user']['school']['address'] ??
-                                            'Alamat tidak tersedia',
-                                        style: TextStyle(
-                                          color: accentColor.withOpacity(0.85),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          letterSpacing: 0.2,
-                                          height: 1.3,
-                                        ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          // Enhanced Action Button
-                          Container(
-                            width: double.infinity,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.centerLeft,
-                                  end: Alignment.centerRight,
-                                  colors: [
-                                    goldAccent.withOpacity(0.15),
-                                    goldAccent.withOpacity(0.08),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: goldAccent.withOpacity(0.4),
-                                  width: 1.5,
-                                ),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: goldAccent.withOpacity(0.2),
-                                    blurRadius: 12,
-                                    spreadRadius: 1,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.all(6),
-                                    decoration: BoxDecoration(
-                                      color: primaryMaroon,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: primaryMaroon.withOpacity(0.3),
-                                          blurRadius: 8,
-                                          spreadRadius: 1,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      Icons.arrow_forward_rounded,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'Pilih Sekolah Ini',
-                                    style: TextStyle(
-                                      color: primaryMaroon,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.3,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildSchoolsListSliver(
     BuildContext context,
     Color primaryMaroon,
@@ -1163,7 +722,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
         delegate: SliverChildBuilderDelegate(
           (context, index) {
             final school = filteredSchools[index];
-            print(
+            debugPrint(
                 'Image URL for school ${school['school_name']}: ${school['user']['school']?['logo'] ?? school['user']['image'] ?? ''}');
             return Container(
               margin: const EdgeInsets.only(bottom: 18),
@@ -1174,8 +733,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 child: InkWell(
                   onTap: () => _selectSchool(school),
                   borderRadius: BorderRadius.circular(20),
-                  splashColor: primaryMaroon.withOpacity(0.1),
-                  highlightColor: goldAccent.withOpacity(0.05),
+                  splashColor: primaryMaroon.withValues(alpha: 0.1),
+                  highlightColor: goldAccent.withValues(alpha: 0.05),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     decoration: BoxDecoration(
@@ -1184,29 +743,29 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                         end: Alignment.bottomRight,
                         colors: [
                           Colors.white,
-                          softMaroon.withOpacity(0.02),
-                          Colors.grey.shade50.withOpacity(0.5),
+                          softMaroon.withValues(alpha: 0.02),
+                          Colors.grey.shade50.withValues(alpha: 0.5),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: primaryMaroon.withOpacity(0.08),
+                        color: primaryMaroon.withValues(alpha: 0.08),
                         width: 1.5,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: primaryMaroon.withOpacity(0.06),
+                          color: primaryMaroon.withValues(alpha: 0.06),
                           blurRadius: 16,
                           spreadRadius: 0,
                           offset: const Offset(0, 6),
                         ),
                         BoxShadow(
-                          color: goldAccent.withOpacity(0.04),
+                          color: goldAccent.withValues(alpha: 0.04),
                           blurRadius: 12,
                           spreadRadius: 1,
                         ),
                         BoxShadow(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           blurRadius: 8,
                           spreadRadius: -2,
                           offset: const Offset(0, -3),
@@ -1223,9 +782,9 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                primaryMaroon.withOpacity(0.92),
-                                primaryMaroon.withOpacity(0.85),
-                                deepMaroon.withOpacity(0.8),
+                                primaryMaroon.withValues(alpha: 0.92),
+                                primaryMaroon.withValues(alpha: 0.85),
+                                deepMaroon.withValues(alpha: 0.8),
                               ],
                             ),
                             borderRadius: const BorderRadius.only(
@@ -1250,17 +809,18 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                     ],
                                   ),
                                   border: Border.all(
-                                    color: goldAccent.withOpacity(0.7),
+                                    color: goldAccent.withValues(alpha: 0.7),
                                     width: 2.5,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.15),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.15),
                                       blurRadius: 8,
                                       spreadRadius: 1,
                                     ),
                                     BoxShadow(
-                                      color: goldAccent.withOpacity(0.3),
+                                      color: goldAccent.withValues(alpha: 0.3),
                                       blurRadius: 6,
                                       spreadRadius: 0,
                                     ),
@@ -1274,13 +834,14 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                         '',
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
-                                      print('Error loading image: $error');
+                                      debugPrint('Error loading image: $error');
                                       return Container(
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              softMaroon.withOpacity(0.1),
-                                              primaryMaroon.withOpacity(0.05),
+                                              softMaroon.withValues(alpha: 0.1),
+                                              primaryMaroon.withValues(
+                                                  alpha: 0.05),
                                             ],
                                           ),
                                         ),
@@ -1298,8 +859,9 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              softMaroon.withOpacity(0.1),
-                                              primaryMaroon.withOpacity(0.05),
+                                              softMaroon.withValues(alpha: 0.1),
+                                              primaryMaroon.withValues(
+                                                  alpha: 0.05),
                                             ],
                                           ),
                                         ),
@@ -1354,13 +916,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                       colors: [
-                                        softMaroon.withOpacity(0.04),
-                                        primaryMaroon.withOpacity(0.02),
+                                        softMaroon.withValues(alpha: 0.04),
+                                        primaryMaroon.withValues(alpha: 0.02),
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: softMaroon.withOpacity(0.12),
+                                      color: softMaroon.withValues(alpha: 0.12),
                                       width: 1,
                                     ),
                                   ),
@@ -1373,8 +935,10 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
                                             colors: [
-                                              primaryMaroon.withOpacity(0.08),
-                                              softMaroon.withOpacity(0.04),
+                                              primaryMaroon.withValues(
+                                                  alpha: 0.08),
+                                              softMaroon.withValues(
+                                                  alpha: 0.04),
                                             ],
                                           ),
                                           shape: BoxShape.circle,
@@ -1396,8 +960,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                               style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w600,
-                                                color: primaryMaroon
-                                                    .withOpacity(0.7),
+                                                color: primaryMaroon.withValues(
+                                                    alpha: 0.7),
                                                 letterSpacing: 0.3,
                                               ),
                                             ),
@@ -1407,8 +971,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                               school['user']['school']
                                                   ['address'],
                                               style: TextStyle(
-                                                color: accentColor
-                                                    .withOpacity(0.8),
+                                                color: accentColor.withValues(
+                                                    alpha: 0.8),
                                                 fontSize: 13,
                                                 fontWeight: FontWeight.w500,
                                                 letterSpacing: 0.1,
@@ -1433,18 +997,20 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                     begin: Alignment.centerLeft,
                                     end: Alignment.centerRight,
                                     colors: [
-                                      primaryMaroon.withOpacity(0.06),
-                                      goldAccent.withOpacity(0.04),
+                                      primaryMaroon.withValues(alpha: 0.06),
+                                      goldAccent.withValues(alpha: 0.04),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(14),
                                   border: Border.all(
-                                    color: primaryMaroon.withOpacity(0.15),
+                                    color:
+                                        primaryMaroon.withValues(alpha: 0.15),
                                     width: 1,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: primaryMaroon.withOpacity(0.08),
+                                      color:
+                                          primaryMaroon.withValues(alpha: 0.08),
                                       blurRadius: 8,
                                       spreadRadius: 0,
                                     ),
@@ -1470,8 +1036,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                                           shape: BoxShape.circle,
                                           boxShadow: [
                                             BoxShadow(
-                                              color: primaryMaroon
-                                                  .withOpacity(0.25),
+                                              color: primaryMaroon.withValues(
+                                                  alpha: 0.25),
                                               blurRadius: 6,
                                               spreadRadius: 1,
                                             ),
@@ -1520,7 +1086,6 @@ class _SchoolListScreenState extends State<SchoolListScreen>
     required Color color,
     required Animation<double> animation,
     double? angle,
-    Widget? child,
   }) {
     return Positioned(
       top: top,
@@ -1542,7 +1107,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     borderRadius: BorderRadius.circular(size / 2),
                     boxShadow: [
                       BoxShadow(
-                        color: color.withOpacity(0.3),
+                        color: color.withValues(alpha: 0.3),
                         blurRadius: 10,
                         spreadRadius: 0,
                       ),
@@ -1590,7 +1155,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     borderRadius: BorderRadius.circular(size / 3),
                     boxShadow: [
                       BoxShadow(
-                        color: colors.first.withOpacity(0.3),
+                        color: colors.first.withValues(alpha: 0.3),
                         blurRadius: 15,
                         spreadRadius: 1,
                       ),
@@ -1608,19 +1173,19 @@ class _SchoolListScreenState extends State<SchoolListScreen>
   Widget _buildElegantBackground() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final Color primaryMaroon =
+    const Color primaryMaroon =
         Color(0xFF800020); // Primary maroon (main brand color)
-    final Color softMaroon =
+    const Color softMaroon =
         Color(0xFFE8D5DA); // Very soft maroon pink for backgrounds
-    final Color deepMaroon =
+    const Color deepMaroon =
         Color(0xFF5C0016); // Deeper maroon for contrast and depth
-    final Color goldAccent = Color(0xFFD4AF37); // Elegant gold for highlights
+    const Color goldAccent = Color(0xFFD4AF37); // Elegant gold for highlights
 
     return Stack(
       children: [
         // Enhanced background gradient with more sophistication
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
@@ -1630,7 +1195,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 Colors.white, // Pure white
                 Color(0xFFE8D5DA), // Very soft maroon pink for backgrounds
               ],
-              stops: const [0.0, 0.3, 0.7, 1.0],
+              stops: [0.0, 0.3, 0.7, 1.0],
             ),
           ),
         ),
@@ -1640,7 +1205,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           top: -60,
           left: -50,
           size: screenWidth * 0.5,
-          color: primaryMaroon.withOpacity(0.08),
+          color: primaryMaroon.withValues(alpha: 0.08),
           animation: _float1,
         ),
 
@@ -1649,9 +1214,9 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           left: screenWidth * 0.65,
           size: screenWidth * 0.35,
           colors: [
-            softMaroon.withOpacity(0.15),
-            primaryMaroon.withOpacity(0.08),
-            deepMaroon.withOpacity(0.06),
+            softMaroon.withValues(alpha: 0.15),
+            primaryMaroon.withValues(alpha: 0.08),
+            deepMaroon.withValues(alpha: 0.06),
           ],
           animation: _float2,
           angle: -math.pi / 8,
@@ -1661,7 +1226,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           top: screenHeight * 0.45,
           left: -screenWidth * 0.2,
           size: screenWidth * 0.4,
-          color: goldAccent.withOpacity(0.12),
+          color: goldAccent.withValues(alpha: 0.12),
           animation: _float3,
           angle: math.pi / 6,
         ),
@@ -1671,9 +1236,9 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           left: screenWidth * 0.55,
           size: screenWidth * 0.45,
           colors: [
-            primaryMaroon.withOpacity(0.12),
-            deepMaroon.withOpacity(0.08),
-            softMaroon.withOpacity(0.06)
+            primaryMaroon.withValues(alpha: 0.12),
+            deepMaroon.withValues(alpha: 0.08),
+            softMaroon.withValues(alpha: 0.06)
           ],
           animation: _float1,
           angle: math.pi / 12,
@@ -1686,12 +1251,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             left: screenWidth * (0.08 + i * 0.11) % screenWidth,
             size: 6 + (i % 5) * 4,
             color: i % 4 == 0
-                ? primaryMaroon.withOpacity(0.15)
+                ? primaryMaroon.withValues(alpha: 0.15)
                 : i % 4 == 1
-                    ? goldAccent.withOpacity(0.2)
+                    ? goldAccent.withValues(alpha: 0.2)
                     : i % 4 == 2
-                        ? deepMaroon.withOpacity(0.15)
-                        : softMaroon.withOpacity(0.18),
+                        ? deepMaroon.withValues(alpha: 0.15)
+                        : softMaroon.withValues(alpha: 0.18),
             animation: i % 3 == 0
                 ? _float1
                 : i % 3 == 1
@@ -1716,12 +1281,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        softMaroon.withOpacity(0.12),
-                        primaryMaroon.withOpacity(0.06),
+                        softMaroon.withValues(alpha: 0.12),
+                        primaryMaroon.withValues(alpha: 0.06),
                         Colors.transparent,
                       ],
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(120),
                       bottomLeft: Radius.circular(120),
                     ),
@@ -1746,12 +1311,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   decoration: BoxDecoration(
                     gradient: RadialGradient(
                       colors: [
-                        goldAccent.withOpacity(0.15),
-                        deepMaroon.withOpacity(0.08),
+                        goldAccent.withValues(alpha: 0.15),
+                        deepMaroon.withValues(alpha: 0.08),
                         Colors.transparent,
                       ],
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(90),
                       bottomRight: Radius.circular(90),
                     ),
@@ -1779,13 +1344,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          primaryMaroon.withOpacity(0.1),
-                          deepMaroon.withOpacity(0.06),
+                          primaryMaroon.withValues(alpha: 0.1),
+                          deepMaroon.withValues(alpha: 0.06),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(
-                        color: softMaroon.withOpacity(0.1),
+                        color: softMaroon.withValues(alpha: 0.1),
                         width: 1,
                       ),
                     ),
@@ -1828,22 +1393,22 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                         gradient: LinearGradient(
                           colors: i % 4 == 0
                               ? [
-                                  primaryMaroon.withOpacity(0.2),
-                                  deepMaroon.withOpacity(0.1)
+                                  primaryMaroon.withValues(alpha: 0.2),
+                                  deepMaroon.withValues(alpha: 0.1)
                                 ]
                               : i % 4 == 1
                                   ? [
-                                      goldAccent.withOpacity(0.25),
-                                      softMaroon.withOpacity(0.1)
+                                      goldAccent.withValues(alpha: 0.25),
+                                      softMaroon.withValues(alpha: 0.1)
                                     ]
                                   : i % 4 == 2
                                       ? [
-                                          deepMaroon.withOpacity(0.2),
-                                          primaryMaroon.withOpacity(0.1)
+                                          deepMaroon.withValues(alpha: 0.2),
+                                          primaryMaroon.withValues(alpha: 0.1)
                                         ]
                                       : [
-                                          softMaroon.withOpacity(0.2),
-                                          goldAccent.withOpacity(0.1)
+                                          softMaroon.withValues(alpha: 0.2),
+                                          goldAccent.withValues(alpha: 0.1)
                                         ],
                         ),
                         borderRadius: BorderRadius.circular(4),
@@ -1870,29 +1435,29 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             end: Alignment.bottomRight,
             colors: [
               Colors.white,
-              softMaroon.withOpacity(0.03),
-              Colors.grey.shade50.withOpacity(0.8),
+              softMaroon.withValues(alpha: 0.03),
+              Colors.grey.shade50.withValues(alpha: 0.8),
             ],
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: primaryMaroon.withOpacity(0.12),
+            color: primaryMaroon.withValues(alpha: 0.12),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: primaryMaroon.withOpacity(0.08),
+              color: primaryMaroon.withValues(alpha: 0.08),
               blurRadius: 20,
               spreadRadius: 0,
               offset: const Offset(0, 8),
             ),
             BoxShadow(
-              color: goldAccent.withOpacity(0.05),
+              color: goldAccent.withValues(alpha: 0.05),
               blurRadius: 16,
               spreadRadius: 2,
             ),
             BoxShadow(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
               blurRadius: 8,
               spreadRadius: -2,
               offset: const Offset(0, -4),
@@ -1911,7 +1476,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
           decoration: InputDecoration(
             hintText: 'Cari nama sekolah...',
             hintStyle: TextStyle(
-              color: primaryMaroon.withOpacity(0.5),
+              color: primaryMaroon.withValues(alpha: 0.5),
               fontSize: 15,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.2,
@@ -1923,8 +1488,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      primaryMaroon.withOpacity(0.1),
-                      softMaroon.withOpacity(0.05),
+                      primaryMaroon.withValues(alpha: 0.1),
+                      softMaroon.withValues(alpha: 0.05),
                     ],
                   ),
                   shape: BoxShape.circle,
@@ -1949,8 +1514,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              primaryMaroon.withOpacity(0.1),
-                              softMaroon.withOpacity(0.05),
+                              primaryMaroon.withValues(alpha: 0.1),
+                              softMaroon.withValues(alpha: 0.05),
                             ],
                           ),
                           shape: BoxShape.circle,
@@ -1979,8 +1544,8 @@ class _SchoolListScreenState extends State<SchoolListScreen>
 
   Widget _buildNoSearchResults(
       Color primaryMaroon, Color softMaroon, Color goldAccent) {
-    final Color shimmerColor = Color(0xFFFBF8F9);
-    final Color creamWhite = Color(0xFFFFFCFD);
+    const Color shimmerColor = Color(0xFFFBF8F9);
+    const Color creamWhite = Color(0xFFFFFCFD);
 
     return Center(
       child: Container(
@@ -1992,24 +1557,24 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             end: Alignment.bottomRight,
             colors: [
               creamWhite,
-              shimmerColor.withOpacity(0.8),
+              shimmerColor.withValues(alpha: 0.8),
               Colors.grey.shade50,
             ],
           ),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
-            color: softMaroon.withOpacity(0.3),
+            color: softMaroon.withValues(alpha: 0.3),
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
-              color: primaryMaroon.withOpacity(0.12),
+              color: primaryMaroon.withValues(alpha: 0.12),
               blurRadius: 32,
               spreadRadius: 0,
               offset: const Offset(0, 16),
             ),
             BoxShadow(
-              color: goldAccent.withOpacity(0.15),
+              color: goldAccent.withValues(alpha: 0.15),
               blurRadius: 24,
               spreadRadius: 2,
             ),
@@ -2026,18 +1591,18 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    softMaroon.withOpacity(0.15),
-                    primaryMaroon.withOpacity(0.08),
+                    softMaroon.withValues(alpha: 0.15),
+                    primaryMaroon.withValues(alpha: 0.08),
                   ],
                 ),
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: softMaroon.withOpacity(0.3),
+                  color: softMaroon.withValues(alpha: 0.3),
                   width: 2,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: softMaroon.withOpacity(0.2),
+                    color: softMaroon.withValues(alpha: 0.2),
                     blurRadius: 16,
                     spreadRadius: 2,
                   ),
@@ -2069,12 +1634,12 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
-                  color: primaryMaroon.withOpacity(0.7),
+                  color: primaryMaroon.withValues(alpha: 0.7),
                   letterSpacing: 0.2,
                   height: 1.4,
                 ),
                 children: [
-                  TextSpan(
+                  const TextSpan(
                     text: 'Tidak ada hasil untuk pencarian ',
                   ),
                   TextSpan(
@@ -2094,13 +1659,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    goldAccent.withOpacity(0.08),
-                    goldAccent.withOpacity(0.04),
+                    goldAccent.withValues(alpha: 0.08),
+                    goldAccent.withValues(alpha: 0.04),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: goldAccent.withOpacity(0.2),
+                  color: goldAccent.withValues(alpha: 0.2),
                   width: 1,
                 ),
               ),
@@ -2120,7 +1685,7 @@ class _SchoolListScreenState extends State<SchoolListScreen>
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: primaryMaroon.withOpacity(0.8),
+                      color: primaryMaroon.withValues(alpha: 0.8),
                       height: 1.4,
                     ),
                     textAlign: TextAlign.left,
@@ -2145,13 +1710,13 @@ class _SchoolListScreenState extends State<SchoolListScreen>
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  goldAccent.withOpacity(0.15),
-                  goldAccent.withOpacity(0.08),
+                  goldAccent.withValues(alpha: 0.15),
+                  goldAccent.withValues(alpha: 0.08),
                 ],
               ),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: goldAccent.withOpacity(0.3),
+                color: goldAccent.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),

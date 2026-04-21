@@ -11,21 +11,15 @@ import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addedStudyMaterialFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customDropdownSelectionButton.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class TeacherAddEditLessonScreen extends StatefulWidget {
@@ -140,8 +134,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
         appBar: CustomModernAppBar(
           title: widget.lesson != null ? 'Edit Pelajaran' : 'Tambah Pelajaran',
           icon: Icons.book_rounded,
-          primaryColor: Color(0xFF800020),
-          lightColor: Color(0xFFAA6976),
+          primaryColor: const Color(0xFF800020),
+          lightColor: const Color(0xFFAA6976),
           fabAnimationController: _fabAnimationController,
           onBackPressed: () => Navigator.of(context).pop(),
           showAddButton: false,
@@ -175,7 +169,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
   // Animation controllers for the glowing effects
   late AnimationController _pulseController;
   late AnimationController _fabAnimationController;
-  late Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -200,18 +193,13 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     // Add this with your other controller initialization
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
 
     super.initState();
   }
@@ -392,7 +380,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         height: 60,
         decoration: BoxDecoration(
@@ -407,7 +395,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -424,8 +413,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -442,9 +431,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -454,7 +443,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                       );
 
                       // Add slight delay before popping
-                      Future.delayed(Duration(milliseconds: 2200), () {
+                      Future.delayed(const Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Navigator.pop(context, true);
                         }
@@ -482,8 +471,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -500,9 +489,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -545,15 +534,15 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(15),
-      splashColor: Colors.white.withOpacity(0.2),
-      highlightColor: Colors.white.withOpacity(0.1),
+      splashColor: Colors.white.withValues(alpha: 0.2),
+      highlightColor: Colors.white.withValues(alpha: 0.1),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (isLoading) ...[
-              SizedBox(
+              const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
@@ -561,11 +550,11 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
             Text(
               isLoading ? 'Memproses...' : title,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -573,8 +562,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
               ),
             ),
             if (!isLoading) ...[
-              SizedBox(width: 8),
-              Icon(
+              const SizedBox(width: 8),
+              const Icon(
                 Icons.arrow_forward_rounded,
                 color: Colors.white,
                 size: 22,
@@ -583,7 +572,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
               }).slideX(
                 begin: 0,
                 end: 0.3,
-                duration: Duration(milliseconds: 1000),
+                duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeInOut,
               ),
             ],
@@ -595,8 +584,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
   Widget _buildAddEditLessonForm() {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(20),
-      physics: BouncingScrollPhysics(),
+      padding: const EdgeInsets.all(20),
+      physics: const BouncingScrollPhysics(),
       child: Column(
         children: [
           // Form Content
@@ -620,7 +609,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             },
           ),
 
-          SizedBox(height: 30),
+          const SizedBox(height: 30),
 
           // Submit Button
           _buildSubmitButton(),
@@ -657,16 +646,16 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                 children: [
                   // Basic Info Section with Grade Level
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 5,
                           blurRadius: 10,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -681,7 +670,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
                         // Grade Level Selection
                         if (gradeLevelState is GradeLevelFetchSuccess)
@@ -712,7 +701,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             },
                           ),
                         if (gradeLevelState is GradeLevelFetchSuccess)
-                          SizedBox(height: 15),
+                          const SizedBox(height: 15),
 
                         // Class Selection - Filter based on grade level
                         _buildAnimatedTextField(
@@ -760,7 +749,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             }
                           },
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
 
                         // Subject Selection
                         _buildAnimatedTextField(
@@ -795,20 +784,20 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                     ),
                   ),
 
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   // Lesson Details Section
                   Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 5,
                           blurRadius: 10,
-                          offset: Offset(0, 3),
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -823,13 +812,13 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         _buildAnimatedTextField(
                           controller: _lessonNameTextEditingController,
                           label: 'Nama Pelajaran',
                           icon: Icons.book,
                         ),
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         _buildAnimatedTextField(
                           controller: _lessonDescriptionTextEditingController,
                           label: 'Deskripsi',
@@ -839,7 +828,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                     ),
                   ),
 
-                  SizedBox(
+                  const SizedBox(
                       height:
                           20), // Study Materials Section - Clean & Minimalist Design
                   Container(
@@ -848,9 +837,9 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 12,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -859,7 +848,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                       children: [
                         // Clean Header
                         Padding(
-                          padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                           child: Row(
                             children: [
                               Container(
@@ -869,7 +858,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   color: Theme.of(context)
                                       .colorScheme
                                       .primary
-                                      .withOpacity(0.1),
+                                      .withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Icon(
@@ -878,7 +867,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   size: 20,
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              const SizedBox(width: 12),
                               Text(
                                 'Materi Pembelajaran',
                                 style: TextStyle(
@@ -893,8 +882,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
 
                         // Minimalist Info Card
                         Container(
-                          margin: EdgeInsets.symmetric(horizontal: 20),
-                          padding: EdgeInsets.all(16),
+                          margin: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade50,
                             borderRadius: BorderRadius.circular(12),
@@ -910,7 +899,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                     size: 16,
                                     color: Colors.grey.shade600,
                                   ),
-                                  SizedBox(width: 6),
+                                  const SizedBox(width: 6),
                                   Text(
                                     'Format yang didukung',
                                     style: TextStyle(
@@ -921,7 +910,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Wrap(
                                 spacing: 8,
                                 runSpacing: 4,
@@ -949,11 +938,11 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                           ),
                         ),
 
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
 
                         // Content Area
                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -968,7 +957,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                     color: Colors.grey.shade700,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 ...studyMaterials.map(
                                   (studyMaterial) => Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
@@ -981,7 +970,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                               ],
 
                               // Added study materials
@@ -994,7 +983,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                     color: Colors.grey.shade700,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 ..._addedStudyMaterials.asMap().entries.map(
                                       (entry) => Padding(
                                         padding:
@@ -1016,7 +1005,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                         ),
                                       ),
                                     ),
-                                SizedBox(height: 16),
+                                const SizedBox(height: 16),
                               ],
 
                               // Clean Add Button
@@ -1039,7 +1028,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                       color: Theme.of(context)
                                           .colorScheme
                                           .primary
-                                          .withOpacity(0.3),
+                                          .withValues(alpha: 0.3),
                                       width: 1.5,
                                     ),
                                     borderRadius: BorderRadius.circular(12),
@@ -1054,7 +1043,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                                             .primary,
                                         size: 20,
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Text(
                                         'Tambah Materi',
                                         style: TextStyle(
@@ -1073,7 +1062,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                           ),
                         ),
 
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   )
@@ -1111,7 +1100,7 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
                 color: Theme.of(context).colorScheme.primary,
                 size: 20,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Text(
                 label,
                 style: TextStyle(
@@ -1133,7 +1122,8 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
             borderSide:
                 BorderSide(color: Theme.of(context).colorScheme.secondary),
           ),
-          contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         ),
         validator: (v) => v!.isEmpty ? 'Required' : null,
         minLines: label == 'Nama Pelajaran' ? 2 : 3,
@@ -1167,55 +1157,17 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           borderSide:
               BorderSide(color: Theme.of(context).colorScheme.secondary),
         ),
-        contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
       ),
       validator: (v) => v!.isEmpty ? 'Required' : null,
       minLines: 1,
     );
   }
 
-  Widget _buildGlowingIconButton(IconData icon, VoidCallback onTap) {
-    // Define your color constants
-    final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedBuilder(
-        animation: _pulseAnimation,
-        builder: (context, child) {
-          return Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white.withOpacity(0.12),
-              boxShadow: [
-                BoxShadow(
-                  color: _highlightColor
-                      .withOpacity(0.1 + 0.1 * _pulseAnimation.value),
-                  blurRadius: 12 * (1 + _pulseAnimation.value),
-                  spreadRadius: 2 * _pulseAnimation.value,
-                )
-              ],
-              border: Border.all(
-                color: Colors.white
-                    .withOpacity(0.1 + 0.05 * _pulseAnimation.value),
-                width: 1.5,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 24,
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildFormatChip(String label) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(6),
@@ -1229,43 +1181,6 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
           color: Colors.grey.shade700,
         ),
       ),
-    );
-  }
-
-  Widget _buildFileTypeRow(String emoji, String title, String description) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          emoji,
-          style: TextStyle(fontSize: 16),
-        ),
-        SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade800,
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                description,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey.shade600,
-                  height: 1.2,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

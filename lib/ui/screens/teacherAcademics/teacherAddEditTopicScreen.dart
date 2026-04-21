@@ -19,12 +19,10 @@ import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:flutter/services.dart';
 
 class TeacherAddEditTopicScreen extends StatefulWidget {
   final Topic? topic;
@@ -93,14 +91,12 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   GradeLevel? _selectedGradeLevel;
   late AnimationController _animationController;
   late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
   late AnimationController
       _fabAnimationController; // Added for CustomModernAppBar
 
   // Theme colors - Softer Maroon palette
-  final Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
-  final Color _accentColor = Color(0xFF9D3C3C); // Softer medium maroon
-  final Color _highlightColor = Color(0xFFB84D4D); // Softer bright maroon
+  static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
+  static const Color _accentColor = Color(0xFF9D3C3C); // Softer medium
 
   //This will determine if need to refresh the previous page
   //topics data. If teacher remove the the any study material
@@ -123,29 +119,30 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   void initState() {
     super.initState();
     // Debug: Check study materials
-    print("=== Topic Study Materials Debug ===");
-    print("Topic is null: ${widget.topic == null}");
-    print("Study materials count: ${studyMaterials.length}");
+    debugPrint("=== Topic Study Materials Debug ===");
+    debugPrint("Topic is null: ${widget.topic == null}");
+    debugPrint("Study materials count: ${studyMaterials.length}");
     if (widget.topic != null) {
-      print("Topic name: ${widget.topic!.name}");
-      print(
+      debugPrint("Topic name: ${widget.topic!.name}");
+      debugPrint(
           "Topic studyMaterials count: ${widget.topic!.studyMaterials.length}");
-      widget.topic!.studyMaterials.forEach((material) {
-        print(
+      for (var material in widget.topic!.studyMaterials) {
+        debugPrint(
             "Study Material: ${material.fileName} - Type: ${material.studyMaterialType}");
-      });
+      }
     }
-    print("================================");
+    debugPrint("================================");
 
     Future.delayed(Duration.zero, () {
       if (mounted) {
-        print("=== Init Fetch Debug ===");
-        print("Selected class section: ${_selectedClassSection?.fullName}");
-        print("Selected class section ID: ${_selectedClassSection?.id}");
-        print(
+        debugPrint("=== Init Fetch Debug ===");
+        debugPrint(
+            "Selected class section: ${_selectedClassSection?.fullName}");
+        debugPrint("Selected class section ID: ${_selectedClassSection?.id}");
+        debugPrint(
             "Selected subject: ${_selectedSubject?.subject.getSybjectNameWithType()}");
-        print("Selected lesson: ${_selectedLesson?.name}");
-        print("========================");
+        debugPrint("Selected lesson: ${_selectedLesson?.name}");
+        debugPrint("========================");
         context.read<GradeLevelCubit>().getGradeLevels();
         context
             .read<ClassSectionsAndSubjectsCubit>()
@@ -158,26 +155,15 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
       }
     }); // Add animation controllers initialization
     _animationController = AnimationController(
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
     _animationController.forward();
 
-    // Controller for pulse animation
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    );
-
     // Initialize fabAnimationController for CustomModernAppBar
     _fabAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 1000),
     );
     _fabAnimationController.repeat(reverse: true);
   }
@@ -324,7 +310,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
       // Re-fetch classes for the selected grade level to filter them
       if (_selectedGradeLevel != null) {
         // Add delay to prevent lag
-        Future.delayed(Duration(milliseconds: 100), () {
+        Future.delayed(const Duration(milliseconds: 100), () {
           if (mounted) {
             context
                 .read<ClassSectionsAndSubjectsCubit>()
@@ -349,11 +335,11 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
       setState(() {});
 
       // Add debug log
-      print("=== Subject Changed Debug ===");
-      print(
+      debugPrint("=== Subject Changed Debug ===");
+      debugPrint(
           "New subject: ${_selectedSubject?.subject.getSybjectNameWithType()}");
-      print("Class subject ID: ${_selectedSubject?.classSubjectId}");
-      print("Class section ID: ${_selectedClassSection?.id}");
+      debugPrint("Class subject ID: ${_selectedSubject?.classSubjectId}");
+      debugPrint("Class section ID: ${_selectedClassSection?.id}");
 
       if (_selectedSubject != null && _selectedClassSection != null) {
         getLessons();
@@ -362,9 +348,9 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
   }
 
   void getLessons() {
-    print("=== Getting Lessons Debug ===");
-    print("Class subject ID: ${_selectedSubject?.classSubjectId}");
-    print("Class section ID: ${_selectedClassSection?.id}");
+    debugPrint("=== Getting Lessons Debug ===");
+    debugPrint("Class subject ID: ${_selectedSubject?.classSubjectId}");
+    debugPrint("Class section ID: ${_selectedClassSection?.id}");
 
     if (_selectedSubject?.classSubjectId != null &&
         _selectedClassSection?.id != null) {
@@ -372,13 +358,13 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
           classSubjectId: _selectedSubject!.classSubjectId,
           classSectionId: _selectedClassSection!.id ?? 0);
     } else {
-      print("ERROR: Missing required IDs for fetching lessons");
+      debugPrint("ERROR: Missing required IDs for fetching lessons");
     }
   }
 
   Widget _buildFormatChip(String label) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(6),
@@ -443,15 +429,15 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(15),
-      splashColor: Colors.white.withOpacity(0.2),
-      highlightColor: Colors.white.withOpacity(0.1),
+      splashColor: Colors.white.withValues(alpha: 0.2),
+      highlightColor: Colors.white.withValues(alpha: 0.1),
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (isLoading) ...[
-              SizedBox(
+              const SizedBox(
                 width: 24,
                 height: 24,
                 child: CircularProgressIndicator(
@@ -459,11 +445,11 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
             ],
             Text(
               isLoading ? 'Memproses...' : title,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -471,8 +457,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
               ),
             ),
             if (!isLoading) ...[
-              SizedBox(width: 8),
-              Icon(
+              const SizedBox(width: 8),
+              const Icon(
                 Icons.arrow_forward_rounded,
                 color: Colors.white,
                 size: 22,
@@ -481,7 +467,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
               }).slideX(
                 begin: 0,
                 end: 0.3,
-                duration: Duration(milliseconds: 1000),
+                duration: const Duration(milliseconds: 1000),
                 curve: Curves.easeInOut,
               ),
             ],
@@ -493,7 +479,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
 
   Widget _buildSubmitButton() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         height: 60,
         decoration: BoxDecoration(
@@ -508,7 +494,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -526,8 +513,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -544,9 +531,9 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -556,7 +543,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       );
 
                       // Add slight delay before popping
-                      Future.delayed(Duration(milliseconds: 2200), () {
+                      Future.delayed(const Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Navigator.pop(context, true);
                         }
@@ -584,8 +571,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8),
-                            child: Row(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.check_circle, color: Colors.white),
@@ -602,9 +589,9 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                             ),
                           ),
                           backgroundColor: Colors.green.shade400,
-                          duration: Duration(seconds: 2),
+                          duration: const Duration(seconds: 2),
                           behavior: SnackBarBehavior.floating,
-                          margin: EdgeInsets.symmetric(
+                          margin: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -614,7 +601,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       );
 
                       // Clear form and pop with slight delay
-                      Future.delayed(Duration(milliseconds: 2200), () {
+                      Future.delayed(const Duration(milliseconds: 2200), () {
                         if (context.mounted) {
                           Navigator.pop(context, true);
                         }
@@ -715,16 +702,16 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
             children: [
               // Basic Info Section
               Container(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 5,
                       blurRadius: 10,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -739,7 +726,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Grade Level Selection
                     BlocBuilder<GradeLevelCubit, GradeLevelState>(
@@ -794,7 +781,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         );
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
 
                     // Class Selection
                     BlocBuilder<ClassSectionsAndSubjectsCubit,
@@ -879,7 +866,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         );
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
 
                     // Subject Selection
                     BlocBuilder<ClassSectionsAndSubjectsCubit,
@@ -938,22 +925,23 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         );
                       },
                     ),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     // Lesson Selection
                     BlocConsumer<LessonsCubit, LessonsState>(
                       listener: (context, lessonState) {
-                        print("=== Lesson State Changed ===");
-                        print("State: ${lessonState.runtimeType}");
+                        debugPrint("=== Lesson State Changed ===");
+                        debugPrint("State: ${lessonState.runtimeType}");
                         if (lessonState is LessonsFetchSuccess) {
-                          print(
+                          debugPrint(
                               "Lessons fetched: ${lessonState.lessons.length}");
-                          lessonState.lessons.forEach((lesson) {
-                            print("Lesson: ${lesson.name} (ID: ${lesson.id})");
-                          });
+                          for (var lesson in lessonState.lessons) {
+                            debugPrint(
+                                "Lesson: ${lesson.name} (ID: ${lesson.id})");
+                          }
                           // Remove auto-selection to let user choose manually
                           // Only auto-select if we're editing an existing topic with a predefined lesson
                         } else if (lessonState is LessonsFetchFailure) {
-                          print(
+                          debugPrint(
                               "ERROR fetching lessons: ${lessonState.errorMessage}");
                         }
                       },
@@ -996,7 +984,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                           onSelection: (value) {
                                             if (_selectedLesson != value) {
                                               _selectedLesson = value;
-                                              print(
+                                              debugPrint(
                                                   "Selected lesson: ${value?.name} (ID: ${value?.id})");
                                               setState(() {});
                                             }
@@ -1014,20 +1002,20 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Topic Details Section
               Container(
-                padding: EdgeInsets.all(20),
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       spreadRadius: 5,
                       blurRadius: 10,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
@@ -1042,14 +1030,14 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     _buildAnimatedTextField(
                         controller: _topicNameTextEditingController,
                         label: 'Nama Topik',
                         icon: Icons.topic,
                         maxLength: 128,
                         expandable: true),
-                    SizedBox(height: 15),
+                    const SizedBox(height: 15),
                     _buildAnimatedTextField(
                       controller: _topicDescriptionTextEditingController,
                       label: 'Deskripsi',
@@ -1062,7 +1050,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                 ),
               ),
 
-              SizedBox(
+              const SizedBox(
                   height:
                       20), // Study Materials Section - Clean & Minimalist Design
               Container(
@@ -1071,9 +1059,9 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.04),
+                      color: Colors.black.withValues(alpha: 0.04),
                       blurRadius: 12,
-                      offset: Offset(0, 4),
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -1082,7 +1070,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                   children: [
                     // Clean Header
                     Padding(
-                      padding: EdgeInsets.fromLTRB(20, 20, 20, 16),
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
                       child: Row(
                         children: [
                           Container(
@@ -1092,7 +1080,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                               color: Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Icon(
@@ -1101,7 +1089,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                               size: 20,
                             ),
                           ),
-                          SizedBox(width: 12),
+                          const SizedBox(width: 12),
                           Text(
                             'Materi Pembelajaran',
                             style: TextStyle(
@@ -1116,8 +1104,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
 
                     // Minimalist Info Card
                     Container(
-                      margin: EdgeInsets.symmetric(horizontal: 20),
-                      padding: EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.grey.shade50,
                         borderRadius: BorderRadius.circular(12),
@@ -1133,7 +1121,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                 size: 16,
                                 color: Colors.grey.shade600,
                               ),
-                              SizedBox(width: 6),
+                              const SizedBox(width: 6),
                               Text(
                                 'Format yang didukung',
                                 style: TextStyle(
@@ -1144,7 +1132,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                               ),
                             ],
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Wrap(
                             spacing: 8,
                             runSpacing: 4,
@@ -1172,11 +1160,11 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
                     // Content Area
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1190,7 +1178,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                 color: Colors.grey.shade700,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
 
                             // Display existing attachments in clean format
                             ...studyMaterials.map(
@@ -1202,7 +1190,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                   border: Border.all(
                                     color: _getAttachmentTypeColor(
                                             studyMaterial.studyMaterialType)
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                     width: 1,
                                   ),
                                 ),
@@ -1211,13 +1199,13 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                     // Clean attachment type indicator
                                     Container(
                                       width: double.infinity,
-                                      padding: EdgeInsets.symmetric(
+                                      padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
                                         color: _getAttachmentTypeColor(
                                                 studyMaterial.studyMaterialType)
-                                            .withOpacity(0.08),
-                                        borderRadius: BorderRadius.only(
+                                            .withValues(alpha: 0.08),
+                                        borderRadius: const BorderRadius.only(
                                           topLeft: Radius.circular(8),
                                           topRight: Radius.circular(8),
                                         ),
@@ -1232,7 +1220,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                                     .studyMaterialType),
                                             size: 14,
                                           ),
-                                          SizedBox(width: 6),
+                                          const SizedBox(width: 6),
                                           Text(
                                             _getAttachmentTypeLabel(
                                                 studyMaterial
@@ -1261,7 +1249,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                               ),
                             ),
 
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                           ],
 
                           // Added study materials (new ones being added)
@@ -1274,7 +1262,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                 color: Colors.grey.shade700,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             ..._addedStudyMaterials.asMap().entries.map(
                                   (entry) => Container(
                                     margin: const EdgeInsets.only(bottom: 8),
@@ -1282,7 +1270,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                       color: Colors.blue.shade50,
                                       borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
-                                        color: Colors.blue.withOpacity(0.2),
+                                        color:
+                                            Colors.blue.withValues(alpha: 0.2),
                                         width: 1,
                                       ),
                                     ),
@@ -1301,7 +1290,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                     ),
                                   ),
                                 ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                           ],
 
                           // Clean Add Button
@@ -1324,7 +1313,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                   color: Theme.of(context)
                                       .colorScheme
                                       .primary
-                                      .withOpacity(0.3),
+                                      .withValues(alpha: 0.3),
                                   width: 1.5,
                                 ),
                                 borderRadius: BorderRadius.circular(12),
@@ -1338,7 +1327,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                                         Theme.of(context).colorScheme.primary,
                                     size: 20,
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Text(
                                     'Tambah Materi',
                                     style: TextStyle(
@@ -1356,7 +1345,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                       ),
                     ),
 
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
@@ -1415,7 +1404,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
       ],
       child: PopScope(
         canPop: false,
-        onPopInvoked: (didPop) {
+        onPopInvokedWithResult: (didPop, result) {
           if (didPop) {
             return;
           }
@@ -1447,8 +1436,8 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                 // Main content section
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: EdgeInsets.all(20),
-                    physics: BouncingScrollPhysics(),
+                    padding: const EdgeInsets.all(20),
+                    physics: const BouncingScrollPhysics(),
                     child: Column(
                       children: [
                         // Form Content
@@ -1458,16 +1447,18 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                             // Remove auto-selection to let user choose manually
                             // Only auto-select if we're editing an existing topic and have predefined selections
                             if (state is ClassSectionsAndSubjectsFetchSuccess) {
-                              print(
+                              debugPrint(
                                   "=== ClassSectionsAndSubjectsFetchSuccess ===");
-                              print(
+                              debugPrint(
                                   "Class sections count: ${state.classSections.length}");
-                              print("Subjects count: ${state.subjects.length}");
-                              state.subjects.forEach((subject) {
-                                print(
+                              debugPrint(
+                                  "Subjects count: ${state.subjects.length}");
+                              for (var subject in state.subjects) {
+                                debugPrint(
                                     "Subject: ${subject.subject.getSybjectNameWithType()}");
-                              });
-                              print("=====================================");
+                              }
+                              debugPrint(
+                                  "=====================================");
                               // Only auto-select subjects if we already have a selected class section
                               // and we're editing an existing topic (not creating new)
                               if (_selectedClassSection != null &&
@@ -1483,7 +1474,7 @@ class _TeacherAddEditTopicScreenState extends State<TeacherAddEditTopicScreen>
                           },
                         ),
 
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
 
                         // Submit Button
                         _buildSubmitButton(),

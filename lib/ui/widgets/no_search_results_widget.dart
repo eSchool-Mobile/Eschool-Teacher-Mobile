@@ -85,20 +85,20 @@ class _NoSearchResultsWidgetState extends State<NoSearchResultsWidget>
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          _primaryColor.withOpacity(0.1),
-                          _accentColor.withOpacity(0.05),
+                          _primaryColor.withValues(alpha: 0.1),
+                          _accentColor.withValues(alpha: 0.05),
                         ],
                       ),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _primaryColor.withOpacity(0.2),
+                        color: _primaryColor.withValues(alpha: 0.2),
                         width: 2,
                       ),
                     ),
                     child: Icon(
                       widget.icon ?? Icons.search_off_rounded,
                       size: 48, // Reduced size
-                      color: _primaryColor.withOpacity(0.7),
+                      color: _primaryColor.withValues(alpha: 0.7),
                     ),
                   ),
                 );
@@ -123,10 +123,10 @@ class _NoSearchResultsWidgetState extends State<NoSearchResultsWidget>
                 padding: const EdgeInsets.symmetric(
                     horizontal: 14, vertical: 6), // Reduced padding
                 decoration: BoxDecoration(
-                  color: _primaryColor.withOpacity(0.1),
+                  color: _primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(18),
                   border: Border.all(
-                    color: _primaryColor.withOpacity(0.2),
+                    color: _primaryColor.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -136,7 +136,7 @@ class _NoSearchResultsWidgetState extends State<NoSearchResultsWidget>
                     Icon(
                       Icons.search,
                       size: 14, // Reduced size
-                      color: _primaryColor.withOpacity(0.7),
+                      color: _primaryColor.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 6),
                     Flexible(

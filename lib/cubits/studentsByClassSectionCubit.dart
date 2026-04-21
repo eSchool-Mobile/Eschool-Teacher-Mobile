@@ -3,6 +3,7 @@ import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class StudentsByClassSectionState {}
 
@@ -73,7 +74,7 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
         examId: examId,
       );
 
-      print(
+      debugPrint(
           'Fetched Students: ${studentDetailsList.map((student) => student.toJson()).toList()}');
       emit(
         StudentsByClassSectionFetchSuccess(
@@ -83,7 +84,7 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
     } catch (e) {
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(StudentsByClassSectionFetchFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -128,7 +129,7 @@ class StudentsByClassSectionCubit extends Cubit<StudentsByClassSectionState> {
               searchErrorMessage: userFriendlyMessage,
             ),
           );
-          print(
+          debugPrint(
               'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
         },
       );

@@ -54,13 +54,13 @@ class AuthRepository {
   }
 
   Future<List<Map<String, dynamic>>> getSchoolsData() async {
-    print('DEBUG: getSchoolsData called');
+    debugPrint('DEBUG: getSchoolsData called');
     final schoolsData = Hive.box(authBoxKey).get(schoolsDataKey);
-    print('DEBUG: Raw schoolsData from Hive: $schoolsData');
-    print('DEBUG: schoolsData type: ${schoolsData.runtimeType}');
+    debugPrint('DEBUG: Raw schoolsData from Hive: $schoolsData');
+    debugPrint('DEBUG: schoolsData type: ${schoolsData.runtimeType}');
 
     if (schoolsData == null) {
-      print('DEBUG: schoolsData is null, returning empty list');
+      debugPrint('DEBUG: schoolsData is null, returning empty list');
       return [];
     }
 
@@ -69,21 +69,21 @@ class AuthRepository {
       return Map<String, dynamic>.from(item as Map<dynamic, dynamic>);
     }).toList();
 
-    print('DEBUG: Converted schoolsData: $result');
-    print('DEBUG: Result length: ${result.length}');
+    debugPrint('DEBUG: Converted schoolsData: $result');
+    debugPrint('DEBUG: Result length: ${result.length}');
     return result;
   }
 
   Future<void> setSchoolsData(List<Map<String, dynamic>> schools) async {
-    print('DEBUG: setSchoolsData called with: $schools');
-    print('DEBUG: schools length: ${schools.length}');
+    debugPrint('DEBUG: setSchoolsData called with: $schools');
+    debugPrint('DEBUG: schools length: ${schools.length}');
     final result = await Hive.box(authBoxKey).put(schoolsDataKey, schools);
-    print('DEBUG: Schools data stored in Hive');
+    debugPrint('DEBUG: Schools data stored in Hive');
 
     // Verify storage immediately
     final stored = await getSchoolsData();
-    print('DEBUG: Verification - stored schools: $stored');
-    print('DEBUG: Verification - stored schools length: ${stored.length}');
+    debugPrint('DEBUG: Verification - stored schools: $stored');
+    debugPrint('DEBUG: Verification - stored schools length: ${stored.length}');
 
     return result;
   }
@@ -112,7 +112,7 @@ class AuthRepository {
         "fcm_id": await getFcmToken(),
       }, url: Api.login, useAuthToken: false);
 
-      JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(print);
+      const JsonEncoder.withIndent('  ').convert(result).split('\n').forEach(debugPrint);
 
       return (
         token: (result['token'] ?? "").toString(),
@@ -122,7 +122,7 @@ class AuthRepository {
     } on ApiException catch (e) {
       throw ApiException(e.toString());
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       throw ApiException(defaultErrorMessageKey);
     }
   }
@@ -179,7 +179,7 @@ class AuthRepository {
       String? image}) async {
     try {
       if (kDebugMode) {
-        print(image);
+        debugPrint(image.toString());
       }
       final result = await Api.post(body: {
         "first_name": firstName,
@@ -195,7 +195,7 @@ class AuthRepository {
       }, useAuthToken: true, url: Api.editProfile);
 
       if (kDebugMode) {
-        print(result['data']);
+        debugPrint(result['data'].toString());
       }
       return (
         successmessage: (result['message'] ?? "").toString(),

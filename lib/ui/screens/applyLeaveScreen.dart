@@ -19,15 +19,15 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 // Define our theme colors
-final Color maroonPrimary = Color(0xFF8B1F41);
-final Color maroonLight = Color(0xFFAC3B5C);
-final Color maroonDark = Color(0xFF6A0F2A);
-final Color accentColor = Color(0xFFF5EBE0);
-final Color bgColor = Color(0xFFFAF6F2);
-final Color cardColor = Colors.white;
-final Color textDarkColor = Color(0xFF2D2D2D);
-final Color textMediumColor = Color(0xFF717171);
-final Color borderColor = Color(0xFFE8E8E8);
+const Color maroonPrimary = Color(0xFF8B1F41);
+const Color maroonLight = Color(0xFFAC3B5C);
+const Color maroonDark = Color(0xFF6A0F2A);
+const Color accentColor = Color(0xFFF5EBE0);
+const Color bgColor = Color(0xFFFAF6F2);
+const Color cardColor = Colors.white;
+const Color textDarkColor = Color(0xFF2D2D2D);
+const Color textMediumColor = Color(0xFF717171);
+const Color borderColor = Color(0xFFE8E8E8);
 
 class ApplyLeaveScreen extends StatefulWidget {
   const ApplyLeaveScreen({super.key});
@@ -77,7 +77,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     // Primary animation controller for fade effects
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -90,11 +90,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     // Slide animation for content entry
     _slideController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 700),
+      duration: const Duration(milliseconds: 700),
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: Offset(0, 0.2),
+      begin: const Offset(0, 0.2),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -106,7 +106,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     // Initialize app bar animation controller for CustomModernAppBar
     _appBarAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2000),
     )..repeat(reverse: true);
 
     // Start animations
@@ -148,7 +148,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   Future<void> _addFiles() async {
     HapticFeedback.mediumImpact();
-    print('🎯 [LEAVE SCREEN] Memulai upload file dengan kompresi otomatis');
+    debugPrint(
+        '🎯 [LEAVE SCREEN] Memulai upload file dengan kompresi otomatis');
 
     // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
     final compressedFiles = await pickAndCompressFiles(
@@ -164,8 +165,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         final fileSize = await file.length();
         final fileName = file.path.split('/').last;
 
-        print('✅ [LEAVE SCREEN] File berhasil diproses: $fileName');
-        print(
+        debugPrint('✅ [LEAVE SCREEN] File berhasil diproses: $fileName');
+        debugPrint(
             '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
         final platformFile = PlatformFile(
@@ -180,7 +181,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
       // File berhasil ditambahkan
     } else {
-      print('❌ [LEAVE SCREEN] Tidak ada file yang dipilih atau diproses');
+      debugPrint('❌ [LEAVE SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 
@@ -219,7 +220,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
                 onSurface: textDarkColor,
@@ -230,9 +231,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   foregroundColor: maroonPrimary,
                 ),
               ),
-              dialogBackgroundColor: cardColor,
+              dialogTheme: const DialogThemeData(backgroundColor: cardColor),
             ),
-            child: Container(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
               child: child!,
             ),
@@ -241,7 +242,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         lastDate: DateTime.parse(context
             .read<LeaveSettingsAndSessionYearsCubit>()
             .getCurrentSessionYear()
-            .end_date!));
+            .endDate!));
 
     setState(() {
       _showDateSelection = false;
@@ -283,7 +284,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: maroonPrimary,
                 onPrimary: Colors.white,
                 onSurface: textDarkColor,
@@ -294,9 +295,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   foregroundColor: maroonPrimary,
                 ),
               ),
-              dialogBackgroundColor: cardColor,
+              dialogTheme: const DialogThemeData(backgroundColor: cardColor),
             ),
-            child: Container(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.7,
               child: child!,
             ),
@@ -305,7 +306,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         lastDate: DateTime.parse(context
             .read<LeaveSettingsAndSessionYearsCubit>()
             .getCurrentSessionYear()
-            .end_date!));
+            .endDate!));
 
     setState(() {
       _showDateSelection = false;
@@ -326,8 +327,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       context: context,
       barrierDismissible: true,
       barrierLabel: '',
-      barrierColor: Colors.black.withOpacity(0.6),
-      transitionDuration: Duration(milliseconds: 500),
+      barrierColor: Colors.black.withValues(alpha: 0.6),
+      transitionDuration: const Duration(milliseconds: 500),
       pageBuilder: (context, animation1, animation2) => Container(),
       transitionBuilder: (context, animation1, animation2, child) {
         final curvedAnimation = CurvedAnimation(
@@ -343,39 +344,39 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             child: Dialog(
               backgroundColor: Colors.transparent,
               elevation: 0,
-              insetPadding: EdgeInsets.symmetric(horizontal: 20),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
-                constraints: BoxConstraints(maxWidth: 420),
+                constraints: const BoxConstraints(maxWidth: 420),
                 decoration: BoxDecoration(
                   color: cardColor,
                   borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       blurRadius: 30,
-                      offset: Offset(0, 20),
+                      offset: const Offset(0, 20),
                       spreadRadius: -5,
                     ),
                     BoxShadow(
-                      color: Colors.red.shade100.withOpacity(0.3),
+                      color: Colors.red.shade100.withValues(alpha: 0.3),
                       blurRadius: 40,
-                      offset: Offset(0, 10),
+                      offset: const Offset(0, 10),
                       spreadRadius: 5,
                     ),
                   ],
                   border: Border.all(
-                    color: Colors.red.shade100.withOpacity(0.5),
+                    color: Colors.red.shade100.withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: 16), // Additional space at top
+                    const SizedBox(height: 16), // Additional space at top
                     // Enhanced header with gradient and glow effect
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -383,19 +384,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                           colors: [
                             Colors.red.shade50,
                             Colors.red.shade100,
-                            Colors.red.shade200.withOpacity(0.3),
+                            Colors.red.shade200.withValues(alpha: 0.3),
                           ],
-                          stops: [0.0, 0.6, 1.0],
+                          stops: const [0.0, 0.6, 1.0],
                         ),
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(32),
                           topRight: Radius.circular(32),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.shade200.withOpacity(0.2),
+                            color: Colors.red.shade200.withValues(alpha: 0.2),
                             blurRadius: 15,
-                            offset: Offset(0, 5),
+                            offset: const Offset(0, 5),
                           ),
                         ],
                       ),
@@ -404,28 +405,28 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                           // Enhanced animated error icon with glow
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(begin: 0.0, end: 1.0),
-                            duration: Duration(milliseconds: 800),
+                            duration: const Duration(milliseconds: 800),
                             builder: (context, value, child) {
                               return Transform.scale(
                                 scale: 0.8 + (value * 0.2),
                                 child: Container(
-                                  padding: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.red.shade300
-                                            .withOpacity(0.4 * value),
+                                            .withValues(alpha: 0.4 * value),
                                         blurRadius: 20 + (value * 10),
-                                        offset: Offset(0, 8),
+                                        offset: const Offset(0, 8),
                                         spreadRadius: value * 2,
                                       ),
                                       BoxShadow(
                                         color: Colors.red.shade200
-                                            .withOpacity(0.2 * value),
+                                            .withValues(alpha: 0.2 * value),
                                         blurRadius: 30 + (value * 15),
-                                        offset: Offset(0, 4),
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                   ),
@@ -438,7 +439,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                               );
                             },
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Text(
                             'Pengajuan Gagal',
                             style: GoogleFonts.poppins(
@@ -447,19 +448,20 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                               color: Colors.red.shade800,
                               shadows: [
                                 Shadow(
-                                  color: Colors.red.shade200.withOpacity(0.3),
-                                  offset: Offset(0, 2),
+                                  color: Colors.red.shade200
+                                      .withValues(alpha: 0.3),
+                                  offset: const Offset(0, 2),
                                   blurRadius: 4,
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 8),
+                          const SizedBox(height: 8),
                           Container(
                             width: 40,
                             height: 3,
                             decoration: BoxDecoration(
-                              color: Colors.red.shade300.withOpacity(0.5),
+                              color: Colors.red.shade300.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -469,14 +471,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
                     // Enhanced content area
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 32),
                       child: Column(
                         children: [
                           Container(
-                            padding: EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.red.shade50.withOpacity(0.5),
+                              color: Colors.red.shade50.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: Colors.red.shade100,
@@ -494,7 +496,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                               textAlign: TextAlign.center,
                             ),
                           ),
-                          SizedBox(height: 32),
+                          const SizedBox(height: 32),
 
                           // Enhanced action buttons
                           Row(
@@ -513,9 +515,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.grey.shade200
-                                            .withOpacity(0.3),
+                                            .withValues(alpha: 0.3),
                                         blurRadius: 8,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -538,7 +540,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 20),
+                              const SizedBox(width: 20),
 
                               // Try again button - more prominent with enhanced gradient
                               Expanded(
@@ -550,22 +552,24 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                       end: Alignment.bottomRight,
                                       colors: [
                                         maroonPrimary,
-                                        maroonPrimary.withOpacity(0.9),
+                                        maroonPrimary.withValues(alpha: 0.9),
                                         maroonLight,
                                       ],
-                                      stops: [0.0, 0.6, 1.0],
+                                      stops: const [0.0, 0.6, 1.0],
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: maroonPrimary.withOpacity(0.4),
+                                        color: maroonPrimary.withValues(
+                                            alpha: 0.4),
                                         blurRadius: 15,
-                                        offset: Offset(0, 6),
+                                        offset: const Offset(0, 6),
                                       ),
                                       BoxShadow(
-                                        color: maroonLight.withOpacity(0.2),
+                                        color:
+                                            maroonLight.withValues(alpha: 0.2),
                                         blurRadius: 25,
-                                        offset: Offset(0, 3),
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
@@ -598,7 +602,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         ],
                       ),
                     ),
-                    SizedBox(height: 16), // Additional space at bottom
+                    const SizedBox(height: 16), // Additional space at bottom
                   ],
                 ),
               ),
@@ -625,7 +629,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           color: Colors.transparent,
           child: TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: 0.0, end: 1.0),
-            duration: Duration(milliseconds: 600),
+            duration: const Duration(milliseconds: 600),
             curve: Curves.elasticOut,
             builder: (context, value, child) {
               return Transform.scale(
@@ -646,7 +650,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 }
               },
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -657,25 +662,25 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       Colors.orange.shade700,
                       Colors.orange.shade800,
                     ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
+                    stops: const [0.0, 0.3, 0.7, 1.0],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.orange.shade900.withOpacity(0.5),
+                      color: Colors.orange.shade900.withValues(alpha: 0.5),
                       blurRadius: 30,
-                      offset: Offset(0, 15),
+                      offset: const Offset(0, 15),
                       spreadRadius: -5,
                     ),
                     BoxShadow(
-                      color: Colors.orange.shade400.withOpacity(0.3),
+                      color: Colors.orange.shade400.withValues(alpha: 0.3),
                       blurRadius: 50,
-                      offset: Offset(0, 8),
+                      offset: const Offset(0, 8),
                       spreadRadius: 2,
                     ),
                   ],
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     width: 1.5,
                   ),
                 ),
@@ -684,28 +689,28 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     // Animated warning icon with pulse effect
                     TweenAnimationBuilder<double>(
                       tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: Duration(milliseconds: 800),
+                      duration: const Duration(milliseconds: 800),
                       builder: (context, value, child) {
                         return Transform.scale(
                           scale: 0.9 + (value * 0.1),
                           child: Container(
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withValues(alpha: 0.25),
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   blurRadius: 12,
-                                  offset: Offset(0, 4),
+                                  offset: const Offset(0, 4),
                                 ),
                               ],
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
+                                color: Colors.white.withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.warning_amber_rounded,
                               color: Colors.white,
                               size: 24,
@@ -714,7 +719,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         );
                       },
                     ),
-                    SizedBox(width: 18),
+                    const SizedBox(width: 18),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -728,19 +733,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                               color: Colors.white,
                               shadows: [
                                 Shadow(
-                                  color: Colors.black.withOpacity(0.3),
-                                  offset: Offset(0, 1),
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  offset: const Offset(0, 1),
                                   blurRadius: 3,
                                 ),
                               ],
                             ),
                           ),
-                          SizedBox(height: 4),
+                          const SizedBox(height: 4),
                           Text(
                             message,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: Colors.white.withOpacity(0.95),
+                              color: Colors.white.withValues(alpha: 0.95),
                               fontWeight: FontWeight.w500,
                               height: 1.4,
                             ),
@@ -748,19 +753,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     // Enhanced close button
                     Container(
-                      padding: EdgeInsets.all(10),
+                      padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
+                          color: Colors.white.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.close_rounded,
                         color: Colors.white,
                         size: 18,
@@ -779,7 +784,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     overlayState.insert(overlayEntry);
 
     // Auto dismiss after duration
-    Future.delayed(Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 4), () {
       if (overlayEntry != null && overlayEntry.mounted) {
         overlayEntry.remove();
       }
@@ -875,7 +880,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           child: Align(
             alignment: Alignment.bottomCenter,
             child: ClipRRect(
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(30),
                 topRight: Radius.circular(30),
               ),
@@ -897,19 +902,19 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       ],
                       stops: const [0.0, 0.3, 0.6, 1.0],
                     ),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       width: 1.5,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: maroonPrimary.withOpacity(0.3),
+                        color: maroonPrimary.withValues(alpha: 0.3),
                         blurRadius: 20,
-                        offset: Offset(0, -5),
+                        offset: const Offset(0, -5),
                         spreadRadius: -2,
                       ),
                     ],
@@ -920,7 +925,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       Positioned.fill(
                         child: CustomPaint(
                           painter: AppBarDecorationPainter(
-                            color: Colors.white.withOpacity(0.07),
+                            color: Colors.white.withValues(alpha: 0.07),
                           ),
                         ),
                       ),
@@ -930,7 +935,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                         right: -40,
                         child: TweenAnimationBuilder<double>(
                           tween: Tween<double>(begin: 0.8, end: 1.0),
-                          duration: Duration(milliseconds: 2000),
+                          duration: const Duration(milliseconds: 2000),
                           curve: Curves.easeInOut,
                           builder: (context, value, child) {
                             return Container(
@@ -940,9 +945,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                 shape: BoxShape.circle,
                                 gradient: RadialGradient(
                                   colors: [
-                                    Colors.white.withOpacity(0.2 * value),
-                                    Colors.white.withOpacity(0.1 * value),
-                                    Colors.white.withOpacity(0.0),
+                                    Colors.white.withValues(alpha: 0.2 * value),
+                                    Colors.white.withValues(alpha: 0.1 * value),
+                                    Colors.white.withValues(alpha: 0.0),
                                   ],
                                   stops: const [0.0, 0.5, 1.0],
                                 ),
@@ -956,7 +961,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       Center(
                         child: TweenAnimationBuilder<double>(
                           tween: Tween<double>(begin: 0.95, end: 1.0),
-                          duration: Duration(milliseconds: 500),
+                          duration: const Duration(milliseconds: 500),
                           builder: (context, value, child) {
                             return Transform.scale(
                               scale: value,
@@ -999,16 +1004,20 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                         leaveDays: _leaveDays);
                                   },
                                   borderRadius: BorderRadius.circular(15),
-                                  highlightColor: Colors.white.withOpacity(0.1),
-                                  splashColor: Colors.white.withOpacity(0.2),
+                                  highlightColor:
+                                      Colors.white.withValues(alpha: 0.1),
+                                  splashColor:
+                                      Colors.white.withValues(alpha: 0.2),
                                   child: Container(
                                     height: 56,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.12),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(15),
                                       border: Border.all(
-                                        color: Colors.white.withOpacity(0.2),
+                                        color:
+                                            Colors.white.withValues(alpha: 0.2),
                                         width: 1.5,
                                       ),
                                     ),
@@ -1030,29 +1039,30 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                       end:
                                                           Alignment.bottomRight,
                                                       colors: [
-                                                        Colors.white
-                                                            .withOpacity(0.9),
-                                                        Colors.white
-                                                            .withOpacity(0.4),
+                                                        Colors.white.withValues(
+                                                            alpha: 0.9),
+                                                        Colors.white.withValues(
+                                                            alpha: 0.4),
                                                       ],
                                                     ),
                                                     boxShadow: [
                                                       BoxShadow(
                                                         color: Colors.black
-                                                            .withOpacity(0.2),
+                                                            .withValues(
+                                                                alpha: 0.2),
                                                         blurRadius: 4,
                                                         offset:
                                                             const Offset(0, 2),
                                                       ),
                                                     ],
                                                   ),
-                                                  child: Icon(
+                                                  child: const Icon(
                                                     Icons.send_rounded,
                                                     color: maroonPrimary,
                                                     size: 20,
                                                   ),
                                                 ),
-                                                SizedBox(width: 12),
+                                                const SizedBox(width: 12),
                                                 // Title text with glowing effect - same as AppBar title
                                                 ShaderMask(
                                                   shaderCallback:
@@ -1064,8 +1074,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                           .bottomCenter,
                                                       colors: [
                                                         Colors.white,
-                                                        Colors.white
-                                                            .withOpacity(0.9),
+                                                        Colors.white.withValues(
+                                                            alpha: 0.9),
                                                       ],
                                                     ).createShader(bounds);
                                                   },
@@ -1077,10 +1087,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       shadows: [
-                                                        Shadow(
+                                                        const Shadow(
                                                           color: Colors.black26,
-                                                          offset: const Offset(
-                                                              0, 1),
+                                                          offset: Offset(0, 1),
                                                           blurRadius: 3,
                                                         ),
                                                       ],
@@ -1118,33 +1127,33 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeOutQuint,
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 10,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             )
           ],
           border: Border.all(
             color: selectedDate != null
-                ? maroonPrimary.withOpacity(0.3)
+                ? maroonPrimary.withValues(alpha: 0.3)
                 : borderColor,
             width: selectedDate != null ? 1.5 : 1,
           ),
         ),
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: maroonPrimary.withOpacity(0.1),
+                color: maroonPrimary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
@@ -1153,21 +1162,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 size: 22,
               ),
             ),
-            SizedBox(width: 16),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       color: textMediumColor,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     selectedDate ?? hintText,
                     style: TextStyle(
@@ -1175,7 +1184,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       fontFamily: 'Poppins',
                       color: selectedDate != null
                           ? textDarkColor
-                          : textMediumColor.withOpacity(0.7),
+                          : textMediumColor.withValues(alpha: 0.7),
                       fontWeight: selectedDate != null
                           ? FontWeight.w600
                           : FontWeight.w400,
@@ -1185,12 +1194,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ),
             ),
             AnimatedContainer(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
               padding: EdgeInsets.all(selectedDate != null ? 8 : 0),
               decoration: BoxDecoration(
                 color: selectedDate != null
-                    ? maroonPrimary.withOpacity(0.1)
+                    ? maroonPrimary.withValues(alpha: 0.1)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
@@ -1201,7 +1210,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 size: 20,
                 color: selectedDate != null
                     ? maroonPrimary
-                    : textMediumColor.withOpacity(0.5),
+                    : textMediumColor.withValues(alpha: 0.5),
               ),
             )
           ],
@@ -1217,7 +1226,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
     return TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       builder: (context, value, child) {
         return Transform.translate(
           offset: Offset(0, 20 * (1 - value)),
@@ -1233,16 +1242,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             bottom: 12.0, // Reduced from 16.0
             left: appContentHorizontalPadding,
             right: appContentHorizontalPadding),
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
             horizontal: 16, vertical: 12), // Reduced padding
         decoration: BoxDecoration(
           color: cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 15,
-              offset: Offset(0, 5),
+              offset: const Offset(0, 5),
               spreadRadius: 0,
             )
           ],
@@ -1255,32 +1264,32 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: maroonPrimary,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.event,
                     size: 18,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         formattedDate,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
                           color: textDarkColor,
                         ),
                       ),
-                      Text(
+                      const Text(
                         "Pilih jenis izin",
                         style: TextStyle(
                           fontSize: 12,
@@ -1306,7 +1315,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     icon: Icons.event_available_rounded,
                     isSelected: selectedLeaveTypeKey == fullDayKey,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _buildLeaveTypeRadio(
                     dateTime: dateTime,
                     leaveTypeKey: firstHalfKey,
@@ -1314,7 +1323,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     icon: Icons.wb_sunny_outlined,
                     isSelected: selectedLeaveTypeKey == firstHalfKey,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   _buildLeaveTypeRadio(
                     dateTime: dateTime,
                     leaveTypeKey: secondHalfKey,
@@ -1346,10 +1355,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           setState(() {});
         },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
             color: isSelected
-                ? maroonPrimary.withOpacity(0.1)
+                ? maroonPrimary.withValues(alpha: 0.1)
                 : Colors.grey.shade50,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
@@ -1365,7 +1374,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 size: 16,
                 color: isSelected ? maroonPrimary : textMediumColor,
               ),
-              SizedBox(width: 4),
+              const SizedBox(width: 4),
               Text(
                 label,
                 style: TextStyle(
@@ -1403,22 +1412,22 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: maroonPrimary.withOpacity(0.1),
+                    color: maroonPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.calendar_month_rounded,
                     color: maroonPrimary,
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Detail Hari Cuti",
                       style: TextStyle(
                         fontSize: 16,
@@ -1429,7 +1438,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     ),
                     Text(
                       "${dateTimes.length} hari yang perlu diatur",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
                         color: textMediumColor,
                         fontFamily: 'Poppins',
@@ -1437,20 +1446,21 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                     ),
                   ],
                 ),
-                Spacer(),
+                const Spacer(),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: maroonPrimary.withOpacity(0.1),
+                    color: maroonPrimary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: maroonPrimary.withOpacity(0.3),
+                      color: maroonPrimary.withValues(alpha: 0.3),
                       width: 1,
                     ),
                   ),
                   child: Text(
                     "${dateTimes.length} Hari",
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: maroonPrimary,
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
@@ -1461,10 +1471,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ],
             ),
           ),
-          ...dateTimes
-              .map((dateTime) =>
-                  _buildLeaveDaysWithReasonContainer(dateTime: dateTime))
-              .toList(),
+          ...dateTimes.map((dateTime) =>
+              _buildLeaveDaysWithReasonContainer(dateTime: dateTime)),
         ],
       ),
     );
@@ -1476,9 +1484,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: maroonPrimary.withOpacity(0.1),
+              color: maroonPrimary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -1487,13 +1495,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               size: 20,
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   fontFamily: 'Poppins',
@@ -1516,15 +1524,15 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
     String? subtitle,
   }) {
     return Container(
-      margin: EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
             spreadRadius: 0,
           )
         ],
@@ -1538,13 +1546,13 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             },
             borderRadius: BorderRadius.circular(20),
             child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: const EdgeInsets.all(20),
               child: Row(
                 children: [
                   Container(
-                    padding: EdgeInsets.all(10),
+                    padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: maroonPrimary.withOpacity(0.1),
+                      color: maroonPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -1553,25 +1561,25 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                       size: 22,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           title,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
                             color: textDarkColor,
                           ),
                         ),
-                        if (subtitle != null) SizedBox(height: 4),
+                        if (subtitle != null) const SizedBox(height: 4),
                         if (subtitle != null)
                           Text(
                             subtitle,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 13,
                               color: textMediumColor,
                               fontFamily: 'Poppins',
@@ -1582,12 +1590,12 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   ),
                   AnimatedRotation(
                     turns: isExpanded ? 0.5 : 0,
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Container(
-                      padding: EdgeInsets.all(8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isExpanded
-                            ? maroonPrimary.withOpacity(0.1)
+                            ? maroonPrimary.withValues(alpha: 0.1)
                             : Colors.grey.shade100,
                         shape: BoxShape.circle,
                       ),
@@ -1603,7 +1611,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             ),
           ),
           AnimatedSize(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: Container(
               height: isExpanded ? null : 0,
@@ -1647,7 +1655,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             child: TextField(
               controller: _textEditingController,
               maxLines: 5,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15,
                 fontFamily: 'Poppins',
                 color: textDarkColor,
@@ -1655,16 +1663,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               decoration: InputDecoration(
                 hintText: "Jelaskan alasan pengajuan cuti Anda...",
                 hintStyle: TextStyle(
-                  color: textMediumColor.withOpacity(0.7),
+                  color: textMediumColor.withValues(alpha: 0.7),
                   fontFamily: 'Poppins',
                 ),
-                contentPadding: EdgeInsets.all(16),
+                contentPadding: const EdgeInsets.all(16),
                 border: InputBorder.none,
               ),
             ),
           ),
-          SizedBox(height: 8),
-          Align(
+          const SizedBox(height: 8),
+          const Align(
             alignment: Alignment.centerRight,
             child: Text(
               "Min. 10 karakter",
@@ -1700,18 +1708,18 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           GestureDetector(
             onTap: _addFiles,
             child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: maroonPrimary.withOpacity(0.3),
+                  color: maroonPrimary.withValues(alpha: 0.3),
                   width: 1,
                 ),
                 // For dashed border, consider adding the dotted_border package
                 // and wrapping this Container with a DottedBorder widget
               ),
-              child: Column(
+              child: const Column(
                 children: [
                   Icon(
                     Icons.file_upload_outlined,
@@ -1741,7 +1749,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
 
           // Uploaded files list with animation
           ..._uploadedFiles.asMap().entries.map(
@@ -1751,7 +1759,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
               return TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: 0.0, end: 1.0),
-                duration: Duration(milliseconds: 400),
+                duration: const Duration(milliseconds: 400),
                 builder: (context, value, child) {
                   return Opacity(
                     opacity: value,
@@ -1762,8 +1770,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   );
                 },
                 child: Container(
-                  margin: EdgeInsets.only(bottom: 12),
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
@@ -1775,9 +1784,9 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                   child: Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: maroonPrimary.withOpacity(0.1),
+                          color: maroonPrimary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -1786,14 +1795,14 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                           size: 20,
                         ),
                       ),
-                      SizedBox(width: 12),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               file.name,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 fontFamily: 'Poppins',
@@ -1802,10 +1811,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 2),
+                            const SizedBox(height: 2),
                             Text(
                               _formatFileSize(file.size),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 12,
                                 color: textMediumColor,
                                 fontFamily: 'Poppins',
@@ -1821,7 +1830,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                             _uploadedFiles.removeAt(index);
                           });
                         },
-                        icon: Icon(
+                        icon: const Icon(
                           Icons.delete_outline_rounded,
                           color: Colors.redAccent,
                           size: 20,
@@ -1832,11 +1841,11 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                 ),
               );
             },
-          ).toList(),
+          ),
 
           if (_uploadedFiles.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 "Belum ada file yang diunggah",
                 style: TextStyle(
@@ -1875,7 +1884,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
   String _formatFileSize(int sizeInBytes) {
     if (sizeInBytes < 1024) {
-      return '${sizeInBytes} B';
+      return '$sizeInBytes B';
     } else if (sizeInBytes < 1024 * 1024) {
       return '${(sizeInBytes / 1024).toStringAsFixed(1)} KB';
     } else {
@@ -1889,15 +1898,15 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
         horizontal: appContentHorizontalPadding,
         vertical: 16,
       ),
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
-            offset: Offset(0, 5),
+            offset: const Offset(0, 5),
             spreadRadius: 0,
           )
         ],
@@ -1925,28 +1934,28 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
           ),
           if (_selectedFromDate != null && _selectedToDate != null)
             Container(
-              margin: EdgeInsets.only(top: 8),
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              margin: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
-                color: maroonPrimary.withOpacity(0.1),
+                color: maroonPrimary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: maroonPrimary.withOpacity(0.3),
+                  color: maroonPrimary.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.info_outline_rounded,
                     color: maroonPrimary,
                     size: 20,
                   ),
-                  SizedBox(width: 12),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       "Total durasi cuti: ${_selectedToDate!.difference(_selectedFromDate!).inDays + 1} hari",
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: maroonPrimary,
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -2001,8 +2010,8 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                           opacity: _fadeAnimation,
                           child: SingleChildScrollView(
                             controller: _scrollController,
-                            physics: BouncingScrollPhysics(),
-                            padding: EdgeInsets.only(
+                            physics: const BouncingScrollPhysics(),
+                            padding: const EdgeInsets.only(
                               top: 100, // Added top padding for the app bar
                               bottom: 120,
                             ),
@@ -2046,7 +2055,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                               appContentHorizontalPadding,
                                         ),
                                         child: Container(
-                                          padding: EdgeInsets.all(16),
+                                          padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
                                             color: Colors.blue.shade50,
                                             borderRadius:
@@ -2062,7 +2071,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                 color: Colors.blue.shade700,
                                                 size: 24,
                                               ),
-                                              SizedBox(width: 14),
+                                              const SizedBox(width: 14),
                                               Expanded(
                                                 child: Column(
                                                   crossAxisAlignment:
@@ -2079,7 +2088,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
                                                         fontFamily: 'Poppins',
                                                       ),
                                                     ),
-                                                    SizedBox(height: 4),
+                                                    const SizedBox(height: 4),
                                                     Text(
                                                       "Pengajuan cuti akan diproses dalam 1-2 hari kerja. Pastikan data yang diisi sudah benar.",
                                                       style: TextStyle(
@@ -2123,9 +2132,10 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
 
                 // Loading state with animation
                 return ListView.builder(
-                  padding: EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
                   itemCount: 4,
-                  itemBuilder: (context, index) => SkeletonLeaveCard(),
+                  itemBuilder: (context, index) => const SkeletonLeaveCard(),
                 );
               },
             ),
@@ -2144,16 +2154,16 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen>
             // Date selection overlay animation
             if (_showDateSelection)
               AnimatedContainer(
-                duration: Duration(milliseconds: 300),
+                duration: const Duration(milliseconds: 300),
                 color: Colors.black54,
                 child: Center(
                   child: Container(
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: cardColor,
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: Column(
+                    child: const Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         SizedBox(
@@ -2258,7 +2268,8 @@ class CustomSuccessMessage {
                 }
               },
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 22, horizontal: 26),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 22, horizontal: 26),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -2269,25 +2280,25 @@ class CustomSuccessMessage {
                       Colors.green.shade600,
                       Colors.green.shade700,
                     ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
+                    stops: const [0.0, 0.3, 0.7, 1.0],
                   ),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.green.shade900.withOpacity(0.5),
+                      color: Colors.green.shade900.withValues(alpha: 0.5),
                       blurRadius: 35,
-                      offset: Offset(0, 18),
+                      offset: const Offset(0, 18),
                       spreadRadius: -5,
                     ),
                     BoxShadow(
-                      color: Colors.green.shade300.withOpacity(0.3),
+                      color: Colors.green.shade300.withValues(alpha: 0.3),
                       blurRadius: 60,
-                      offset: Offset(0, 10),
+                      offset: const Offset(0, 10),
                       spreadRadius: 3,
                     ),
                   ],
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withValues(alpha: 0.25),
                     width: 1.5,
                   ),
                 ),
@@ -2296,29 +2307,29 @@ class CustomSuccessMessage {
                     // Animated success icon with bounce effect
                     TweenAnimationBuilder<double>(
                       tween: Tween<double>(begin: 0.0, end: 1.0),
-                      duration: Duration(milliseconds: 1000),
+                      duration: const Duration(milliseconds: 1000),
                       curve: Curves.elasticOut,
                       builder: (context, value, child) {
                         return Transform.scale(
                           scale: 0.8 + (value * 0.2),
                           child: Container(
-                            padding: EdgeInsets.all(14),
+                            padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.25),
+                              color: Colors.white.withValues(alpha: 0.25),
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.white.withOpacity(0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   blurRadius: 15,
-                                  offset: Offset(0, 5),
+                                  offset: const Offset(0, 5),
                                 ),
                               ],
                               border: Border.all(
-                                color: Colors.white.withOpacity(0.4),
+                                color: Colors.white.withValues(alpha: 0.4),
                                 width: 1.5,
                               ),
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.check_circle_rounded,
                               color: Colors.white,
                               size: 32,
@@ -2327,7 +2338,7 @@ class CustomSuccessMessage {
                         );
                       },
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2336,7 +2347,7 @@ class CustomSuccessMessage {
                           // Animated title with glow effect
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(begin: 0.0, end: 1.0),
-                            duration: Duration(milliseconds: 800),
+                            duration: const Duration(milliseconds: 800),
                             builder: (context, value, child) {
                               return Opacity(
                                 opacity: value,
@@ -2354,19 +2365,19 @@ class CustomSuccessMessage {
                                 color: Colors.white,
                                 shadows: [
                                   Shadow(
-                                    color: Colors.black.withOpacity(0.4),
-                                    offset: Offset(0, 2),
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    offset: const Offset(0, 2),
                                     blurRadius: 4,
                                   ),
                                 ],
                               ),
                             ),
                           ),
-                          SizedBox(height: 6),
+                          const SizedBox(height: 6),
                           // Animated message
                           TweenAnimationBuilder<double>(
                             tween: Tween<double>(begin: 0.0, end: 1.0),
-                            duration: Duration(milliseconds: 1000),
+                            duration: const Duration(milliseconds: 1000),
                             builder: (context, value, child) {
                               return Opacity(
                                 opacity: value,
@@ -2380,7 +2391,7 @@ class CustomSuccessMessage {
                               message,
                               style: GoogleFonts.poppins(
                                 fontSize: 15,
-                                color: Colors.white.withOpacity(0.95),
+                                color: Colors.white.withValues(alpha: 0.95),
                                 fontWeight: FontWeight.w500,
                                 height: 1.4,
                               ),
@@ -2389,19 +2400,19 @@ class CustomSuccessMessage {
                         ],
                       ),
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     // Enhanced close button with hover effect
                     Container(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           width: 1,
                         ),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.close_rounded,
                         color: Colors.white,
                         size: 20,

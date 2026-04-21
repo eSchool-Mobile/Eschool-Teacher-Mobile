@@ -215,6 +215,8 @@ class EnvSwitcherUtil {
     setDialogState(() {});
     Get.back();
 
+    if (!context.mounted) return;
+
     // Minor force UI rebuild
     final currentState =
         context.findAncestorStateOfType<State<StatefulWidget>>();

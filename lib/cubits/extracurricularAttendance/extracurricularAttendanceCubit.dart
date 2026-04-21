@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularAttendanceRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
 import 'extracurricularAttendanceState.dart';
+import 'package:flutter/foundation.dart';
 
 class ExtracurricularAttendanceCubit
     extends Cubit<ExtracurricularAttendanceState> {
@@ -19,7 +20,7 @@ class ExtracurricularAttendanceCubit
     try {
       emit(ExtracurricularAttendanceLoading());
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE CUBIT] Getting attendance data for ID: $attendanceId');
 
       final attendanceData = await _repository.getExtracurricularAttendance(
@@ -28,7 +29,7 @@ class ExtracurricularAttendanceCubit
         date: date,
       );
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE CUBIT] Received ${attendanceData.members.length} members');
 
       emit(ExtracurricularAttendanceSuccess(
@@ -36,7 +37,7 @@ class ExtracurricularAttendanceCubit
         attendanceData: attendanceData,
       ));
     } catch (e) {
-      print('❌ [ATTENDANCE CUBIT] Error getting attendance: $e');
+      debugPrint('❌ [ATTENDANCE CUBIT] Error getting attendance: $e');
       emit(ExtracurricularAttendanceFailure(e.toString()));
     }
   }
@@ -44,24 +45,24 @@ class ExtracurricularAttendanceCubit
   // Get extracurricular list for filter/dropdown
   Future<void> getExtracurricularList() async {
     try {
-      print('🔍 [ATTENDANCE CUBIT] Starting to get extracurricular list');
+      debugPrint('🔍 [ATTENDANCE CUBIT] Starting to get extracurricular list');
       emit(ExtracurricularAttendanceLoading());
 
       final extracurricularList = await _repository.getExtracurricularList();
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE CUBIT] Received ${extracurricularList.length} extracurriculars');
-      print('🔍 [ATTENDANCE CUBIT] List content: $extracurricularList');
+      debugPrint('🔍 [ATTENDANCE CUBIT] List content: $extracurricularList');
 
       emit(ExtracurricularAttendanceSuccess(
         message: 'Daftar ekstrakurikuler berhasil dimuat',
         extracurricularList: extracurricularList,
       ));
 
-      print(
+      debugPrint(
           '✅ [ATTENDANCE CUBIT] Successfully emitted success state with extracurricular list');
     } catch (e) {
-      print('❌ [ATTENDANCE CUBIT] Error getting extracurricular list: $e');
+      debugPrint('❌ [ATTENDANCE CUBIT] Error getting extracurricular list: $e');
       emit(ExtracurricularAttendanceFailure(e.toString()));
     }
   }
@@ -76,8 +77,8 @@ class ExtracurricularAttendanceCubit
     try {
       emit(ExtracurricularAttendanceSaveLoading());
 
-      print('💾 [ATTENDANCE CUBIT] Saving attendance for session: $sessionId');
-      print(
+      debugPrint('💾 [ATTENDANCE CUBIT] Saving attendance for session: $sessionId');
+      debugPrint(
           '💾 [ATTENDANCE CUBIT] Attendance data count: ${attendanceData.length}');
 
       final request = ExtracurricularAttendanceRequest(
@@ -91,7 +92,7 @@ class ExtracurricularAttendanceCubit
         request: request,
       );
 
-      print(
+      debugPrint(
           '✅ [ATTENDANCE CUBIT] Successfully saved ${response.savedCount} records');
 
       emit(ExtracurricularAttendanceSaveSuccess(
@@ -99,7 +100,7 @@ class ExtracurricularAttendanceCubit
         savedCount: response.savedCount,
       ));
     } catch (e) {
-      print('❌ [ATTENDANCE CUBIT] Error saving attendance: $e');
+      debugPrint('❌ [ATTENDANCE CUBIT] Error saving attendance: $e');
       emit(ExtracurricularAttendanceSaveFailure(e.toString()));
     }
   }
@@ -113,7 +114,7 @@ class ExtracurricularAttendanceCubit
     try {
       emit(ExtracurricularAttendanceLoading());
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE CUBIT] Getting attendance history for extracurricular: $extracurricularId');
 
       final attendanceHistory = await _repository.getAttendanceHistory(
@@ -122,7 +123,7 @@ class ExtracurricularAttendanceCubit
         endDate: endDate,
       );
 
-      print(
+      debugPrint(
           '🔍 [ATTENDANCE CUBIT] Received ${attendanceHistory.length} attendance records');
 
       // Convert to response format for consistency
@@ -137,7 +138,7 @@ class ExtracurricularAttendanceCubit
         attendanceData: response,
       ));
     } catch (e) {
-      print('❌ [ATTENDANCE CUBIT] Error getting attendance history: $e');
+      debugPrint('❌ [ATTENDANCE CUBIT] Error getting attendance history: $e');
       emit(ExtracurricularAttendanceFailure(e.toString()));
     }
   }
@@ -167,8 +168,8 @@ class ExtracurricularAttendanceCubit
     try {
       return await _repository.getStaffInfo();
     } catch (e) {
-      print('❌ [ATTENDANCE CUBIT] Error getting staff info: $e');
-      throw e;
+      debugPrint('❌ [ATTENDANCE CUBIT] Error getting staff info: $e');
+      rethrow;
     }
   }
 }

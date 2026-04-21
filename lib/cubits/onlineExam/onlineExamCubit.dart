@@ -6,12 +6,11 @@ import 'package:eschool_saas_staff/data/models/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/subject.dart'
     as subject_model; // Add SubjectDetail model
 import 'package:eschool_saas_staff/utils/api.dart'; // Add this import
-import 'package:dio/dio.dart'; // Add this import
+// Add this import
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 
 import 'package:eschool_saas_staff/data/models/subjectDetail.dart';
 
-import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
 
 abstract class OnlineExamState {}
 
@@ -116,7 +115,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
   // Method untuk mendapatkan ujian aktif
   Future<void> getOnlineExams(
       {String? search,
-      dynamic? getFull = null,
+      dynamic getFull,
       int? subjectId,
       int? classSectionId,
       int? sessionYearId,
@@ -157,13 +156,13 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      print("Cubit Error: $e");
+      debugPrint("Cubit Error: $e");
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(OnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getOnlineExams: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -201,7 +200,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getOnlineExamResultAnswer: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -237,7 +236,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             final exam = OnlineExam.fromJson(examData);
             exams.add(exam);
           } catch (e) {
-            print('Error parsing exam: $e');
+            debugPrint('Error parsing exam: $e');
           }
         }
       } // Emit success state with updated exam list
@@ -251,7 +250,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(CreateOnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in createOnlineExam: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -276,7 +275,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(SubjectsError(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getSubjectsForClass: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -285,14 +284,14 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
     required int examId,
     required List<Map<String, int>> data,
   }) async {
-    print(data);
-    String formattedJson = JsonEncoder.withIndent("  ").convert(data);
+    debugPrint(data.toString());
+    String formattedJson = const JsonEncoder.withIndent("  ").convert(data);
 
     // Cetak per baris
     for (var line in formattedJson.split("\n")) {
-      print(line);
+      debugPrint(line.toString());
     }
-    print("OK DARI SISNI");
+    debugPrint("OK DARI SISNI");
     try {
       await _repository.updateOnlineExamAnswerCorrection(
         onlineExamId: examId,
@@ -300,7 +299,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       );
       return true;
     } catch (e) {
-      print(e);
+      debugPrint(e.toString());
       return false;
     }
   }
@@ -339,7 +338,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             final exam = OnlineExam.fromJson(examData);
             exams.add(exam);
           } catch (e) {
-            print('Error parsing exam: $e');
+            debugPrint('Error parsing exam: $e');
           }
         }
       }
@@ -355,7 +354,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       emit(OnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in updateOnlineExam: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       rethrow;
     }
@@ -371,7 +370,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
       await _repository.deleteOnlineExam(examId, mode: mode);
 
       // Tunggu sebentar sebelum refresh data
-      await Future.delayed(Duration(milliseconds: 1000));
+      await Future.delayed(const Duration(milliseconds: 1000));
 
       // Refresh data berdasarkan mode
       if (mode == 'permanent') {
@@ -380,7 +379,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         await getOnlineExams(); // Refresh active list untuk mode archive
       }
     } catch (e) {
-      print('Delete Error in Cubit: $e');
+      debugPrint('Delete Error in Cubit: $e');
       String errorMessage = 'Gagal menghapus ujian';
 
       if (e is ApiException) {
@@ -410,7 +409,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             // Jangan filter berdasarkan status, tambahkan semua hasil dari parameter archive:true
             archivedExams.add(exam);
           } catch (e) {
-            print('Error parsing archived exam: $e');
+            debugPrint('Error parsing archived exam: $e');
           }
         }
       }
@@ -421,13 +420,13 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      print("Archive Error: $e");
+      debugPrint("Archive Error: $e");
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(OnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in getArchivedExams: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -452,7 +451,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
             final exam = OnlineExam.fromJson(examData);
             activeExams.add(exam);
           } catch (e) {
-            print('Error parsing active exam: $e');
+            debugPrint('Error parsing active exam: $e');
           }
         }
       }
@@ -466,7 +465,7 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
               archivedExams.add(exam);
             }
           } catch (e) {
-            print('Error parsing archived exam: $e');
+            debugPrint('Error parsing archived exam: $e');
           }
         }
       }
@@ -477,13 +476,13 @@ class OnlineExamCubit extends Cubit<OnlineExamState> {
         subjectDetails: result['subjectDetails'] ?? [],
       ));
     } catch (e) {
-      print('Restore Error: $e');
+      debugPrint('Restore Error: $e');
       // Gunakan ErrorMessageUtils untuk mengkonversi error teknis menjadi pesan yang ramah
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(OnlineExamFailure(userFriendlyMessage));
 
       // Log technical error untuk debugging (hanya untuk development)
-      print(
+      debugPrint(
           'Technical error in restoreOnlineExam: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
       rethrow;
     }

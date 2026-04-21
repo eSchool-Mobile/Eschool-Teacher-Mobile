@@ -1,8 +1,6 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignmentSubmissions/editAssignmetSubmissionCubit.dart';
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +82,7 @@ class _TeacherEditAssignmentSubmissionScreenState
 
     _pulseController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1200),
+      duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
     _pulseAnimation = CurvedAnimation(
       parent: _pulseController,
@@ -93,7 +91,7 @@ class _TeacherEditAssignmentSubmissionScreenState
 
     _appBarAnimationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     )..forward();
 
     // Set initial state based on submission status
@@ -127,22 +125,22 @@ class _TeacherEditAssignmentSubmissionScreenState
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.all(16),
+        margin: const EdgeInsets.all(16),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: Colors.redAccent,
         content: Row(
           children: [
-            Icon(Icons.error_outline, color: Colors.white),
-            SizedBox(width: 12),
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 errorMessageKey,
-                style: TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.white),
               ),
             ),
           ],
         ),
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
         action: SnackBarAction(
           label: 'OK',
           textColor: Colors.white,
@@ -160,18 +158,18 @@ class _TeacherEditAssignmentSubmissionScreenState
         title: Row(
           children: [
             Icon(Icons.edit_note, color: Theme.of(context).colorScheme.primary),
-            SizedBox(width: 8),
-            Text('Edit Penilaian'),
+            const SizedBox(width: 8),
+            const Text('Edit Penilaian'),
           ],
         ),
-        content: Text(
+        content: const Text(
           'Tugas ini sudah dinilai sebelumnya. Apakah Anda yakin ingin mengedit penilaian?',
           style: TextStyle(height: 1.5),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Batal'),
+            child: const Text('Batal'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -185,7 +183,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: Text('Edit'),
+            child: const Text('Edit'),
           ),
         ],
       ),
@@ -194,14 +192,14 @@ class _TeacherEditAssignmentSubmissionScreenState
 
   Widget _buildEditModeToggle() {
     if (!_isCurrentlyAcceptedOrRejected) {
-      return SizedBox.shrink(); // Tidak perlu toggle jika belum dinilai
+      return const SizedBox.shrink(); // Tidak perlu toggle jika belum dinilai
     }
 
     return SlideInDown(
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
       child: Container(
-        margin: EdgeInsets.only(bottom: 16),
-        padding: EdgeInsets.all(16),
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _isInEditMode ? Colors.orange.shade50 : Colors.blue.shade50,
           borderRadius: BorderRadius.circular(12),
@@ -214,7 +212,7 @@ class _TeacherEditAssignmentSubmissionScreenState
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(8),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: _isInEditMode
                     ? Colors.orange.shade100
@@ -229,7 +227,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 size: 20,
               ),
             ),
-            SizedBox(width: 12),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +242,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                       fontSize: 14,
                     ),
                   ),
-                  SizedBox(height: 2),
+                  const SizedBox(height: 2),
                   Text(
                     _isInEditMode
                         ? 'Anda dapat mengubah penilaian dan feedback'
@@ -311,35 +309,35 @@ class _TeacherEditAssignmentSubmissionScreenState
             letterSpacing: 0.3,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         if (!isEditable) ...[
           // Read-only status display
           Container(
-            padding: EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
             decoration: BoxDecoration(
               color: widget.assignmentSubmission.submissionStatus.filter ==
                       AssignmentSubmissionFilters.accepted
-                  ? Colors.green.withOpacity(0.08)
-                  : Colors.red.withOpacity(0.08),
+                  ? Colors.green.withValues(alpha: 0.08)
+                  : Colors.red.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: widget.assignmentSubmission.submissionStatus.filter ==
                         AssignmentSubmissionFilters.accepted
-                    ? Colors.green.withOpacity(0.2)
-                    : Colors.red.withOpacity(0.2),
+                    ? Colors.green.withValues(alpha: 0.2)
+                    : Colors.red.withValues(alpha: 0.2),
                 width: 1.5,
               ),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color:
                         widget.assignmentSubmission.submissionStatus.filter ==
                                 AssignmentSubmissionFilters.accepted
-                            ? Colors.green.withOpacity(0.1)
-                            : Colors.red.withOpacity(0.1),
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.red.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -355,12 +353,12 @@ class _TeacherEditAssignmentSubmissionScreenState
                     size: 20,
                   ),
                 ),
-                SizedBox(width: 14),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Text(
                     Utils.getTranslatedLabel(
                         widget.assignmentSubmission.submissionStatus.titleKey),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -386,7 +384,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                   color: Colors.green,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: _buildStatusButton(
                   isSelected: !isAccepting,
@@ -419,33 +417,36 @@ class _TeacherEditAssignmentSubmissionScreenState
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [color.withOpacity(0.4), color.withOpacity(0.6)],
+                  colors: [
+                    color.withValues(alpha: 0.4),
+                    color.withValues(alpha: 0.6)
+                  ],
                 )
               : null,
-          color: isSelected ? null : Colors.grey.withOpacity(0.08),
+          color: isSelected ? null : Colors.grey.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(14),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: color.withOpacity(0.2),
+                    color: color.withValues(alpha: 0.2),
                     blurRadius: 10,
                     spreadRadius: 1,
-                    offset: Offset(0, 3),
+                    offset: const Offset(0, 3),
                   )
                 ]
               : null,
           border: Border.all(
             color: isSelected
-                ? color.withOpacity(0.6)
-                : Colors.grey.withOpacity(0.3),
+                ? color.withValues(alpha: 0.6)
+                : Colors.grey.withValues(alpha: 0.3),
             width: 1.5,
           ),
         ),
@@ -453,10 +454,10 @@ class _TeacherEditAssignmentSubmissionScreenState
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: EdgeInsets.all(6),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.white.withOpacity(0.2)
+                    ? Colors.white.withValues(alpha: 0.2)
                     : Colors.transparent,
                 shape: BoxShape.circle,
               ),
@@ -466,7 +467,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 size: 20,
               ),
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               label,
               style: TextStyle(
@@ -488,18 +489,18 @@ class _TeacherEditAssignmentSubmissionScreenState
                     AssignmentSubmissionFilters.accepted)) &&
         widget.assignmentSubmission.assignment.points != 0;
 
-    if (!shouldShowPoints) return SizedBox.shrink();
+    if (!shouldShowPoints) return const SizedBox.shrink();
 
     final isEditable = !_isCurrentlyAcceptedOrRejected || _isInEditMode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Row(
           children: [
-            Icon(Icons.star_rounded, size: 18, color: Colors.amber),
-            SizedBox(width: 8),
+            const Icon(Icons.star_rounded, size: 18, color: Colors.amber),
+            const SizedBox(width: 8),
             Text(
               Utils.getTranslatedLabel(pointsKey),
               style: TextStyle(
@@ -511,14 +512,14 @@ class _TeacherEditAssignmentSubmissionScreenState
             ),
           ],
         ),
-       
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: Colors.grey.shade50,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
               width: 1,
             ),
           ),
@@ -552,13 +553,20 @@ class _TeacherEditAssignmentSubmissionScreenState
                     : Colors.grey.shade500,
               ),
               suffixIcon: Container(
-                margin: EdgeInsets.all(8),
-                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                margin: const EdgeInsets.all(8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.7),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.7),
+                      Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.7),
+                      Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withValues(alpha: 0.7),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -567,7 +575,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 ),
                 child: Text(
                   "/ ${widget.assignmentSubmission.assignment.points}",
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
                   ),
@@ -580,7 +588,7 @@ class _TeacherEditAssignmentSubmissionScreenState
               filled: true,
               fillColor: Colors.grey.shade50,
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
           ),
         ),
@@ -594,7 +602,7 @@ class _TeacherEditAssignmentSubmissionScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 24),
+        const SizedBox(height: 24),
         Row(
           children: [
             Icon(
@@ -602,7 +610,7 @@ class _TeacherEditAssignmentSubmissionScreenState
               size: 18,
               color: Theme.of(context).colorScheme.secondary,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               Utils.getTranslatedLabel(feedbackKey),
               style: TextStyle(
@@ -614,12 +622,12 @@ class _TeacherEditAssignmentSubmissionScreenState
             ),
           ],
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         if (!isEditable) ...[
           // Read-only feedback display
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(12),
@@ -633,10 +641,13 @@ class _TeacherEditAssignmentSubmissionScreenState
               children: [
                 Icon(
                   Icons.format_quote,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.3),
                   size: 24,
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   _feedbackTextEditingController.text.isEmpty
                       ? 'Tidak ada feedback'
@@ -651,7 +662,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                         : FontStyle.normal,
                   ),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -675,7 +686,10 @@ class _TeacherEditAssignmentSubmissionScreenState
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
@@ -683,7 +697,7 @@ class _TeacherEditAssignmentSubmissionScreenState
               controller: _feedbackTextEditingController,
               maxLines: null,
               minLines: 4,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15,
                 color: Colors.black87,
               ),
@@ -700,7 +714,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                 filled: true,
                 fillColor: Colors.grey.shade50,
                 contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 alignLabelWithHint: true,
               ),
             ),
@@ -713,7 +727,7 @@ class _TeacherEditAssignmentSubmissionScreenState
   Widget _buildSubmitButton(BuildContext context) {
     final shouldShowButton = !_isCurrentlyAcceptedOrRejected || _isInEditMode;
 
-    if (!shouldShowButton) return SizedBox.shrink();
+    if (!shouldShowButton) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, bottom: 20.0),
@@ -724,18 +738,18 @@ class _TeacherEditAssignmentSubmissionScreenState
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Container(
-                  padding: EdgeInsets.symmetric(vertical: 8),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.check_circle, color: Colors.white),
-                      SizedBox(width: 12),
+                      const Icon(Icons.check_circle, color: Colors.white),
+                      const SizedBox(width: 12),
                       Text(
                         _isCurrentlyAcceptedOrRejected
                             ? 'Penilaian berhasil diperbarui!'
                             : Utils.getTranslatedLabel(
                                 assignmentReviewAddedSuccessfullyKey),
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -745,9 +759,10 @@ class _TeacherEditAssignmentSubmissionScreenState
                   ),
                 ),
                 backgroundColor: Colors.green.shade400,
-                duration: Duration(seconds: 2),
+                duration: const Duration(seconds: 2),
                 behavior: SnackBarBehavior.floating,
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -755,7 +770,7 @@ class _TeacherEditAssignmentSubmissionScreenState
               ),
             );
 
-            Future.delayed(Duration(milliseconds: 800), () {
+            Future.delayed(const Duration(milliseconds: 800), () {
               Get.back(
                 result: widget.assignmentSubmission.copyWith(
                   feedback: _feedbackTextEditingController.text.trim(),
@@ -786,7 +801,10 @@ class _TeacherEditAssignmentSubmissionScreenState
               borderRadius: BorderRadius.circular(15),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary
+                      .withValues(alpha: 0.2),
                   spreadRadius: 1,
                   blurRadius: 6,
                   offset: const Offset(0, 2),
@@ -835,11 +853,11 @@ class _TeacherEditAssignmentSubmissionScreenState
                       );
                 },
                 borderRadius: BorderRadius.circular(15),
-                splashColor: Colors.white.withOpacity(0.2),
-                highlightColor: Colors.white.withOpacity(0.1),
+                splashColor: Colors.white.withValues(alpha: 0.2),
+                highlightColor: Colors.white.withValues(alpha: 0.1),
                 child: Center(
                   child: state is EditAssignmentSubmissionInProgress
-                      ? Row(
+                      ? const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             SizedBox(
@@ -869,13 +887,13 @@ class _TeacherEditAssignmentSubmissionScreenState
                               _isCurrentlyAcceptedOrRejected
                                   ? 'Update'
                                   : Utils.getTranslatedLabel(submitKey),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Icon(
                               _isCurrentlyAcceptedOrRejected
                                   ? Icons.update
@@ -899,14 +917,14 @@ class _TeacherEditAssignmentSubmissionScreenState
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
-        preferredSize:
-            Size.fromHeight(kToolbarHeight + 40), // Memperbesar tinggi appBar
+        preferredSize: const Size.fromHeight(
+            kToolbarHeight + 40), // Memperbesar tinggi appBar
         child: CustomModernAppBar(
           title: "Tinjau Pengumpulan",
           icon: Icons.assignment_outlined,
           fabAnimationController: _appBarAnimationController,
-          primaryColor: Color(0xFF7A1E23),
-          lightColor: Color(0xFF5A2223),
+          primaryColor: const Color(0xFF7A1E23),
+          lightColor: const Color(0xFF5A2223),
           onBackPressed: () {
             HapticFeedback.mediumImpact();
             Get.back();
@@ -914,7 +932,7 @@ class _TeacherEditAssignmentSubmissionScreenState
         ),
       ),
       body: Container(
-        color: Color(0xFFF5F5F5),
+        color: const Color(0xFFF5F5F5),
         child: BlocBuilder<EditAssignmentSubmissionCubit,
             EditAssignmentSubmissionState>(
           builder: (context, state) {
@@ -930,7 +948,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                   children: [
                     Expanded(
                       child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -939,25 +957,26 @@ class _TeacherEditAssignmentSubmissionScreenState
 
                             // Student Information Card
                             SlideInLeft(
-                              duration: Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 500),
                               child: Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       spreadRadius: 0,
-                                      offset: Offset(0, 4),
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                   border: Border.all(
                                     color: Theme.of(context)
                                         .colorScheme
                                         .primary
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     width: 1.5,
                                   ),
                                 ),
@@ -969,7 +988,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                       animation: _pulseAnimation,
                                       builder: (context, child) {
                                         return Container(
-                                          padding: EdgeInsets.all(3),
+                                          padding: const EdgeInsets.all(3),
                                           decoration: BoxDecoration(
                                             shape: BoxShape.circle,
                                             gradient: LinearGradient(
@@ -989,7 +1008,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                 color: Theme.of(context)
                                                     .colorScheme
                                                     .primary
-                                                    .withOpacity(0.2),
+                                                    .withValues(alpha: 0.2),
                                                 blurRadius: 8 *
                                                     (1 +
                                                         _pulseAnimation.value /
@@ -1018,7 +1037,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                         );
                                       },
                                     ),
-                                    SizedBox(width: 16),
+                                    const SizedBox(width: 16),
                                     // Student information
                                     Expanded(
                                       child: Column(
@@ -1026,13 +1045,13 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             CrossAxisAlignment.start,
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 4),
                                             decoration: BoxDecoration(
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .primary
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                               borderRadius:
                                                   BorderRadius.circular(20),
                                             ),
@@ -1047,11 +1066,11 @@ class _TeacherEditAssignmentSubmissionScreenState
                                               ),
                                             ),
                                           ).animate().fadeIn(duration: 400.ms),
-                                          SizedBox(height: 12),
+                                          const SizedBox(height: 12),
                                           Text(
                                             widget.assignmentSubmission.student
                                                 .fullName,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.black87,
                                               fontSize: 18,
                                               fontWeight: FontWeight.bold,
@@ -1072,29 +1091,30 @@ class _TeacherEditAssignmentSubmissionScreenState
                               ),
                             ),
 
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
                             // Assessment Section
                             SlideInRight(
-                              duration: Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 500),
                               child: Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       spreadRadius: 0,
-                                      offset: Offset(0, 4),
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                   border: Border.all(
                                     color: Theme.of(context)
                                         .colorScheme
                                         .primary
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     width: 1.5,
                                   ),
                                 ),
@@ -1108,21 +1128,22 @@ class _TeacherEditAssignmentSubmissionScreenState
                                           animation: _pulseAnimation,
                                           builder: (context, child) {
                                             return Container(
-                                              padding: EdgeInsets.all(8),
+                                              padding: const EdgeInsets.all(8),
                                               decoration: BoxDecoration(
                                                 color: Theme.of(context)
                                                     .colorScheme
                                                     .primary
-                                                    .withOpacity(0.1),
+                                                    .withValues(alpha: 0.1),
                                                 shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
                                                     color: Theme.of(context)
                                                         .colorScheme
                                                         .primary
-                                                        .withOpacity(0.1 *
-                                                            _pulseAnimation
-                                                                .value),
+                                                        .withValues(
+                                                            alpha: 0.1 *
+                                                                _pulseAnimation
+                                                                    .value),
                                                     blurRadius: 4,
                                                     spreadRadius: 1 *
                                                         _pulseAnimation.value,
@@ -1139,7 +1160,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             );
                                           },
                                         ),
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Text(
                                           'Penilaian Tugas',
                                           style: TextStyle(
@@ -1157,8 +1178,8 @@ class _TeacherEditAssignmentSubmissionScreenState
 
                                     // Divider with gradient
                                     Container(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 16),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 16),
                                       height: 2,
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
@@ -1169,7 +1190,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                           ],
                                           begin: Alignment.centerLeft,
                                           end: Alignment.centerRight,
@@ -1191,31 +1212,32 @@ class _TeacherEditAssignmentSubmissionScreenState
                               ),
                             ),
 
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
                             // Student Answer Section
                             if (widget
                                 .assignmentSubmission.content.isNotEmpty) ...[
                               SlideInLeft(
-                                duration: Duration(milliseconds: 500),
+                                duration: const Duration(milliseconds: 500),
                                 child: Container(
-                                  padding: EdgeInsets.all(20),
+                                  padding: const EdgeInsets.all(20),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.05),
                                         blurRadius: 10,
                                         spreadRadius: 0,
-                                        offset: Offset(0, 4),
+                                        offset: const Offset(0, 4),
                                       ),
                                     ],
                                     border: Border.all(
                                       color: Theme.of(context)
                                           .colorScheme
                                           .primary
-                                          .withOpacity(0.1),
+                                          .withValues(alpha: 0.1),
                                       width: 1.5,
                                     ),
                                   ),
@@ -1226,12 +1248,12 @@ class _TeacherEditAssignmentSubmissionScreenState
                                       Row(
                                         children: [
                                           Container(
-                                            padding: EdgeInsets.all(8),
+                                            padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .primary
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                               shape: BoxShape.circle,
                                             ),
                                             child: Icon(
@@ -1242,7 +1264,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                   .primary,
                                             ),
                                           ),
-                                          SizedBox(width: 10),
+                                          const SizedBox(width: 10),
                                           Text(
                                             "Jawaban Siswa",
                                             style: TextStyle(
@@ -1257,8 +1279,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                                         ],
                                       ),
                                       Container(
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 16),
+                                        margin: const EdgeInsets.symmetric(
+                                            vertical: 16),
                                         height: 2,
                                         decoration: BoxDecoration(
                                           gradient: LinearGradient(
@@ -1269,7 +1291,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                               Theme.of(context)
                                                   .colorScheme
                                                   .primary
-                                                  .withOpacity(0.1),
+                                                  .withValues(alpha: 0.1),
                                             ],
                                             begin: Alignment.centerLeft,
                                             end: Alignment.centerRight,
@@ -1280,7 +1302,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                       ),
                                       Container(
                                         width: double.infinity,
-                                        padding: EdgeInsets.all(20),
+                                        padding: const EdgeInsets.all(20),
                                         decoration: BoxDecoration(
                                           color: Colors.grey.shade50,
                                           borderRadius:
@@ -1303,16 +1325,16 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                   color: Theme.of(context)
                                                       .colorScheme
                                                       .primary
-                                                      .withOpacity(0.3),
+                                                      .withValues(alpha: 0.3),
                                                   size: 24,
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: 10),
+                                            const SizedBox(height: 10),
                                             Text(
                                               widget
                                                   .assignmentSubmission.content,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 15,
                                                 color: Colors.black87,
                                                 height: 1.6,
@@ -1327,30 +1349,31 @@ class _TeacherEditAssignmentSubmissionScreenState
                                   ),
                                 ),
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                             ],
 
                             // Attachments Section
                             if (widget
                                 .assignmentSubmission.file.isNotEmpty) ...[
                               Container(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(16),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
                                       blurRadius: 10,
                                       spreadRadius: 0,
-                                      offset: Offset(0, 4),
+                                      offset: const Offset(0, 4),
                                     ),
                                   ],
                                   border: Border.all(
                                     color: Theme.of(context)
                                         .colorScheme
                                         .primary
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     width: 1.5,
                                   ),
                                 ),
@@ -1360,12 +1383,12 @@ class _TeacherEditAssignmentSubmissionScreenState
                                     Row(
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(
@@ -1376,7 +1399,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                 .primary,
                                           ),
                                         ),
-                                        SizedBox(width: 10),
+                                        const SizedBox(width: 10),
                                         Text(
                                           Utils.getTranslatedLabel(filesKey),
                                           style: TextStyle(
@@ -1388,22 +1411,22 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             letterSpacing: 0.3,
                                           ),
                                         ),
-                                        Spacer(),
+                                        const Spacer(),
                                         Container(
-                                          padding: EdgeInsets.symmetric(
+                                          padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 4),
                                           decoration: BoxDecoration(
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(20),
                                             border: Border.all(
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .primary
-                                                  .withOpacity(0.2),
+                                                  .withValues(alpha: 0.2),
                                               width: 1,
                                             ),
                                           ),
@@ -1417,7 +1440,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                     .colorScheme
                                                     .primary,
                                               ),
-                                              SizedBox(width: 4),
+                                              const SizedBox(width: 4),
                                               Text(
                                                 "${widget.assignmentSubmission.file.length} ${widget.assignmentSubmission.file.length > 1 ? 'files' : 'file'}",
                                                 style: TextStyle(
@@ -1434,8 +1457,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                                       ],
                                     ),
                                     Container(
-                                      margin:
-                                          EdgeInsets.symmetric(vertical: 16),
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 16),
                                       height: 2,
                                       decoration: BoxDecoration(
                                         gradient: LinearGradient(
@@ -1446,7 +1469,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.1),
+                                                .withValues(alpha: 0.1),
                                           ],
                                           begin: Alignment.centerLeft,
                                           end: Alignment.centerRight,
@@ -1457,7 +1480,8 @@ class _TeacherEditAssignmentSubmissionScreenState
                                     ...widget.assignmentSubmission.file
                                         .map((studyMaterial) {
                                       return Container(
-                                        margin: EdgeInsets.only(bottom: 12),
+                                        margin:
+                                            const EdgeInsets.only(bottom: 12),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
                                           borderRadius:
@@ -1466,22 +1490,23 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .primary
-                                                .withOpacity(0.2),
+                                                .withValues(alpha: 0.2),
                                             width: 1.5,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
                                               color: Colors.black
-                                                  .withOpacity(0.03),
+                                                  .withValues(alpha: 0.03),
                                               blurRadius: 6,
                                               spreadRadius: 0,
-                                              offset: Offset(0, 2),
+                                              offset: const Offset(0, 2),
                                             ),
                                           ],
                                         ),
                                         child: ListTile(
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 16, vertical: 8),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 16, vertical: 8),
                                           leading: Container(
                                             width: 42,
                                             height: 42,
@@ -1489,7 +1514,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                               color: Theme.of(context)
                                                   .colorScheme
                                                   .primary
-                                                  .withOpacity(0.12),
+                                                  .withValues(alpha: 0.12),
                                               shape: BoxShape.circle,
                                             ),
                                             child: Center(
@@ -1505,7 +1530,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                           ),
                                           title: Text(
                                             studyMaterial.fileName,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 15,
                                             ),
@@ -1513,16 +1538,14 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           subtitle: Text(
-                                            studyMaterial.fileUrl != null
-                                                ? "Tap to open file"
-                                                : "File unavailable",
+                                            "Tap to open file",
                                             style: TextStyle(
                                               color: Colors.grey.shade600,
                                               fontSize: 12,
                                             ),
                                           ),
                                           trailing: Container(
-                                            padding: EdgeInsets.symmetric(
+                                            padding: const EdgeInsets.symmetric(
                                                 horizontal: 8, vertical: 4),
                                             decoration: BoxDecoration(
                                               color: Theme.of(context)
@@ -1535,7 +1558,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                               _getFileExtension(
                                                       studyMaterial.fileName)
                                                   .toUpperCase(),
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.bold,
@@ -1545,7 +1568,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                           ),
                                           onTap: () async {
                                             final url = studyMaterial.fileUrl;
-                                            if (url != null && url.isNotEmpty) {
+                                            if (url.isNotEmpty) {
                                               if (url.startsWith('http')) {
                                                 if (await canLaunchUrl(
                                                     Uri.parse(url))) {
@@ -1554,9 +1577,10 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                       mode: LaunchMode
                                                           .externalApplication);
                                                 } else {
+                                                  if (!context.mounted) return;
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
-                                                    SnackBar(
+                                                    const SnackBar(
                                                       content: Text(
                                                           'Tidak dapat membuka link file.'),
                                                       backgroundColor:
@@ -1568,9 +1592,10 @@ class _TeacherEditAssignmentSubmissionScreenState
                                                 try {
                                                   await OpenFilex.open(url);
                                                 } catch (e) {
+                                                  if (!context.mounted) return;
                                                   ScaffoldMessenger.of(context)
                                                       .showSnackBar(
-                                                    SnackBar(
+                                                    const SnackBar(
                                                       content: Text(
                                                           'Gagal membuka file lokal.'),
                                                       backgroundColor:
@@ -1582,7 +1607,7 @@ class _TeacherEditAssignmentSubmissionScreenState
                                             } else {
                                               ScaffoldMessenger.of(context)
                                                   .showSnackBar(
-                                                SnackBar(
+                                                const SnackBar(
                                                   content: Text(
                                                       'File tidak tersedia.'),
                                                   backgroundColor: Colors.red,
@@ -1592,13 +1617,13 @@ class _TeacherEditAssignmentSubmissionScreenState
                                           },
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                   ],
                                 ),
                               ),
                             ],
 
-                            SizedBox(height: 12),
+                            const SizedBox(height: 12),
                           ],
                         ),
                       ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class AssignmentSubmissionsRepository {
   Future<List<AssignmentSubmission>> fetchAssignmentSubmissions({
@@ -17,11 +18,11 @@ class AssignmentSubmissionsRepository {
         queryParameters: body,
       );
 
-      print(body);
+      debugPrint(body.toString());
 
       for (var line
-          in JsonEncoder.withIndent("  ").convert(result).split("\n")) {
-        print(line);
+          in const JsonEncoder.withIndent("  ").convert(result).split("\n")) {
+        debugPrint(line.toString());
       }
 
       return (result['data'] as List)
@@ -31,7 +32,7 @@ class AssignmentSubmissionsRepository {
           )
           .toList();
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
       throw ApiException(e.toString());
     }
   }

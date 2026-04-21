@@ -1,11 +1,12 @@
 import 'package:eschool_saas_staff/data/models/extracurricularTimetable.dart';
 import 'package:eschool_saas_staff/data/models/extracurricularTimetableEntry.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:flutter/foundation.dart';
 
 class ExtracurricularTimetableRepository {
   Future<List<ExtracurricularTimetable>> getExtracurricularTimetable() async {
     try {
-      print(
+      debugPrint(
           '🔍 [EXTRACURRICULAR TIMETABLE REPO] API Call: ${Api.getExtracurricularTimetable}');
 
       final response = await Api.get(
@@ -13,11 +14,11 @@ class ExtracurricularTimetableRepository {
         useAuthToken: true,
       );
 
-      print(
+      debugPrint(
           '✅ [EXTRACURRICULAR TIMETABLE REPO] Response: ${response['message'] ?? 'Success'}');
 
       if (response['error'] == true) {
-        print(
+        debugPrint(
             '❌ [EXTRACURRICULAR TIMETABLE REPO] API Error: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to load extracurricular timetable');
@@ -25,14 +26,14 @@ class ExtracurricularTimetableRepository {
 
       // Get rows from response
       final List<dynamic> rows = response['rows'] ?? [];
-      print(
+      debugPrint(
           '📊 [EXTRACURRICULAR TIMETABLE REPO] Loaded ${rows.length} timetable items');
 
       return rows
           .map((json) => ExtracurricularTimetable.fromJson(json))
           .toList();
     } catch (e) {
-      print('❌ [EXTRACURRICULAR TIMETABLE REPO] Exception: $e');
+      debugPrint('❌ [EXTRACURRICULAR TIMETABLE REPO] Exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -40,7 +41,7 @@ class ExtracurricularTimetableRepository {
   // Create new timetable entry
   Future<void> createTimetableEntry(ExtracurricularTimetableEntry entry) async {
     try {
-      print(
+      debugPrint(
           '🔍 [TIMETABLE REPO] Creating timetable entry for ${entry.extracurricularId}');
 
       final response = await Api.post(
@@ -49,17 +50,17 @@ class ExtracurricularTimetableRepository {
         body: entry.toCreateRequest(),
       );
 
-      print('🔍 [TIMETABLE REPO] Create response: $response');
+      debugPrint('🔍 [TIMETABLE REPO] Create response: $response');
 
       if (response['error'] == true) {
-        print('❌ [TIMETABLE REPO] Create failed: ${response['message']}');
+        debugPrint('❌ [TIMETABLE REPO] Create failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to create timetable entry');
       }
 
-      print('✅ [TIMETABLE REPO] Timetable entry created successfully');
+      debugPrint('✅ [TIMETABLE REPO] Timetable entry created successfully');
     } catch (e) {
-      print('❌ [TIMETABLE REPO] Create exception: $e');
+      debugPrint('❌ [TIMETABLE REPO] Create exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -68,7 +69,7 @@ class ExtracurricularTimetableRepository {
   Future<void> updateTimetableEntry(
       int id, ExtracurricularTimetableEntry entry) async {
     try {
-      print('🔍 [TIMETABLE REPO] Updating timetable entry ID: $id');
+      debugPrint('🔍 [TIMETABLE REPO] Updating timetable entry ID: $id');
 
       final response = await Api.put(
         url: '${Api.updateExtracurricularTimetable}/$id',
@@ -76,17 +77,17 @@ class ExtracurricularTimetableRepository {
         body: entry.toCreateRequest(),
       );
 
-      print('🔍 [TIMETABLE REPO] Update response: $response');
+      debugPrint('🔍 [TIMETABLE REPO] Update response: $response');
 
       if (response['error'] == true) {
-        print('❌ [TIMETABLE REPO] Update failed: ${response['message']}');
+        debugPrint('❌ [TIMETABLE REPO] Update failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to update timetable entry');
       }
 
-      print('✅ [TIMETABLE REPO] Timetable entry updated successfully');
+      debugPrint('✅ [TIMETABLE REPO] Timetable entry updated successfully');
     } catch (e) {
-      print('❌ [TIMETABLE REPO] Update exception: $e');
+      debugPrint('❌ [TIMETABLE REPO] Update exception: $e');
       throw ApiException(e.toString());
     }
   }
@@ -94,7 +95,7 @@ class ExtracurricularTimetableRepository {
   // Reset/Delete timetable entry
   Future<void> resetTimetableEntry(int id, {bool permanent = false}) async {
     try {
-      print(
+      debugPrint(
           '🔍 [TIMETABLE REPO] Resetting timetable entry ID: $id (permanent: $permanent)');
 
       final queryParams =
@@ -107,17 +108,17 @@ class ExtracurricularTimetableRepository {
         queryParameters: queryParams,
       );
 
-      print('🔍 [TIMETABLE REPO] Reset response: $response');
+      debugPrint('🔍 [TIMETABLE REPO] Reset response: $response');
 
       if (response['error'] == true) {
-        print('❌ [TIMETABLE REPO] Reset failed: ${response['message']}');
+        debugPrint('❌ [TIMETABLE REPO] Reset failed: ${response['message']}');
         throw ApiException(
             response['message'] ?? 'Failed to reset timetable entry');
       }
 
-      print('✅ [TIMETABLE REPO] Timetable entry reset successfully');
+      debugPrint('✅ [TIMETABLE REPO] Timetable entry reset successfully');
     } catch (e) {
-      print('❌ [TIMETABLE REPO] Reset exception: $e');
+      debugPrint('❌ [TIMETABLE REPO] Reset exception: $e');
       throw ApiException(e.toString());
     }
   }

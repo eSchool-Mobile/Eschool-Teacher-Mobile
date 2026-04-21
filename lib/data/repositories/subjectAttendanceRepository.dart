@@ -165,7 +165,7 @@ class SubjectAttendanceRepository {
         'status_code': response.statusCode,
         'duration_ms': stopwatch.elapsedMilliseconds,
         'body_preview': responseData.body.length > 500
-            ? responseData.body.substring(0, 500) + '...<truncated>'
+            ? '${responseData.body.substring(0, 500)}...<truncated>'
             : responseData.body,
       });
 

@@ -541,7 +541,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         onBack();
       },
@@ -835,23 +835,23 @@ class _ChatScreenState extends State<ChatScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     // Debug logs for all messages
-    // print('\n=== Message Debug Info ===');
-    // print('Sender ID: ${message.senderId}');
-    // print('Receiver ID: ${widget.receiverId}');
-    // print('Is Sent By Me: $sendByMe');
-    // print('Message ID: ${message.id}');
-    // print('Message Text: ${message.message}');
-    // print('Created At: ${message.createdAt}');
-    // print('Has Attachments: ${message.attachments.isNotEmpty}');
+    // debugPrint('\n=== Message Debug Info ===');
+    // debugPrint('Sender ID: ${message.senderId}');
+    // debugPrint('Receiver ID: ${widget.receiverId}');
+    // debugPrint('Is Sent By Me: $sendByMe');
+    // debugPrint('Message ID: ${message.id}');
+    // debugPrint('Message Text: ${message.message}');
+    // debugPrint('Created At: ${message.createdAt}');
+    // debugPrint('Has Attachments: ${message.attachments.isNotEmpty}');
     // if (message.attachments.isNotEmpty) {
-    //   print('\nAttachments:');
+    //   debugPrint('\nAttachments:');
     //   for (var attachment in message.attachments) {
-    //     print('- File: ${attachment.file}');
-    //     print('  Type: ${attachment.fileType}');
-    //     print('  Created At: ${attachment.createdAt}');
+    //     debugPrint('- File: ${attachment.file}');
+    //     debugPrint('  Type: ${attachment.fileType}');
+    //     debugPrint('  Created At: ${attachment.createdAt}');
     //   }
     // }
-    // print('=====================================');
+    // debugPrint('=====================================');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
@@ -932,7 +932,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   //               child: Container(
                                   //             decoration: BoxDecoration(
                                   //               color: Colors.black
-                                  //                   .withOpacity(0.3),
+                                  //                   .withValues(alpha: 0.3),
                                   //               borderRadius:
                                   //                   BorderRadius.circular(8),
                                   //             ),
@@ -1025,7 +1025,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       .format(message.createdAt.toLocal()),
                   style: TextStyle(
                     fontSize: 12.0,
-                    color: colorScheme.secondary.withOpacity(0.75),
+                    color: colorScheme.secondary.withValues(alpha: 0.75),
                   ),
                 ),
                 const SizedBox(width: 2.5),
@@ -1059,7 +1059,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
       // Create and show temporary messages immediately
       if (attachments.isNotEmpty) {
-        attachments.forEach((file) {
+        for (var file in attachments) {
           final tempMessage = ChatMessage(
             id: DateTime.now().millisecondsSinceEpoch,
             chatId: 0,
@@ -1087,7 +1087,7 @@ class _ChatScreenState extends State<ChatScreen> {
           setState(() {
             _uploadingFiles.add(file.path);
           });
-        });
+        }
       } else if (messageText.isNotEmpty) {
         // Create text-only message
         final tempMessage = ChatMessage(
@@ -1173,7 +1173,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     color: Theme.of(context)
                         .colorScheme
                         .secondary
-                        .withOpacity(0.75),
+                        .withValues(alpha: 0.75),
                   ),
                 ),
               ),
@@ -1186,8 +1186,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 backgroundColor: Colors.transparent,
                 child: Icon(
                   Icons.send,
-                  color:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondary
+                      .withValues(alpha: 0.75),
                 ),
               ),
             ),

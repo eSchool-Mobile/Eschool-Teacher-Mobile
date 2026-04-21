@@ -161,8 +161,8 @@ class _CleanNotificationCardState extends State<_CleanNotificationCard>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      widget.config.backgroundColor.withOpacity(0.92),
-                      Colors.white.withOpacity(0.85),
+                      widget.config.backgroundColor.withValues(alpha: 0.92),
+                      Colors.white.withValues(alpha: 0.85),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -170,13 +170,13 @@ class _CleanNotificationCardState extends State<_CleanNotificationCard>
                   borderRadius: BorderRadius.circular(18),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
+                      color: Colors.black.withValues(alpha: 0.08),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
                   ],
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.18),
+                    color: Colors.white.withValues(alpha: 0.18),
                     width: 1.2,
                   ),
                 ),
@@ -208,11 +208,11 @@ class _CleanNotificationCardState extends State<_CleanNotificationCard>
       width: 36,
       height: 36,
       decoration: BoxDecoration(
-        color: widget.config.iconBackgroundColor.withOpacity(0.16),
+        color: widget.config.iconBackgroundColor.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: widget.config.iconBackgroundColor.withOpacity(0.09),
+            color: widget.config.iconBackgroundColor.withValues(alpha: 0.09),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -269,11 +269,11 @@ class _CleanNotificationCardState extends State<_CleanNotificationCard>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       decoration: BoxDecoration(
-        color: widget.config.actionBackgroundColor.withOpacity(0.18),
+        color: widget.config.actionBackgroundColor.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: widget.config.actionBackgroundColor.withOpacity(0.08),
+            color: widget.config.actionBackgroundColor.withValues(alpha: 0.08),
             blurRadius: 6,
             offset: const Offset(0, 1),
           ),

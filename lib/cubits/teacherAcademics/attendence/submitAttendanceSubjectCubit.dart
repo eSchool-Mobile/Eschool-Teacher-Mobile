@@ -2,6 +2,7 @@ import 'package:eschool_saas_staff/data/repositories/subjectAttendanceRepository
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 abstract class SubmitAttendanceSubjectState {}
 
@@ -46,12 +47,12 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         gradeLevelId: gradeLevelId,
         attendance: attendanceReport.map(
           (attendanceReport) {
-            print('Mapping attendance report:');
-            print('Student ID: ${attendanceReport.studentId}');
-            print('Original Status: ${attendanceReport.status}');
+            debugPrint('Mapping attendance report:');
+            debugPrint('Student ID: ${attendanceReport.studentId}');
+            debugPrint('Original Status: ${attendanceReport.status}');
             final mappedType =
                 _mapAttendanceStatusToType(attendanceReport.status);
-            print('Mapped Type: $mappedType');
+            debugPrint('Mapped Type: $mappedType');
 
             return {
               "student_id": attendanceReport.studentId,
@@ -62,10 +63,10 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
       );
       emit(SubmitAttendanceSubjectSuccess());
     } catch (e) {
-      print("Error during attendance submission: $e");
+      debugPrint("Error during attendance submission: $e");
       final userFriendlyMessage = ErrorMessageUtils.getReadableErrorMessage(e);
       emit(SubmitAttendanceSubjectFailure(userFriendlyMessage));
-      print(
+      debugPrint(
           'Technical error: ${ErrorMessageUtils.getTechnicalErrorMessage(e)}');
     }
   }
@@ -82,8 +83,8 @@ class SubmitAttendanceSubjectCubit extends Cubit<SubmitAttendanceSubjectState> {
         return 3;
       case StudentAttendanceStatus.alpa:
         return 4;
-      default:
-        return 0; // Default ke absent jika status tidak dikenali
+      // default removed
+      // return 0 removed
     }
   }
 }
