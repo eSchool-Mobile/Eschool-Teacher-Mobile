@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:http/http.dart' as http;

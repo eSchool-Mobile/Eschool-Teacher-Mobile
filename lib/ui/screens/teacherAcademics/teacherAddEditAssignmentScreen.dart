@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssi
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/assignmentRepository.dart';
 import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';

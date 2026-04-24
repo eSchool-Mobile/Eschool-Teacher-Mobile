@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/app/routes.dart';

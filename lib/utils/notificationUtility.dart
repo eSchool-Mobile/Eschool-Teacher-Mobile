@@ -9,7 +9,7 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart'
     as notificationDetails;
 import 'package:eschool_saas_staff/data/repositories/announcementRepository.dart';
-import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';

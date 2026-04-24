@@ -19,7 +19,7 @@ import 'package:eschool_saas_staff/cubits/contact/contactListCubit.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactDetailCubit.dart';
 import 'package:eschool_saas_staff/cubits/contact/submitContactCubit.dart';
 import 'package:eschool_saas_staff/cubits/contact/contactStatsCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/contactRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/chat/contactRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/editAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/editProfileScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/examsScreen.dart';

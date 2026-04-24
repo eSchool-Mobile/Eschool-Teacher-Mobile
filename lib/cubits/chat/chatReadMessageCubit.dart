@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/repositories/chatRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/chat/chatRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 enum ChatReadMessageStatus { initial, loading, success, failure }

@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/data/repositories/contactRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/chat/contactRepository.dart';
 import 'package:eschool_saas_staff/models/contact.dart';
 
 // Contact Detail States

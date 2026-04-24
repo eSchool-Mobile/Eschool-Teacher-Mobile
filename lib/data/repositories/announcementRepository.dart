@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:eschool_saas_staff/data/models/announcement/announcement.dart';
 import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
-import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
-import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/assignmentRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 

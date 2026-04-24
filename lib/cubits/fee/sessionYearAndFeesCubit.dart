@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/data/models/staffTeacher/fee.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
-import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/academicRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/feeRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

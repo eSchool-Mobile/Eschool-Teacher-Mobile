@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/repositories/studyMaterialRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/studyMaterialRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class DeleteStudyMaterialState {}

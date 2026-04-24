@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/repositories/topicRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/topicRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class DeleteTopicState {}

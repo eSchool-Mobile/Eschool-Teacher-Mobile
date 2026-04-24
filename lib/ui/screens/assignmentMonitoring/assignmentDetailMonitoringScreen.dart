@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/assignment/teacherAssignmentDetailCubit.dart';
 import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAssignmentDetail.dart';
-import 'package:eschool_saas_staff/data/repositories/assignmentMonitoringRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/assignmentMonitoringRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/assignmentMonitoring/simpleAssignmentCard.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';

@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/sendPasswordResetEmailCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/signInCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/authRepository.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/forgotPasswordBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/login/widgets/schoolListScreen.dart';

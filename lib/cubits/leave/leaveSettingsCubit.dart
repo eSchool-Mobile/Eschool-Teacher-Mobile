@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/data/models/leave/leaveSettings.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
-import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/academicRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';

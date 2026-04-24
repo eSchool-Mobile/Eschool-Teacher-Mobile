@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
-import 'package:eschool_saas_staff/data/repositories/permissionRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/auth/permissionRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

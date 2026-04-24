@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
-import 'package:eschool_saas_staff/data/repositories/teacherAcademicRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/academics/teacherAcademicRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
