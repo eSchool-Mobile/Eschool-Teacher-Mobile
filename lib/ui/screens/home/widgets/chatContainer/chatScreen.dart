@@ -10,7 +10,7 @@ import 'package:eschool_saas_staff/cubits/chat/chatMessagesCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/chatReadMessageCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/chatSendMessageCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
-import 'package:eschool_saas_staff/data/models/chatMessage.dart';
+import 'package:eschool_saas_staff/data/models/chat/chatMessage.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/widgets/selectAttachementBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';

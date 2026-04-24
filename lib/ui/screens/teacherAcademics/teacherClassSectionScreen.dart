@@ -2,8 +2,8 @@ import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherClassSectionDetailsCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
-import 'package:eschool_saas_staff/data/models/subjectTeacher.dart';
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/academic/subjectTeacher.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
@@ -19,7 +19,7 @@ import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class TeacherClassSectionScreen extends StatefulWidget {

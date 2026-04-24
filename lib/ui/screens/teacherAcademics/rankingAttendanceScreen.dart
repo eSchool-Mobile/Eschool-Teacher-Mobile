@@ -1,9 +1,9 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceRankingCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
-import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/widgets/attendanceRankingContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';

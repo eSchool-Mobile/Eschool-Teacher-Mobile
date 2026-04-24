@@ -1,6 +1,6 @@
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
-import 'package:eschool_saas_staff/data/models/timeTableSlot.dart';
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
 class TeacherRepository {

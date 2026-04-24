@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/sendGeneralAnnouncementCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/uploadImageOrFileButton.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
 import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';

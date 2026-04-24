@@ -1,8 +1,8 @@
 import 'package:eschool_saas_staff/cubits/exam/offlineExamStudentResultsCubit.dart';
 import 'package:eschool_saas_staff/cubits/exam/offlineExamsWithClassesAndSessionYearsCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/offlineExam.dart';
-import 'package:eschool_saas_staff/data/models/sessionYear.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/studentOfflineResultContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';

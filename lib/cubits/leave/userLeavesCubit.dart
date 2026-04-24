@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';

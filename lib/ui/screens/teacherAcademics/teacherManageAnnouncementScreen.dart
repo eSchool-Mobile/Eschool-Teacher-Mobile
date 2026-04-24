@@ -3,10 +3,10 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherA
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherDeleteAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
-import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAnnouncement.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';

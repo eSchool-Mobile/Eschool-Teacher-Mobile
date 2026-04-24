@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import 'package:eschool_saas_staff/data/models/question.dart';
+import 'package:eschool_saas_staff/data/models/exam/question.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/services.dart';

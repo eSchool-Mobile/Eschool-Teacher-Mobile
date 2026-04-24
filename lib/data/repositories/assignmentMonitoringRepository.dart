@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:eschool_saas_staff/data/models/assignmentMonitoring.dart';
-import 'package:eschool_saas_staff/data/models/teacherAssignmentDetail.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignmentMonitoring.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAssignmentDetail.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

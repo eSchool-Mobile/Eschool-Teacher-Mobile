@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/holiday.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/appLanguages.dart';
 import 'package:eschool_saas_staff/utils/hiveBoxKeys.dart';

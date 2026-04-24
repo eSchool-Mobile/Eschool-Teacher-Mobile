@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/academics/classesWithTeacherDetailsCubit.dart';
-import 'package:eschool_saas_staff/data/models/subjectTeacher.dart';
+import 'package:eschool_saas_staff/data/models/academic/subjectTeacher.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';

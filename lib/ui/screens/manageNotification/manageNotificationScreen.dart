@@ -1,7 +1,7 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/notificationsCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/notificationDetails.dart';
+import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/widgets/adminNotificationDetailsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';

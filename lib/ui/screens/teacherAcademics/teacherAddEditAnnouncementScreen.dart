@@ -1,10 +1,10 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherCreateAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherEditAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/teacherAnnouncement.dart';
-import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAnnouncement.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';

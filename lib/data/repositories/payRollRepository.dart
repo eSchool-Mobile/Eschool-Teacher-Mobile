@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:eschool_saas_staff/data/models/payRoll.dart';
-import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
-import 'package:eschool_saas_staff/data/models/staffSalary.dart';
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/payRoll.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffPayRoll.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffSalary.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

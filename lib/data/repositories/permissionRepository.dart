@@ -1,6 +1,6 @@
 // import 'package:dio/dio.dart';
 
-import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:intl/intl.dart';

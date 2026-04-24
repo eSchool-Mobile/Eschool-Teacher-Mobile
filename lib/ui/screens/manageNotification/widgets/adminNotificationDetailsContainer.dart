@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/announcement/deleteNotificationCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/notificationsCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/notificationDetails.dart';
+import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/widgets/announcementDescriptionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/widgets/deleteNotificationConfirmationDialog.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

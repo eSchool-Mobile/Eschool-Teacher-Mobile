@@ -1,7 +1,7 @@
-import 'package:eschool_saas_staff/data/models/holiday.dart';
-import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
-import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/permissionRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';

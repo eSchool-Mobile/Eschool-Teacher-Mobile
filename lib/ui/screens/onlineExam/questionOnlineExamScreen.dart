@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
-import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
-import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/questionOnlineExam.dart';
+import 'package:eschool_saas_staff/data/models/exam/BankOnlineQuestion.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_animate/flutter_animate.dart';

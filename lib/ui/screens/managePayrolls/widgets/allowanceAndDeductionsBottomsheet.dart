@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/staffSalary.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffSalary.dart';
 import 'package:eschool_saas_staff/ui/widgets/allowancesAndDeductionsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

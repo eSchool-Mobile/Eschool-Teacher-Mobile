@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/sessionYear.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

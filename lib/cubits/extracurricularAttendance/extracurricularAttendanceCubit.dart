@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularAttendanceRepository.dart';
-import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularAttendance.dart';
 import 'extracurricularAttendanceState.dart';
 import 'package:flutter/foundation.dart';
 

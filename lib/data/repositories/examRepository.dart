@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/offlineExam.dart';
-import 'package:eschool_saas_staff/data/models/studentResult.dart';
+import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
+import 'package:eschool_saas_staff/data/models/exam/studentResult.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

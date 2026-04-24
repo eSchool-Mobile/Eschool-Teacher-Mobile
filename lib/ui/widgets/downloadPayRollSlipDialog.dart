@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
-import 'package:eschool_saas_staff/data/models/payRoll.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/payRoll.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

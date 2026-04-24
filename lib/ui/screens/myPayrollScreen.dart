@@ -1,8 +1,8 @@
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/myPayRollCubit.dart';
-import 'package:eschool_saas_staff/data/models/payRoll.dart';
-import 'package:eschool_saas_staff/data/models/sessionYear.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/payRoll.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';

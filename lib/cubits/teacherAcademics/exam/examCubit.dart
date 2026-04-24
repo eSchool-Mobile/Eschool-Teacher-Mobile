@@ -1,6 +1,6 @@
 // ignore: depend_on_referenced_packages
 import 'package:bloc/bloc.dart';
-import 'package:eschool_saas_staff/data/models/exam.dart';
+import 'package:eschool_saas_staff/data/models/exam/exam.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter/foundation.dart';

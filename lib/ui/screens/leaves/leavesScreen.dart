@@ -1,8 +1,8 @@
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/userLeavesCubit.dart';
-import 'package:eschool_saas_staff/data/models/sessionYear.dart';
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';

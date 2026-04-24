@@ -8,7 +8,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:lottie/lottie.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import '../../../data/models/subjectQuestion.dart';
+import '../../../data/models/exam/subjectQuestion.dart';
 import '../../../ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';

@@ -80,8 +80,8 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/questionBa
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/addQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editQuestionScreen.dart';
-import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
-import 'package:eschool_saas_staff/data/models/questionBank.dart';
+import 'package:eschool_saas_staff/data/models/exam/subjectQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/questionBank.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/bankQuestionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/onlineExamScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/createOnlineExam.dart';
@@ -94,7 +94,7 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubje
 import 'package:eschool_saas_staff/ui/screens/onlineExam/questionOnlineExamScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/BankSoalSelectionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/previewQuestionBankSoal.dart';
-import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/ui/screens/onlineExam/examStatuScreen.dart';
 import 'package:eschool_saas_staff/cubits/examStatus/examStatusCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';

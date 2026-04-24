@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
-import 'package:eschool_saas_staff/data/models/assignment.dart';
-import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
+import 'package:eschool_saas_staff/data/models/academic/AssignmentFiletype.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';

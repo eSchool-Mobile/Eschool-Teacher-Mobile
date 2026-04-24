@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentPermissionCubit.dart';
-import 'package:eschool_saas_staff/data/models/permissionDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/rejectReasonDialog.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

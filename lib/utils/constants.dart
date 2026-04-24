@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignmentSubmission.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/utils/app_config.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/material.dart';

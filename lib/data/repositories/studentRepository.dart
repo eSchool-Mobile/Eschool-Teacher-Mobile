@@ -1,6 +1,6 @@
-import 'package:eschool_saas_staff/data/models/exam.dart';
-import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
-import 'package:eschool_saas_staff/data/models/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/exam/exam.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/logger.dart';

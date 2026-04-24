@@ -1,7 +1,7 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignmentSubmissions/assignmentSubmissionsCubit.dart';
-import 'package:eschool_saas_staff/data/models/assignment.dart';
-import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherEditAssignmentSubmission.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customExpandableContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';

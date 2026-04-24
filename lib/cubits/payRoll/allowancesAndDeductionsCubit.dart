@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/staffSalary.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffSalary.dart';
 import 'package:eschool_saas_staff/data/repositories/payRollRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:url_launcher/url_launcher.dart';

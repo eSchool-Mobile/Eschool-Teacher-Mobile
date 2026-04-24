@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/fee.dart';
-import 'package:eschool_saas_staff/data/models/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/fee.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

@@ -1,6 +1,6 @@
 
-import 'package:eschool_saas_staff/data/models/holiday.dart';
-import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

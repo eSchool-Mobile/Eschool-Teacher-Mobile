@@ -3,7 +3,7 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/announcementsCubit.dart';
 import 'package:eschool_saas_staff/cubits/announcement/deleteAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/announcement.dart';
+import 'package:eschool_saas_staff/data/models/announcement/announcement.dart';
 import 'package:eschool_saas_staff/ui/screens/editAnnouncementScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/widgets/announcementDescriptionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/manageAnnouncement/widgets/announcementFilesBottomsheet.dart';

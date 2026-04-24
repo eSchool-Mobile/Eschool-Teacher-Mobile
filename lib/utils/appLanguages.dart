@@ -1,5 +1,5 @@
 //by default language of the app
-import 'package:eschool_saas_staff/data/models/appLanguage.dart';
+import 'package:eschool_saas_staff/data/models/system/appLanguage.dart';
 
 const String defaultLanguageCode = "en";
 

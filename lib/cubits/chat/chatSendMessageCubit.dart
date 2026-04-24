@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/chatMessage.dart';
+import 'package:eschool_saas_staff/data/models/chat/chatMessage.dart';
 import 'package:eschool_saas_staff/data/repositories/chatRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';

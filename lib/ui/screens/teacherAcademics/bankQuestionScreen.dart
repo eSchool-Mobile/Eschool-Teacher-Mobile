@@ -10,10 +10,10 @@ import 'package:get/get.dart';
 
 import 'package:animate_do/animate_do.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
-import 'package:eschool_saas_staff/data/models/question.dart' as q;
-import 'package:eschool_saas_staff/data/models/questionBank.dart';
+import 'package:eschool_saas_staff/data/models/exam/question.dart' as q;
+import 'package:eschool_saas_staff/data/models/exam/questionBank.dart';
 
-import '../../../data/models/subjectQuestion.dart';
+import '../../../data/models/exam/subjectQuestion.dart';
 import 'package:html/parser.dart' show parse;
 import '../../../app/routes.dart';
 

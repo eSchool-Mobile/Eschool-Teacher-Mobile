@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';

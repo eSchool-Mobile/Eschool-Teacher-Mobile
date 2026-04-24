@@ -1,7 +1,7 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/announcement/sendNotificationCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/rolesCubit.dart';
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/manageNotification/manageNotificationScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/searchUsersScreen.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';

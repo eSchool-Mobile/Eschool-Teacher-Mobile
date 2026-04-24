@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/updateStudyMaterialCubit.dart';
-import 'package:eschool_saas_staff/data/models/pickedStudyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';

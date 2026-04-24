@@ -1,7 +1,7 @@
 import 'dart:io';
-import 'package:eschool_saas_staff/data/models/question.dart';
-import 'package:eschool_saas_staff/data/models/questionBank.dart';
-import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/question.dart';
+import 'package:eschool_saas_staff/data/models/exam/questionBank.dart';
+import 'package:eschool_saas_staff/data/models/exam/subjectQuestion.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';

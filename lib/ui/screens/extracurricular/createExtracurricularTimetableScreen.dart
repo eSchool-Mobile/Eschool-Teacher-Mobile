@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:eschool_saas_staff/data/models/extracurricularTimetableEntry.dart';
-import 'package:eschool_saas_staff/data/models/extracurricular.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularTimetableEntry.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

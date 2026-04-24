@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/attendanceStudent.dart';
-import 'package:eschool_saas_staff/data/models/holiday.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceStudent.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
 import 'package:eschool_saas_staff/data/repositories/subjectAttendanceRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:eschool_saas_staff/utils/logger.dart';

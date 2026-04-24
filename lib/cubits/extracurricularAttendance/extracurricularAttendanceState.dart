@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularAttendance.dart';
 
 abstract class ExtracurricularAttendanceState {}
 

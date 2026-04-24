@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffPayRoll.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/allowanceAndDeductionsBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';

@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/deleteStudyMaterialCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/updateStudyMaterialCubit.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/editStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';

@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
-import 'package:eschool_saas_staff/data/models/extracurricular.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';

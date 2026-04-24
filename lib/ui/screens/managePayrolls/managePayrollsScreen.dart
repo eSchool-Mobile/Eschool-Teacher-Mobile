@@ -2,7 +2,7 @@ import 'package:eschool_saas_staff/cubits/payRoll/payRollYearsCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/staffsPayrollCubit.dart';
 import 'package:eschool_saas_staff/cubits/payRoll/submitStaffsPayRollCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/staffPayRoll.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/staffPayRoll.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/staffPayrollDetailsContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceRanking.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';

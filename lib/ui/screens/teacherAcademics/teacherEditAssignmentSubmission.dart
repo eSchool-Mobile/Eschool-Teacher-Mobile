@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignmentSubmissions/editAssignmetSubmissionCubit.dart';
-import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:eschool_saas_staff/utils/utils.dart';

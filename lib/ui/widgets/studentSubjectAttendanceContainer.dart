@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/attendanceStudent.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceStudent.dart';
 // import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
 // import 'package:eschool_saas_staff/data/models/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';

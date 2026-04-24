@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/medium.dart';
+import 'package:eschool_saas_staff/data/models/academic/medium.dart';
 import 'package:eschool_saas_staff/data/repositories/academicRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

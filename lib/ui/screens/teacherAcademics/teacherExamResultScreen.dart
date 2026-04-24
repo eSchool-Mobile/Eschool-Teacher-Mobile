@@ -1,12 +1,12 @@
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/exam/examCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/exam/submitExamMarksCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/exam.dart';
-import 'package:eschool_saas_staff/data/models/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/exam/exam.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';

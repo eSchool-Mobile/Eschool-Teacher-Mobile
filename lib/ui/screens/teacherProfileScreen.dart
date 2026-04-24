@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';

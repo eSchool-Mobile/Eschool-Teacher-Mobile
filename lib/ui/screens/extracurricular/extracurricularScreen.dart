@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/data/models/extracurricular.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import '../../../app/routes.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';

@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/topic.dart';
+import 'package:eschool_saas_staff/data/models/academic/topic.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 
 class TopicRepository {

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
-import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
-import 'package:eschool_saas_staff/data/models/leaveSettings.dart';
-import 'package:eschool_saas_staff/data/models/user.dart' as user_model;
+import 'package:eschool_saas_staff/data/models/leave/leaveDetails.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveSettings.dart';
+import 'package:eschool_saas_staff/data/models/auth/user.dart' as user_model;
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:flutter/foundation.dart';

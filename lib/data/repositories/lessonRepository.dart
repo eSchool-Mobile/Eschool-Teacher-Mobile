@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/lesson.dart';
+import 'package:eschool_saas_staff/data/models/academic/lesson.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

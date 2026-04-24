@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
+import 'package:eschool_saas_staff/data/models/exam/studentExamStatus.dart';
 import 'package:eschool_saas_staff/data/repositories/examStatusRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter/foundation.dart';

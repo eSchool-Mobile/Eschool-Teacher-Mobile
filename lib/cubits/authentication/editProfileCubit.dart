@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/userDetails.dart';
+import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

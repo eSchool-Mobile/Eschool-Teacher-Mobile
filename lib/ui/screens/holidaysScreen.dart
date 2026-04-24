@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/holiday.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/holidayContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';

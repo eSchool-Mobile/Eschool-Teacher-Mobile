@@ -8,7 +8,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:get/get.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
-import 'package:eschool_saas_staff/data/models/questionOnlineExam.dart';
+import 'package:eschool_saas_staff/data/models/exam/questionOnlineExam.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 

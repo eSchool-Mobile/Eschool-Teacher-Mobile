@@ -13,7 +13,7 @@ import 'package:html/parser.dart' show parse;
 
 // App imports
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../widgets/customModernAppBar.dart';

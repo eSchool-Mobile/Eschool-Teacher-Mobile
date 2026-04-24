@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/repositories/studentRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

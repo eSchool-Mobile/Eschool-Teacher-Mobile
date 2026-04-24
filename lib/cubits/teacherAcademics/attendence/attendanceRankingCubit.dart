@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceRanking.dart';
 import 'package:eschool_saas_staff/data/repositories/attendanceRankingRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

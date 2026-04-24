@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:eschool_saas_staff/cubits/exam/downloadStudentResultCubit.dart';
-import 'package:eschool_saas_staff/data/models/studentResult.dart';
+import 'package:eschool_saas_staff/data/models/exam/studentResult.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/downloadStudentResultDialog.dart';
 import 'package:eschool_saas_staff/ui/screens/offlineResult/widgets/studentResultSubjectMarksBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';

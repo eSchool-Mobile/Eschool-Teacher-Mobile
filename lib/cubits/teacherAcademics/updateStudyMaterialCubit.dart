@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/pickedStudyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/repositories/studyMaterialRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

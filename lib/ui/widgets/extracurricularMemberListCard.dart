@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/extracurricularMember.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularMember.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

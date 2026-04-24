@@ -3,8 +3,8 @@ import 'package:eschool_saas_staff/cubits/leave/approveOrRejectLeaveRequestCubit
 import 'package:eschool_saas_staff/cubits/leave/approveOrRejectStudentLeaveRequestCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/leaveRequestsCubit.dart';
 import 'package:eschool_saas_staff/cubits/leave/studentLeaveRequestsCubit.dart';
-import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/homeContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:eschool_saas_staff/data/models/extracurricularAttendance.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularAttendance.dart';
 
 void main() {
   group('AttendanceStatus Tests', () {

@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/timetableSlotContainer.dart';

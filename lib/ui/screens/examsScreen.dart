@@ -1,10 +1,10 @@
 import 'dart:ui';
 import 'package:eschool_saas_staff/cubits/academics/sessionYearsAndMediumsCubit.dart';
 import 'package:eschool_saas_staff/cubits/exam/offlineExamsCubit.dart';
-import 'package:eschool_saas_staff/data/models/medium.dart';
-import 'package:eschool_saas_staff/data/models/offlineExam.dart';
-import 'package:eschool_saas_staff/data/models/offlineExamTimetableSlot.dart';
-import 'package:eschool_saas_staff/data/models/sessionYear.dart';
+import 'package:eschool_saas_staff/data/models/academic/medium.dart';
+import 'package:eschool_saas_staff/data/models/exam/offlineExam.dart';
+import 'package:eschool_saas_staff/data/models/exam/offlineExamTimetableSlot.dart';
+import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';

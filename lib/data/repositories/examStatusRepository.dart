@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/studentExamStatus.dart';
+import 'package:eschool_saas_staff/data/models/exam/studentExamStatus.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';

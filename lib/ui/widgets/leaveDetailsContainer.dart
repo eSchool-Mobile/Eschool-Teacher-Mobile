@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/leaveDetails.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveDetails.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

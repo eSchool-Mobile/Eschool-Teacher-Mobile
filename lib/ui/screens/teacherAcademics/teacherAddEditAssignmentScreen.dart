@@ -1,15 +1,15 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/assignmentRepository.dart';
-import 'package:eschool_saas_staff/data/models/assignment.dart';
-import 'package:eschool_saas_staff/data/models/classSection.dart';
-import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/teacherSubject.dart';
-import 'package:eschool_saas_staff/data/models/gradeLevel.dart';
-import 'package:eschool_saas_staff/data/models/AssignmentFiletype.dart';
+import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
+import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
+import 'package:eschool_saas_staff/data/models/academic/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
@@ -565,7 +565,7 @@ class _TeacherAddEditAssignmentScreenState
 
   Future<void> _addFiles() async {
     debugPrint(
-        '🎯 [ASSIGNMENT SCREEN] Memulai upload file dengan kompresi otomatis');
+        '?? [ASSIGNMENT SCREEN] Memulai upload file dengan kompresi otomatis');
 
     // Gunakan mixin untuk pick dan kompres otomatis dengan loading dialog
     final compressedFiles = await pickAndCompressFiles(
@@ -581,9 +581,9 @@ class _TeacherAddEditAssignmentScreenState
         final fileSize = await file.length();
         final fileName = file.path.split('/').last;
 
-        debugPrint('✅ [ASSIGNMENT SCREEN] File berhasil diproses: $fileName');
+        debugPrint('? [ASSIGNMENT SCREEN] File berhasil diproses: $fileName');
         debugPrint(
-            '   📊 Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
+            '   ?? Ukuran final: ${OptimizedFileCompressionUtils.formatFileSize(fileSize)}');
 
         final platformFile = PlatformFile(
           name: fileName,
@@ -596,7 +596,7 @@ class _TeacherAddEditAssignmentScreenState
       setState(() {});
     } else {
       debugPrint(
-          '❌ [ASSIGNMENT SCREEN] Tidak ada file yang dipilih atau diproses');
+          '? [ASSIGNMENT SCREEN] Tidak ada file yang dipilih atau diproses');
     }
   }
 
@@ -1062,7 +1062,7 @@ class _TeacherAddEditAssignmentScreenState
         );
   }
 
-  // 🚀 PREMIUM SUBMIT BUTTON - Luxury design for action button
+  // ?? PREMIUM SUBMIT BUTTON - Luxury design for action button
   Widget _buildSubmitButton() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
@@ -2270,7 +2270,7 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 
-  // 📋 ATTACHMENT LIST - Organized file lists
+  // ?? ATTACHMENT LIST - Organized file lists
   Widget _buildAttachmentList(String title, List<Widget> attachments) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/models/staff/attendanceRanking.dart';
 import 'package:eschool_saas_staff/ui/widgets/attendenceRankingItemContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherClassSectionScreen.dart';

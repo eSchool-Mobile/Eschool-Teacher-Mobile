@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:eschool_saas_staff/data/models/leaveRequest.dart';
+import 'package:eschool_saas_staff/data/models/leave/leaveRequest.dart';
 import 'package:eschool_saas_staff/ui/screens/leaveRequestsScreen.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';

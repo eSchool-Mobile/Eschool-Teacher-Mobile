@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/studentAttendance.dart';
-import 'package:eschool_saas_staff/data/models/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/studentAttendanceItemContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';

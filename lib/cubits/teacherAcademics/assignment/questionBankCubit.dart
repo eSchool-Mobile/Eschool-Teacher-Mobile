@@ -1,8 +1,8 @@
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/data/models/question.dart';
-import 'package:eschool_saas_staff/data/models/questionBank.dart';
-import 'package:eschool_saas_staff/data/models/subjectQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/question.dart';
+import 'package:eschool_saas_staff/data/models/exam/questionBank.dart';
+import 'package:eschool_saas_staff/data/models/exam/subjectQuestion.dart';
 import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
 import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
 // Tambahkan import File

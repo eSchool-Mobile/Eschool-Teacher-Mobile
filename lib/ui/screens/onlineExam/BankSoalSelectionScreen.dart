@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/data/models/BankOnlineQuestion.dart';
+import 'package:eschool_saas_staff/data/models/exam/BankOnlineQuestion.dart';
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:get/get.dart' as getx;

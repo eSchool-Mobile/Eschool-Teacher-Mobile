@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:eschool_saas_staff/cubits/extracurricularMember/extracurricularMemberCubit.dart';
-import 'package:eschool_saas_staff/data/models/extracurricularMember.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularMember.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/extracurricularMemberListCard.dart';

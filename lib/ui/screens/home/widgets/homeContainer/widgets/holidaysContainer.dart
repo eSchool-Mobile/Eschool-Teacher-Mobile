@@ -1,6 +1,6 @@
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
-import 'package:eschool_saas_staff/data/models/holiday.dart';
+import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
 import 'package:eschool_saas_staff/ui/screens/holidaysScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
 

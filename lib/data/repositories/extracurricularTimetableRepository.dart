@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/extracurricularTimetable.dart';
-import 'package:eschool_saas_staff/data/models/extracurricularTimetableEntry.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularTimetable.dart';
+import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularTimetableEntry.dart';
 import 'package:eschool_saas_staff/utils/api.dart';
 import 'package:flutter/foundation.dart';
 

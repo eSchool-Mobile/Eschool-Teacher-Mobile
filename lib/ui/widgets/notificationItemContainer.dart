@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/notificationDetails.dart';
+import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/readMoreTextContainer.dart';
 import 'package:eschool_saas_staff/utils/constants.dart';
