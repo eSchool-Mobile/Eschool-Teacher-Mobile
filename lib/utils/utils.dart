@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:eschool_saas_staff/cubits/downloadFileCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/downloadFileCubit.dart';
 import 'package:eschool_saas_staff/data/models/assignmentSubmission.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/data/repositories/authRepository.dart';

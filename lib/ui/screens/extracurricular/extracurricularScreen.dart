@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
@@ -40,6 +41,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
   late AnimationController _pulseController;
   late AnimationController _appBarAnimationController;
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription? _extracurricularSub;
 
   // Filter variables
   String? selectedCoachName;
@@ -57,7 +59,8 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
     _refreshExtracurriculars();
 
     // Listen for state changes
-    context.read<ExtracurricularCubit>().stream.listen((state) {
+    _extracurricularSub =
+        context.read<ExtracurricularCubit>().stream.listen((state) {
       if (state is ExtracurricularSuccess) {
         debugPrint(
             '✅ [EXTRACURRICULAR SCREEN] UI Updated: ${state.extracurriculars.length} extracurriculars');
@@ -90,6 +93,7 @@ class _ExtracurricularScreenState extends State<ExtracurricularScreen>
 
   @override
   void dispose() {
+    _extracurricularSub?.cancel();
     _animationController.stop();
     _pulseController.stop();
     _appBarAnimationController.stop();

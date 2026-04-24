@@ -1,4 +1,5 @@
-﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
+﻿import 'dart:async';
+import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
@@ -95,6 +96,8 @@ class _TeacherAddEditAssignmentScreenState
   late AnimationController _fabAnimationController;
   late AnimationController _animationController;
   late AnimationController _pulseController;
+  StreamSubscription? _editAssignmentSub;
+  StreamSubscription? _gradeLevelSub;
 
   // Elegant Maroon Design System
   static const Color _deepMaroon = Color(0xFF7B2D3A); // Rich deep maroon
@@ -405,7 +408,8 @@ class _TeacherAddEditAssignmentScreenState
     _fabAnimationController.repeat();
 
     // Add EditAssignment state listener
-    context.read<EditAssignmentCubit>().stream.listen((state) {
+    _editAssignmentSub =
+        context.read<EditAssignmentCubit>().stream.listen((state) {
       if (state is EditAssignmentSuccess) {
         setState(() {
           _assignmentNameTextEditingController.text =
@@ -464,7 +468,8 @@ class _TeacherAddEditAssignmentScreenState
         // Set grade level after data is loaded
         if (widget.selectedClassSection != null) {
           // Listen to grade level changes to set initial value
-          context.read<GradeLevelCubit>().stream.listen((gradeLevelState) {
+          _gradeLevelSub =
+              context.read<GradeLevelCubit>().stream.listen((gradeLevelState) {
             if (gradeLevelState is GradeLevelFetchSuccess &&
                 _selectedGradeLevel == null) {
               final matchingGradeLevel = gradeLevelState.gradeLevels
@@ -526,6 +531,8 @@ class _TeacherAddEditAssignmentScreenState
 
   @override
   void dispose() {
+    _editAssignmentSub?.cancel();
+    _gradeLevelSub?.cancel();
     _fabAnimationController.dispose();
     _animationController.dispose();
     _pulseController.dispose();

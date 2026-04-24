@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/cubits/downloadFileCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/downloadFileCubit.dart';
 import 'package:eschool_saas_staff/data/models/studyMaterial.dart';
 import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/customRoundedButton.dart';

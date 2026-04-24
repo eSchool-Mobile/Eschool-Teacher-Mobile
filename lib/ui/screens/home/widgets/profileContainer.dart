@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/cubits/appLocalizationCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/appLocalizationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';

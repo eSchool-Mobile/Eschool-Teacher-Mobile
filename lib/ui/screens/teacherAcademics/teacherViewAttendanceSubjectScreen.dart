@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/cubits/studentsByClassSectionCubit.dart';
+import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceSubjectCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
@@ -78,13 +79,14 @@ class _TeacherViewAttendanceSubjectScreenState
   late AnimationController _fabAnimationController;
 
   List<ClassSection> allClasses = [];
+  StreamSubscription? _classSub;
 
   @override
   void dispose() {
+    _classSub?.cancel();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
-
     _materiController.dispose();
     super.dispose();
   }
@@ -115,7 +117,7 @@ class _TeacherViewAttendanceSubjectScreenState
         context.read<ClassesCubit>().getClasses();
 
         // Add a listener to react to state changes
-        context.read<ClassesCubit>().stream.listen((classState) {
+        _classSub = context.read<ClassesCubit>().stream.listen((classState) {
           if (mounted && classState is ClassesFetchSuccess) {
             // Get all available classes
             final allAvailableClasses =

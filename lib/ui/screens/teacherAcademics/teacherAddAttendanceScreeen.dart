@@ -1,5 +1,6 @@
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
-import 'package:eschool_saas_staff/cubits/studentsByClassSectionCubit.dart';
+import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/submitAttendanceCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
@@ -74,14 +75,17 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
   late AnimationController _fabAnimationController;
   late final ScrollController _scrollController = ScrollController()
     ..addListener(scrollListener);
+  StreamSubscription? _classSub;
+  StreamSubscription? _studentsSub;
 
   @override
   void dispose() {
+    _classSub?.cancel();
+    _studentsSub?.cancel();
     _searchController.dispose();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
-
     super.dispose();
   }
 
@@ -109,7 +113,7 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         context.read<ClassesCubit>().getClasses();
 
         // Listen to ClassesCubit state changes to automatically select a class when loaded
-        context.read<ClassesCubit>().stream.listen((state) {
+        _classSub = context.read<ClassesCubit>().stream.listen((state) {
           if (state is ClassesFetchSuccess && _selectedClassSection == null) {
             if (state.primaryClasses.isNotEmpty) {
               debugPrint(
@@ -124,7 +128,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
         });
 
         // Listen to StudentsByClassSectionCubit state changes for debugging
-        context.read<StudentsByClassSectionCubit>().stream.listen((state) {
+        _studentsSub =
+            context.read<StudentsByClassSectionCubit>().stream.listen((state) {
           if (state is StudentsByClassSectionFetchSuccess) {
             debugPrint(
                 "✅ Students loaded successfully: ${state.studentDetailsList.length} students");
@@ -284,7 +289,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
 
                   // Students attendance list
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
@@ -312,8 +318,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                 _maroonLight,
                               ],
                             ),
-                            borderRadius:
-                                const BorderRadius.vertical(top: Radius.circular(16)),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
                             boxShadow: [
                               BoxShadow(
                                 color: _maroonPrimary.withValues(alpha: 0.3),
@@ -419,7 +425,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
 
                   // Students container skeleton with same structure
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                       color: Colors.white,
@@ -439,8 +446,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                               horizontal: 20, vertical: 16),
                           decoration: BoxDecoration(
                             color: Colors.grey.shade300,
-                            borderRadius:
-                                const BorderRadius.vertical(top: Radius.circular(16)),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(16)),
                           ),
                           child: Row(
                             children: [
@@ -469,8 +476,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
 
                         // Student list skeleton
                         const Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: SkeletonAttendanceList(itemCount: 8),
                         ),
                       ],
@@ -660,7 +667,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 10, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: Colors.white.withValues(alpha: 0.2),
+                                          color: Colors.white
+                                              .withValues(alpha: 0.2),
                                           borderRadius:
                                               BorderRadius.circular(12),
                                         ),
@@ -796,7 +804,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                   highlightColor: Colors.white.withValues(alpha: 0.1),
                   splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -872,7 +881,8 @@ class _TeacherAddAttendanceScreenState extends State<TeacherAddAttendanceScreen>
                   highlightColor: Colors.white.withValues(alpha: 0.1),
                   splashColor: Colors.white.withValues(alpha: 0.2),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

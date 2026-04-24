@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
@@ -65,6 +66,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   List<String> kelasList = [];
   List<String> mapelList = [];
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription? _examSub;
 
   // Theme colors - Softer Maroon palette
   static const Color _primaryColor = Color(0xFF7A1E23); // Softer deep maroon
@@ -87,7 +89,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
     });
 
     // Add listener for state changes
-    context.read<OnlineExamCubit>().stream.listen((state) {
+    _examSub = context.read<OnlineExamCubit>().stream.listen((state) {
       if (state is OnlineExamSuccess) {
         setState(() {
           // Update UI when new data arrives
@@ -117,6 +119,7 @@ class _OnlineExamScreenState extends State<OnlineExamScreen>
   @override
   void dispose() {
     // Make sure to stop animations before disposing
+    _examSub?.cancel();
     _animationController.stop();
     _pulseController.stop();
     _appBarAnimationController.stop();

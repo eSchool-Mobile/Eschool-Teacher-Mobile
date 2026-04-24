@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceCubit.dart';
 import 'package:eschool_saas_staff/data/models/classSection.dart';
@@ -57,6 +58,7 @@ class _TeacherViewAttendanceScreenState
   // Animation controllers
   late AnimationController _fabAnimationController;
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription? _classSub;
 
   @override
   void initState() {
@@ -78,7 +80,7 @@ class _TeacherViewAttendanceScreenState
         context.read<ClassesCubit>().getClasses();
 
         // Add a listener to react to state changes
-        context.read<ClassesCubit>().stream.listen((classState) {
+        _classSub = context.read<ClassesCubit>().stream.listen((classState) {
           if (mounted &&
               classState is ClassesFetchSuccess &&
               classState.primaryClasses.isNotEmpty) {
@@ -95,10 +97,10 @@ class _TeacherViewAttendanceScreenState
 
   @override
   void dispose() {
+    _classSub?.cancel();
     _scrollController.removeListener(scrollListener);
     _scrollController.dispose();
     _fabAnimationController.dispose();
-
     super.dispose();
   }
 

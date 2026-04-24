@@ -1,7 +1,7 @@
-import 'package:eschool_saas_staff/cubits/appConfigurationCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
-import 'package:eschool_saas_staff/cubits/homeScreenDataCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/bottomNavItem.dart';
 import 'package:eschool_saas_staff/data/models/notificationDetails.dart';

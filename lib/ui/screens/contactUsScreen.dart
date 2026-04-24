@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:flutter/services.dart';
-import 'package:eschool_saas_staff/cubits/settingCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/settingCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
 import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
 import 'package:eschool_saas_staff/utils/colorPalette.dart';

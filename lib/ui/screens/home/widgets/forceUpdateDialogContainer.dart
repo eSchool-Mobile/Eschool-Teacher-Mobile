@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:eschool_saas_staff/cubits/appConfigurationCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
 import 'package:eschool_saas_staff/utils/labelKeys.dart';
 import 'package:flutter/cupertino.dart';

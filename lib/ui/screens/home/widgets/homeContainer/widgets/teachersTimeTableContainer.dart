@@ -1,5 +1,5 @@
 import 'package:eschool_saas_staff/app/routes.dart';
-import 'package:eschool_saas_staff/cubits/homeScreenDataCubit.dart';
+import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/data/models/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
