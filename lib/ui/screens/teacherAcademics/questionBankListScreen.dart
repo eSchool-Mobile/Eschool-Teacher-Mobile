@@ -1,5 +1,5 @@
-import 'dart:math' as math;
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+﻿import 'dart:math' as math;
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -9,9 +9,9 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import '../../../cubits/teacherAcademics/assignment/questionBankCubit.dart';
 import '../../../data/models/exam/questionBank.dart';
 import '../../../data/models/exam/subjectQuestion.dart';
-import 'package:eschool_saas_staff/data/repositories/questionBankRepository.dart';
-import '../../widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
+import 'package:eschool_saas_staff/data/repositories/exam/questionBankRepository.dart';
+import '../../widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 

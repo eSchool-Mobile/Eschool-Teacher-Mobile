@@ -1,13 +1,13 @@
-import 'package:eschool_saas_staff/app/routes.dart';
+﻿import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
-import 'package:eschool_saas_staff/ui/screens/teacherTimeTableDetailsScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/profileImageContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/ui/screens/academics/teacherTimeTableDetailsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/staff/teachersScreen.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/profileImageContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

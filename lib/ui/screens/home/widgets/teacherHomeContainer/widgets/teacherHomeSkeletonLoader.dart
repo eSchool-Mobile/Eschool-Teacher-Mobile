@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
 
 class TeacherHomeSkeletonLoader extends StatefulWidget {
   const TeacherHomeSkeletonLoader({super.key});

@@ -1,20 +1,20 @@
-import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherCreateAnnouncementCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherCreateAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/announcement/teacherEditAnnouncementCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAnnouncement.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/announcement/teacherAnnouncement.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -1019,3 +1019,4 @@ class _TeacherAddEditAnnouncementScreenState
     );
   }
 }
+

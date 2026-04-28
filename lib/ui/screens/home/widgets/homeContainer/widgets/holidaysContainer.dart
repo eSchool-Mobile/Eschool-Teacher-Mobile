@@ -1,12 +1,12 @@
-import 'package:eschool_saas_staff/app/routes.dart';
+﻿import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
-import 'package:eschool_saas_staff/ui/screens/holidaysScreen.dart';
+import 'package:eschool_saas_staff/data/models/system/holiday.dart';
+import 'package:eschool_saas_staff/ui/screens/system/holidaysScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/contentTitleWithViewmoreButton.dart';
 
-import 'package:eschool_saas_staff/ui/widgets/holidayContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/holidayContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/route_manager.dart';
@@ -67,3 +67,4 @@ class HolidaysContainer extends StatelessWidget {
           );
   }
 }
+

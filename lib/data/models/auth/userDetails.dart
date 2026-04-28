@@ -1,7 +1,7 @@
-import 'package:eschool_saas_staff/data/models/auth/additionalUserDetails.dart';
+﻿import 'package:eschool_saas_staff/data/models/auth/additionalUserDetails.dart';
 import 'package:eschool_saas_staff/data/models/auth/role.dart';
 import 'package:eschool_saas_staff/data/models/academic/school.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
 
 class UserDetails {
   final int? id;

@@ -1,8 +1,8 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

@@ -1,11 +1,11 @@
-import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/settings/appConfigurationCubit.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/data/models/system/bottomNavItem.dart';
 import 'package:eschool_saas_staff/data/models/system/notificationDetails.dart';
-import 'package:eschool_saas_staff/data/repositories/announcementRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/announcement/announcementRepository.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/academicsContainer/academicsContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/appUnderMaintenanceContainer.dart';
 // import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/chatContainer.dart';
@@ -13,10 +13,10 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/forceUpdateDialogCont
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/homeContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/profileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/teacherHomeContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/animatedBottomNavigation.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/animatedBottomNavigation.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

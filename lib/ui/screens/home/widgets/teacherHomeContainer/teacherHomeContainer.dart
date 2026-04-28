@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
@@ -8,8 +8,8 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherPermissionContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherTodaysTimetableContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/teacherHomeContainer/widgets/teacherHomeSkeletonLoader.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,13 +1,13 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/holiday.dart';
+﻿import 'package:eschool_saas_staff/data/models/system/holiday.dart';
 import 'package:eschool_saas_staff/data/models/leave/leaveDetails.dart';
 import 'package:eschool_saas_staff/data/models/auth/permissionDetails.dart';
 import 'package:eschool_saas_staff/data/models/auth/userDetails.dart';
-import 'package:eschool_saas_staff/data/repositories/leaveRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/leave/leaveRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/auth/permissionRepository.dart';
-import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
-import 'package:eschool_saas_staff/data/repositories/statisticsRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/system/settingsRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/system/statisticsRepository.dart';
 import 'package:eschool_saas_staff/data/repositories/teacherRepository.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class HomeScreenDataState {}
@@ -174,3 +174,4 @@ class HomeScreenDataCubit extends Cubit<HomeScreenDataState> {
     return [];
   }
 }
+

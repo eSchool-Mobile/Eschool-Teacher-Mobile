@@ -1,19 +1,19 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricularAttendanceCubit.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularAttendance/extracurricularAttendanceState.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularAttendanceRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularAttendanceRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularAttendance.dart';
-import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
-import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/dateFormatter.dart';
+import 'package:eschool_saas_staff/data/models/student/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/student/studentAttendanceContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/dateFormatter.dart';
 
 class ExtracurricularAttendanceScreen extends StatefulWidget {
   const ExtracurricularAttendanceScreen({super.key});
@@ -995,3 +995,4 @@ class _ExtracurricularAttendanceScreenState
     );
   }
 }
+

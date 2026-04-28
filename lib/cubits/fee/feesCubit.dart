@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/fee.dart';
-import 'package:eschool_saas_staff/data/repositories/feeRepository.dart';
+﻿import 'package:eschool_saas_staff/data/models/fee/fee.dart';
+import 'package:eschool_saas_staff/data/repositories/fee/feeRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class FeesState {}
@@ -34,3 +34,4 @@ class FeesCubit extends Cubit<FeesState> {
     }
   }
 }
+

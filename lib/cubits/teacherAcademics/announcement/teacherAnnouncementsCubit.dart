@@ -1,6 +1,6 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAnnouncement.dart';
-import 'package:eschool_saas_staff/data/repositories/teacherAnnouncementRepository.dart';
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+﻿import 'package:eschool_saas_staff/data/models/announcement/teacherAnnouncement.dart';
+import 'package:eschool_saas_staff/data/repositories/announcement/teacherAnnouncementRepository.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 
@@ -158,3 +158,4 @@ class TeacherAnnouncementsCubit extends Cubit<TeacherAnnouncementsState> {
     }
   }
 }
+

@@ -1,4 +1,4 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
@@ -12,12 +12,12 @@ import 'package:eschool_saas_staff/cubits/chat/chatSendMessageCubit.dart';
 import 'package:eschool_saas_staff/cubits/chat/socketSettingsCubit.dart';
 import 'package:eschool_saas_staff/data/models/chat/chatMessage.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/chatContainer/widgets/selectAttachementBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextButton.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextButton.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

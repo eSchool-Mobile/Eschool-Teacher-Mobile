@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/staffPayRoll.dart';
-import 'package:eschool_saas_staff/data/repositories/payRollRepository.dart';
+﻿import 'package:eschool_saas_staff/data/models/payroll/staffPayRoll.dart';
+import 'package:eschool_saas_staff/data/repositories/payroll/payRollRepository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class StaffsPayrollState {}
@@ -55,3 +55,4 @@ class StaffsPayrollCubit extends Cubit<StaffsPayrollState> {
     return 0.0;
   }
 }
+

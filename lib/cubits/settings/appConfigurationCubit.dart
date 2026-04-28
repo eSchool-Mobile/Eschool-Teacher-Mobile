@@ -1,7 +1,7 @@
-import 'dart:io';
+﻿import 'dart:io';
 
 import 'package:eschool_saas_staff/data/models/system/appConfiguration.dart';
-import 'package:eschool_saas_staff/data/repositories/settingsRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/system/settingsRepository.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -1,6 +1,6 @@
-import 'package:eschool_saas_staff/data/models/staff/attendanceRanking.dart';
-import 'package:eschool_saas_staff/data/repositories/attendanceRankingRepository.dart';
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+﻿import 'package:eschool_saas_staff/data/models/student/attendanceRanking.dart';
+import 'package:eschool_saas_staff/data/repositories/student/attendanceRankingRepository.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 
@@ -48,3 +48,4 @@ class AttendanceRankingCubit extends Cubit<AttendanceRankingState> {
     }
   }
 }
+

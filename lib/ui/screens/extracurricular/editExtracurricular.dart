@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import 'package:get/get.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 
 class EditExtracurricular extends StatefulWidget {
   final Extracurricular extracurricular;

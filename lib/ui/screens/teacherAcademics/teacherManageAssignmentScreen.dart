@@ -1,4 +1,4 @@
-import 'dart:ui';
+﻿import 'dart:ui';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/assignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/deleteAssignmentCubit.dart';
@@ -6,34 +6,25 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubje
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditAssignmentScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherManageAssignmentSubmissionScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
-import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customFilterModernAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Define our theme colors
-const Color maroonPrimary = Color(0xFF8B1F41);
-const Color maroonLight = Color(0xFFAC3B5C);
-const Color maroonDark = Color(0xFF6A0F2A);
-const Color accentColor = Color(0xFFF5EBE0);
-const Color bgColor = Color(0xFFFAF6F2);
-const Color cardColor = Colors.white;
-const Color textDarkColor = Color(0xFF2D2D2D);
-const Color textMediumColor = Color(0xFF717171);
-const Color borderColor = Color(0xFFE8E8E8);
+import 'package:eschool_saas_staff/ui/screens/leaves/widgets/leaveThemeColors.dart';
 
 // Define missing key constants
 const String noAssignmentKey = 'noAssignment';
@@ -277,7 +268,8 @@ class _TeacherManageAssignmentScreenState
                   backgroundColor: Colors.green.shade600,
                   duration: const Duration(seconds: 3),
                   behavior: SnackBarBehavior.floating,
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16)),
                   elevation: 6,
@@ -291,7 +283,8 @@ class _TeacherManageAssignmentScreenState
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline_rounded, color: Colors.white),
+                        const Icon(Icons.error_outline_rounded,
+                            color: Colors.white),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -310,7 +303,8 @@ class _TeacherManageAssignmentScreenState
                   backgroundColor: maroonPrimary,
                   duration: const Duration(seconds: 3),
                   behavior: SnackBarBehavior.floating,
-                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -471,13 +465,13 @@ class _TeacherManageAssignmentScreenState
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color:
-                                              maroonPrimary.withValues(alpha: 0.08),
+                                          color: maroonPrimary.withValues(
+                                              alpha: 0.08),
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
-                                            color:
-                                                maroonPrimary.withValues(alpha: 0.15),
+                                            color: maroonPrimary.withValues(
+                                                alpha: 0.15),
                                             width: 1,
                                           ),
                                         ),
@@ -537,7 +531,8 @@ class _TeacherManageAssignmentScreenState
                                           }
                                         });
                                       } else if (value == 'delete') {
-                                        if (state is DeleteAssignmentInProgress) {
+                                        if (state
+                                            is DeleteAssignmentInProgress) {
                                           return;
                                         }
                                         HapticFeedback.mediumImpact();
@@ -566,13 +561,16 @@ class _TeacherManageAssignmentScreenState
                                         child: TweenAnimationBuilder<double>(
                                           tween: Tween<double>(
                                               begin: 0.9, end: 1.0),
-                                          duration: const Duration(milliseconds: 200),
+                                          duration:
+                                              const Duration(milliseconds: 200),
                                           builder: (context, value, child) {
                                             return Transform.scale(
                                               scale: value,
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    vertical: 8, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 8),
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
@@ -588,9 +586,11 @@ class _TeacherManageAssignmentScreenState
                                                     BoxShadow(
                                                       color: Colors
                                                           .blue.shade500
-                                                          .withValues(alpha: 0.3),
+                                                          .withValues(
+                                                              alpha: 0.3),
                                                       blurRadius: 12,
-                                                      offset: const Offset(0, 4),
+                                                      offset:
+                                                          const Offset(0, 4),
                                                       spreadRadius: -2,
                                                     )
                                                   ],
@@ -601,10 +601,12 @@ class _TeacherManageAssignmentScreenState
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          const EdgeInsets.all(6),
+                                                          const EdgeInsets.all(
+                                                              6),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
-                                                            .withValues(alpha: 0.25),
+                                                            .withValues(
+                                                                alpha: 0.25),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(10),
@@ -643,13 +645,16 @@ class _TeacherManageAssignmentScreenState
                                         child: TweenAnimationBuilder<double>(
                                           tween: Tween<double>(
                                               begin: 0.9, end: 1.0),
-                                          duration: const Duration(milliseconds: 300),
+                                          duration:
+                                              const Duration(milliseconds: 300),
                                           builder: (context, value, child) {
                                             return Transform.scale(
                                               scale: value,
                                               child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                    vertical: 8, horizontal: 8),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 8,
+                                                        horizontal: 8),
                                                 decoration: BoxDecoration(
                                                   gradient: LinearGradient(
                                                     colors: [
@@ -664,9 +669,11 @@ class _TeacherManageAssignmentScreenState
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.red.shade500
-                                                          .withValues(alpha: 0.3),
+                                                          .withValues(
+                                                              alpha: 0.3),
                                                       blurRadius: 12,
-                                                      offset: const Offset(0, 4),
+                                                      offset:
+                                                          const Offset(0, 4),
                                                       spreadRadius: -2,
                                                     )
                                                   ],
@@ -677,10 +684,12 @@ class _TeacherManageAssignmentScreenState
                                                   children: [
                                                     Container(
                                                       padding:
-                                                          const EdgeInsets.all(6),
+                                                          const EdgeInsets.all(
+                                                              6),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
-                                                            .withValues(alpha: 0.25),
+                                                            .withValues(
+                                                                alpha: 0.25),
                                                         borderRadius:
                                                             BorderRadius
                                                                 .circular(10),
@@ -716,7 +725,8 @@ class _TeacherManageAssignmentScreenState
                                     child: TweenAnimationBuilder<double>(
                                       tween:
                                           Tween<double>(begin: 0.8, end: 1.0),
-                                      duration: const Duration(milliseconds: 300),
+                                      duration:
+                                          const Duration(milliseconds: 300),
                                       builder: (context, value, child) {
                                         return Transform.scale(
                                           scale: value,
@@ -866,7 +876,8 @@ class _TeacherManageAssignmentScreenState
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: maroonPrimary.withValues(alpha: 0.08),
+                                    color:
+                                        maroonPrimary.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -909,10 +920,12 @@ class _TeacherManageAssignmentScreenState
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 10),
                                     decoration: BoxDecoration(
-                                      color: Colors.amber.withValues(alpha: 0.08),
+                                      color:
+                                          Colors.amber.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: Colors.amber.withValues(alpha: 0.3),
+                                        color:
+                                            Colors.amber.withValues(alpha: 0.3),
                                         width: 1,
                                       ),
                                     ),
@@ -921,8 +934,8 @@ class _TeacherManageAssignmentScreenState
                                         Container(
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
-                                            color:
-                                                Colors.amber.withValues(alpha: 0.2),
+                                            color: Colors.amber
+                                                .withValues(alpha: 0.2),
                                             borderRadius:
                                                 BorderRadius.circular(8),
                                             boxShadow: [
@@ -968,10 +981,12 @@ class _TeacherManageAssignmentScreenState
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 10),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.withValues(alpha: 0.08),
+                                        color: Colors.green
+                                            .withValues(alpha: 0.08),
                                         borderRadius: BorderRadius.circular(12),
                                         border: Border.all(
-                                          color: Colors.green.withValues(alpha: 0.3),
+                                          color: Colors.green
+                                              .withValues(alpha: 0.3),
                                           width: 1,
                                         ),
                                       ),
@@ -980,8 +995,8 @@ class _TeacherManageAssignmentScreenState
                                           Container(
                                             padding: const EdgeInsets.all(8),
                                             decoration: BoxDecoration(
-                                              color:
-                                                  Colors.green.withValues(alpha: 0.2),
+                                              color: Colors.green
+                                                  .withValues(alpha: 0.2),
                                               borderRadius:
                                                   BorderRadius.circular(8),
                                               boxShadow: [
@@ -1047,7 +1062,8 @@ class _TeacherManageAssignmentScreenState
                                   Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
-                                      color: maroonPrimary.withValues(alpha: 0.08),
+                                      color:
+                                          maroonPrimary.withValues(alpha: 0.08),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: const Icon(
@@ -1078,13 +1094,13 @@ class _TeacherManageAssignmentScreenState
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 3),
                                           decoration: BoxDecoration(
-                                            color:
-                                                maroonPrimary.withValues(alpha: 0.1),
+                                            color: maroonPrimary.withValues(
+                                                alpha: 0.1),
                                             borderRadius:
                                                 BorderRadius.circular(12),
                                             border: Border.all(
-                                              color: maroonPrimary
-                                                  .withValues(alpha: 0.2),
+                                              color: maroonPrimary.withValues(
+                                                  alpha: 0.2),
                                               width: 1,
                                             ),
                                           ),
@@ -1145,8 +1161,8 @@ class _TeacherManageAssignmentScreenState
                                               height: 48,
                                               padding: const EdgeInsets.all(12),
                                               decoration: BoxDecoration(
-                                                color: maroonPrimary
-                                                    .withValues(alpha: 0.08),
+                                                color: maroonPrimary.withValues(
+                                                    alpha: 0.08),
                                                 borderRadius:
                                                     BorderRadius.circular(12),
                                               ),
@@ -1203,10 +1219,12 @@ class _TeacherManageAssignmentScreenState
                                                 borderRadius:
                                                     BorderRadius.circular(14),
                                                 child: Container(
-                                                  padding: const EdgeInsets.all(10),
+                                                  padding:
+                                                      const EdgeInsets.all(10),
                                                   decoration: BoxDecoration(
                                                     color: maroonPrimary
-                                                        .withValues(alpha: 0.07),
+                                                        .withValues(
+                                                            alpha: 0.07),
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             14),
@@ -1267,7 +1285,8 @@ class _TeacherManageAssignmentScreenState
                               ),
                               child: Container(
                                 width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -1655,8 +1674,8 @@ class _TeacherManageAssignmentScreenState
                                         ),
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withValues(alpha: 0.2),
+                                            color: Colors.black
+                                                .withValues(alpha: 0.2),
                                             blurRadius: 4,
                                             offset: const Offset(0, 2),
                                           ),
@@ -1972,3 +1991,4 @@ class _TeacherManageAssignmentScreenState
     );
   }
 }
+

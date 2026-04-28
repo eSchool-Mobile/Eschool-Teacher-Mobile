@@ -1,5 +1,5 @@
-import 'package:eschool_saas_staff/data/models/exam/offlineExamTimetableSlot.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+﻿import 'package:eschool_saas_staff/data/models/exam/offlineExamTimetableSlot.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 
 class OfflineExam {
   final int? id;

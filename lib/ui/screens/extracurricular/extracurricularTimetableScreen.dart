@@ -1,11 +1,11 @@
-import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+﻿import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularTimetableCubit.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularTimetableRepository.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart' as constants;
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularRepository.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart' as constants;
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:ui';
@@ -16,7 +16,7 @@ import 'package:get/get.dart';
 import 'package:eschool_saas_staff/ui/screens/extracurricular/createExtracurricularTimetableScreen.dart';
 import 'package:eschool_saas_staff/cubits/extracurricularTimetable/extracurricularTimetableCubit.dart'
     as timetable_cubit;
-import 'package:eschool_saas_staff/ui/widgets/extracurricularTimetableItem.dart';
+import 'package:eschool_saas_staff/ui/widgets/extracurricular/extracurricularTimetableItem.dart';
 
 class ExtracurricularTimetableScreen extends StatefulWidget {
   const ExtracurricularTimetableScreen({super.key});

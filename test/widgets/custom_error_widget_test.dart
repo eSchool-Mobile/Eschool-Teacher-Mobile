@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 
 void main() {
   group('CustomErrorWidget Tests', () {

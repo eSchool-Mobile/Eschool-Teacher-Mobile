@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAssignmentDetail.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherAssignmentDetail.dart';
 import 'package:eschool_saas_staff/data/repositories/academics/assignmentMonitoringRepository.dart';
 import 'package:equatable/equatable.dart';
 
@@ -81,3 +81,4 @@ class TeacherAssignmentDetailCubit extends Cubit<TeacherAssignmentDetailState> {
     }
   }
 }
+

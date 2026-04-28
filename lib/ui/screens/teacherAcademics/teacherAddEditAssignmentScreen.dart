@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/createAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/assignment/editAssignmentCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
@@ -7,18 +7,18 @@ import 'package:eschool_saas_staff/data/repositories/academics/assignmentReposit
 import 'package:eschool_saas_staff/data/models/academic/assignment.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/data/models/academic/AssignmentFiletype.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/customFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customTextFieldContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customTextFieldContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_utils.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -2310,3 +2310,4 @@ class _TeacherAddEditAssignmentScreenState
     );
   }
 }
+

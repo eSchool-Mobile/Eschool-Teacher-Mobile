@@ -1,13 +1,13 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:eschool_saas_staff/data/repositories/onlineExamRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/exam/onlineExamRepository.dart';
 import 'package:eschool_saas_staff/data/models/exam/onlineExam.dart';
 import 'package:eschool_saas_staff/data/models/academic/subject.dart'
     as subject_model; // Add SubjectDetail model
-import 'package:eschool_saas_staff/utils/api.dart'; // Add this import
+import 'package:eschool_saas_staff/utils/system/api.dart'; // Add this import
 // Add this import
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 
 import 'package:eschool_saas_staff/data/models/academic/subjectDetail.dart';
 

@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceSubjectCubit.dart';
@@ -6,15 +6,17 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubje
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/attendanceStatCard.dart';
+import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/attendanceStatusFilterButton.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/ui/widgets/studentSubjectAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/ui/widgets/student/studentSubjectAttendanceContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -23,7 +25,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class TeacherViewAttendanceSubjectScreen extends StatefulWidget {
@@ -268,80 +270,6 @@ class _TeacherViewAttendanceSubjectScreenState
       case StudentAttendanceStatus.alpa:
         return 4;
     }
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String title,
-    required int count,
-    required int total,
-    required Color color,
-    bool small = false,
-  }) {
-    final percentage =
-        total > 0 ? (count / total * 100).toStringAsFixed(0) : '0';
-
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: small ? 10 : 16,
-        horizontal: small ? 8 : 16,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: color.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.2),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: small ? 14 : 18,
-                ),
-              ),
-              Text(
-                '$percentage%',
-                style: GoogleFonts.poppins(
-                  fontSize: small ? 12 : 14,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: small ? 6 : 10),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: small ? 11 : 13,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '$count/$total',
-            style: GoogleFonts.poppins(
-              fontSize: small ? 14 : 18,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildStudentsContainer() {
@@ -660,7 +588,7 @@ class _TeacherViewAttendanceSubjectScreenState
                         Row(
                           children: [
                             Expanded(
-                              child: _buildStatCard(
+                              child: AttendanceStatCard(
                                 icon: Icons.check_circle_rounded,
                                 title: 'Hadir',
                                 count: state.attendance
@@ -672,7 +600,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: _buildStatCard(
+                              child: AttendanceStatCard(
                                 icon: Icons.cancel_rounded,
                                 title: 'Tidak Hadir',
                                 count: state.attendance
@@ -690,7 +618,7 @@ class _TeacherViewAttendanceSubjectScreenState
                         Row(
                           children: [
                             Expanded(
-                              child: _buildStatCard(
+                              child: AttendanceStatCard(
                                 icon: Icons.healing_rounded,
                                 title: 'Sakit',
                                 count: state.attendance
@@ -703,7 +631,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: _buildStatCard(
+                              child: AttendanceStatCard(
                                 icon: Icons.sticky_note_2_rounded,
                                 title: 'Izin',
                                 count: state.attendance
@@ -716,7 +644,7 @@ class _TeacherViewAttendanceSubjectScreenState
                             ),
                             const SizedBox(width: 8),
                             Expanded(
-                              child: _buildStatCard(
+                              child: AttendanceStatCard(
                                 icon: Icons.not_interested_rounded,
                                 title: 'Alpa',
                                 count: state.attendance
@@ -1614,8 +1542,7 @@ class _TeacherViewAttendanceSubjectScreenState
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              // Semua filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.all_inclusive_rounded,
                 label: "Semua",
                 isSelected:
@@ -1628,9 +1555,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   getAttendance();
                 },
               ),
-
-              // Hadir filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.check_circle_rounded,
                 label: "Hadir",
                 isSelected: isPresentStatusOnly == true,
@@ -1643,9 +1568,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   getAttendance();
                 },
               ),
-
-              // Tidak Hadir filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.remove_circle_rounded,
                 label: "Tidak Hadir",
                 isSelected: isPresentStatusOnly == false,
@@ -1658,9 +1581,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   getAttendance();
                 },
               ),
-
-              // Sakit filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.healing_rounded,
                 label: "Sakit",
                 isSelected: selectedStatus == StudentAttendanceStatus.sick,
@@ -1673,9 +1594,7 @@ class _TeacherViewAttendanceSubjectScreenState
                   getAttendance(selectedStatus: StudentAttendanceStatus.sick);
                 },
               ),
-
-              // Izin filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.sticky_note_2_rounded,
                 label: "Izin",
                 isSelected:
@@ -1690,9 +1609,7 @@ class _TeacherViewAttendanceSubjectScreenState
                       selectedStatus: StudentAttendanceStatus.permission);
                 },
               ),
-
-              // Alpha filter
-              _buildCompactStatusFilterButton(
+              AttendanceStatusFilterButton(
                 icon: Icons.not_interested_rounded,
                 label: "Alpa",
                 isSelected: selectedStatus == StudentAttendanceStatus.alpa,
@@ -2113,58 +2030,5 @@ class _TeacherViewAttendanceSubjectScreenState
         }
       }
     }
-  }
-
-  Widget _buildCompactStatusFilterButton({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-    Color color = Colors.white,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 8, top: 4, bottom: 4),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: isSelected
-                    ? color.withValues(alpha: 0.7)
-                    : Colors.white.withValues(alpha: 0.3),
-                width: 1,
-              ),
-              color: isSelected
-                  ? color.withValues(alpha: 0.2)
-                  : Colors.transparent,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? color : Colors.white,
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? color : Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

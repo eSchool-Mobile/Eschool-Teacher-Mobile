@@ -1,12 +1,12 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/leaves/leavesScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/staffsScreen.dart';
-import 'package:eschool_saas_staff/ui/screens/teachersScreen.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/ui/screens/staff/staffsScreen.dart';
+import 'package:eschool_saas_staff/ui/screens/staff/teachersScreen.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';

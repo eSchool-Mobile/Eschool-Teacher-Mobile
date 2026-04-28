@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/staffSalary.dart';
+import 'package:eschool_saas_staff/data/models/payroll/staffSalary.dart';
 
 class AdditionalUserDetails {
   final int? id;
@@ -50,3 +50,4 @@ class AdditionalUserDetails {
             staffSalaries?.map((staffSalary) => staffSalary.toJson()).toList()
       };
 }
+

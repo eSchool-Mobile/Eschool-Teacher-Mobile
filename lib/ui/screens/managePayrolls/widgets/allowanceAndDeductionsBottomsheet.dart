@@ -1,7 +1,7 @@
-import 'package:eschool_saas_staff/data/models/staffTeacher/staffSalary.dart';
-import 'package:eschool_saas_staff/ui/widgets/allowancesAndDeductionsContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+﻿import 'package:eschool_saas_staff/data/models/payroll/staffSalary.dart';
+import 'package:eschool_saas_staff/ui/widgets/payroll/allowancesAndDeductionsContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 import 'package:flutter/material.dart';
 
 class AllowanceAndDeductionsBottomsheet extends StatelessWidget {
@@ -27,3 +27,4 @@ class AllowanceAndDeductionsBottomsheet extends StatelessWidget {
         ));
   }
 }
+

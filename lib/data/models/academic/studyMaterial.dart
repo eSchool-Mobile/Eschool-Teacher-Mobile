@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
+﻿import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
 
 enum StudyMaterialType { file, youtubeVideo, uploadedVideoUrl, other }
 

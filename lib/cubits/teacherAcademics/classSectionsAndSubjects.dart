@@ -1,8 +1,8 @@
-
+﻿
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/repositories/academics/academicRepository.dart';
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/foundation.dart';
 
@@ -83,3 +83,4 @@ class ClassSectionsAndSubjectsCubit
     }
   }
 }
+

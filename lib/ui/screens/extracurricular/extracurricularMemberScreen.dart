@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
@@ -6,10 +6,10 @@ import 'package:shimmer/shimmer.dart';
 
 import 'package:eschool_saas_staff/cubits/extracurricularMember/extracurricularMemberCubit.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularMember.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/extracurricularMemberListCard.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/extracurricular/extracurricularMemberListCard.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 
 class ExtracurricularMemberScreen extends StatefulWidget {
   const ExtracurricularMemberScreen({super.key});

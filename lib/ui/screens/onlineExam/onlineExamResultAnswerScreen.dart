@@ -1,7 +1,7 @@
-import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/onlineExam/onlineExamCubit.dart';
 import 'package:flutter/services.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';

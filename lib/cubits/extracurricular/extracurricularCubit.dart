@@ -1,6 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+﻿import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularRepository.dart';
 import 'package:eschool_saas_staff/data/models/auth/user.dart';
 import 'package:flutter/foundation.dart';
 

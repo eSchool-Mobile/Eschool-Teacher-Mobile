@@ -1,7 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
+﻿import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eschool_saas_staff/data/models/chat/chatContact.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 
 class ChatContactCard extends StatelessWidget {

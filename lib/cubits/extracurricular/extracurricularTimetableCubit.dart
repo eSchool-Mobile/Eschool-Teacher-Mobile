@@ -1,6 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+﻿import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricularTimetable.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularTimetableRepository.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularTimetableRepository.dart';
 import 'package:flutter/foundation.dart';
 
 abstract class ExtracurricularTimetableState {}

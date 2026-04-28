@@ -1,5 +1,5 @@
-import 'dart:math' as math;
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
+﻿import 'dart:math' as math;
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/data/models/exam/BankOnlineQuestion.dart';
@@ -8,7 +8,7 @@ import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:get/get.dart' as getx;
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class LightRaysPainter extends CustomPainter {

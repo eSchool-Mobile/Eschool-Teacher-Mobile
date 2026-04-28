@@ -1,14 +1,14 @@
-import 'dart:math';
+﻿import 'dart:math';
 import 'package:eschool_saas_staff/cubits/payRoll/downloadPayRollSlipCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/staffPayRoll.dart';
+import 'package:eschool_saas_staff/data/models/payroll/staffPayRoll.dart';
 import 'package:eschool_saas_staff/ui/screens/managePayrolls/widgets/allowanceAndDeductionsBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/styles/themeExtensions/customColorsExtension.dart';
-import 'package:eschool_saas_staff/ui/widgets/downloadPayRollSlipDialog.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/payroll/downloadPayRollSlipDialog.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -935,3 +935,4 @@ class StaffPayrollDetailsContainerState
     );
   }
 }
+

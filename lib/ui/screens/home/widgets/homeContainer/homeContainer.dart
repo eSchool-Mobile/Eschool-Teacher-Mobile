@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/authentication/authCubit.dart';
 import 'package:eschool_saas_staff/cubits/settings/homeScreenDataCubit.dart';
 import 'package:eschool_saas_staff/cubits/userDetails/staffAllowedPermissionsAndModulesCubit.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/holidaysContainer.dart';
@@ -6,9 +6,9 @@ import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/leavesContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/teachersTimeTableContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/home/widgets/homeContainer/widgets/homeContainerAppbar.dart';
-import 'package:eschool_saas_staff/ui/widgets/customCircularProgressIndicator.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/utils/systemModulesAndPermissions.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customCircularProgressIndicator.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/utils/system/systemModulesAndPermissions.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

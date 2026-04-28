@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
+﻿import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/createLessonCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/editLessonCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
@@ -6,17 +6,17 @@ import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/lesson.dart';
 import 'package:eschool_saas_staff/data/models/academic/pickedStudyMaterial.dart';
 import 'package:eschool_saas_staff/data/models/academic/studyMaterial.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addStudyMaterialBottomsheet.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/addedStudyMaterialFileContainer.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/studyMaterialContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_mixin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -1184,3 +1184,4 @@ class _TeacherAddEditLessonScreenState extends State<TeacherAddEditLessonScreen>
     );
   }
 }
+

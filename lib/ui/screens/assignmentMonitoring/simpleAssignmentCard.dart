@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherAssignmentDetail.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherAssignmentDetail.dart';
 
 class SimpleAssignmentCard extends StatelessWidget {
   final TeacherAssignmentDetail assignment;
@@ -731,3 +731,4 @@ class SimpleAssignmentCard extends StatelessWidget {
     );
   }
 }
+

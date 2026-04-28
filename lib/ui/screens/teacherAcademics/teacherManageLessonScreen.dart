@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/app/routes.dart';
+﻿import 'package:eschool_saas_staff/app/routes.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/classSectionsAndSubjects.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/gradeLevelCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/deleteLessonCubit.dart';
@@ -6,17 +6,17 @@ import 'package:eschool_saas_staff/cubits/teacherAcademics/lesson/lessonsCubit.d
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/gradeLevel.dart';
 import 'package:eschool_saas_staff/data/models/academic/lesson.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherAddEditLessonScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/teacherManageTopicScreen.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/confirmDeleteDialog.dart';
-import 'package:eschool_saas_staff/ui/widgets/customFilterModernAppbar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customFilterModernAppbar.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/filterSelectionBottomsheet.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/filterSelectionBottomsheet.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -24,7 +24,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:ui';
 
-// Define our theme colors
+// Define our theme colors (kept local: teacherManageTopicScreen import re-exports same names)
 const Color maroonPrimary = Color(0xFF8B1F41);
 const Color maroonLight = Color(0xFFAC3B5C);
 const Color maroonDark = Color(0xFF6A0F2A);
@@ -1926,3 +1926,4 @@ class _TeacherManageLessonScreenState extends State<TeacherManageLessonScreen>
     );
   }
 }
+

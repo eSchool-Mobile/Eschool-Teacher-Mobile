@@ -1,8 +1,8 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import '../utils/file_compression_utils.dart';
+import '../utils/system/file_compression_utils.dart';
 
 /// Example widget showing how to use FileCompressionUtils
 /// This can be used as reference for implementing file compression in your app

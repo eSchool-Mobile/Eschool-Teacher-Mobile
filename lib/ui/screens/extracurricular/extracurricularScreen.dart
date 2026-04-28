@@ -1,9 +1,9 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:eschool_saas_staff/cubits/extracurricular/extracurricularCubit.dart';
-import 'package:eschool_saas_staff/data/repositories/extracurricularRepository.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/data/repositories/extracurricular/extracurricularRepository.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:eschool_saas_staff/data/models/extracurricular/extracurricular.dart';
 import '../../../app/routes.dart';
 import 'package:get/get.dart';
@@ -11,8 +11,8 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:flutter/services.dart';
 import 'dart:math' as math;
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/no_search_results_widget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/no_search_results_widget.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
 
 class ExtracurricularScreen extends StatefulWidget {

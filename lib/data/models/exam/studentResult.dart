@@ -1,4 +1,4 @@
-import 'package:eschool_saas_staff/data/models/staff/studentDetails.dart';
+import 'package:eschool_saas_staff/data/models/student/studentDetails.dart';
 
 class StudentResult {
   final int? id;
@@ -97,3 +97,4 @@ class StudentResult {
         'updated_at': updatedAt
       };
 }
+

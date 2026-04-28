@@ -1,22 +1,22 @@
-import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
+﻿import 'package:eschool_saas_staff/cubits/academics/classesCubit.dart';
 import 'package:eschool_saas_staff/cubits/student/studentsByClassSectionCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/attendanceSubjectCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/attendence/submitAttendanceSubjectCubit.dart';
 import 'package:eschool_saas_staff/cubits/teacherAcademics/teacherMyTimetableCubit.dart';
-import 'package:eschool_saas_staff/data/models/staff/attendanceStudent.dart';
+import 'package:eschool_saas_staff/data/models/student/attendanceStudent.dart';
 import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
-import 'package:eschool_saas_staff/data/models/staff/studentAttendance.dart';
+import 'package:eschool_saas_staff/data/models/student/studentAttendance.dart';
 import 'package:eschool_saas_staff/data/models/academic/timeTableSlot.dart';
 import 'package:eschool_saas_staff/ui/screens/teacherAcademics/widgets/holidayAttendanceContainer.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
-import 'package:eschool_saas_staff/ui/widgets/errorContainer.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/errorContainer.dart';
 import 'package:eschool_saas_staff/ui/widgets/skeleton/skeleton_widgets.dart';
-import 'package:eschool_saas_staff/ui/widgets/studentAttendanceContainer.dart';
-import 'package:eschool_saas_staff/utils/constants.dart';
-import 'package:eschool_saas_staff/utils/labelKeys.dart';
-import 'package:eschool_saas_staff/utils/utils.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_mixin.dart';
-import 'package:eschool_saas_staff/utils/optimized_file_compression_utils.dart';
+import 'package:eschool_saas_staff/ui/widgets/student/studentAttendanceContainer.dart';
+import 'package:eschool_saas_staff/utils/system/constants.dart';
+import 'package:eschool_saas_staff/utils/system/labelKeys.dart';
+import 'package:eschool_saas_staff/utils/system/utils.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_mixin.dart';
+import 'package:eschool_saas_staff/utils/system/optimized_file_compression_utils.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +27,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:eschool_saas_staff/utils/system/snackBarUtils.dart';
 
 class TeacherAddAttendanceSubjectScreen extends StatefulWidget {
   static Widget getRouteInstance() {
@@ -1999,109 +2000,3 @@ class _TeacherAddAttendanceScreenSubjectState
   }
 }
 
-class SnackBarUtils {
-  static void showSnackBar({
-    required BuildContext context,
-    required String message,
-    Color backgroundColor = Colors.black87, // Default color
-    Color textColor = Colors.white, // Default text color
-  }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: TextStyle(color: textColor),
-        ),
-        backgroundColor: backgroundColor,
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-}
-
-class CustomSuccessMessage {
-  static void show({
-    required BuildContext context,
-    required String message,
-    Duration duration = const Duration(seconds: 2),
-    Color backgroundColor = Colors.green,
-    Color textColor = Colors.white,
-    VoidCallback? onDismiss,
-  }) {
-    // Add haptic feedback for better UX
-    HapticFeedback.mediumImpact();
-
-    // Create overlay entry
-    OverlayState? overlayState = Overlay.of(context);
-    OverlayEntry overlayEntry;
-
-    overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        bottom: 30,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 300),
-            builder: (context, value, child) {
-              return Opacity(
-                opacity: value,
-                child: Transform.translate(
-                  offset: Offset(0, 20 * (1 - value)),
-                  child: child,
-                ),
-              );
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle, color: textColor, size: 24),
-                  const SizedBox(width: 12),
-                  Flexible(
-                    child: Text(
-                      message,
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-
-    // Add to overlay
-    overlayState.insert(overlayEntry);
-
-    // Remove after duration
-    Future.delayed(duration, () {
-      if (overlayEntry.mounted) {
-        overlayEntry.remove();
-        if (onDismiss != null) {
-          onDismiss();
-        }
-      }
-    });
-  }
-}

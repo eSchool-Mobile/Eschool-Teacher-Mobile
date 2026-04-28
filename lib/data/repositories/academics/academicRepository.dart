@@ -1,10 +1,10 @@
-import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
+﻿import 'package:eschool_saas_staff/data/models/academic/classSection.dart';
 import 'package:eschool_saas_staff/data/models/academic/classTimetableSlot.dart';
 import 'package:eschool_saas_staff/data/models/academic/medium.dart';
 import 'package:eschool_saas_staff/data/models/auth/role.dart';
 import 'package:eschool_saas_staff/data/models/academic/sessionYear.dart';
-import 'package:eschool_saas_staff/data/models/staffTeacher/teacherSubject.dart';
-import 'package:eschool_saas_staff/utils/api.dart';
+import 'package:eschool_saas_staff/data/models/academic/teacherSubject.dart';
+import 'package:eschool_saas_staff/utils/system/api.dart';
 import 'package:flutter/foundation.dart';
 
 class AcademicRepository {
@@ -157,3 +157,4 @@ class AcademicRepository {
     }
   }
 }
+

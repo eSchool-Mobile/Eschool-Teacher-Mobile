@@ -1,7 +1,7 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
-import 'package:eschool_saas_staff/ui/widgets/customErrorWidget.dart';
-import 'package:eschool_saas_staff/ui/widgets/customModernAppBar.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customErrorWidget.dart';
+import 'package:eschool_saas_staff/ui/widgets/system/customModernAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:animate_do/animate_do.dart';
@@ -10,7 +10,7 @@ import 'package:html/parser.dart' show parse;
 import 'package:eschool_saas_staff/cubits/questionOnlineExam/questionOnlineExamCubit.dart';
 import 'package:eschool_saas_staff/data/models/exam/questionOnlineExam.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:eschool_saas_staff/utils/errorMessageUtils.dart';
+import 'package:eschool_saas_staff/utils/system/errorMessageUtils.dart';
 
 class OnlineExamResultQuestionsScreen extends StatefulWidget {
   final int examId;
